@@ -101,4 +101,100 @@ export function processInput(session: SessionState, userInput: string): RoutingR
     const phrase = getPhrase('GATE0_CRISIS_DANGER', false);
     const sel = parseUserInput(userInput, phrase?.options);
     if (!sel) return respond('GATE0_CRISIS_DANGER', session, 'GATE0_CRISIS_DANGER', false);
-    if (sel === 1) return safeguardingExit('IMMEDIATE_PHYSICAL_DANGE
+    if (sel === 1) return safeguardingExit('IMMEDIATE_PHYSICAL_DANGER_EXIT', 'IMMEDIATE_DANGER', session);
+    if (sel === 2) return safeguardingExit('DV_FEMALE_CHILDREN_NO', 'DV', session);
+    if (sel === 3) return safeguardingExit('SA_EXIT', 'SA', session);
+    if (sel === 4) return safeguardingExit('SELF_HARM_EXIT', 'SELF_HARM', session);
+    if (sel === 5) return safeguardingExit('UNDER_16_EXIT', 'UNDER_16', session);
+    if (sel === 6) return safeguardingExit('FIRE_FLOOD_EXIT', 'FIRE_FLOOD', session);
+    return respond('GATE1_INTENT', session, 'GATE1_INTENT', false);
+  }
+  
+  if (gate === 'GATE1_INTENT') {
+    const phrase = getPhrase('GATE1_INTENT', false);
+    const sel = parseUserInput(userInput, phrase?.options);
+    if (!sel) return respond('GATE1_INTENT', session, 'GATE1_INTENT', false);
+    return respond('GATE2_ROUTE_SELECTION', session, 'GATE2_ROUTE_SELECTION', false);
+  }
+  
+  if (gate === 'GATE2_ROUTE_SELECTION') {
+    const phrase = getPhrase('GATE2_ROUTE_SELECTION', false);
+    const sel = parseUserInput(userInput, phrase?.options);
+    if (!sel) return respond('GATE2_ROUTE_SELECTION', session, 'GATE2_ROUTE_SELECTION', false);
+    return respond('B1_LOCAL_AUTHORITY', session, 'B1_LOCAL_AUTHORITY', false, { routeType: sel === 1 ? 'FULL' : 'QUICK' });
+  }
+  
+  if (gate === 'B1_LOCAL_AUTHORITY') {
+    const phrase = getPhrase('B1_LOCAL_AUTHORITY', false);
+    const sel = parseUserInput(userInput, phrase?.options);
+    if (!sel) return respond('B1_LOCAL_AUTHORITY', session, 'B1_LOCAL_AUTHORITY', false);
+    const las = ['Wolverhampton', 'Coventry', 'Birmingham', 'Walsall', 'Solihull', 'Dudley', 'Sandwell', 'Other'];
+    if (sel === 8) return respond('WMCA_ONLY_SCOPE_NOTICE', session, 'B1_LOCAL_AUTHORITY', false);
+    return respond('B2_WHO_FOR', session, 'B2_WHO_FOR', false, { localAuthority: las[sel-1] });
+  }
+  
+  if (gate === 'B2_WHO_FOR') {
+    const phrase = getPhrase('B2_WHO_FOR', false);
+    const sel = parseUserInput(userInput, phrase?.options);
+    if (!sel) return respond('B2_WHO_FOR', session, 'B2_WHO_FOR', false);
+    const isSupporter = sel === 2 || sel === 3;
+    return respond('B3_AGE_CATEGORY', { ...session, isSupporter }, 'B3_AGE_CATEGORY', false, { userType: isSupporter ? 'SUPPORTER' : 'SELF', isSupporter });
+  }
+  
+  if (gate === 'B3_AGE_CATEGORY') {
+    const phrase = getPhrase('B3_AGE_CATEGORY', session.isSupporter);
+    const sel = parseUserInput(userInput, phrase?.options);
+    if (!sel) return respond('B3_AGE_CATEGORY', session, 'B3_AGE_CATEGORY', false);
+    if (sel === 1) return safeguardingExit('UNDER_16_EXIT', 'UNDER_16', session);
+    const ages = ['Under 16', '16-17', '18-24', '25 or over'];
+    return respond('B5_MAIN_SUPPORT_NEED', session, 'B5_MAIN_SUPPORT_NEED', false, { ageCategory: ages[sel-1] });
+  }
+  
+  if (gate === 'B5_MAIN_SUPPORT_NEED') {
+    const phrase = getPhrase('B5_MAIN_SUPPORT_NEED', session.isSupporter);
+    const sel = parseUserInput(userInput, phrase?.options);
+    if (!sel) return respond('B5_MAIN_SUPPORT_NEED', session, 'B5_MAIN_SUPPORT_NEED', false);
+    const needs = ['Emergency Housing', 'Food', 'Work', 'Health', 'Advice', 'Drop In', 'Financial', 'Items', 'Services', 'Comms', 'Training', 'Activities'];
+    return respond('B6_HOMELESSNESS_STATUS', session, 'B6_HOMELESSNESS_STATUS', false, { supportNeed: needs[sel-1] });
+  }
+  
+  if (gate === 'B6_HOMELESSNESS_STATUS') {
+    const phrase = getPhrase('B6_HOMELESSNESS_STATUS', session.isSupporter);
+    const sel = parseUserInput(userInput, phrase?.options);
+    if (!sel) return respond('B6_HOMELESSNESS_STATUS', session, 'B6_HOMELESSNESS_STATUS', false);
+    if (sel === 1) return respond('B7_HOMELESS_SLEEPING_SITUATION', session, 'B7_HOMELESS_SLEEPING_SITUATION', false, { homeless: true });
+    return respond('B7_HOUSED_SITUATION', session, 'B7_HOUSED_SITUATION', false, { homeless: false });
+  }
+  
+  if (gate === 'B7_HOUSED_SITUATION') {
+    const phrase = getPhrase('B7_HOUSED_SITUATION', session.isSupporter);
+    const sel = parseUserInput(userInput, phrase?.options);
+    if (!sel) return respond('B7_HOUSED_SITUATION', session, 'B7_HOUSED_SITUATION', false);
+    if (sel >= 2) return respond('B7_HOMELESS_SLEEPING_SITUATION', session, 'B7_HOMELESS_SLEEPING_SITUATION', false, { homeless: true });
+    return respond('B7A_PREVENTION_GATE', session, 'B7A_PREVENTION_GATE', false);
+  }
+  
+  if (gate === 'B7_HOMELESS_SLEEPING_SITUATION') {
+    const phrase = getPhrase('B7_HOMELESS_SLEEPING_SITUATION', session.isSupporter);
+    const sel = parseUserInput(userInput, phrase?.options);
+    if (!sel) return respond('B7_HOMELESS_SLEEPING_SITUATION', session, 'B7_HOMELESS_SLEEPING_SITUATION', false);
+    const sits = ['Rough sleeping', 'Sofa surfing', 'Hostel', 'B&B', 'Other'];
+    return terminal(session, { sleepingSituation: sits[sel-1] });
+  }
+  
+  if (gate === 'B7A_PREVENTION_GATE') {
+    const phrase = getPhrase('B7A_PREVENTION_GATE', session.isSupporter);
+    const sel = parseUserInput(userInput, phrase?.options);
+    if (!sel) return respond('B7A_PREVENTION_GATE', session, 'B7A_PREVENTION_GATE', false);
+    if (sel === 3) return respond('B6_HOMELESSNESS_STATUS', session, 'B6_HOMELESSNESS_STATUS', false);
+    return terminal(session, { preventionNeed: sel === 1 ? 'YES' : 'NO' });
+  }
+  
+  if (gate === 'TERMINAL_ADDITIONAL_NEEDS') {
+    const sel = parseUserInput(userInput, ['Yes', 'No']);
+    if (sel === 1) return respond('B5_MAIN_SUPPORT_NEED', session, 'B5_MAIN_SUPPORT_NEED', false);
+    return respond('TERMINAL_GOODBYE', session, 'SESSION_END', true);
+  }
+  
+  return respond('OUT_OF_SCOPE_GENERAL', session, 'SESSION_END', true);
+}
