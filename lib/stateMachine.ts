@@ -15,7 +15,7 @@ import {
   getStreetLinkInfo,
   DefaultOrg,
   UserProfile
-} from './serviceMatcher-v7.1';
+} from './serviceMatcher';
 
 // ============================================================
 // TYPES
