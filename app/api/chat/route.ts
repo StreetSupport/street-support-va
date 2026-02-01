@@ -7,22 +7,47 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(request: NextRequest) {
   try {
-    const { sessionState, message } = await request.json();
+    const body = await request.json();
+    const message = body.message || '';
     
     let session: SessionState;
-    if (sessionState && sessionState.sessionId) {
-      session = sessionState as SessionState;
+    
+    if (body.state && body.state.currentGate) {
+      session = {
+        sessionId: body.state.sessionId || crypto.randomUUID(),
+        currentGate: body.state.currentGate,
+        routeType: body.state.routeType || null,
+        localAuthority: body.state.localAuthority || null,
+        jurisdiction: body.state.jurisdiction || 'ENGLAND',
+        userType: body.state.userType || null,
+        ageCategory: body.state.ageCategory || null,
+        gender: body.state.gender || null,
+        supportNeed: body.state.supportNeed || null,
+        homeless: body.state.homeless ?? null,
+        sleepingSituation: body.state.sleepingSituation || null,
+        housedSituation: body.state.housedSituation || null,
+        preventionNeed: body.state.preventionNeed || null,
+        hasChildren: body.state.hasChildren ?? null,
+        isSupporter: body.state.isSupporter || false,
+        unclearCount: body.state.unclearCount || 0,
+        safeguardingTriggered: body.state.safeguardingTriggered || false,
+        safeguardingType: body.state.safeguardingType || null,
+        timestampStart: body.state.timestampStart || new Date().toISOString(),
+      };
     } else {
       session = createSession(crypto.randomUUID());
     }
     
+    console.log('GATE:', session.currentGate, 'INPUT:', message);
+    
     if (session.currentGate === 'INIT') {
       const result = getFirstMessage(session);
-      session = { ...session, ...result.stateUpdates };
+      const newState = { ...session, ...result.stateUpdates };
+      console.log('NEW GATE:', newState.currentGate);
       return NextResponse.json({
-        sessionState: session,
+        state: newState,
         message: result.text,
-        quickReplies: result.options?.map((opt, i) => ({ label: opt.substring(0, 40), value: String(i + 1) })),
+        options: result.options,
         sessionEnded: false
       });
     }
@@ -36,40 +61,29 @@ export async function POST(request: NextRequest) {
     
     if (parsed === null) {
       session.unclearCount++;
-      if (session.unclearCount >= 3) {
-        const esc = getPhrase('ESCALATION_LEVEL_2_INTERVENTION', false);
-        return NextResponse.json({
-          sessionState: session,
-          message: esc?.text,
-          quickReplies: [{ label: 'Continue', value: '1' }, { label: 'Show services', value: '2' }, { label: 'Call Shelter', value: '3' }],
-          sessionEnded: false
-        });
-      }
       return NextResponse.json({
-        sessionState: session,
-        message: "I didn't quite catch that. Please reply with a number.\n\n" + (currentPhrase?.text || ''),
-        quickReplies: currentPhrase?.options?.map((opt, i) => ({ label: opt.substring(0, 40), value: String(i + 1) })),
+        state: session,
+        message: "Please reply with a number from the options.\n\n" + (currentPhrase?.text || ''),
+        options: currentPhrase?.options,
         sessionEnded: false
       });
     }
     
     const result = processInput(session, String(parsed));
-    session = { ...session, ...result.stateUpdates };
+    const newState = { ...session, ...result.stateUpdates };
     
-    if (result.sessionEnded) {
-      console.log('SESSION END:', JSON.stringify({ id: session.sessionId, la: session.localAuthority, need: session.supportNeed, safeguarding: session.safeguardingType }));
-    }
+    console.log('PROCESSED:', session.currentGate, '->', newState.currentGate);
     
     return NextResponse.json({
-      sessionState: session,
+      state: newState,
       message: result.text,
-      quickReplies: result.options?.map((opt, i) => ({ label: opt.substring(0, 40), value: String(i + 1) })),
+      options: result.options,
       sessionEnded: result.sessionEnded
     });
     
   } catch (error) {
     console.error('Error:', error);
-    return NextResponse.json({ message: 'Something went wrong. Call Shelter: 0808 800 4444', sessionEnded: true }, { status: 500 });
+    return NextResponse.json({ message: 'Error. Call Shelter: 0808 800 4444', sessionEnded: true }, { status: 500 });
   }
 }
 
@@ -79,11 +93,10 @@ async function interpretWithClaude(input: string, options: string[]): Promise<nu
     const res = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 10,
-      system: 'Reply with ONLY the number (1, 2, 3...) or "unclear".',
-      messages: [{ role: 'user', content: `User: "${input}"\n\nOptions:\n${list}\n\nNumber?` }]
+      system: 'Reply ONLY with the number or "unclear".',
+      messages: [{ role: 'user', content: `"${input}"\n\n${list}\n\nNumber?` }]
     });
     const txt = res.content[0].type === 'text' ? res.content[0].text.trim() : '';
-    if (txt === 'unclear') return null;
     const n = parseInt(txt, 10);
     return (!isNaN(n) && n >= 1 && n <= options.length) ? n : null;
   } catch { return null; }
