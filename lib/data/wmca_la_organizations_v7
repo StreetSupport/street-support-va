@@ -1,1 +1,5604 @@
-
+{
+  "metadata": {
+    "version": "7.0",
+    "generated_at": "2026-01-31T12:17:24.322828",
+    "total_organizations": 263,
+    "multi_area_organizations": 55,
+    "areas_covered": [
+      "birmingham",
+      "coventry",
+      "dudley",
+      "sandwell",
+      "solihull",
+      "walsall",
+      "wolverhampton"
+    ]
+  },
+  "organizations": [
+    {
+      "organization_id": "ablewell-advice",
+      "name": "Ablewell Advice",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "walsall"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "access-to-business",
+      "name": "Access to Business",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "adavuproject",
+      "name": "Adavu",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "afghan-cw",
+      "name": "Afghan Community and Welfare Centre - Walsall",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "walsall"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "african-caribbean-community-initiative-acci",
+      "name": "African Caribbean Community Initiative (ACCI)",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": "health.org",
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [
+          "health.org"
+        ],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "ageukcw",
+      "name": "Age UK - Coventry and Warwickshire",
+      "verified": true,
+      "contact": {
+        "email": "grc@ageukcovwarks.org.uk",
+        "phone": "02476231999",
+        "website": "ageuk.org",
+        "all_emails": [
+          "grc@ageukcovwarks.org.uk",
+          "info@ageukcovwarks.org.uk"
+        ],
+        "all_phones": [
+          "02476231999",
+          "02476672911"
+        ],
+        "all_websites": [
+          "ageuk.org",
+          "ageukcovwarks.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "al-anon-family-groups",
+      "name": "Al-Anon family groups",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": "08000086811",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "08000086811"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "birmingham",
+        "dudley",
+        "sandwell",
+        "solihull",
+        "walsall",
+        "wolverhampton"
+      ],
+      "num_areas": 6
+    },
+    {
+      "organization_id": "al-madinah-mosque-and-institute",
+      "name": "Al-Madinah Institute",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "alcoholic39s-anonymous",
+      "name": "Alcoholics Anonymous UK",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": "alcoholics-anonymous.org",
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [
+          "alcoholics-anonymous.org"
+        ],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "birmingham",
+        "wolverhampton"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "anawim",
+      "name": "Anawim",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "08000198818",
+        "website": "anawim.co.uk",
+        "all_emails": [],
+        "all_phones": [
+          "08000198818"
+        ],
+        "all_websites": [
+          "anawim.co.uk"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "aquarius",
+      "name": "Aquarius",
+      "verified": true,
+      "contact": {
+        "email": "gambling@aquarius.org.uk",
+        "phone": "03001233360",
+        "website": "aquarius.org",
+        "all_emails": [
+          "gambling@aquarius.org.uk",
+          "youngpeople@aquarius.org.uk"
+        ],
+        "all_phones": [
+          "03001233360",
+          "03004564293",
+          "08088020133"
+        ],
+        "all_websites": [
+          "aquarius.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham",
+        "wolverhampton"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "as-suffainstitute",
+      "name": "As-Suffa Institute",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "ashmore-park-community-hub-and-library",
+      "name": "The Hub at Ashmore Park",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": "01902290241",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "01902290241"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "ashmoreparkfoodbank",
+      "name": "Ashmore Park Foodbank",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "ask-marc",
+      "name": "Ask Marc",
+      "verified": true,
+      "contact": {
+        "email": "info@askmarc.org.uk",
+        "phone": "01212896402",
+        "website": "askmarc.org",
+        "all_emails": [
+          "info@askmarc.org.uk"
+        ],
+        "all_phones": [
+          "01212896402"
+        ],
+        "all_websites": [
+          "askmarc.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "sandwell"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "aspiring-futures",
+      "name": "Aspiring Futures CIC",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "01902458770",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "01902458770"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "astonnechellsfoodbank",
+      "name": "Aston and Nechells Trussell Foodbank",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "authenticcentrecoventry",
+      "name": "Authentic Centre Coventry - ACC",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "baby-godiva",
+      "name": "Baby Godiva",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "babybasics-wolverhampton",
+      "name": "Baby Basics Wolverhampton",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "baobabwomensproject",
+      "name": "Baobab Women's Project",
+      "verified": true,
+      "contact": {
+        "email": "advocate@baobabwomen.co.uk",
+        "phone": "07847271022",
+        "website": "baobabwomen.co.uk",
+        "all_emails": [
+          "advocate@baobabwomen.co.uk"
+        ],
+        "all_phones": [
+          "07847271022"
+        ],
+        "all_websites": [
+          "baobabwomen.co.uk"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "bardsley-youth-project",
+      "name": "Bardsley Youth Project",
+      "verified": true,
+      "contact": {
+        "email": "kim@bardsleyyouth.org",
+        "phone": "07943688760",
+        "website": "bardsleyyouth.org",
+        "all_emails": [
+          "kim@bardsleyyouth.org"
+        ],
+        "all_phones": [
+          "07943688760"
+        ],
+        "all_websites": [
+          "bardsleyyouth.org",
+          "bardsleyyouth.org/dropinatbardsley"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "base-25",
+      "name": "Base 25",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "bchg",
+      "name": "Black Country Housing Group Accommodation",
+      "verified": false,
+      "contact": {
+        "email": "cro@bchg.co.uk",
+        "phone": "01215617934",
+        "website": null,
+        "all_emails": [
+          "cro@bchg.co.uk"
+        ],
+        "all_phones": [
+          "01215617934"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "dudley",
+        "sandwell"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "bigissuemidlands",
+      "name": "Big Issue Birmingham and West Midlands",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "01212361936",
+        "website": "bigissue.com/become-a-vendor/",
+        "all_emails": [],
+        "all_phones": [
+          "01212361936"
+        ],
+        "all_websites": [
+          "bigissue.com/become-a-vendor/"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "bigventurecentre",
+      "name": "The Big Venture Centre Ltd",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "bilston-resource-centre",
+      "name": "Bilston Resource Centre",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "birmingham-and-solihull-women39s-aid",
+      "name": "Birmingham and Solihull Womens Aid",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "08088000028",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "08088000028"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "birmingham",
+        "solihull"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "birmingham-central-foodbank",
+      "name": "Birmingham Central Foodbank",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "08082082138",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "08082082138"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "birmingham-christmas-shelter",
+      "name": "Birmingham Christmas Shelter",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "birmingham-city-mission",
+      "name": "Birmingham City Mission",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "birmingham-lgbt",
+      "name": "Birmingham LGBT",
+      "verified": true,
+      "contact": {
+        "email": "counselling@blgbt.org",
+        "phone": "01216430301",
+        "website": "blgbt.org",
+        "all_emails": [
+          "counselling@blgbt.org",
+          "hello@blgbt.org",
+          "idva@blgbt.org",
+          "isva@rsvporg.co.uk",
+          "substancesupport@blgbt.org",
+          "wellbeing@blgbt.org"
+        ],
+        "all_phones": [
+          "01216430301",
+          "01216430821",
+          "07549296713"
+        ],
+        "all_websites": [
+          "blgbt.org",
+          "rsvporg.co.uk"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "birminghamcaregroup",
+      "name": "Birmingham Care Group",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "birminghamchildrenstrust",
+      "name": "Birmingham Children's Trust",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "birminghamcommunityfridge",
+      "name": "Birmingham Community Fridge",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "birminghamcrisiscentre",
+      "name": "Birmingham Crisis Centre",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "01215070707",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "01215070707"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "birminghamhousingoptions",
+      "name": "Birmingham City Council Housing Solutions",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": "01213032296",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "01213032296",
+          "01216755779"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "birminghammind",
+      "name": "Birmingham Mind",
+      "verified": true,
+      "contact": {
+        "email": "cdw@birminghammind.org",
+        "phone": "01212623555",
+        "website": "birminghammind.org",
+        "all_emails": [
+          "cdw@birminghammind.org",
+          "fatemahickson@birminghammind.org",
+          "ibraruddin@birminghammind.org",
+          "owenharris@birminghammind.org",
+          "stephenlewis@birminghammind.org",
+          "uroykelly@birminghammind.org",
+          "vas_referrals@birminghammind.org",
+          "williamhouseago@birminghammind.org",
+          "zahidakhan@birminghammind.org"
+        ],
+        "all_phones": [
+          "01212623555",
+          "07734961483",
+          "07801130526",
+          "07801130655",
+          "07801130656",
+          "07801130657",
+          "07801130658",
+          "07801130660",
+          "08009159292"
+        ],
+        "all_websites": [
+          "birminghammind.org",
+          "birminghammind.org/training/mhfa/"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "birminghamsamaritans",
+      "name": "Samaritans - Birmingham",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "birminghamsettlement",
+      "name": "Birmingham Settlement",
+      "verified": false,
+      "contact": {
+        "email": "money.advice@bsettlement.org.uk",
+        "phone": "01212500765",
+        "website": "bsettlement.org",
+        "all_emails": [
+          "money.advice@bsettlement.org.uk",
+          "training@bsettlement.org.uk"
+        ],
+        "all_phones": [
+          "01212500765",
+          "01212500773",
+          "01212500777"
+        ],
+        "all_websites": [
+          "bsettlement.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "black-country-women39s-aid",
+      "name": "Black Country Womens Aid",
+      "verified": true,
+      "contact": {
+        "email": "idva@blackcountrywomensaid.co.uk",
+        "phone": "01215530090",
+        "website": "blackcountrywomensaid.co.uk",
+        "all_emails": [
+          "idva@blackcountrywomensaid.co.uk",
+          "willowproject@blackcountrywomensaid.co.uk"
+        ],
+        "all_phones": [
+          "01215530090",
+          "08000121700"
+        ],
+        "all_websites": [
+          "blackcountrywomensaid.co.uk"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "dudley",
+        "sandwell",
+        "walsall",
+        "wolverhampton"
+      ],
+      "num_areas": 4
+    },
+    {
+      "organization_id": "black-country-ymca---carters-green",
+      "name": "St George\u2019s",
+      "verified": false,
+      "contact": {
+        "email": "estery.ngozo-chapata@ymca-wolverhampton.co.uk",
+        "phone": "01215241950",
+        "website": null,
+        "all_emails": [
+          "estery.ngozo-chapata@ymca-wolverhampton.co.uk",
+          "jonathan.bennett@ymcabc.org.uk"
+        ],
+        "all_phones": [
+          "01215241950",
+          "01902371583"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "sandwell",
+        "walsall"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "bloxwich-and-blakenall-trussell-trust-foodbank",
+      "name": "Bloxwich and Blakenall Foodbank",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": "08082082138",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "08082082138"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "walsall"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "bluuprint",
+      "name": "Lucy's Food Pantry",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "walsall"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "brierleyhillbabybank",
+      "name": "Brierley Hill Babybank",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "dudley"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "brierleyhillproject",
+      "name": "Brierley Hill Project",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "dudley"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "brushstrokes-community-project",
+      "name": "Brushstrokes Community Project",
+      "verified": false,
+      "contact": {
+        "email": "elmugiera@brushstrokessandwell.org.uk",
+        "phone": null,
+        "website": "brushstrokessandwell.org",
+        "all_emails": [
+          "elmugiera@brushstrokessandwell.org.uk"
+        ],
+        "all_phones": [],
+        "all_websites": [
+          "brushstrokessandwell.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham",
+        "sandwell"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "c22wvrt",
+      "name": "Wolverhampton Violence Reduction Service [Catch22]",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "carriers-of-hope-coventry-cio",
+      "name": "Carriers of Hope Coventry CIO",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "central-england-law-centre",
+      "name": "Central England Law Centre",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "cgl-the-beacon",
+      "name": "Change Grow Live [CGL] - The Beacon",
+      "verified": true,
+      "contact": {
+        "email": "thebeaconyp@cgl.org.uk",
+        "phone": "01922669840",
+        "website": "cgl.org",
+        "all_emails": [
+          "thebeaconyp@cgl.org.uk"
+        ],
+        "all_phones": [
+          "01922669840",
+          "07827872091"
+        ],
+        "all_websites": [
+          "cgl.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "walsall"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "chadd---dudley",
+      "name": "Churches Housing Association of Dudley District [ CHADD ]",
+      "verified": true,
+      "contact": {
+        "email": "dat@chadd.org.uk",
+        "phone": "01384455464",
+        "website": "chadd.org",
+        "all_emails": [
+          "dat@chadd.org.uk",
+          "foyer.admin@chadd.org.uk"
+        ],
+        "all_phones": [
+          "01384455464",
+          "01384456465",
+          "01384864232",
+          "01384864334"
+        ],
+        "all_websites": [
+          "chadd.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "dudley",
+        "sandwell"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "championschurchdy2",
+      "name": "Champions Kitchen @ Champions Church",
+      "verified": false,
+      "contact": {
+        "email": "championskitchen@championschurch.org.uk",
+        "phone": null,
+        "website": "championschurch.org",
+        "all_emails": [
+          "championskitchen@championschurch.org.uk"
+        ],
+        "all_phones": [],
+        "all_websites": [
+          "championschurch.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "dudley"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "change-grow-live---coventry",
+      "name": "Change Grow Live [CGL] - Coventry",
+      "verified": false,
+      "contact": {
+        "email": "coventry.roughsleeperoutreach@cgl.org.uk",
+        "phone": null,
+        "website": "cgl.org",
+        "all_emails": [
+          "coventry.roughsleeperoutreach@cgl.org.uk"
+        ],
+        "all_phones": [],
+        "all_websites": [
+          "cgl.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "change-grow-live-birmingham",
+      "name": "Change Grow Live [CGL] Birmingham",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "01212275890",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "01212275890"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "change-into-action-coventry",
+      "name": "Change into Action Coventry",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "change-into-action-wolverhampton",
+      "name": "Alternative Giving Campaign - Wolverhampton",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "changing-lives",
+      "name": "Changing Lives - IRIS Project Sexual exploitation, sex work and sexual violence support",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "walsall",
+        "wolverhampton"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "cheylesmore-food-hub",
+      "name": "Cheylesmore Food Hub",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": "cheylesmorecentre.co.uk/ccc_services/food-hub/)",
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [
+          "cheylesmorecentre.co.uk/ccc_services/food-hub/)"
+        ],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "chinese-community-centre-birmingham",
+      "name": "Chinese Community Centre - Birmingham",
+      "verified": false,
+      "contact": {
+        "email": "service@ccc-b.org.uk",
+        "phone": "004475361713",
+        "website": "ccc-b.org",
+        "all_emails": [
+          "service@ccc-b.org.uk"
+        ],
+        "all_phones": [
+          "004475361713",
+          "07536171393"
+        ],
+        "all_websites": [
+          "ccc-b.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "choir-with-no-name---birmingham",
+      "name": "Choir With No Name - Birmingham",
+      "verified": true,
+      "contact": {
+        "email": "sally@choirwithnoname.org",
+        "phone": "07794100938",
+        "website": "choirwithnoname.org",
+        "all_emails": [
+          "sally@choirwithnoname.org"
+        ],
+        "all_phones": [
+          "07794100938"
+        ],
+        "all_websites": [
+          "choirwithnoname.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "christians-against-poverty-capuk",
+      "name": "Christians Against Poverty (CAPUK)",
+      "verified": true,
+      "contact": {
+        "email": "ianburton@capuk.org",
+        "phone": "08003280006",
+        "website": "capuk.org",
+        "all_emails": [
+          "ianburton@capuk.org",
+          "nickysammons@capuk.org"
+        ],
+        "all_phones": [
+          "08003280006"
+        ],
+        "all_websites": [
+          "capuk.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham",
+        "coventry"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "citizenhousing",
+      "name": "Citizen Housing",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "citizens-advice-coventry",
+      "name": "Coventry Citizens Advice",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "08001448848",
+        "website": "advicebuddy.org",
+        "all_emails": [],
+        "all_phones": [
+          "08001448848"
+        ],
+        "all_websites": [
+          "advicebuddy.org",
+          "citizensadvice.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "citizens-advice-dudley-amp-wolverhampton",
+      "name": "Citizens Advice Dudley and Wolverhampton",
+      "verified": true,
+      "contact": {
+        "email": "referral.support@dudleycabx.org",
+        "phone": "01902932170",
+        "website": "dudleycabx.org",
+        "all_emails": [
+          "referral.support@dudleycabx.org"
+        ],
+        "all_phones": [
+          "01902932170",
+          "07799070595"
+        ],
+        "all_websites": [
+          "dudleycabx.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "dudley",
+        "wolverhampton"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "citizens-advice-sandwell-walsall",
+      "name": "Citizens Advice - Sandwell and Walsall",
+      "verified": true,
+      "contact": {
+        "email": "cradleytiption@citizensadvicesandwell-walsall.org",
+        "phone": "03003309017",
+        "website": "citizensadvicesandwell-walsall.org",
+        "all_emails": [
+          "cradleytiption@citizensadvicesandwell-walsall.org",
+          "cradleytipton@citizensadvicesandwell-walsall.org",
+          "office@citizensadvicesandwell-walsall.org",
+          "oldburywednesbury@citizensadvicesandwell-walsall.org",
+          "smethwick@citizensadvicesandwell-walsall.org"
+        ],
+        "all_phones": [
+          "03003309017"
+        ],
+        "all_websites": [
+          "citizensadvicesandwell-walsall.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "dudley",
+        "sandwell",
+        "walsall",
+        "wolverhampton"
+      ],
+      "num_areas": 4
+    },
+    {
+      "organization_id": "citizensadvicebirmingham",
+      "name": "Citizens Advice Birmingham",
+      "verified": false,
+      "contact": {
+        "email": "debthelp@bcabs.cabnet.org.uk",
+        "phone": "03003302130",
+        "website": "cabnet.org",
+        "all_emails": [
+          "debthelp@bcabs.cabnet.org.uk"
+        ],
+        "all_phones": [
+          "03003302130",
+          "08000241220",
+          "08001448444",
+          "08082787990",
+          "08088004444"
+        ],
+        "all_websites": [
+          "cabnet.org",
+          "citizensadvice.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "claire-bear-caring-foodbank",
+      "name": "Momma Claire Bear Foodbank",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "sandwell",
+        "wolverhampton"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "cliftonroadfoodbank",
+      "name": "Clifton Road Food Bank",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "clothingcoventry",
+      "name": "Clothing Coventry",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": "clothingcoventry.org/referrals",
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [
+          "clothingcoventry.org/referrals"
+        ],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "cloudsend",
+      "name": "Clouds End CIC",
+      "verified": true,
+      "contact": {
+        "email": "adulthoarding@birmignham.gov.uk",
+        "phone": null,
+        "website": "birmignham.gov.uk",
+        "all_emails": [
+          "adulthoarding@birmignham.gov.uk",
+          "help@cloudsend.org.uk",
+          "maz.williams@birmingham.gov.uk"
+        ],
+        "all_phones": [],
+        "all_websites": [
+          "birmignham.gov.uk",
+          "birmingham.gov.uk",
+          "cloudsend.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "solihull"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "communityessentials",
+      "name": "Community Essentials",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "solihull"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "coventry-and-warwickshire-mind",
+      "name": "Coventry, Warwickshire and Worcestershire Mind",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "coventry-asylum-and-refugee-action-group",
+      "name": "Coventry Asylum and Refugee Action Group [ CARAG ]",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "coventry-city-council-homeless-prevention-service",
+      "name": "Coventry City Council - Homelessness Prevention Service",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": "01212691940",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "01212691940",
+          "02476832222",
+          "02476834025"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "coventry-cyrenians",
+      "name": "Coventry Cyrenians",
+      "verified": true,
+      "contact": {
+        "email": "referrals@coventrycyrenians.org",
+        "phone": "08001114371",
+        "website": null,
+        "all_emails": [
+          "referrals@coventrycyrenians.org"
+        ],
+        "all_phones": [
+          "08001114371"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "coventry-haven-women39s-aid",
+      "name": "Coventry Haven Womens Aid",
+      "verified": true,
+      "contact": {
+        "email": "info@coventryhaven.co.uk",
+        "phone": "02476444077",
+        "website": "coventryhaven.co.uk",
+        "all_emails": [
+          "info@coventryhaven.co.uk"
+        ],
+        "all_phones": [
+          "02476444077",
+          "08001114998"
+        ],
+        "all_websites": [
+          "coventryhaven.co.uk"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "coventry-independent-advice-service",
+      "name": "Coventry Independent Advice Service",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "coventry-rape-and-sexual-abuse-centre",
+      "name": "Coventry Rape and Sexual Abuse Centre [ CRASAC ]",
+      "verified": true,
+      "contact": {
+        "email": "training@crasac.org.uk",
+        "phone": "02476277777",
+        "website": "crasac.org",
+        "all_emails": [
+          "training@crasac.org.uk"
+        ],
+        "all_phones": [
+          "02476277777"
+        ],
+        "all_websites": [
+          "crasac.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "coventry-trussell-trust-foodbank",
+      "name": "Coventry Foodbank",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "08082082138",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "08082082138"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "coventrysamaritans",
+      "name": "Samaritans - Coventry and District",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "cranstoun-sandwell",
+      "name": "Cranstoun: Sandwell",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "sandwell"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "cranstounhousingsupport-birmingham",
+      "name": "Cranstoun Housing Support [Birmingham]",
+      "verified": true,
+      "contact": {
+        "email": "bhmhousingsolutions@cranstoun.org.uk",
+        "phone": "01212728905",
+        "website": "cranstoun.org",
+        "all_emails": [
+          "bhmhousingsolutions@cranstoun.org.uk"
+        ],
+        "all_phones": [
+          "01212728905"
+        ],
+        "all_websites": [
+          "cranstoun.org",
+          "cranstoun.org/help-and-advice/domestic-abuse/birmingham-housing-solutions/"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "crisis-skylight-birmingham",
+      "name": "Crisis Skylight Birmingham",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "decca",
+      "name": "DECCA (Drug Education, Counselling and Confidential Advice)",
+      "verified": true,
+      "contact": {
+        "email": "decca_team@sandwellchildrenstrust.org",
+        "phone": "01215692201",
+        "website": "sandwellchildrenstrust.org",
+        "all_emails": [
+          "decca_team@sandwellchildrenstrust.org"
+        ],
+        "all_phones": [
+          "01215692201"
+        ],
+        "all_websites": [
+          "sandwellchildrenstrust.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "dudley",
+        "sandwell"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "dogs-trust",
+      "name": "Dogs Trust Hope Project",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham",
+        "coventry",
+        "wolverhampton"
+      ],
+      "num_areas": 3
+    },
+    {
+      "organization_id": "dorothyparkes",
+      "name": "Dorothy Parkes Community Centre",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "07538588986",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "07538588986"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "birmingham",
+        "sandwell"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "dudley-metropolitan-borough-council",
+      "name": "Dudley Metropolitan Borough Council",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "dudley",
+        "sandwell"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "dudley-youth-justice-service",
+      "name": "Dudley Youth Justice Service",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "dudley"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "elias-mattu-foundation",
+      "name": "Elias Mattu Foundation",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "embrace-birmingham",
+      "name": "Embrace Birmingham",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "embrace-coventry",
+      "name": "Embrace Coventry",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "embraceoutreach",
+      "name": "Embrace Outreach",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "emmaus-coventry-and-warwickshire",
+      "name": "Emmaus Coventry and Warwickshire",
+      "verified": true,
+      "contact": {
+        "email": "support.manager@emmaus.org.uk",
+        "phone": "02476651094",
+        "website": null,
+        "all_emails": [
+          "support.manager@emmaus.org.uk"
+        ],
+        "all_phones": [
+          "02476651094"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "every-family-counts",
+      "name": "Every Family Counts",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": "01902558124",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "01902558124"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "ewa",
+      "name": "EWA CIC [European\u2019s Welfare Association CIC]",
+      "verified": true,
+      "contact": {
+        "email": "info@ewacic.com",
+        "phone": "01217400824",
+        "website": "ewacic.com",
+        "all_emails": [
+          "info@ewacic.com"
+        ],
+        "all_phones": [
+          "01217400824"
+        ],
+        "all_websites": [
+          "ewacic.com"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "sandwell"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "excel-church",
+      "name": "Excel Church",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "07856573668",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "07856573668"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "familyhubnetwork-dudley",
+      "name": "Family Hub Network - Dudley",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "dudley",
+        "sandwell"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "fatherhudsons",
+      "name": "Tabor House",
+      "verified": false,
+      "contact": {
+        "email": "fatimahouse@fatherhudsons.org.uk",
+        "phone": "01216475106",
+        "website": null,
+        "all_emails": [
+          "fatimahouse@fatherhudsons.org.uk",
+          "sharonfear@fatherhudsons.org.uk"
+        ],
+        "all_phones": [
+          "01216475106",
+          "01217730504"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "foodcyclewm",
+      "name": "Foodcycle West Midlands",
+      "verified": true,
+      "contact": {
+        "email": "coventry@foodcycle.org.uk",
+        "phone": null,
+        "website": "foodcycle.org",
+        "all_emails": [
+          "coventry@foodcycle.org.uk",
+          "dudley@foodcycle.org.uk",
+          "wolverhampton@foodcycle.org.uk"
+        ],
+        "all_phones": [],
+        "all_websites": [
+          "foodcycle.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "coventry",
+        "dudley",
+        "wolverhampton"
+      ],
+      "num_areas": 3
+    },
+    {
+      "organization_id": "forward-thinking-birmingham",
+      "name": "Forward Thinking Birmingham",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "fwt-ndash-a-centre-for-women",
+      "name": "FWT - A Centre for Women",
+      "verified": false,
+      "contact": {
+        "email": "employment@fwt.org.uk",
+        "phone": "02476637693",
+        "website": "fwt.org",
+        "all_emails": [
+          "employment@fwt.org.uk"
+        ],
+        "all_phones": [
+          "02476637693",
+          "07950813581"
+        ],
+        "all_websites": [
+          "fwt.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "gilgalbham",
+      "name": "Gilgal Birmingham",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": "08000086622",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "08000086622"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "gloucester-street-community-centre",
+      "name": "Gloucester Street Community Centre",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "good-shepherd-wolverhampton",
+      "name": "Good Shepherd Wolverhampton",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "greencoat-nursery",
+      "name": "Greencoat Nursery [Supporting Families]",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "groundwork-west-midlands",
+      "name": "Groundwork West Midlands",
+      "verified": false,
+      "contact": {
+        "email": "hamza.javaid@groundwork.org.uk",
+        "phone": "07821975847",
+        "website": "groundwork.org",
+        "all_emails": [
+          "hamza.javaid@groundwork.org.uk",
+          "wmenquiries@groundwork.org.uk",
+          "wmgreendoctor@groundwork.org.uk"
+        ],
+        "all_phones": [
+          "07821975847"
+        ],
+        "all_websites": [
+          "groundwork.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "coventry",
+        "dudley",
+        "sandwell",
+        "walsall",
+        "wolverhampton"
+      ],
+      "num_areas": 5
+    },
+    {
+      "organization_id": "growbabybirminghamvineyard",
+      "name": "Growbaby [Birmingham Vineyard]",
+      "verified": true,
+      "contact": {
+        "email": "growbaby-east@birminghamvineyard.com",
+        "phone": "07480900500",
+        "website": "birminghamvineyard.com",
+        "all_emails": [
+          "growbaby-east@birminghamvineyard.com",
+          "growbaby@birminghamvineyard.com"
+        ],
+        "all_phones": [
+          "07480900500",
+          "07492233654"
+        ],
+        "all_websites": [
+          "birminghamvineyard.com"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham",
+        "solihull"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "handsworth-birmingham-foodbank",
+      "name": "Handsworth Birmingham Trussell Foodbank",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": "08082082138",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "08082082138"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "birmingham",
+        "sandwell"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "here4youthdudley",
+      "name": "Cranstoun: Here4YOUth - Dudley",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "dudley",
+        "sandwell"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "hhpa",
+      "name": "Homeless Health Peer Advocacy Service",
+      "verified": true,
+      "contact": {
+        "email": "healthpeeradvocacy@crisis.org.uk",
+        "phone": "01213487950",
+        "website": "crisis.org",
+        "all_emails": [
+          "healthpeeradvocacy@crisis.org.uk"
+        ],
+        "all_phones": [
+          "01213487950"
+        ],
+        "all_websites": [
+          "crisis.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "hiba-foundation",
+      "name": "Hiba Foundation",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "03301336395",
+        "website": "hibafoundation.org/referral-form/",
+        "all_emails": [],
+        "all_phones": [
+          "03301336395"
+        ],
+        "all_websites": [
+          "hibafoundation.org/referral-form/"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham",
+        "coventry"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "home-start-birmingham-consortium",
+      "name": "Home Start Birmingham",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "homes-in-the-city---wolverhampton",
+      "name": "Homes in the City - Wolverhampton",
+      "verified": false,
+      "contact": {
+        "email": "enquiry@wolverhamptonhomes.org.uk",
+        "phone": "01902556789",
+        "website": null,
+        "all_emails": [
+          "enquiry@wolverhamptonhomes.org.uk"
+        ],
+        "all_phones": [
+          "01902556789"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "hope-community",
+      "name": "Hope Community Project",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "hope-into-action--black-country",
+      "name": "HOPE INTO ACTION BLACK COUNTRY AREAS",
+      "verified": false,
+      "contact": {
+        "email": "blackcountry@hopeintoaction.org.uk",
+        "phone": "01902519260",
+        "website": "hopeintoaction.org",
+        "all_emails": [
+          "blackcountry@hopeintoaction.org.uk",
+          "blackcountry@intoaction.org.uk",
+          "merylen.pearce@hopeintoaction.org.uk"
+        ],
+        "all_phones": [
+          "01902519260",
+          "07706355264"
+        ],
+        "all_websites": [
+          "hopeintoaction.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "hope-projects",
+      "name": "Hope Projects",
+      "verified": true,
+      "contact": {
+        "email": "legal@hope-projects.org.uk",
+        "phone": "07748193864",
+        "website": null,
+        "all_emails": [
+          "legal@hope-projects.org.uk"
+        ],
+        "all_phones": [
+          "07748193864"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "housing-advice---walsall-borough-council",
+      "name": "Housing and Welfare Service - Walsall Borough Council",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "walsall"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "hub4grub",
+      "name": "Hub for Grub",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "humanity-first-foodbanks",
+      "name": "Humanity First UK Walsall foodbank",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "walsall"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "incredible-surplus",
+      "name": "Incredible Surplus",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham",
+        "sandwell",
+        "solihull"
+      ],
+      "num_areas": 3
+    },
+    {
+      "organization_id": "jericho",
+      "name": "JERICHO",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "job-centres",
+      "name": "Job Centre Plus",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham",
+        "coventry",
+        "dudley",
+        "sandwell",
+        "walsall",
+        "wolverhampton"
+      ],
+      "num_areas": 6
+    },
+    {
+      "organization_id": "jobchange2007",
+      "name": "Jobchange",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "dudley",
+        "walsall",
+        "wolverhampton"
+      ],
+      "num_areas": 3
+    },
+    {
+      "organization_id": "jobshopcoventry",
+      "name": "Job Shop [Coventry City Council]",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "kairos",
+      "name": "Kairos Women Working Together",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "karis",
+      "name": "Karis Neighbour Scheme",
+      "verified": true,
+      "contact": {
+        "email": "helen.bell@karisneighbourscheme.org",
+        "phone": "01214548994",
+        "website": "karisneighbourscheme.org",
+        "all_emails": [
+          "helen.bell@karisneighbourscheme.org",
+          "katharine.harris@karisneighbourscheme.org",
+          "ruth.pedzai@karisneighbourscheme.org"
+        ],
+        "all_phones": [
+          "01214548994",
+          "01214557524"
+        ],
+        "all_websites": [
+          "karisneighbourscheme.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "kaushalya-uk",
+      "name": "Kaushalya UK",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "walsall"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "kccoldbury",
+      "name": "Kings Community Church, Oldbury",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": "08003280006",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "08003280006"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "sandwell"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "kikit",
+      "name": "KIKIT",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "kingsoakuniformbank",
+      "name": "Kings Oak Uniform Bank",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "sandwell"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "langar-aid-house",
+      "name": "Langar Aid House",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "lets-chat-hub-community-transport",
+      "name": "Lets Chat Hub (community transport)",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "sandwell"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "lighthousecommunityhub",
+      "name": "Lighthouse Community HUB",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "01384239222",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "01384239222"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "dudley"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "loveyourneighbourbirmingham",
+      "name": "Love Your Neighbour - Birmingham",
+      "verified": false,
+      "contact": {
+        "email": "loveyourneighbour@gasstreet.church",
+        "phone": "08003280006",
+        "website": null,
+        "all_emails": [
+          "loveyourneighbour@gasstreet.church"
+        ],
+        "all_phones": [
+          "08003280006"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "macsmad",
+      "name": "Miss Macaroon",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "mecctrust",
+      "name": "MECC Trust",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "meridian-practice",
+      "name": "Meridian Practice",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "microrainbow",
+      "name": "Micro Rainbow",
+      "verified": true,
+      "contact": {
+        "email": "housing@microrainbow.org",
+        "phone": "08003585851",
+        "website": "microrainbow.org",
+        "all_emails": [
+          "housing@microrainbow.org",
+          "movingon@microrainbow.org",
+          "social@microrainbow.org"
+        ],
+        "all_phones": [
+          "08003585851"
+        ],
+        "all_websites": [
+          "microrainbow.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham",
+        "coventry",
+        "sandwell",
+        "solihull",
+        "walsall",
+        "wolverhampton"
+      ],
+      "num_areas": 6
+    },
+    {
+      "organization_id": "moneyreadymidlands",
+      "name": "Money Ready - Midlands Hub",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "multibank-wm",
+      "name": "The West Midlands Multibank",
+      "verified": true,
+      "contact": {
+        "email": "westmidlandsmultibank@bvsc.org",
+        "phone": null,
+        "website": "bvsc.org",
+        "all_emails": [
+          "westmidlandsmultibank@bvsc.org"
+        ],
+        "all_phones": [],
+        "all_websites": [
+          "bvsc.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham",
+        "coventry",
+        "dudley",
+        "sandwell",
+        "solihull",
+        "walsall",
+        "wolverhampton"
+      ],
+      "num_areas": 7
+    },
+    {
+      "organization_id": "narthex-sparkhill",
+      "name": "Narthex Sparkhill",
+      "verified": false,
+      "contact": {
+        "email": "sandra1@narthex.org.uk",
+        "phone": "01212270103",
+        "website": "narthex.org",
+        "all_emails": [
+          "sandra1@narthex.org.uk"
+        ],
+        "all_phones": [
+          "01212270103",
+          "07467045294"
+        ],
+        "all_websites": [
+          "narthex.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "nashdomcic",
+      "name": "Nash Dom CIC",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "walsall"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "national-debtline",
+      "name": "National Debtline",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": "08088084000",
+        "website": "nationaldebtline.org/contact-us/]",
+        "all_emails": [],
+        "all_phones": [
+          "08088084000"
+        ],
+        "all_websites": [
+          "nationaldebtline.org/contact-us/]"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "newbeginningscommunity",
+      "name": "New Beginnings Community",
+      "verified": true,
+      "contact": {
+        "email": "thebirthdayproject@newbeginningscommunity.co.uk",
+        "phone": null,
+        "website": "newbeginningscommunity.co.uk",
+        "all_emails": [
+          "thebirthdayproject@newbeginningscommunity.co.uk"
+        ],
+        "all_phones": [],
+        "all_websites": [
+          "newbeginningscommunity.co.uk"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "sandwell"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "non-violentiam-cic",
+      "name": "Non Violentiam CIC",
+      "verified": false,
+      "contact": {
+        "email": "admin@nonviolentiamcic.co.uk",
+        "phone": "01215155941Option3",
+        "website": null,
+        "all_emails": [
+          "admin@nonviolentiamcic.co.uk"
+        ],
+        "all_phones": [
+          "01215155941Option3"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "oasismhs",
+      "name": "OASIS Mental Health Support",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "solihull"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "opendoorfriendshipcentre-azadi",
+      "name": "Open Door Friendship Centre [ Azadi Trust ]",
+      "verified": false,
+      "contact": {
+        "email": "friendshipcentre@azaditrust.org.uk",
+        "phone": "01212932201",
+        "website": "azaditrust.org",
+        "all_emails": [
+          "friendshipcentre@azaditrust.org.uk"
+        ],
+        "all_phones": [
+          "01212932201"
+        ],
+        "all_websites": [
+          "azaditrust.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "p3---coventry",
+      "name": "P3 - Coventry",
+      "verified": true,
+      "contact": {
+        "email": "cov@p3charity.org",
+        "phone": "08081962660",
+        "website": "p3charity.org",
+        "all_emails": [
+          "cov@p3charity.org",
+          "ihmcoventry@p3charity.org"
+        ],
+        "all_phones": [
+          "08081962660"
+        ],
+        "all_websites": [
+          "p3charity.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "p3---sandwell",
+      "name": "P3 - Sandwell",
+      "verified": true,
+      "contact": {
+        "email": "esther.barrett@p3charity.org",
+        "phone": "07554453541",
+        "website": null,
+        "all_emails": [
+          "esther.barrett@p3charity.org"
+        ],
+        "all_phones": [
+          "07554453541"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "sandwell"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "p3---wolverhampton-housing-and-homelessness-service",
+      "name": "P3 - Wolverhampton",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "panahghar",
+      "name": "Panahghar",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": "08000556519",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "08000556519"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "coventry",
+        "solihull"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "pohwer-advocacy-charity",
+      "name": "POhWER Advocacy Charity",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham",
+        "dudley",
+        "sandwell",
+        "walsall"
+      ],
+      "num_areas": 4
+    },
+    {
+      "organization_id": "prospective-pathway-futures",
+      "name": "Prospective Pathway Futures",
+      "verified": false,
+      "contact": {
+        "email": "info@prospectivepathwayfutures.org.uk",
+        "phone": "03003654060",
+        "website": null,
+        "all_emails": [
+          "info@prospectivepathwayfutures.org.uk"
+        ],
+        "all_phones": [
+          "03003654060"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "provision-house",
+      "name": "Provision House",
+      "verified": true,
+      "contact": {
+        "email": "foodclub@provisionhouse.co.uk",
+        "phone": null,
+        "website": "provisionhouse.co.uk",
+        "all_emails": [
+          "foodclub@provisionhouse.co.uk",
+          "training@provisionhouse.co.uk"
+        ],
+        "all_phones": [],
+        "all_websites": [
+          "provisionhouse.co.uk"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "dudley"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "red-cross",
+      "name": "British Red Cross",
+      "verified": true,
+      "contact": {
+        "email": "rswestmids@redcross.org.uk",
+        "phone": "01217665444",
+        "website": "redcross.org",
+        "all_emails": [
+          "rswestmids@redcross.org.uk"
+        ],
+        "all_phones": [
+          "01217665444"
+        ],
+        "all_websites": [
+          "redcross.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham",
+        "coventry"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "refugee-and-migrant-centre---coventry",
+      "name": "Coventry Refugee and Migrant Centre",
+      "verified": true,
+      "contact": {
+        "email": "legalteam@covrefugee.org",
+        "phone": "02476227254",
+        "website": "covrefugee.org",
+        "all_emails": [
+          "legalteam@covrefugee.org",
+          "therapy@covrefugee.org"
+        ],
+        "all_phones": [
+          "02476227254"
+        ],
+        "all_websites": [
+          "covrefugee.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "relate-birmingham",
+      "name": "Relate Birmingham and Black Country",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": "relatebirmingham.co.uk/",
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [
+          "relatebirmingham.co.uk/"
+        ],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "birmingham",
+        "dudley",
+        "sandwell",
+        "solihull",
+        "walsall",
+        "wolverhampton"
+      ],
+      "num_areas": 6
+    },
+    {
+      "organization_id": "renewalcc",
+      "name": "Renewal Church",
+      "verified": false,
+      "contact": {
+        "email": "babybasics@renewal.church",
+        "phone": "01217048001",
+        "website": null,
+        "all_emails": [
+          "babybasics@renewal.church",
+          "hello@renewal.church"
+        ],
+        "all_phones": [
+          "01217048001",
+          "01217117300"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "solihull"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "rethink-mental-illness",
+      "name": "Rethink Mental Illness",
+      "verified": false,
+      "contact": {
+        "email": "enablement@rethink.org",
+        "phone": "01922494479",
+        "website": "rethink.org",
+        "all_emails": [
+          "enablement@rethink.org"
+        ],
+        "all_phones": [
+          "01922494479"
+        ],
+        "all_websites": [
+          "rethink.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "dudley",
+        "walsall",
+        "wolverhampton"
+      ],
+      "num_areas": 3
+    },
+    {
+      "organization_id": "riverside-money-advice",
+      "name": "Riverside Money Advice",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "riversidechurchbirmingham",
+      "name": "Riverside Church - Birmingham",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "rosetintedfinancial",
+      "name": "Rose Tinted Financial Services",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": "rosetintedfinancial.com/free-debt-support",
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [
+          "rosetintedfinancial.com/free-debt-support"
+        ],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "walsall"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "roshni-birmingham",
+      "name": "Roshni Birmingham",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "08009539777",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "08009539777"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "rough-sleeper-outreach-team---coventry",
+      "name": "Rough Sleeper Outreach Team - Coventry",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "rough-sleeper-outreach-team---solihull",
+      "name": "Rough Sleeper Outreach Team - Solihull",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "solihull"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "rough-sleeper-outreach-team-walsall",
+      "name": "Rough Sleeper Outreach Team - Walsall",
+      "verified": true,
+      "contact": {
+        "email": "rooflessreferral@walsall.gov.uk",
+        "phone": "01922652250",
+        "website": "walsall.gov.uk",
+        "all_emails": [
+          "rooflessreferral@walsall.gov.uk"
+        ],
+        "all_phones": [
+          "01922652250"
+        ],
+        "all_websites": [
+          "walsall.gov.uk"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "walsall"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "royal-british-legion",
+      "name": "Royal British Legion",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "08088028080",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "08088028080"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "solihull",
+        "wolverhampton"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "rsvp",
+      "name": "Rape and Sexual Violence Project [ RSVP ]",
+      "verified": true,
+      "contact": {
+        "email": "hello@gina.uk.com",
+        "phone": "01212375700",
+        "website": "rsvporg.co.uk",
+        "all_emails": [
+          "hello@gina.uk.com",
+          "isva@rsvporg.co.uk"
+        ],
+        "all_phones": [
+          "01212375700",
+          "01212375737",
+          "01216430301",
+          "07432578105"
+        ],
+        "all_websites": [
+          "rsvporg.co.uk",
+          "theredproject.co.uk",
+          "uk.com"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham",
+        "solihull"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "salvation-army---coventry",
+      "name": "Salvation Army - Coventry",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "samaritansbrierleyhill",
+      "name": "Samaritans - Brierley Hill",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "dudley"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "sandwell-african-women-association",
+      "name": "Sandwell African Women Association [ SAWA ]",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "sandwell"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "sandwell-borough-council",
+      "name": "Sandwell Borough Council - Housing Support",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": "01215696883",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "01215696883"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "birmingham",
+        "dudley",
+        "sandwell",
+        "walsall"
+      ],
+      "num_areas": 4
+    },
+    {
+      "organization_id": "sandwellclothingbank",
+      "name": "Sandwell Clothing Bank",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham",
+        "sandwell"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "sandwellrsot",
+      "name": "Rough Sleeper Outreach Team - Sandwell",
+      "verified": true,
+      "contact": {
+        "email": "rough_sleepers@sandwell.gov.uk",
+        "phone": "01213681166",
+        "website": "sandwell.gov.uk",
+        "all_emails": [
+          "rough_sleepers@sandwell.gov.uk"
+        ],
+        "all_phones": [
+          "01213681166",
+          "01215696883"
+        ],
+        "all_websites": [
+          "sandwell.gov.uk"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "dudley",
+        "sandwell"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "secretangelscic",
+      "name": "Secret Angels CIC",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "shaw-trust",
+      "name": "Shaw Trust- Birmingham",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "shelter---birmingham-gateway-house",
+      "name": "Shelter - Birmingham",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "03445151875",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "03445151875",
+          "08088004444"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "sifa-fireside",
+      "name": "SIFA Fireside",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "01213032296",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "01213032296",
+          "01217661700",
+          "08008807157"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "smartworksb5",
+      "name": "Smart Works Birmingham",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "01216438109",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "01216438109"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "smethwick-trussell-trust-foodbank",
+      "name": "Smethwick Trussell Foodbank",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "08082082138",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "08082082138"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "birmingham",
+        "sandwell"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "solihull-churches-action-on-homelessness-scah",
+      "name": "Solihull Churches Action on Homelessness [SCAH]",
+      "verified": true,
+      "contact": {
+        "email": "secretary@scah.org.uk",
+        "phone": null,
+        "website": "scah.org",
+        "all_emails": [
+          "secretary@scah.org.uk"
+        ],
+        "all_phones": [],
+        "all_websites": [
+          "scah.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "solihull"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "solihullsamaritans",
+      "name": "Samaritans - Solihull",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "solihull"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "sparkhill-trussell-trust-foodbank",
+      "name": "Sparkhill Trussell Foodbank",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "08082082138",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "08082082138"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "birmingham",
+        "solihull"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "spctcoventry",
+      "name": "Coventry Community Specialist Palliative Care Services",
+      "verified": true,
+      "contact": {
+        "email": "spct.homelessnesshealth@uhcw.nhs.uk",
+        "phone": "02476964085",
+        "website": null,
+        "all_emails": [
+          "spct.homelessnesshealth@uhcw.nhs.uk"
+        ],
+        "all_phones": [
+          "02476964085"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "special-care-community-dental-service-for-homeless-adults-in-birmingham",
+      "name": "Special Care Community Dental Service for Homeless Adults in Birmingham",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "st-anne39s-hostel",
+      "name": "St Annes Hostel",
+      "verified": false,
+      "contact": {
+        "email": "amanda.trappett@stannesbirmingham.org.uk",
+        "phone": "01217724406",
+        "website": null,
+        "all_emails": [
+          "amanda.trappett@stannesbirmingham.org.uk"
+        ],
+        "all_phones": [
+          "01217724406"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "st-basil39s---youth-hub",
+      "name": "St Basils",
+      "verified": true,
+      "contact": {
+        "email": "liveandwork@stbasils.org.uk",
+        "phone": "01212691940",
+        "website": "stbasils.org",
+        "all_emails": [
+          "liveandwork@stbasils.org.uk",
+          "supportcoventry@stbasils.org.uk",
+          "youthline@stbasils.org.uk"
+        ],
+        "all_phones": [
+          "01212691940",
+          "01213681166",
+          "01215693100",
+          "01215696883",
+          "02476832222",
+          "03003030099"
+        ],
+        "all_websites": [
+          "stbasils.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham",
+        "coventry",
+        "sandwell"
+      ],
+      "num_areas": 3
+    },
+    {
+      "organization_id": "st-basil39s-youth-hub---solihull",
+      "name": "Milner Court",
+      "verified": false,
+      "contact": {
+        "email": "info@stbasils.org.uk",
+        "phone": "01217171515",
+        "website": null,
+        "all_emails": [
+          "info@stbasils.org.uk"
+        ],
+        "all_phones": [
+          "01217171515",
+          "01217722483"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham",
+        "solihull"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "st-georges-house",
+      "name": "St. George's House Charity",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "01902421904",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "01902421904"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "st-germain39s-community-hub",
+      "name": "St Germains Community Hub",
+      "verified": false,
+      "contact": {
+        "email": "food@stgermains.org.uk",
+        "phone": "01215170476",
+        "website": "stgermains.org",
+        "all_emails": [
+          "food@stgermains.org.uk",
+          "wellbeinghub@stgermains.org.uk"
+        ],
+        "all_phones": [
+          "01215170476"
+        ],
+        "all_websites": [
+          "stgermains.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham",
+        "sandwell"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "standing-tall",
+      "name": "Standing Tall",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "stchadssanctuary",
+      "name": "St Chads Sanctuary",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "steps-for-change",
+      "name": "The Salvation Army - Steps",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "stgilestrust",
+      "name": "St Giles Trust",
+      "verified": false,
+      "contact": {
+        "email": "info@stgilestrust.org.uk",
+        "phone": null,
+        "website": "stgilestrust.org",
+        "all_emails": [
+          "info@stgilestrust.org.uk"
+        ],
+        "all_phones": [],
+        "all_websites": [
+          "stgilestrust.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "coventry",
+        "wolverhampton"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "stonewallhousing",
+      "name": "Stonewall Housing",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "stoploansharks",
+      "name": "Stop Loan Sharks",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "03005552222",
+        "website": "stoploansharks.co.uk",
+        "all_emails": [],
+        "all_phones": [
+          "03005552222"
+        ],
+        "all_websites": [
+          "stoploansharks.co.uk"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham",
+        "coventry",
+        "dudley",
+        "sandwell",
+        "solihull",
+        "walsall",
+        "wolverhampton"
+      ],
+      "num_areas": 7
+    },
+    {
+      "organization_id": "streetleague-wm",
+      "name": "Street League - West Midlands",
+      "verified": true,
+      "contact": {
+        "email": "westmidlands@streetleague.co.uk",
+        "phone": "07584507977",
+        "website": "streetleague.co.uk",
+        "all_emails": [
+          "westmidlands@streetleague.co.uk"
+        ],
+        "all_phones": [
+          "07584507977",
+          "07887530578"
+        ],
+        "all_websites": [
+          "streetleague.co.uk"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham",
+        "dudley"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "streetvetbham",
+      "name": "StreetVet Birmingham",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": "streetvet.co.uk/volunteer-expression-of-interest-form/",
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [
+          "streetvet.co.uk/volunteer-expression-of-interest-form/"
+        ],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "suit",
+      "name": "SUIT - Service User Involvement Team",
+      "verified": true,
+      "contact": {
+        "email": "christiane.jenkins@wvca.org.uk",
+        "phone": "01902328983",
+        "website": "wvca.org",
+        "all_emails": [
+          "christiane.jenkins@wvca.org.uk"
+        ],
+        "all_phones": [
+          "01902328983"
+        ],
+        "all_websites": [
+          "wvca.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "svpwolverhampton",
+      "name": "St Vincent de Paul Society [SVP] - District of Wolverhampton",
+      "verified": true,
+      "contact": {
+        "email": "request@svp.org.uk",
+        "phone": null,
+        "website": "svp.org",
+        "all_emails": [
+          "request@svp.org.uk"
+        ],
+        "all_phones": [],
+        "all_websites": [
+          "svp.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "the-active-wellbeing-society",
+      "name": "The Active Wellbeing Society",
+      "verified": true,
+      "contact": {
+        "email": "bigfeed@theaws.org",
+        "phone": "01217287030",
+        "website": "theaws.co.uk/listen-connect/",
+        "all_emails": [
+          "bigfeed@theaws.org",
+          "listenandconnect@theaws.org"
+        ],
+        "all_phones": [
+          "01217287030"
+        ],
+        "all_websites": [
+          "theaws.co.uk/listen-connect/",
+          "theaws.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "the-anchor-centre",
+      "name": "The Anchor Centre",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "the-canley-community-centre",
+      "name": "Canley Community Centre ( school uniform bank )",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "the-glebe-centre",
+      "name": "The Glebe Centre [YMCA Black Country]",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "walsall"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "the-grub-and-gab-club-coventry",
+      "name": "The Grub and Gab Club Coventry incorporating Coventry Open Christmas",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "the-haven---wolverhampton",
+      "name": "The Haven - Wolverhampton",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "08000194400",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "08000194400"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "the-health-xchange-primary-care-services-for-the-homeless",
+      "name": "Birmingham Homeless Health Exchange - HeX (Primary Care Services for the Homeless)",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "the-homeless-period-wolverhampton",
+      "name": "Periods Matter",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "the-kaleidoscope-plus-group",
+      "name": "The Kaleidoscope Plus Group",
+      "verified": true,
+      "contact": {
+        "email": "bchft.sandwellspa@nhs.net",
+        "phone": "01215655605",
+        "website": "kaleidoscopeplus.org",
+        "all_emails": [
+          "bchft.sandwellspa@nhs.net",
+          "counselling@kaleidoscopeplus.org.uk",
+          "hub@kaleidoscopeplus.org.uk",
+          "sppark@kaleidoscopeplus.org.uk",
+          "vicki.fox@kaleidoscopeplus.org.uk"
+        ],
+        "all_phones": [
+          "01215655605",
+          "01216126620",
+          "07800006472",
+          "07970040016",
+          "08000086516"
+        ],
+        "all_websites": [
+          "kaleidoscopeplus.org",
+          "nhs.net"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "sandwell"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "the-real-junk-food-project-wolverhampton",
+      "name": "Wolves Waste Not [The Real Junk Food Project Wolverhampton]",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "the-red-project",
+      "name": "The Red Project",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "the-refugee-and-migrant-centre-black-country-and-birmingham",
+      "name": "The Refugee and Migrant Centre West Midlands [RMC]",
+      "verified": true,
+      "contact": {
+        "email": "jenniferdinham@rmcentre.org.uk",
+        "phone": "08000663444",
+        "website": "rmcentre.org",
+        "all_emails": [
+          "jenniferdinham@rmcentre.org.uk",
+          "mark@rmcentre.org.uk",
+          "steven@rmcentre.org.uk",
+          "victoria@rmcentre.org.uk"
+        ],
+        "all_phones": [
+          "08000663444"
+        ],
+        "all_websites": [
+          "rmcentre.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham",
+        "dudley",
+        "walsall",
+        "wolverhampton"
+      ],
+      "num_areas": 4
+    },
+    {
+      "organization_id": "the-salvation-army---oldbury",
+      "name": "The Salvation Army - Oldbury",
+      "verified": true,
+      "contact": {
+        "email": "employmentplus@salvationarmy.org.uk",
+        "phone": "01215526901",
+        "website": "salvationarmy.org",
+        "all_emails": [
+          "employmentplus@salvationarmy.org.uk"
+        ],
+        "all_phones": [
+          "01215526901",
+          "07342999496",
+          "08006524276"
+        ],
+        "all_websites": [
+          "salvationarmy.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "sandwell"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "the-solace-community",
+      "name": "The Solace Community",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "01902556789",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "01902556789"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "the-well",
+      "name": "The Well - Wolverhampton",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": "01902256523",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "01902256523"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "the-women-and-families-resource-centre-wfrc",
+      "name": "The Women and Families Resource Centre (WFRC)",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": "facebook.com/wolverhamptonbabybank/",
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [
+          "facebook.com/wolverhamptonbabybank/"
+        ],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "theromaproject",
+      "name": "The Roma Project",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": "07306017999",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "07306017999",
+          "07306413888"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "thethomasproject",
+      "name": "The Thomas Project",
+      "verified": false,
+      "contact": {
+        "email": "tyningscfw@gmail.com",
+        "phone": "07540824212",
+        "website": "gmail.com",
+        "all_emails": [
+          "tyningscfw@gmail.com"
+        ],
+        "all_phones": [
+          "07540824212"
+        ],
+        "all_websites": [
+          "gmail.com"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "walsall"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "thewhatcentre",
+      "name": "The What? Centre",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "dudley"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "tinytreasuresbabybank",
+      "name": "Mabel Black Country CIC",
+      "verified": true,
+      "contact": {
+        "email": "mabelblackcountry@gmail.com",
+        "phone": null,
+        "website": "gmail.com",
+        "all_emails": [
+          "mabelblackcountry@gmail.com"
+        ],
+        "all_phones": [],
+        "all_websites": [
+          "gmail.com"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "walsall"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "topchurchtraining",
+      "name": "Top Church Training",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "dudley"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "tots2teenclothing",
+      "name": "Toddler 2 Teen Clothing Bank",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "sandwell"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "totsinneed",
+      "name": "Tots In Need CIC",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "walsall"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "trident-reach-homeless-services",
+      "name": "Trident Reach",
+      "verified": true,
+      "contact": {
+        "email": "azad.azam@tridentreach.org.uk",
+        "phone": "01212265800",
+        "website": "tridentgroup.org",
+        "all_emails": [
+          "azad.azam@tridentreach.org.uk",
+          "bhamdareferrals@tridentreach.org.uk",
+          "respiteroomservice@tridentreach.org.uk",
+          "rsot@tridentgroup.org.uk"
+        ],
+        "all_phones": [
+          "01212265800",
+          "01212265832",
+          "07747218410",
+          "08001114223",
+          "08008807157"
+        ],
+        "all_websites": [
+          "tridentgroup.org",
+          "tridentreach.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "turn-around-west-midlands",
+      "name": "Turnaround West Midlands",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham",
+        "coventry"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "uk-men39s-sheds-association",
+      "name": "UK Mens Sheds Association",
+      "verified": true,
+      "contact": {
+        "email": "caldmoregarden@gmail.com",
+        "phone": "01217033600",
+        "website": "gmail.com",
+        "all_emails": [
+          "caldmoregarden@gmail.com",
+          "cov.carvers@gmail.com",
+          "coventrymensshed@gmx.co.uk",
+          "lisa.shyamalan@mariecurie.org.uk",
+          "wdarby@sky.com"
+        ],
+        "all_phones": [
+          "01217033600",
+          "01384620396",
+          "07401955367",
+          "07530071068",
+          "07970856148"
+        ],
+        "all_websites": [
+          "gmail.com",
+          "gmx.co.uk",
+          "mariecurie.org",
+          "sky.com"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham",
+        "coventry",
+        "solihull",
+        "walsall",
+        "wolverhampton"
+      ],
+      "num_areas": 5
+    },
+    {
+      "organization_id": "underground-lights-community-theatre",
+      "name": "Underground Lights Community Theatre",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "valley-house",
+      "name": "Valley House",
+      "verified": false,
+      "contact": {
+        "email": "referrals@valleyhouse.org.uk",
+        "phone": "02476637260",
+        "website": "valleyhouse.org",
+        "all_emails": [
+          "referrals@valleyhouse.org.uk"
+        ],
+        "all_phones": [
+          "02476637260",
+          "08003289084"
+        ],
+        "all_websites": [
+          "valleyhouse.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "vision-care",
+      "name": "Vision Care for Homeless People",
+      "verified": true,
+      "contact": {
+        "email": "office@sifafireside.co.uk",
+        "phone": "01217661700",
+        "website": "sifafireside.co.uk",
+        "all_emails": [
+          "office@sifafireside.co.uk"
+        ],
+        "all_phones": [
+          "01217661700"
+        ],
+        "all_websites": [
+          "sifafireside.co.uk"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "waits",
+      "name": "WAITS [Women Acting in Todays Society]",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "walsall-housing-group-whg",
+      "name": "whg",
+      "verified": false,
+      "contact": {
+        "email": "enquiries@whgrp.co.uk",
+        "phone": null,
+        "website": null,
+        "all_emails": [
+          "enquiries@whgrp.co.uk"
+        ],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "walsall"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "walsall-north-trussell-trust-foodbank",
+      "name": "Walsall North Trussell Foodbank",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": "08082082138",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "08082082138"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "walsall"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "walsallsamaritans",
+      "name": "Samaritans - Walsall and District",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "walsall"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "watmos",
+      "name": "WATMOS Chuckery TMO",
+      "verified": false,
+      "contact": {
+        "email": "burrowes.info@watmos.org.uk",
+        "phone": "01922400333",
+        "website": null,
+        "all_emails": [
+          "burrowes.info@watmos.org.uk",
+          "chuckery.info@watmos.org.uk",
+          "delves.info@watmos.org.uk",
+          "sandbank.info@watmos.org.uk",
+          "walsallnorth@watmos.org.uk"
+        ],
+        "all_phones": [
+          "01922400333",
+          "01922493266",
+          "01922613292",
+          "01922644456",
+          "01922720790"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "walsall"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "west-bromwich-food-bank",
+      "name": "West Bromwich Food Bank",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "sandwell"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "west-midlands-anti-slavery-network-safeplace",
+      "name": "West Midlands Anti-Slavery Network",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "westbromwichemergencypetpantry",
+      "name": "The Pet Food Bank - Sandwell and Surrounding Areas",
+      "verified": true,
+      "contact": {
+        "email": "kellyfletcher.petpantry@gmail.com",
+        "phone": null,
+        "website": "gmail.com",
+        "all_emails": [
+          "kellyfletcher.petpantry@gmail.com",
+          "louisecolledge.petpantry@gmail.com"
+        ],
+        "all_phones": [],
+        "all_websites": [
+          "gmail.com"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "sandwell"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "whitmore-reans-welfare-centre",
+      "name": "Whitmore Reans Welfare Centre",
+      "verified": false,
+      "contact": {
+        "email": "wrwc138@gmail.com",
+        "phone": null,
+        "website": "gmail.com",
+        "all_emails": [
+          "wrwc138@gmail.com"
+        ],
+        "all_phones": [],
+        "all_websites": [
+          "gmail.com"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "wolverhampton-council---housing",
+      "name": "Wolverhampton City Council - Homelessness Service",
+      "verified": true,
+      "contact": {
+        "email": "youngpersonsteam@wolverhampton.gov.uk",
+        "phone": "01902296541",
+        "website": "wolverhampton.gov.uk",
+        "all_emails": [
+          "youngpersonsteam@wolverhampton.gov.uk"
+        ],
+        "all_phones": [
+          "01902296541",
+          "01902552999",
+          "01902556789",
+          "08001076753"
+        ],
+        "all_websites": [
+          "wolverhampton.gov.uk"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "wolverhampton-homes",
+      "name": "Wolverhampton Homes",
+      "verified": true,
+      "contact": {
+        "email": "leap@wolverhamptonhomes.org.uk",
+        "phone": "01902552999",
+        "website": "wolverhamptonhomes.org",
+        "all_emails": [
+          "leap@wolverhamptonhomes.org.uk",
+          "youngpersons.team@wolverhamptonhomes.org.uk"
+        ],
+        "all_phones": [
+          "01902552999",
+          "01902556789",
+          "07717732982",
+          "07773187968"
+        ],
+        "all_websites": [
+          "wolverhamptonhomes.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "wolverhampton-muslim-forum",
+      "name": "Wolverhampton Muslim Forum",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "wolverhampton-substance-misuse-service",
+      "name": "Recovery Near You - Wolverhampton Substance Misuse Service and 360",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "wolverhamptoncos",
+      "name": "Wolverhampton City Of Sanctuary",
+      "verified": true,
+      "contact": {
+        "email": "enquiries@wolvescofs.com",
+        "phone": null,
+        "website": "wolvescofs.com",
+        "all_emails": [
+          "enquiries@wolvescofs.com"
+        ],
+        "all_phones": [],
+        "all_websites": [
+          "wolvescofs.com"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "wolverhamptonsamaritans",
+      "name": "Samaritans - Wolverhampton",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "wscds",
+      "name": "Wolverhampton Special Care Dental Service (WSCDS)",
+      "verified": false,
+      "contact": {
+        "email": "rwh-tr.pennfields-dental-services@nhs.net",
+        "phone": "01902446681",
+        "website": "nhs.net",
+        "all_emails": [
+          "rwh-tr.pennfields-dental-services@nhs.net"
+        ],
+        "all_phones": [
+          "01902446681"
+        ],
+        "all_websites": [
+          "nhs.net"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "wolverhampton"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "yemeni-community-association-in-sandwell",
+      "name": "Yemeni Community Association in Sandwell",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": "01215253909",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "01215253909"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "sandwell"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "ylpbhamspaghetti",
+      "name": "Birmingham Spaghetti Pantry [Your Local Pantry Network]",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": "yourlocalpantry.co.uk/pantry-listings/birmingham-spaghetti-pantry/",
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [
+          "yourlocalpantry.co.uk/pantry-listings/birmingham-spaghetti-pantry/"
+        ],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "ylphopecommunity",
+      "name": "Birmingham Hope Community Pantry [ Your Local Pantry Network ]",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "ylpnarthex",
+      "name": "Birmingham Narthex Pantry [ Your Local Pantry Network ]",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "ylpriverside",
+      "name": "Birmingham Riverside Pantry [Your Local Pantry Network]",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "ylpstmarysbearwood",
+      "name": "Sandwell St Marys Pantry, Bearwood [Your Local Pantry Network]",
+      "verified": false,
+      "contact": {
+        "email": null,
+        "phone": "07726956901",
+        "website": null,
+        "all_emails": [],
+        "all_phones": [
+          "07726956901"
+        ],
+        "all_websites": [],
+        "quality": "MEDIUM"
+      },
+      "areas_served": [
+        "birmingham",
+        "sandwell"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "ymca---black-country-group",
+      "name": "YMCA - Black Country Group",
+      "verified": false,
+      "contact": {
+        "email": "dudleyhousing@ymcabc.org.uk",
+        "phone": "01212932553",
+        "website": null,
+        "all_emails": [
+          "dudleyhousing@ymcabc.org.uk",
+          "opendoor@ymcabc.org.uk",
+          "sandwellhousing@ymcabc.org.uk",
+          "walsallhousing@ymcabc.org.uk",
+          "wolverhamptonhousing@ymcabc.org.uk",
+          "y-living@ymcabc.prg.uk"
+        ],
+        "all_phones": [
+          "01212932553",
+          "01215241950",
+          "01215241957",
+          "01384353599",
+          "01902371550",
+          "01902450637",
+          "01922631553"
+        ],
+        "all_websites": [],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "dudley",
+        "sandwell",
+        "walsall",
+        "wolverhampton"
+      ],
+      "num_areas": 4
+    },
+    {
+      "organization_id": "ymca-coventry-amp-warwickshire",
+      "name": "YMCA - St Margaret's",
+      "verified": false,
+      "contact": {
+        "email": "admin.cw@ymcaheartofengland.org.uk",
+        "phone": "02476597009",
+        "website": "ymcaheartofengland.org",
+        "all_emails": [
+          "admin.cw@ymcaheartofengland.org.uk",
+          "youth.cw@ymcaheartofengland.org.uk"
+        ],
+        "all_phones": [
+          "02476597009"
+        ],
+        "all_websites": [
+          "ymcaheartofengland.org"
+        ],
+        "quality": "HIGH"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "ymcaheartofengland",
+      "name": "YMCA Heart of England",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "coventry"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "your-local-pantry-murray-hall-tipton",
+      "name": "Murray Hall Pantry [Your Local Pantry Network]",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "dudley"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "your-local-pantry-smethwick",
+      "name": "Smethwick Pantry [Your Local Pantry Network]",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham",
+        "sandwell"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "yourlocalpantrybrandhall",
+      "name": "Brandhall Pantry [Your Local Pantry Network]",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "sandwell"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "yourlocalpantryfab",
+      "name": "Birmingham Oasis FaB Foundry Pantry [Your Local Pantry Network]",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham",
+        "sandwell"
+      ],
+      "num_areas": 2
+    },
+    {
+      "organization_id": "yourlocalpantrymannahouse",
+      "name": "Manna House Pantry [Your Local Pantry Network]",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "sandwell"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "yourlocalpantryopenheaven",
+      "name": "Open Heaven Pantry Wednesbury [Your Local Pantry Network]",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "walsall"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "yourlocalpantrysaltley",
+      "name": "Birmingham WEW Pantry Saltley [Your Local Pantry Network]",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    },
+    {
+      "organization_id": "yourlocalpantrysouthaston",
+      "name": "Birmingham Christ Church Pantry, South Aston [Your Local Pantry Network]",
+      "verified": true,
+      "contact": {
+        "email": null,
+        "phone": null,
+        "website": null,
+        "all_emails": [],
+        "all_phones": [],
+        "all_websites": [],
+        "quality": "LOW"
+      },
+      "areas_served": [
+        "birmingham"
+      ],
+      "num_areas": 1
+    }
+  ]
+}
