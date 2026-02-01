@@ -5,50 +5,32 @@ import { getPhrase } from '@/lib/phrasebank';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+function encodeState(s: SessionState): string {
+  return Buffer.from(JSON.stringify(s)).toString('base64');
+}
+
+function decodeState(str: string): SessionState | null {
+  try {
+    return JSON.parse(Buffer.from(str, 'base64').toString('utf8'));
+  } catch { return null; }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const message = body.message || '';
+    const encodedState = body.s || '';
     
-    let session: SessionState;
-    
-    if (body.state && body.state.currentGate) {
-      session = {
-        sessionId: body.state.sessionId || crypto.randomUUID(),
-        currentGate: body.state.currentGate,
-        routeType: body.state.routeType || null,
-        localAuthority: body.state.localAuthority || null,
-        jurisdiction: body.state.jurisdiction || 'ENGLAND',
-        userType: body.state.userType || null,
-        ageCategory: body.state.ageCategory || null,
-        gender: body.state.gender || null,
-        supportNeed: body.state.supportNeed || null,
-        homeless: body.state.homeless ?? null,
-        sleepingSituation: body.state.sleepingSituation || null,
-        housedSituation: body.state.housedSituation || null,
-        preventionNeed: body.state.preventionNeed || null,
-        hasChildren: body.state.hasChildren ?? null,
-        isSupporter: body.state.isSupporter || false,
-        unclearCount: body.state.unclearCount || 0,
-        safeguardingTriggered: body.state.safeguardingTriggered || false,
-        safeguardingType: body.state.safeguardingType || null,
-        timestampStart: body.state.timestampStart || new Date().toISOString(),
-      };
-    } else {
-      session = createSession(crypto.randomUUID());
-    }
-    
-    console.log('GATE:', session.currentGate, 'INPUT:', message);
+    let session: SessionState = decodeState(encodedState) || createSession(crypto.randomUUID());
     
     if (session.currentGate === 'INIT') {
       const result = getFirstMessage(session);
-      const newState = { ...session, ...result.stateUpdates };
-      console.log('NEW GATE:', newState.currentGate);
+      session = { ...session, ...result.stateUpdates };
       return NextResponse.json({
-        state: newState,
-        message: result.text,
-        options: result.options,
-        sessionEnded: false
+        s: encodeState(session),
+        m: result.text,
+        o: result.options,
+        e: false
       });
     }
     
@@ -62,28 +44,26 @@ export async function POST(request: NextRequest) {
     if (parsed === null) {
       session.unclearCount++;
       return NextResponse.json({
-        state: session,
-        message: "Please reply with a number from the options.\n\n" + (currentPhrase?.text || ''),
-        options: currentPhrase?.options,
-        sessionEnded: false
+        s: encodeState(session),
+        m: "Please reply with a number.\n\n" + (currentPhrase?.text || ''),
+        o: currentPhrase?.options,
+        e: false
       });
     }
     
     const result = processInput(session, String(parsed));
-    const newState = { ...session, ...result.stateUpdates };
-    
-    console.log('PROCESSED:', session.currentGate, '->', newState.currentGate);
+    session = { ...session, ...result.stateUpdates };
     
     return NextResponse.json({
-      state: newState,
-      message: result.text,
-      options: result.options,
-      sessionEnded: result.sessionEnded
+      s: encodeState(session),
+      m: result.text,
+      o: result.options,
+      e: result.sessionEnded
     });
     
   } catch (error) {
     console.error('Error:', error);
-    return NextResponse.json({ message: 'Error. Call Shelter: 0808 800 4444', sessionEnded: true }, { status: 500 });
+    return NextResponse.json({ m: 'Error. Call Shelter: 0808 800 4444', e: true }, { status: 500 });
   }
 }
 
@@ -93,8 +73,8 @@ async function interpretWithClaude(input: string, options: string[]): Promise<nu
     const res = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 10,
-      system: 'Reply ONLY with the number or "unclear".',
-      messages: [{ role: 'user', content: `"${input}"\n\n${list}\n\nNumber?` }]
+      system: 'Reply ONLY with number or "unclear".',
+      messages: [{ role: 'user', content: `"${input}"\n\n${list}` }]
     });
     const txt = res.content[0].type === 'text' ? res.content[0].text.trim() : '';
     const n = parseInt(txt, 10);
