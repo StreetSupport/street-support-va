@@ -1,7 +1,8 @@
 import { getPhrase, PhraseEntry } from './phrasebank';
 
 export type Gate = 
-  | 'INIT' | 'GATE0_CRISIS_DANGER' | 'GATE1_INTENT' | 'GATE2_ROUTE_SELECTION'
+  | 'INIT' | 'GATE0_CRISIS_DANGER' | 'DV_GENDER_ASK' | 'DV_CHILDREN_ASK'
+  | 'GATE1_INTENT' | 'GATE2_ROUTE_SELECTION'
   | 'B1_LOCAL_AUTHORITY' | 'B2_WHO_FOR' | 'B3_AGE_CATEGORY' | 'B5_MAIN_SUPPORT_NEED'
   | 'B6_HOMELESSNESS_STATUS' | 'B7_HOUSED_SITUATION' | 'B7_HOMELESS_SLEEPING_SITUATION'
   | 'B7A_PREVENTION_GATE' | 'TERMINAL_ADDITIONAL_NEEDS' | 'SESSION_END';
@@ -20,6 +21,7 @@ export interface SessionState {
   sleepingSituation: string | null;
   housedSituation: string | null;
   preventionNeed: string | null;
+  hasChildren: boolean | null;
   isSupporter: boolean;
   unclearCount: number;
   safeguardingTriggered: boolean;
@@ -39,7 +41,7 @@ export function createSession(sessionId: string): SessionState {
     sessionId, currentGate: 'INIT', routeType: null, localAuthority: null,
     jurisdiction: 'ENGLAND', userType: null, ageCategory: null, gender: null,
     supportNeed: null, homeless: null, sleepingSituation: null, housedSituation: null,
-    preventionNeed: null, isSupporter: false, unclearCount: 0,
+    preventionNeed: null, hasChildren: null, isSupporter: false, unclearCount: 0,
     safeguardingTriggered: false, safeguardingType: null,
     timestampStart: new Date().toISOString(),
   };
@@ -64,7 +66,7 @@ export function getFirstMessage(session: SessionState): RoutingResult {
   const langHint = getPhrase('LANG_HINT_LINE', false);
   const crisis = getPhrase('GATE0_CRISIS_DANGER', false);
   return {
-    text: `${opening?.text}\n\n${langHint?.text}\n\n${crisis?.text}`,
+    text: opening?.text + '\n\n' + langHint?.text + '\n\n' + crisis?.text,
     options: crisis?.options,
     sessionEnded: false,
     stateUpdates: { currentGate: 'GATE0_CRISIS_DANGER' }
@@ -81,14 +83,22 @@ function safeguardingExit(key: string, type: string, session: SessionState): Rou
   return { text: phrase?.text || '', sessionEnded: true, stateUpdates: { safeguardingTriggered: true, safeguardingType: type, currentGate: 'SESSION_END' } };
 }
 
+function getDVExitKey(gender: string | null, hasChildren: boolean | null): string {
+  const g = gender?.toLowerCase() || 'female';
+  const c = hasChildren ? 'YES' : 'NO';
+  if (g.includes('male') && !g.includes('female')) return `DV_MALE_CHILDREN_${c}`;
+  if (g.includes('non-binary') || g.includes('other') || g.includes('lgbtq')) return `DV_LGBTQ_CHILDREN_${c}`;
+  return `DV_FEMALE_CHILDREN_${c}`;
+}
+
 function terminal(session: SessionState, updates: Partial<SessionState>): RoutingResult {
   const la = session.localAuthority || 'your area';
   const need = session.supportNeed || 'support';
-  let text = `Based on what you've told me, here are services in ${la} for ${need}:\n\n`;
-  text += `Contact ${la} Council Housing Options - they have a legal duty to help.\n\n`;
-  text += `Shelter: 0808 800 4444 (free)\nhttps://england.shelter.org.uk\n\n`;
-  if (session.sleepingSituation === 'Rough sleeping') text += `StreetLink: https://www.streetlink.org.uk\n\n`;
-  text += `Is there anything else I can help with?\n\n1. Yes, I have another need\n2. No, that's everything`;
+  let text = 'Based on what you have told me, here are services in ' + la + ' for ' + need + ':\n\n';
+  text += 'Contact ' + la + ' Council Housing Options - they have a legal duty to help.\n\n';
+  text += 'Shelter: 0808 800 4444 (free)\nhttps://england.shelter.org.uk\n\n';
+  if (session.sleepingSituation === 'Rough sleeping') text += 'StreetLink: https://www.streetlink.org.uk\n\n';
+  text += 'Is there anything else I can help with?\n\n1. Yes, I have another need\n2. No, that is everything';
   return { text, options: ['Yes', 'No'], sessionEnded: false, stateUpdates: { ...updates, currentGate: 'TERMINAL_ADDITIONAL_NEEDS' } };
 }
 
@@ -102,12 +112,29 @@ export function processInput(session: SessionState, userInput: string): RoutingR
     const sel = parseUserInput(userInput, phrase?.options);
     if (!sel) return respond('GATE0_CRISIS_DANGER', session, 'GATE0_CRISIS_DANGER', false);
     if (sel === 1) return safeguardingExit('IMMEDIATE_PHYSICAL_DANGER_EXIT', 'IMMEDIATE_DANGER', session);
-    if (sel === 2) return safeguardingExit('DV_FEMALE_CHILDREN_NO', 'DV', session);
+    if (sel === 2) return respond('DV_GENDER_ASK', session, 'DV_GENDER_ASK', false);
     if (sel === 3) return safeguardingExit('SA_EXIT', 'SA', session);
     if (sel === 4) return safeguardingExit('SELF_HARM_EXIT', 'SELF_HARM', session);
     if (sel === 5) return safeguardingExit('UNDER_16_EXIT', 'UNDER_16', session);
     if (sel === 6) return safeguardingExit('FIRE_FLOOD_EXIT', 'FIRE_FLOOD', session);
     return respond('GATE1_INTENT', session, 'GATE1_INTENT', false);
+  }
+  
+  if (gate === 'DV_GENDER_ASK') {
+    const phrase = getPhrase('DV_GENDER_ASK', session.isSupporter);
+    const sel = parseUserInput(userInput, phrase?.options);
+    if (!sel) return respond('DV_GENDER_ASK', session, 'DV_GENDER_ASK', false);
+    const genders = ['Female', 'Male', 'Non-binary or other', 'Prefer not to say'];
+    return respond('DV_CHILDREN_ASK', session, 'DV_CHILDREN_ASK', false, { gender: genders[sel-1] });
+  }
+  
+  if (gate === 'DV_CHILDREN_ASK') {
+    const phrase = getPhrase('DV_CHILDREN_ASK', session.isSupporter);
+    const sel = parseUserInput(userInput, phrase?.options);
+    if (!sel) return respond('DV_CHILDREN_ASK', session, 'DV_CHILDREN_ASK', false);
+    const hasChildren = sel === 1;
+    const exitKey = getDVExitKey(session.gender, hasChildren);
+    return safeguardingExit(exitKey, 'DV', { ...session, hasChildren });
   }
   
   if (gate === 'GATE1_INTENT') {
