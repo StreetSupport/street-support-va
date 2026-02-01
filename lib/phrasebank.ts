@@ -37,7 +37,17 @@ Please reply with the number that fits best:
       "None of these apply"
     ]
   },
+  
+DV_GENDER_ASK: {
+    text: `I am really sorry this is happening to you. So I can point you to the right support, can I ask:\n\nWhat is your gender?\n\n1. Female\n2. Male\n3. Non-binary or other\n4. Prefer not to say`,
+    options: ['Female', 'Male', 'Non-binary or other', 'Prefer not to say']
+  },
 
+  DV_CHILDREN_ASK: {
+    text: `Do you have children with you or in your care?\n\n1. Yes\n2. No`,
+    options: ['Yes', 'No']
+  },
+  
   GATE1_INTENT: {
     text: `What are you looking for today?
 
