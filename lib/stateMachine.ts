@@ -2,6 +2,7 @@
 // Full routing logic from CHAR_VA_RoutingLogic_v7.md
 
 import { getPhrase, PhraseEntry } from './phrasebank';
+import { matchServices, formatServicesForTerminal, getDefaultOrgs, formatDefaultOrgs, getLGBTQOrgs, getImmigrationOrgs, getWomensAid, getChildrensServices } from './serviceMatcher';
 
 // ============================================================
 // TYPES
@@ -268,36 +269,154 @@ function getSAExitKey(gender: string | null): string {
   return 'SA_LGBTQ_OR_NONBINARY';
 }
 
+// Build dynamic DV exit with local Women's Aid and Children's Services
+function buildDVExit(session: SessionState, hasChildren: boolean): RoutingResult {
+  const isSupporter = session.isSupporter;
+  const gender = session.dvGender?.toLowerCase() || 'other';
+  
+  let text = isSupporter 
+    ? "I'm really sorry this is happening to them. They deserve support, and these services are here to help. They can talk through options, help with safety planning, and connect them with emergency housing if needed. Everything is confidential.\n\n"
+    : "I'm really sorry this is happening. You deserve support, and these services are here to help. They can talk through your options, help with safety planning, and connect you with emergency housing if needed. Everything is confidential.\n\n";
+  
+  // National DV helpline (for women) or ManKind (for men) or Galop (for LGBTQ+)
+  if (gender === 'female') {
+    text += `National Domestic Violence Helpline\n`;
+    text += `0808 2000 247 (24/7, free, confidential)\n`;
+    text += `https://nationaldahelpline.org.uk\n\n`;
+  } else if (gender === 'male') {
+    text += `ManKind Initiative\n`;
+    text += `0808 800 1170\n`;
+    text += `https://mankind.org.uk\n`;
+    text += `Confidential support for men affected by domestic violence\n\n`;
+  } else {
+    text += `Galop\n`;
+    text += `0800 999 5428\n`;
+    text += `https://galop.org.uk\n`;
+    text += `National helpline for LGBTQ+ people affected by abuse or violence\n\n`;
+  }
+  
+  // Local Women's Aid (for women)
+  if (gender === 'female') {
+    const womensAid = getWomensAid(session.localAuthority);
+    if (womensAid) {
+      text += `${womensAid.name}\n`;
+      if (womensAid.phone) text += `${womensAid.phone}\n`;
+      if (womensAid.website) text += `${womensAid.website}\n`;
+      text += '\n';
+    }
+  }
+  
+  // Children's Services (if has children)
+  if (hasChildren) {
+    const childrensServices = getChildrensServices(session.localAuthority);
+    if (childrensServices) {
+      text += `${childrensServices.name}\n`;
+      if (childrensServices.phone) text += `${childrensServices.phone}\n`;
+      if (childrensServices.website) text += `${childrensServices.website}\n`;
+      text += '\n';
+    }
+  }
+  
+  // Local Housing Options
+  const defaultOrgs = getDefaultOrgs(session.localAuthority);
+  const housingOptions = defaultOrgs.find(o => o.name.includes('Housing Options') || o.name.includes('Housing'));
+  if (housingOptions) {
+    text += `${housingOptions.name}\n`;
+    if (housingOptions.phone) text += `${housingOptions.phone}\n`;
+    if (housingOptions.website) text += `${housingOptions.website}\n`;
+    text += '\n';
+  }
+  
+  // Shelter DV advice
+  text += `Shelter - Domestic Violence Advice\n`;
+  text += `https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse\n`;
+  
+  return {
+    text,
+    stateUpdates: {
+      currentGate: 'SESSION_END',
+      safeguardingTriggered: true,
+      safeguardingType: 'DOMESTIC_ABUSE',
+      dvChildren: hasChildren,
+      timestampEnd: new Date().toISOString(),
+    },
+    sessionEnded: true,
+  };
+}
+
 function buildTerminalServices(session: SessionState): string {
   const la = session.localAuthority || 'your local council';
   const isSupporter = session.isSupporter;
   const pronoun = isSupporter ? 'them' : 'you';
   
-  let text = `Based on what ${isSupporter ? "you've told me about their situation" : "you've told me"}, here are some services that might be able to help:\n\n`;
+  // Build profile for matching
+  const profile = {
+    localAuthority: session.localAuthority,
+    supportNeed: session.supportNeed,
+    gender: session.gender || session.detailedGender,
+    ageCategory: session.ageCategory || session.detailedAge,
+    lgbtq: session.lgbtq,
+    criminalConvictions: session.criminalConvictions,
+    hasChildren: session.hasChildren,
+    sleepingSituation: session.sleepingSituation,
+    mentalHealth: session.mentalHealth,
+    physicalHealth: session.physicalHealth
+  };
   
-  // Local council
-  text += `${la} Council Housing Options\n`;
-  text += `They have a legal duty to help ${pronoun}.\n\n`;
+  let text = `Based on what ${isSupporter ? "you've told me about their situation" : "you've told me"}, here are some services that can help:\n\n`;
   
-  // Shelter
+  // 1. DEFAULTS FIRST - Council Housing Options + P3 (if applicable)
+  const defaultOrgs = getDefaultOrgs(session.localAuthority);
+  if (defaultOrgs.length > 0) {
+    text += formatDefaultOrgs(defaultOrgs);
+  }
+  
+  // 2. LGBTQ+ SPECIALIST SERVICES (if lgbtq = true)
+  if (session.lgbtq) {
+    const lgbtqOrgs = getLGBTQOrgs();
+    if (lgbtqOrgs.length > 0) {
+      text += formatDefaultOrgs(lgbtqOrgs);
+    }
+  }
+  
+  // 3. IMMIGRATION/NRPF SPECIALIST SERVICES (if applicable)
+  const needsImmigrationSupport = 
+    session.immigrationStatus === 'Asylum seeker' ||
+    session.immigrationStatus === 'No status' ||
+    session.publicFunds === 'No';
+  
+  if (needsImmigrationSupport) {
+    const immigrationOrgs = getImmigrationOrgs(session.localAuthority);
+    if (immigrationOrgs.length > 0) {
+      text += formatDefaultOrgs(immigrationOrgs);
+    }
+  }
+  
+  // 4. MATCHED SERVICES - based on profile from JSON
+  const matchedServices = matchServices(profile, 3);
+  if (matchedServices.length > 0) {
+    text += formatServicesForTerminal(matchedServices, profile);
+  }
+  
+  // 5. SHELTER - always include as national fallback
   text += `Shelter\n`;
   text += `0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)\n`;
   text += `https://england.shelter.org.uk\n\n`;
   
-  // StreetLink if rough sleeping
+  // 6. STREETLINK if rough sleeping
   if (session.sleepingSituation?.toLowerCase().includes('rough')) {
     text += `StreetLink - to alert local outreach teams\n`;
     text += `https://streetlink.org.uk\n\n`;
   }
   
-  // Youth services if flagged
+  // 7. YOUTH SERVICES if flagged
   if (session.youthServicesFlag) {
     text += `Centrepoint - support for young people\n`;
     text += `0808 800 0661\n`;
     text += `https://centrepoint.org.uk\n\n`;
   }
   
-  // Social services guidance for young people / care leavers
+  // 8. SOCIAL SERVICES GUIDANCE for young people / care leavers
   if ((session.ageCategory === '16-17' || session.inCare) && session.socialServices === 'No') {
     const guidance = getPhrase('TERMINAL_SOCIAL_SERVICES_GUIDANCE', false);
     if (guidance) {
@@ -405,8 +524,8 @@ export function processInput(session: SessionState, input: string): RoutingResul
     
     case 'DV_CHILDREN_ASK': {
       const dvChildren = choice === 1;
-      const dvExitKey = getDVExitKey(session.dvGender, dvChildren);
-      return safeguardingExit(dvExitKey, session.isSupporter, 'DOMESTIC_ABUSE');
+      // Use dynamic DV exit builder with local orgs
+      return buildDVExit(session, dvChildren);
     }
     
     // ========================================
@@ -927,9 +1046,20 @@ export function processInput(session: SessionState, input: string): RoutingResul
     case 'C3Q2_DEPENDENT_CHILDREN': {
       const hasChildrenC = choice === 1;
       
+      // Skip C3Q3_AGE and C3Q4_GENDER - already collected at B3/B4
+      // Check if pregnancy question needed (female or non-binary from B4)
+      const genderLower = (session.gender || '').toLowerCase();
+      if (genderLower === 'female' || genderLower.includes('non-binary')) {
+        return {
+          ...phrase('C3Q5_PREGNANCY', session.isSupporter),
+          stateUpdates: { currentGate: 'C3Q5_PREGNANCY', hasChildren: hasChildrenC }
+        };
+      }
+      
+      // Male or prefer not to say - skip pregnancy, go to ethnicity
       return {
-        ...phrase('C3Q3_AGE', session.isSupporter),
-        stateUpdates: { currentGate: 'C3Q3_AGE', hasChildren: hasChildrenC }
+        ...phrase('C3Q6_ETHNICITY', session.isSupporter),
+        stateUpdates: { currentGate: 'C3Q6_ETHNICITY', hasChildren: hasChildrenC }
       };
     }
     
