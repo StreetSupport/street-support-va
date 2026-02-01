@@ -270,7 +270,6 @@ function getSAExitKey(gender: string | null): string {
 
 function buildTerminalServices(session: SessionState): string {
   const la = session.localAuthority || 'your local council';
-  const need = session.supportNeed || 'support';
   const isSupporter = session.isSupporter;
   const pronoun = isSupporter ? 'them' : 'you';
   
@@ -307,6 +306,17 @@ function buildTerminalServices(session: SessionState): string {
   }
   
   return text;
+}
+
+function terminalWithAdditionalNeeds(session: SessionState, extraUpdates: Partial<SessionState> = {}): RoutingResult {
+  const services = buildTerminalServices(session);
+  const addNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
+  return {
+    text: services + '\n' + (addNeeds?.text || ''),
+    options: addNeeds?.options,
+    stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', ...extraUpdates },
+    sessionEnded: false
+  };
 }
 
 // ============================================================
@@ -368,67 +378,63 @@ export function processInput(session: SessionState, input: string): RoutingResul
     // ========================================
     // GATE 0: CRISIS
     // ========================================
-    case 'GATE0_CRISIS_DANGER':
+    case 'GATE0_CRISIS_DANGER': {
       switch (choice) {
-        case 1: // Immediate danger
-          return safeguardingExit('IMMEDIATE_PHYSICAL_DANGER_EXIT', session.isSupporter, 'IMMEDIATE_DANGER');
-        case 2: // Domestic abuse -> ask gender
-          return phrase('DV_GENDER_ASK', session.isSupporter);
-        case 3: // Sexual violence -> ask gender
-          return phrase('SA_GENDER_ASK', session.isSupporter);
-        case 4: // Self-harm
-          return safeguardingExit('SELF_HARM_EXIT', session.isSupporter, 'SELF_HARM');
-        case 5: // Under 16
-          return safeguardingExit('UNDER_16_EXIT', session.isSupporter, 'UNDER_16');
-        case 6: // Fire/flood
-          return safeguardingExit('FIRE_FLOOD_EXIT', session.isSupporter, 'FIRE_FLOOD');
-        case 7: // None apply
-          return phrase('GATE1_INTENT', session.isSupporter);
-        default:
-          return phrase('GATE0_CRISIS_DANGER', session.isSupporter);
+        case 1: return safeguardingExit('IMMEDIATE_PHYSICAL_DANGER_EXIT', session.isSupporter, 'IMMEDIATE_DANGER');
+        case 2: return phrase('DV_GENDER_ASK', session.isSupporter);
+        case 3: return phrase('SA_GENDER_ASK', session.isSupporter);
+        case 4: return safeguardingExit('SELF_HARM_EXIT', session.isSupporter, 'SELF_HARM');
+        case 5: return safeguardingExit('UNDER_16_EXIT', session.isSupporter, 'UNDER_16');
+        case 6: return safeguardingExit('FIRE_FLOOD_EXIT', session.isSupporter, 'FIRE_FLOOD');
+        case 7: return phrase('GATE1_INTENT', session.isSupporter);
+        default: return phrase('GATE0_CRISIS_DANGER', session.isSupporter);
       }
+    }
     
     // ========================================
     // DV ROUTING
     // ========================================
-    case 'DV_GENDER_ASK':
+    case 'DV_GENDER_ASK': {
       const dvGenders = ['Female', 'Male', 'Non-binary or other', 'Prefer not to say'];
       const dvGender = choice ? dvGenders[choice - 1] : null;
       return {
         ...phrase('DV_CHILDREN_ASK', session.isSupporter),
         stateUpdates: { currentGate: 'DV_CHILDREN_ASK', dvGender }
       };
+    }
     
-    case 'DV_CHILDREN_ASK':
+    case 'DV_CHILDREN_ASK': {
       const dvChildren = choice === 1;
       const dvExitKey = getDVExitKey(session.dvGender, dvChildren);
       return safeguardingExit(dvExitKey, session.isSupporter, 'DOMESTIC_ABUSE');
+    }
     
     // ========================================
     // SA ROUTING
     // ========================================
-    case 'SA_GENDER_ASK':
+    case 'SA_GENDER_ASK': {
       const saGenders = ['Female', 'Male', 'Non-binary or other', 'Prefer not to say'];
       const saGender = choice ? saGenders[choice - 1] : null;
       const saExitKey = getSAExitKey(saGender);
       return safeguardingExit(saExitKey, session.isSupporter, 'SEXUAL_VIOLENCE');
+    }
     
     // ========================================
     // GATE 1: INTENT
     // ========================================
-    case 'GATE1_INTENT':
+    case 'GATE1_INTENT': {
       switch (choice) {
-        case 1: // Advice
+        case 1:
           return {
             ...phrase('B4_ADVICE_TOPIC_SELECTION', session.isSupporter),
             stateUpdates: { currentGate: 'B4_ADVICE_TOPIC_SELECTION', intentType: 'ADVICE' }
           };
-        case 2: // Help connecting
+        case 2:
           return {
             ...phrase('GATE2_ROUTE_SELECTION', session.isSupporter),
             stateUpdates: { currentGate: 'GATE2_ROUTE_SELECTION', intentType: 'SERVICES' }
           };
-        case 3: // Specific org
+        case 3:
           return {
             ...phrase('B1_LOCAL_AUTHORITY', session.isSupporter),
             stateUpdates: { currentGate: 'B1_LOCAL_AUTHORITY', intentType: 'ORGANISATION' }
@@ -436,12 +442,12 @@ export function processInput(session: SessionState, input: string): RoutingResul
         default:
           return phrase('GATE1_INTENT', session.isSupporter);
       }
+    }
     
     // ========================================
     // ADVICE MODE
     // ========================================
-    case 'B4_ADVICE_TOPIC_SELECTION':
-      // Map selection to advice content
+    case 'B4_ADVICE_TOPIC_SELECTION': {
       const adviceKeys: Record<number, string> = {
         1: 'ADVICE_PRIORITY_NEED',
         2: 'ADVICE_EVICTION_RISK_PREVENTION',
@@ -461,38 +467,42 @@ export function processInput(session: SessionState, input: string): RoutingResul
         stateUpdates: { currentGate: 'ADVICE_BRIDGE' },
         sessionEnded: false
       };
+    }
     
-    case 'ADVICE_BRIDGE':
+    case 'ADVICE_BRIDGE': {
       switch (choice) {
-        case 1: // Connect to services
+        case 1:
           return phrase('GATE2_ROUTE_SELECTION', session.isSupporter);
-        case 2: // Another question
+        case 2:
           return phrase('B4_ADVICE_TOPIC_SELECTION', session.isSupporter);
-        case 3: // Done
+        case 3: {
           const goodbye = getPhrase('TERMINAL_GOODBYE', session.isSupporter);
           return {
             text: goodbye?.text || 'Take care.',
             stateUpdates: { currentGate: 'SESSION_END', timestampEnd: new Date().toISOString() },
             sessionEnded: true
           };
+        }
         default:
           return phrase('ADVICE_BRIDGE', session.isSupporter);
       }
+    }
     
     // ========================================
     // GATE 2: ROUTE SELECTION
     // ========================================
-    case 'GATE2_ROUTE_SELECTION':
+    case 'GATE2_ROUTE_SELECTION': {
       const routeType = choice === 1 ? 'FULL' : 'QUICK';
       return {
         ...phrase('B1_LOCAL_AUTHORITY', session.isSupporter),
         stateUpdates: { currentGate: 'B1_LOCAL_AUTHORITY', routeType }
       };
+    }
     
     // ========================================
     // SECTION B: CORE PROFILING
     // ========================================
-    case 'B1_LOCAL_AUTHORITY':
+    case 'B1_LOCAL_AUTHORITY': {
       const laOptions = ['Wolverhampton', 'Coventry', 'Birmingham', 'Walsall', 'Solihull', 'Dudley', 'Sandwell', 'Other'];
       const la = choice ? laOptions[choice - 1] : null;
       
@@ -509,8 +519,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('B2_WHO_FOR', session.isSupporter),
         stateUpdates: { currentGate: 'B2_WHO_FOR', localAuthority: la }
       };
+    }
     
-    case 'B2_WHO_FOR':
+    case 'B2_WHO_FOR': {
       const userTypes: Record<number, 'SELF' | 'SUPPORTER' | 'PROFESSIONAL'> = {
         1: 'SELF',
         2: 'SUPPORTER',
@@ -524,20 +535,18 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('B3_AGE_CATEGORY', isSupporter),
         stateUpdates: { currentGate: 'B3_AGE_CATEGORY', userType, isSupporter }
       };
+    }
     
-    case 'B3_AGE_CATEGORY':
+    case 'B3_AGE_CATEGORY': {
       const ageOptions = ['Under 16', '16-17', '18-24', '25 or over'];
       const age = choice ? ageOptions[choice - 1] : null;
       
-      // Under 16 safeguarding exit
       if (choice === 1) {
         return safeguardingExit('UNDER_16_EXIT', session.isSupporter, 'UNDER_16');
       }
       
-      // Youth flag for 16-17
       const youthFlag = choice === 2;
       
-      // Full route asks gender, quick route skips to B5
       if (session.routeType === 'FULL') {
         return {
           ...phrase('B4_GENDER', session.isSupporter),
@@ -549,8 +558,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
           stateUpdates: { currentGate: 'B5_MAIN_SUPPORT_NEED', ageCategory: age, youthServicesFlag: youthFlag }
         };
       }
+    }
     
-    case 'B4_GENDER':
+    case 'B4_GENDER': {
       const genderOptions = ['Male', 'Female', 'Non-binary or other', 'Prefer not to say'];
       const gender = choice ? genderOptions[choice - 1] : null;
       
@@ -558,8 +568,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter),
         stateUpdates: { currentGate: 'B5_MAIN_SUPPORT_NEED', gender }
       };
+    }
     
-    case 'B5_MAIN_SUPPORT_NEED':
+    case 'B5_MAIN_SUPPORT_NEED': {
       const needOptions = ['Emergency Housing', 'Food', 'Work', 'Health', 'Advice', 'Drop In', 'Financial', 'Items', 'Services', 'Comms', 'Training', 'Activities'];
       const need = choice ? needOptions[choice - 1] : null;
       
@@ -567,8 +578,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('B6_HOMELESSNESS_STATUS', session.isSupporter),
         stateUpdates: { currentGate: 'B6_HOMELESSNESS_STATUS', supportNeed: need, needCount: session.needCount + 1 }
       };
+    }
     
-    case 'B6_HOMELESSNESS_STATUS':
+    case 'B6_HOMELESSNESS_STATUS': {
       const homeless = choice === 1;
       
       if (homeless) {
@@ -582,12 +594,12 @@ export function processInput(session: SessionState, input: string): RoutingResul
           stateUpdates: { currentGate: 'B7_HOUSED_SITUATION', homeless: false }
         };
       }
+    }
     
-    case 'B7_HOUSED_SITUATION':
+    case 'B7_HOUSED_SITUATION': {
       const housedOptions = ['At home', 'Friends/family', 'Council temp', 'Other temp'];
       const housed = choice ? housedOptions[choice - 1] : null;
       
-      // Friends/family or temp = actually homeless (sofa surfing)
       if (choice && choice >= 2) {
         return {
           ...phrase('B7_HOMELESS_SLEEPING_SITUATION', session.isSupporter),
@@ -595,53 +607,44 @@ export function processInput(session: SessionState, input: string): RoutingResul
         };
       }
       
-      // At home -> prevention gate
       return {
         ...phrase('B7A_PREVENTION_GATE', session.isSupporter),
         stateUpdates: { currentGate: 'B7A_PREVENTION_GATE', housedSituation: housed }
       };
+    }
     
-    case 'B7A_PREVENTION_GATE':
+    case 'B7A_PREVENTION_GATE': {
       switch (choice) {
-        case 1: // At risk
+        case 1:
           return {
             ...phrase('B7B_PREVENTION_REASON', session.isSupporter),
             stateUpdates: { currentGate: 'B7B_PREVENTION_REASON', preventionNeed: true }
           };
-        case 2: // Just info -> terminal
-          const services = buildTerminalServices(session);
-          const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-          return {
-            text: services + '\n' + additionalNeeds?.text,
-            options: additionalNeeds?.options,
-            stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', preventionNeed: false },
-            sessionEnded: false
-          };
-        case 3: // Change answer -> back to B6
+        case 2:
+          return terminalWithAdditionalNeeds(session, { preventionNeed: false });
+        case 3:
           return phrase('B6_HOMELESSNESS_STATUS', session.isSupporter);
         default:
           return phrase('B7A_PREVENTION_GATE', session.isSupporter);
       }
+    }
     
-    case 'B7_HOMELESS_SLEEPING_SITUATION':
+    case 'B7_HOMELESS_SLEEPING_SITUATION': {
       const sleepingOptions = ['Rough sleeping', 'Emergency accommodation', 'Sofa surfing', 'Council temp', 'Other temp'];
       const sleeping = choice ? sleepingOptions[choice - 1] : null;
       
-      // Quick route goes to terminal, Full route continues to B8
       if (session.routeType === 'QUICK') {
-        const services = buildTerminalServices({ ...session, sleepingSituation: sleeping });
-        const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
+        let text = buildTerminalServices({ ...session, sleepingSituation: sleeping });
         
-        // Add StreetLink for rough sleeping
-        let text = services;
         if (choice === 1) {
           const streetlink = getPhrase('STREETLINK_SIGNPOST', session.isSupporter);
-          text = (streetlink?.text || '') + '\n\n' + services;
+          text = (streetlink?.text || '') + '\n\n' + text;
         }
         
+        const addNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
         return {
-          text: text + '\n' + additionalNeeds?.text,
-          options: additionalNeeds?.options,
+          text: text + '\n' + (addNeeds?.text || ''),
+          options: addNeeds?.options,
           stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', sleepingSituation: sleeping },
           sessionEnded: false
         };
@@ -651,11 +654,12 @@ export function processInput(session: SessionState, input: string): RoutingResul
           stateUpdates: { currentGate: 'B8_DURATION', sleepingSituation: sleeping }
         };
       }
+    }
     
     // ========================================
     // PREVENTION PATHWAY (B7B-B7E)
     // ========================================
-    case 'B7B_PREVENTION_REASON':
+    case 'B7B_PREVENTION_REASON': {
       const reasonOptions = ['Rent arrears', 'Eviction notice', 'Mortgage arrears', 'Family/friends notice', 'Financial difficulties', 'Prefer not to say'];
       const prevReason = choice ? reasonOptions[choice - 1] : null;
       
@@ -663,8 +667,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('B7C_PREVENTION_URGENCY', session.isSupporter),
         stateUpdates: { currentGate: 'B7C_PREVENTION_URGENCY', preventionReason: prevReason }
       };
+    }
     
-    case 'B7C_PREVENTION_URGENCY':
+    case 'B7C_PREVENTION_URGENCY': {
       const urgencyOptions = ['Now/soon', 'Months away', 'Not sure'];
       const urgency = choice ? urgencyOptions[choice - 1] : null;
       
@@ -672,8 +677,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('B7D_1_PREVENTION_CHILDREN_DEPENDENTS', session.isSupporter),
         stateUpdates: { currentGate: 'B7D_1_PREVENTION_CHILDREN_DEPENDENTS', preventionUrgency: urgency }
       };
+    }
     
-    case 'B7D_1_PREVENTION_CHILDREN_DEPENDENTS':
+    case 'B7D_1_PREVENTION_CHILDREN_DEPENDENTS': {
       const prevChildrenOptions = ['Yes', 'No', 'Prefer not to say'];
       const prevChildren = choice ? prevChildrenOptions[choice - 1] : null;
       
@@ -681,8 +687,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('B7D_2_PREVENTION_EMPLOYMENT_INCOME', session.isSupporter),
         stateUpdates: { currentGate: 'B7D_2_PREVENTION_EMPLOYMENT_INCOME', preventionChildren: prevChildren }
       };
+    }
     
-    case 'B7D_2_PREVENTION_EMPLOYMENT_INCOME':
+    case 'B7D_2_PREVENTION_EMPLOYMENT_INCOME': {
       const empOptions = ['Employed', 'Unemployed', 'Benefits', 'Self-employed', 'Not working', 'Prefer not to say'];
       const emp = choice ? empOptions[choice - 1] : null;
       
@@ -690,8 +697,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('B7D_3_PREVENTION_PRIOR_SUPPORT', session.isSupporter),
         stateUpdates: { currentGate: 'B7D_3_PREVENTION_PRIOR_SUPPORT', preventionEmployment: emp }
       };
+    }
     
-    case 'B7D_3_PREVENTION_PRIOR_SUPPORT':
+    case 'B7D_3_PREVENTION_PRIOR_SUPPORT': {
       const priorOptions = ['Yes spoken to someone', 'No not yet', 'Not sure who'];
       const prior = choice ? priorOptions[choice - 1] : null;
       
@@ -699,20 +707,19 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('B7D_4_PREVENTION_SAFEGUARDING_SIGNALS', session.isSupporter),
         stateUpdates: { currentGate: 'B7D_4_PREVENTION_SAFEGUARDING_SIGNALS', preventionPriorSupport: prior }
       };
+    }
     
-    case 'B7D_4_PREVENTION_SAFEGUARDING_SIGNALS':
+    case 'B7D_4_PREVENTION_SAFEGUARDING_SIGNALS': {
       const sigOptions = ['Yes something else', 'No just housing', 'Prefer not to say'];
       const sig = choice ? sigOptions[choice - 1] : null;
       
       if (choice === 1) {
-        // Something else -> follow up
         return {
           ...phrase('B7D_4A_PREVENTION_SAFEGUARDING_FOLLOW_UP', session.isSupporter),
           stateUpdates: { currentGate: 'B7D_4A_PREVENTION_SAFEGUARDING_FOLLOW_UP', preventionSafeguardingSignals: sig }
         };
       }
       
-      // Check escalation triggers
       const isUrgent = session.preventionUrgency === 'Now/soon';
       const hasChildren = session.preventionChildren === 'Yes';
       const isEviction = session.preventionReason?.includes('Eviction');
@@ -735,47 +742,32 @@ export function processInput(session: SessionState, input: string): RoutingResul
         };
       }
       
-      // Normal terminal
-      const services = buildTerminalServices(session);
-      const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-      return {
-        text: services + '\n' + additionalNeeds?.text,
-        options: additionalNeeds?.options,
-        stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', preventionSafeguardingSignals: sig },
-        sessionEnded: false
-      };
+      return terminalWithAdditionalNeeds(session, { preventionSafeguardingSignals: sig });
+    }
     
-    case 'B7D_4A_PREVENTION_SAFEGUARDING_FOLLOW_UP':
-      const followupOptions = ['Domestic abuse', 'Health crisis', 'Substance use', 'Child safety', 'Something else', 'Prefer not to say'];
-      const followup = choice ? followupOptions[choice - 1] : null;
-      
+    case 'B7D_4A_PREVENTION_SAFEGUARDING_FOLLOW_UP': {
       switch (choice) {
-        case 1: // Domestic abuse -> DV routing
+        case 1:
           return phrase('DV_GENDER_ASK', session.isSupporter);
-        case 2: // Health crisis
+        case 2: {
           const health = getPhrase('ESCALATION_LEVEL_2_HEALTH_CRISIS', session.isSupporter);
           return {
             text: health?.text || '',
             stateUpdates: { currentGate: 'SESSION_END', safeguardingType: 'HEALTH_CRISIS', timestampEnd: new Date().toISOString() },
             sessionEnded: true
           };
-        case 4: // Child safety
+        }
+        case 4:
           return safeguardingExit('CHILD_AT_RISK_EXIT', session.isSupporter, 'CHILD_AT_RISK');
-        default: // Continue to terminal
-          const services2 = buildTerminalServices(session);
-          const additionalNeeds2 = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-          return {
-            text: services2 + '\n' + additionalNeeds2?.text,
-            options: additionalNeeds2?.options,
-            stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS' },
-            sessionEnded: false
-          };
+        default:
+          return terminalWithAdditionalNeeds(session);
       }
+    }
     
     // ========================================
     // HOMELESS CONTINUATION (B8-B12)
     // ========================================
-    case 'B8_DURATION':
+    case 'B8_DURATION': {
       const durationOptions = ['Less than a week', '1-4 weeks', '1-6 months', '6-12 months', 'Over a year'];
       const duration = choice ? durationOptions[choice - 1] : null;
       
@@ -783,18 +775,16 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('B9_REASON', session.isSupporter),
         stateUpdates: { currentGate: 'B9_REASON', duration }
       };
+    }
     
-    case 'B9_REASON':
+    case 'B9_REASON': {
       const b9Options = ['Relationship breakdown', 'Domestic abuse', 'Lost job', 'Asked to leave', 'End of tenancy', 'Prison/hospital', 'Mental health', 'Substance use', 'Other'];
       const b9Reason = choice ? b9Options[choice - 1] : null;
       
-      // Domestic abuse -> DV routing
       if (choice === 2) {
         return phrase('DV_GENDER_ASK', session.isSupporter);
       }
       
-      // Mental health acknowledgment
-      let nextGate: GateType = 'B10_INCOME';
       let extraText = '';
       if (choice === 7) {
         const ack = getPhrase('B9C_MENTAL_HEALTH_ACKNOWLEDGMENT', session.isSupporter);
@@ -803,13 +793,14 @@ export function processInput(session: SessionState, input: string): RoutingResul
       
       const b10 = getPhrase('B10_INCOME', session.isSupporter);
       return {
-        text: extraText + b10?.text,
+        text: extraText + (b10?.text || ''),
         options: b10?.options,
         stateUpdates: { currentGate: 'B10_INCOME', reason: b9Reason },
         sessionEnded: false
       };
+    }
     
-    case 'B10_INCOME':
+    case 'B10_INCOME': {
       const incomeOptions = ['Employment', 'Benefits', 'Family/friends', 'No income', 'Prefer not to say'];
       const income = choice ? incomeOptions[choice - 1] : null;
       
@@ -817,8 +808,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('B11_PRIOR_USE', session.isSupporter),
         stateUpdates: { currentGate: 'B11_PRIOR_USE', income }
       };
+    }
     
-    case 'B11_PRIOR_USE':
+    case 'B11_PRIOR_USE': {
       const priorUseOptions = ['Yes', 'No', 'Not sure'];
       const priorUse = choice ? priorUseOptions[choice - 1] : null;
       
@@ -826,8 +818,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('B12_ALREADY_SUPPORTED', session.isSupporter),
         stateUpdates: { currentGate: 'B12_ALREADY_SUPPORTED', priorUse }
       };
+    }
     
-    case 'B12_ALREADY_SUPPORTED':
+    case 'B12_ALREADY_SUPPORTED': {
       const alreadySupported = choice === 1;
       
       if (alreadySupported) {
@@ -837,45 +830,31 @@ export function processInput(session: SessionState, input: string): RoutingResul
         };
       }
       
-      // Go to Section C or terminal
       if (session.routeType === 'FULL') {
         return {
           ...phrase('C2_CONSENT_GATE', session.isSupporter),
           stateUpdates: { currentGate: 'C2_CONSENT_GATE', alreadySupported: false }
         };
       } else {
-        const services = buildTerminalServices(session);
-        const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-        return {
-          text: services + '\n' + additionalNeeds?.text,
-          options: additionalNeeds?.options,
-          stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', alreadySupported: false },
-          sessionEnded: false
-        };
+        return terminalWithAdditionalNeeds(session, { alreadySupported: false });
       }
+    }
     
-    case 'B12A_WHICH_ORG':
-      // Free text input - store and continue
+    case 'B12A_WHICH_ORG': {
       if (session.routeType === 'FULL') {
         return {
           ...phrase('C2_CONSENT_GATE', session.isSupporter),
           stateUpdates: { currentGate: 'C2_CONSENT_GATE', currentSupportingOrg: input }
         };
       } else {
-        const services = buildTerminalServices(session);
-        const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-        return {
-          text: services + '\n' + additionalNeeds?.text,
-          options: additionalNeeds?.options,
-          stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', currentSupportingOrg: input },
-          sessionEnded: false
-        };
+        return terminalWithAdditionalNeeds(session, { currentSupportingOrg: input });
       }
+    }
     
     // ========================================
     // SECTION C: DETAILED PROFILING
     // ========================================
-    case 'C2_CONSENT_GATE':
+    case 'C2_CONSENT_GATE': {
       if (choice === 1) {
         const ack = getPhrase('C2A_CONSENT_ACKNOWLEDGED', session.isSupporter);
         const imm = getPhrase('C3Q1_IMMIGRATION_STATUS', session.isSupporter);
@@ -886,22 +865,14 @@ export function processInput(session: SessionState, input: string): RoutingResul
           sessionEnded: false
         };
       } else {
-        // No consent -> skip to terminal
-        const services = buildTerminalServices(session);
-        const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-        return {
-          text: services + '\n' + additionalNeeds?.text,
-          options: additionalNeeds?.options,
-          stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', consentGiven: false },
-          sessionEnded: false
-        };
+        return terminalWithAdditionalNeeds(session, { consentGiven: false });
       }
+    }
     
-    case 'C3Q1_IMMIGRATION_STATUS':
+    case 'C3Q1_IMMIGRATION_STATUS': {
       const immOptions = ['British', 'EUSS', 'Refugee', 'Leave to remain', 'Asylum seeker', 'No status', 'Prefer not to say'];
       const imm = choice ? immOptions[choice - 1] : null;
       
-      // EUSS -> follow up
       if (choice === 2) {
         return {
           ...phrase('C3Q1A_EUSS_FOLLOWUP', session.isSupporter),
@@ -909,7 +880,6 @@ export function processInput(session: SessionState, input: string): RoutingResul
         };
       }
       
-      // No status -> acknowledgment + public funds
       if (choice === 6) {
         const ack = getPhrase('C3Q1C_NRPF_ACKNOWLEDGMENT', session.isSupporter);
         const pf = getPhrase('C3Q1B_PUBLIC_FUNDS_FOLLOWUP', session.isSupporter);
@@ -921,17 +891,16 @@ export function processInput(session: SessionState, input: string): RoutingResul
         };
       }
       
-      // Continue to children
       return {
         ...phrase('C3Q2_DEPENDENT_CHILDREN', session.isSupporter),
         stateUpdates: { currentGate: 'C3Q2_DEPENDENT_CHILDREN', immigrationStatus: imm }
       };
+    }
     
-    case 'C3Q1A_EUSS_FOLLOWUP':
+    case 'C3Q1A_EUSS_FOLLOWUP': {
       const eussOptions = ['Settled', 'Pre-settled', 'Unsure'];
       const euss = choice ? eussOptions[choice - 1] : null;
       
-      // Pre-settled -> public funds question
       if (choice === 2) {
         return {
           ...phrase('C3Q1B_PUBLIC_FUNDS_FOLLOWUP', session.isSupporter),
@@ -943,8 +912,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('C3Q2_DEPENDENT_CHILDREN', session.isSupporter),
         stateUpdates: { currentGate: 'C3Q2_DEPENDENT_CHILDREN', eussStatus: euss }
       };
+    }
     
-    case 'C3Q1B_PUBLIC_FUNDS_FOLLOWUP':
+    case 'C3Q1B_PUBLIC_FUNDS_FOLLOWUP': {
       const pfOptions = ['Yes', 'No', 'Not sure'];
       const pf = choice ? pfOptions[choice - 1] : null;
       
@@ -952,20 +922,21 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('C3Q2_DEPENDENT_CHILDREN', session.isSupporter),
         stateUpdates: { currentGate: 'C3Q2_DEPENDENT_CHILDREN', publicFunds: pf }
       };
+    }
     
-    case 'C3Q2_DEPENDENT_CHILDREN':
+    case 'C3Q2_DEPENDENT_CHILDREN': {
       const hasChildrenC = choice === 1;
       
       return {
         ...phrase('C3Q3_AGE', session.isSupporter),
         stateUpdates: { currentGate: 'C3Q3_AGE', hasChildren: hasChildrenC }
       };
+    }
     
-    case 'C3Q3_AGE':
+    case 'C3Q3_AGE': {
       const detailedAgeOptions = ['Under 16', '16-17', '18-20', '21-24', '25+'];
       const detailedAge = choice ? detailedAgeOptions[choice - 1] : null;
       
-      // Under 16 safeguarding
       if (choice === 1) {
         return safeguardingExit('UNDER_16_EXIT', session.isSupporter, 'UNDER_16');
       }
@@ -974,12 +945,12 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('C3Q4_GENDER', session.isSupporter),
         stateUpdates: { currentGate: 'C3Q4_GENDER', detailedAge }
       };
+    }
     
-    case 'C3Q4_GENDER':
+    case 'C3Q4_GENDER': {
       const detailedGenderOptions = ['Male', 'Female', 'Trans Female', 'Trans Male'];
       const detailedGender = choice ? detailedGenderOptions[choice - 1] : null;
       
-      // Pregnancy question only for female/trans female
       if (choice === 2 || choice === 3) {
         return {
           ...phrase('C3Q5_PREGNANCY', session.isSupporter),
@@ -991,16 +962,18 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('C3Q6_ETHNICITY', session.isSupporter),
         stateUpdates: { currentGate: 'C3Q6_ETHNICITY', detailedGender }
       };
+    }
     
-    case 'C3Q5_PREGNANCY':
+    case 'C3Q5_PREGNANCY': {
       const pregnant = choice === 1;
       
       return {
         ...phrase('C3Q6_ETHNICITY', session.isSupporter),
         stateUpdates: { currentGate: 'C3Q6_ETHNICITY', pregnant }
       };
+    }
     
-    case 'C3Q6_ETHNICITY':
+    case 'C3Q6_ETHNICITY': {
       const ethOptions = ['White British', 'White Other', 'Black African', 'Black Caribbean', 'Asian', 'Mixed'];
       const eth = choice ? ethOptions[choice - 1] : null;
       
@@ -1008,8 +981,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('C3Q7_PHYSICAL_HEALTH', session.isSupporter),
         stateUpdates: { currentGate: 'C3Q7_PHYSICAL_HEALTH', ethnicity: eth }
       };
+    }
     
-    case 'C3Q7_PHYSICAL_HEALTH':
+    case 'C3Q7_PHYSICAL_HEALTH': {
       const phOptions = ['None', 'Mobility', 'Visual', 'Hearing', 'Verbal', 'Neurological'];
       const ph = choice ? phOptions[choice - 1] : null;
       
@@ -1017,8 +991,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('C3Q8_MENTAL_HEALTH', session.isSupporter),
         stateUpdates: { currentGate: 'C3Q8_MENTAL_HEALTH', physicalHealth: ph }
       };
+    }
     
-    case 'C3Q8_MENTAL_HEALTH':
+    case 'C3Q8_MENTAL_HEALTH': {
       const mhOptions = ['None', 'Depression', 'Anxiety', 'PTSD', 'Bipolar', 'Schizophrenia', 'Neurodivergence', 'Learning difficulties', 'Prefer not to say'];
       const mh = choice ? mhOptions[choice - 1] : null;
       
@@ -1026,8 +1001,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('C3Q9_CRIMINAL_CONVICTIONS', session.isSupporter),
         stateUpdates: { currentGate: 'C3Q9_CRIMINAL_CONVICTIONS', mentalHealth: mh }
       };
+    }
     
-    case 'C3Q9_CRIMINAL_CONVICTIONS':
+    case 'C3Q9_CRIMINAL_CONVICTIONS': {
       const ccOptions = ['None', 'Arson', 'Sexual', 'Violent', 'Prefer not to say'];
       const cc = choice ? ccOptions[choice - 1] : null;
       
@@ -1035,8 +1011,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('C3Q10_LGBTQ', session.isSupporter),
         stateUpdates: { currentGate: 'C3Q10_LGBTQ', criminalConvictions: cc }
       };
+    }
     
-    case 'C3Q10_LGBTQ':
+    case 'C3Q10_LGBTQ': {
       const lgbtq = choice === 1;
       
       if (lgbtq) {
@@ -1050,8 +1027,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('C3Q11_CURRENTLY_IN_CARE', session.isSupporter),
         stateUpdates: { currentGate: 'C3Q11_CURRENTLY_IN_CARE', lgbtq: false }
       };
+    }
     
-    case 'C3Q10A_LGBTQ_SERVICE_PREFERENCE':
+    case 'C3Q10A_LGBTQ_SERVICE_PREFERENCE': {
       const lgbtqPrefOptions = ['Specialist first', 'Local only', 'Show both'];
       const lgbtqPref = choice ? lgbtqPrefOptions[choice - 1] : null;
       
@@ -1059,41 +1037,34 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('C3Q11_CURRENTLY_IN_CARE', session.isSupporter),
         stateUpdates: { currentGate: 'C3Q11_CURRENTLY_IN_CARE', lgbtqServicePreference: lgbtqPref }
       };
+    }
     
-    case 'C3Q11_CURRENTLY_IN_CARE':
+    case 'C3Q11_CURRENTLY_IN_CARE': {
       const inCare = choice === 1;
       
       return {
         ...phrase('C3Q12_SOCIAL_SERVICES', session.isSupporter),
         stateUpdates: { currentGate: 'C3Q12_SOCIAL_SERVICES', inCare }
       };
+    }
     
-    case 'C3Q12_SOCIAL_SERVICES':
+    case 'C3Q12_SOCIAL_SERVICES': {
       const ssOptions = ['Yes', 'No', 'Prefer not to say'];
       const ss = choice ? ssOptions[choice - 1] : null;
       
-      // Terminal with full profile
-      const services = buildTerminalServices({ ...session, socialServices: ss });
-      const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-      return {
-        text: services + '\n' + additionalNeeds?.text,
-        options: additionalNeeds?.options,
-        stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', socialServices: ss },
-        sessionEnded: false
-      };
+      return terminalWithAdditionalNeeds({ ...session, socialServices: ss }, { socialServices: ss });
+    }
     
     // ========================================
     // TERMINAL & ADDITIONAL NEEDS
     // ========================================
-    case 'TERMINAL_ADDITIONAL_NEEDS':
+    case 'TERMINAL_ADDITIONAL_NEEDS': {
       if (choice === 1 && session.needCount < 3) {
-        // Another need
         return {
           ...phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter),
           stateUpdates: { currentGate: 'B5_MAIN_SUPPORT_NEED' }
         };
       } else {
-        // Done
         const goodbye = getPhrase('TERMINAL_GOODBYE', session.isSupporter);
         return {
           text: goodbye?.text || 'Take care.',
@@ -1101,56 +1072,44 @@ export function processInput(session: SessionState, input: string): RoutingResul
           sessionEnded: true
         };
       }
+    }
     
     // ========================================
     // ESCALATION
     // ========================================
-    case 'ESCALATION_LEVEL_1':
+    case 'ESCALATION_LEVEL_1': {
       switch (choice) {
-        case 1: // Explain differently -> retry current
+        case 1:
           return phrase(session.currentGate, session.isSupporter);
-        case 2: // Skip
-          // Would need to track "next gate" - for now go to terminal
-          const services = buildTerminalServices(session);
-          const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-          return {
-            text: services + '\n' + additionalNeeds?.text,
-            options: additionalNeeds?.options,
-            stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', skipCount: session.skipCount + 1 },
-            sessionEnded: false
-          };
-        case 3: // Restart
+        case 2:
+          return terminalWithAdditionalNeeds(session, { skipCount: session.skipCount + 1 });
+        case 3:
           return getFirstMessage(createSession(session.sessionId));
         default:
           return phrase('ESCALATION_LEVEL_1', session.isSupporter);
       }
+    }
     
-    case 'ESCALATION_LEVEL_2':
+    case 'ESCALATION_LEVEL_2': {
       switch (choice) {
-        case 1: // Services with what we have
-          const services2 = buildTerminalServices(session);
-          const additionalNeeds2 = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-          return {
-            text: services2 + '\n' + additionalNeeds2?.text,
-            options: additionalNeeds2?.options,
-            stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS' },
-            sessionEnded: false
-          };
-        case 2: // Phone number
+        case 1:
+          return terminalWithAdditionalNeeds(session);
+        case 2: {
           const exit = getPhrase('ESCALATION_LEVEL_3_EXIT', session.isSupporter);
           return {
             text: exit?.text || '',
             stateUpdates: { currentGate: 'SESSION_END', escalationLevel: 3, timestampEnd: new Date().toISOString() },
             sessionEnded: true
           };
-        case 3: // Continue
+        }
+        case 3:
           return phrase(session.currentGate, session.isSupporter);
         default:
           return phrase('ESCALATION_LEVEL_2', session.isSupporter);
       }
+    }
     
     default:
-      // Fallback
       return phrase('GATE0_CRISIS_DANGER', session.isSupporter);
   }
 }
