@@ -240,6 +240,17 @@ function parseServiceContent(text: string): ParsedContent {
       currentCategory = trimmed;
       currentService = null;
       reachedFirstSection = true;
+      
+      // Special handling for "IF YOU NEED MORE HELP" - create Shelter Helpline card immediately
+      if (trimmed === 'IF YOU NEED MORE HELP') {
+        currentService = {
+          name: 'Shelter Helpline',
+          category: currentCategory,
+          isVerified: false,
+          isDropIn: false,
+          website: 'https://england.shelter.org.uk/housing_advice/homelessness'
+        };
+      }
       continue;
     }
     
@@ -248,6 +259,7 @@ function parseServiceContent(text: string): ParsedContent {
       continue;
     }
     
+    // Outro separator
     if (trimmed === '---') {
       if (currentService?.name) {
         services.push(currentService as ServiceCard);
@@ -264,6 +276,30 @@ function parseServiceContent(text: string): ParsedContent {
       continue;
     }
     
+    // For "IF YOU NEED MORE HELP" section - all content goes to description
+    if (currentCategory === 'IF YOU NEED MORE HELP' && currentService) {
+      if (trimmed.startsWith('http')) {
+        // Don't overwrite our pre-set homelessness advice URL
+        if (!currentService.website) {
+          currentService.website = trimmed;
+        }
+      } else if (/^0\d/.test(trimmed) || trimmed.includes('(free')) {
+        currentService.phone = trimmed;
+      } else if (trimmed.toLowerCase() === 'shelter') {
+        // Skip standalone "Shelter" line - we already have the title
+        continue;
+      } else {
+        // All other text is description
+        if (currentService.description) {
+          currentService.description += ' ' + trimmed;
+        } else {
+          currentService.description = trimmed;
+        }
+      }
+      continue;
+    }
+    
+    // Standard parsing for other sections
     const looksLikeOrgName = 
       !trimmed.startsWith('http') && 
       !trimmed.startsWith('0') && 
@@ -584,7 +620,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       return (
         <div className="space-y-3">
           {parsed.intro && (
-            <p className="text-sm leading-relaxed font-medium mb-4" style={{ color: SSN_COLORS.text }}>
+            <p className="text-sm leading-relaxed mb-4" style={{ color: SSN_COLORS.text }}>
               {parsed.intro}
             </p>
           )}
@@ -594,7 +630,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
           ))}
           
           {parsed.outro && (
-            <p className="text-sm leading-relaxed mt-4 pt-3 font-medium" style={{ color: '#555555', borderTop: `1px solid ${SSN_COLORS.grayBorder}` }}>
+            <p className="text-sm leading-relaxed mt-4 pt-3" style={{ color: '#555555', borderTop: `1px solid ${SSN_COLORS.grayBorder}` }}>
               {parsed.outro}
             </p>
           )}
@@ -654,7 +690,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
         {!conversationStarted && (
           <div className="flex flex-col items-center justify-center h-full px-4">
             <h1 className="text-2xl font-bold text-center mb-8 leading-relaxed" style={{ color: SSN_COLORS.text }}>
-              Hello! How can I help you today?
+              Hello, I'm Street Support Network's assistant! How can I help you today?
             </h1>
             <div className="flex flex-col gap-3 w-full max-w-sm">
               {conversationStarters.map((label, index) => (
