@@ -25,6 +25,8 @@ interface ChatWidgetProps {
 // ============================================================
 
 function LinkifiedText({ text }: { text: string }) {
+  if (!text) return null;
+  
   const combinedRegex = /(https?:\/\/[^\s<>"')\]]+)|(\b(?:116\s?123|0\d{2,4}[\s-]?\d{3,4}[\s-]?\d{3,4})\b)/g;
 
   const parts: React.ReactNode[] = [];
@@ -92,7 +94,7 @@ function LinkifiedText({ text }: { text: string }) {
 // CONVERSATION STARTERS
 // ============================================================
 
-const conversationStarters = [
+const conversationStarters: QuickReply[] = [
   { label: 'Advice and Guidance', value: '1' },
   { label: 'Help connecting to support', value: '2' },
   { label: 'Search for a specific organisation', value: '3' },
@@ -114,7 +116,9 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages]);
 
   // Focus input when conversation starts
@@ -124,23 +128,21 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     }
   }, [isOpen, conversationStarted]);
 
-  const sendMessage = async (text: string, isStarter: boolean = false) => {
-    if (!text.trim() || isLoading || sessionEnded) return;
+  const sendMessage = async (text: string, displayText?: string) => {
+    if (!text || !text.trim() || isLoading || sessionEnded) return;
 
     // Mark conversation as started
     if (!conversationStarted) {
       setConversationStarted(true);
     }
 
-    // Add user message to display (skip for initial starter)
-    if (!isStarter || conversationStarted) {
-      const userMessage: Message = {
-        role: 'user',
-        content: isStarter ? conversationStarters.find(s => s.value === text)?.label || text : text,
-        timestamp: new Date().toISOString(),
-      };
-      setMessages(prev => [...prev, userMessage]);
-    }
+    // Add user message to display
+    const userMessage: Message = {
+      role: 'user',
+      content: displayText || text,
+      timestamp: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, userMessage]);
     
     setInputValue('');
     setIsLoading(true);
@@ -167,9 +169,9 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
       const assistantMessage: Message = {
         role: 'assistant',
-        content: data.message,
+        content: data.message || '',
         timestamp: new Date().toISOString(),
-        quickReplies: data.quickReplies,
+        quickReplies: Array.isArray(data.quickReplies) ? data.quickReplies : [],
       };
       setMessages(prev => [...prev, assistantMessage]);
 
@@ -183,6 +185,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
         role: 'assistant',
         content: 'I\'m sorry, something went wrong. Please try again or call Shelter on 0808 800 4444 for immediate help.',
         timestamp: new Date().toISOString(),
+        quickReplies: [],
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -192,16 +195,21 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    sendMessage(inputValue);
+    if (inputValue && inputValue.trim()) {
+      sendMessage(inputValue);
+    }
   };
 
   const handleQuickReply = (reply: QuickReply) => {
-    sendMessage(reply.value);
+    if (reply && reply.value) {
+      sendMessage(reply.value, reply.label);
+    }
   };
 
-  const handleStarterClick = (starter: typeof conversationStarters[0]) => {
-    setConversationStarted(true);
-    sendMessage(starter.value, true);
+  const handleStarterClick = (starter: QuickReply) => {
+    if (starter && starter.value) {
+      sendMessage(starter.value, starter.label);
+    }
   };
 
   const handleRestart = () => {
@@ -271,7 +279,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
         {/* Messages - shown after conversation starts */}
         {conversationStarted && (
           <div className="space-y-4">
-            {messages.map((message, index) => (
+            {messages && messages.length > 0 && messages.map((message, index) => (
               <div key={index}>
                 <div
                   className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -285,16 +293,20 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                   >
                     <p className="whitespace-pre-wrap text-sm leading-relaxed">
                       {message.role === 'assistant' ? (
-                        <LinkifiedText text={message.content} />
+                        <LinkifiedText text={message.content || ''} />
                       ) : (
-                        message.content
+                        message.content || ''
                       )}
                     </p>
                   </div>
                 </div>
 
                 {/* Quick Replies */}
-                {message.role === 'assistant' && message.quickReplies && message.quickReplies.length > 0 && index === messages.length - 1 && !sessionEnded && (
+                {message.role === 'assistant' && 
+                 Array.isArray(message.quickReplies) && 
+                 message.quickReplies.length > 0 && 
+                 index === messages.length - 1 && 
+                 !sessionEnded && (
                   <div className="mt-3 flex flex-wrap gap-2">
                     {message.quickReplies.map((reply, replyIndex) => (
                       <button
@@ -359,7 +371,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
             />
             <button
               type="submit"
-              disabled={!inputValue.trim() || isLoading || sessionEnded}
+              disabled={!inputValue || !inputValue.trim() || isLoading || sessionEnded}
               className="p-2 text-ss-accent hover:text-ss-primary disabled:text-gray-300 transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
