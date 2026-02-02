@@ -334,9 +334,9 @@ function buildUnder16Exit(session: SessionState): RoutingResult {
   let text = '';
   
   if (isSupporter) {
-    text += `Thank you for reaching out. Because they are under 16, there are specific services designed to help keep them safe.\n\n`;
+    text += `Thank you for reaching out. Because they are under 16, there are specialist services that can help keep them safe. It's really good that you're looking for support for them.\n\n`;
   } else {
-    text += `Thank you for reaching out. Because you are under 16, there are specific services designed to help keep you safe.\n\n`;
+    text += `Thank you for reaching out. Because you are under 16, there are specialist services that can help keep you safe. It takes courage to ask for help, and you've done the right thing.\n\n`;
   }
   
   // Local Children's Services (if we have LA info)
@@ -347,24 +347,30 @@ function buildUnder16Exit(session: SessionState): RoutingResult {
     if (childServices.outOfHours) {
       text += `Out of hours: ${childServices.outOfHours}\n`;
     }
-    text += `${childServices.website}\n\n`;
+    text += `${childServices.website}\n`;
+    text += `They can talk through what's happening and help work out the best support\n\n`;
   } else {
-    text += `Your local council's Children's Services team can help.\n`;
-    text += `Find your local council: https://www.gov.uk/find-local-council\n\n`;
+    text += `LOCAL CHILDREN'S SERVICES\n`;
+    text += `${isSupporter ? 'Their' : 'Your'} local council's Children's Services team can help.\n`;
+    text += `https://www.gov.uk/find-local-council\n`;
+    text += `They can talk through what's happening and help work out the best support\n\n`;
   }
   
-  // National services
-  text += `NATIONAL HELPLINES\n`;
-  text += `Childline\n`;
+  // Childline - prominent for self-referral
+  text += `CHILDLINE\n`;
   text += `0800 1111 (free, confidential, 24/7)\n`;
   text += `https://www.childline.org.uk\n`;
-  text += `Free support for under 19s - you can talk about anything\n\n`;
+  text += `${isSupporter ? 'Young people can call or chat online about anything - no problem is too big or small' : 'You can call or chat online about anything - no problem is too big or small'}\n\n`;
   
   if (isSupporter) {
-    text += `NSPCC\n`;
-    text += `0808 800 5000 (for adults concerned about a child)\n`;
-    text += `https://www.nspcc.org.uk\n\n`;
+    text += `NSPCC HELPLINE (FOR ADULTS)\n`;
+    text += `0808 800 5000 (free, 24/7)\n`;
+    text += `https://www.nspcc.org.uk/keeping-children-safe/reporting-abuse/\n`;
+    text += `If you're worried about a child, they can advise on what to do next\n\n`;
   }
+  
+  // Warm sign-off
+  text += `Please reach out to them when ${isSupporter ? 'you feel' : 'you feel'} ready. I'll be here if ${isSupporter ? 'you' : 'you'} need help finding other services later.\n\n`;
   
   text += `If ${isSupporter ? 'they are' : 'you are'} in immediate danger, call 999.`;
   
@@ -395,6 +401,144 @@ function getSAExitKey(gender: string | null): string {
   if (g === 'female') return 'SA_FEMALE_16PLUS';
   if (g === 'male') return 'SA_MALE_16PLUS';
   return 'SA_LGBTQ_OR_NONBINARY';
+}
+
+// Local council Housing Options contact info by Local Authority
+const councilHousingData: Record<string, { name: string; phone: string; outOfHours?: string; website: string }> = {
+  wolverhampton: {
+    name: "Wolverhampton Council Housing Options",
+    phone: "01902 556789",
+    outOfHours: "01902 552999",
+    website: "https://www.wolverhampton.gov.uk/housing/homeless"
+  },
+  birmingham: {
+    name: "Birmingham City Council Housing Options",
+    phone: "0121 303 7410",
+    outOfHours: "0121 675 4806",
+    website: "https://www.birmingham.gov.uk/info/20017/housing_options_and_homelessness"
+  },
+  coventry: {
+    name: "Coventry City Council Housing",
+    phone: "024 7683 3552",
+    outOfHours: "024 7683 2222",
+    website: "https://www.coventry.gov.uk/homelessness"
+  },
+  dudley: {
+    name: "Dudley Council Housing Options",
+    phone: "0300 555 8283",
+    outOfHours: "0300 555 8574",
+    website: "https://www.dudley.gov.uk/residents/housing/homelessness/"
+  },
+  sandwell: {
+    name: "Sandwell Council Housing Solutions",
+    phone: "0121 368 1166",
+    outOfHours: "0121 569 2355",
+    website: "https://www.sandwell.gov.uk/housing"
+  },
+  solihull: {
+    name: "Solihull Council Housing Options",
+    phone: "0121 704 6000",
+    outOfHours: "0121 605 6060",
+    website: "https://www.solihull.gov.uk/Housing/Homelessness-and-housing-advice"
+  },
+  walsall: {
+    name: "Walsall Council Housing Options",
+    phone: "0300 555 8565",
+    outOfHours: "0300 555 2922",
+    website: "https://go.walsall.gov.uk/housing/homelessness_and_housing_advice"
+  }
+};
+
+// Build Fire/Flood exit with local council info
+function buildFireFloodExit(session: SessionState): RoutingResult {
+  const isSupporter = session.isSupporter;
+  const la = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
+  const council = councilHousingData[la];
+  
+  let text = '';
+  
+  text += `Losing ${isSupporter ? 'their' : 'your'} home due to fire, flood, or another emergency is frightening. ${isSupporter ? 'They deserve' : 'You deserve'} support, and help is available.\n\n`;
+  
+  // Local council (if we have LA info)
+  if (council) {
+    text += `LOCAL COUNCIL - EMERGENCY HOUSING\n`;
+    text += `${council.name}\n`;
+    text += `${council.phone}\n`;
+    if (council.outOfHours) {
+      text += `Out of hours: ${council.outOfHours}\n`;
+    }
+    text += `${council.website}\n`;
+    text += `Contact them as soon as ${isSupporter ? 'they' : 'you'} can - they assess emergency situations urgently\n\n`;
+  } else {
+    text += `LOCAL COUNCIL - EMERGENCY HOUSING\n`;
+    text += `${isSupporter ? 'Their' : 'Your'} local council can help with emergency housing.\n`;
+    text += `https://www.gov.uk/find-local-council\n`;
+    text += `Contact them as soon as ${isSupporter ? 'they' : 'you'} can - they assess emergency situations urgently\n\n`;
+  }
+  
+  // Shelter
+  text += `SHELTER - EMERGENCY HOUSING ADVICE\n`;
+  text += `0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)\n`;
+  text += `https://england.shelter.org.uk/housing_advice/homelessness/emergency_housing\n`;
+  text += `Expert advice on ${isSupporter ? 'their' : 'your'} housing rights and options\n\n`;
+  
+  // Warm sign-off
+  text += `Please reach out to them when ${isSupporter ? 'they' : 'you'} can. I'll be here if ${isSupporter ? 'you' : 'you'} need help finding other services later.`;
+  
+  return {
+    text,
+    stateUpdates: {
+      currentGate: 'SESSION_END',
+      safeguardingTriggered: true,
+      safeguardingType: 'FIRE_FLOOD',
+      timestampEnd: new Date().toISOString(),
+    },
+    sessionEnded: true,
+  };
+}
+
+// Build Self-Harm exit with proper framing
+function buildSelfHarmExit(session: SessionState): RoutingResult {
+  const isSupporter = session.isSupporter;
+  
+  let text = '';
+  
+  text += `${isSupporter ? 'They deserve' : 'You deserve'} support with this, and ${isSupporter ? 'they don\'t' : 'you don\'t'} have to go through it alone.\n\n`;
+  
+  // Samaritans
+  text += `SAMARITANS\n`;
+  text += `116 123 (24 hours, free)\n`;
+  text += `https://www.samaritans.org\n`;
+  text += `They're there to listen, any time of day or night - no judgement, no pressure\n\n`;
+  
+  // NHS
+  text += `NHS MENTAL HEALTH SUPPORT\n`;
+  text += `Call 111, choose option 2\n`;
+  text += `https://www.nhs.uk/mental-health/\n`;
+  text += `24/7 mental health crisis support\n\n`;
+  
+  // Mind
+  text += `MIND\n`;
+  text += `0300 123 3393 (Mon-Fri 9am-6pm)\n`;
+  text += `https://www.mind.org.uk/information-support/helplines/\n`;
+  text += `Information and support for mental health\n\n`;
+  
+  // Warm sign-off
+  text += `Please reach out when ${isSupporter ? 'they feel' : 'you feel'} able to. I'll be here if ${isSupporter ? 'you' : 'you'} need help finding other services later. `;
+  text += `${isSupporter ? '' : 'Take care of yourself.'}\n\n`;
+  
+  text += `If ${isSupporter ? 'they are' : 'you are'} in immediate danger, call 999 or go to A&E.`;
+  
+  return {
+    text,
+    stateUpdates: {
+      currentGate: 'SESSION_END',
+      safeguardingTriggered: true,
+      safeguardingType: 'SELF_HARM',
+      timestampEnd: new Date().toISOString(),
+    },
+    sessionEnded: true,
+  };
 }
 
 // ============================================================
@@ -819,15 +963,46 @@ export function processInput(session: SessionState, input: string): RoutingResul
         case 3: // Sexual violence -> ask gender
           return phrase('SA_GENDER_ASK', session.isSupporter);
         case 4: // Self-harm
-          return safeguardingExit('SELF_HARM_EXIT', session.isSupporter, 'SELF_HARM');
-        case 5: // Under 16
-          return buildUnder16Exit(session);
-        case 6: // Fire/flood
-          return safeguardingExit('FIRE_FLOOD_EXIT', session.isSupporter, 'FIRE_FLOOD');
+          return buildSelfHarmExit(session);
+        case 5: // Under 16 -> ask location first
+          return {
+            ...phrase('CRISIS_UNDER16_LOCATION', session.isSupporter),
+            stateUpdates: { currentGate: 'CRISIS_UNDER16_LOCATION' }
+          };
+        case 6: // Fire/flood -> ask location first
+          return {
+            ...phrase('CRISIS_FIRE_FLOOD_LOCATION', session.isSupporter),
+            stateUpdates: { currentGate: 'CRISIS_FIRE_FLOOD_LOCATION' }
+          };
         case 7: // None apply
           return phrase('GATE1_INTENT', session.isSupporter);
         default:
           return phrase('GATE0_CRISIS_DANGER', session.isSupporter);
+      }
+    
+    // ========================================
+    // CRISIS LOCATION GATES
+    // ========================================
+    case 'CRISIS_UNDER16_LOCATION':
+      // Options: 1=Wolverhampton, 2=Birmingham, 3=Coventry, 4=Dudley, 5=Sandwell, 6=Solihull, 7=Walsall, 8=Somewhere else, 9=Prefer not to say
+      const under16LAs = ['Wolverhampton', 'Birmingham', 'Coventry', 'Dudley', 'Sandwell', 'Solihull', 'Walsall'];
+      if (choice && choice >= 1 && choice <= 7) {
+        const la = under16LAs[choice - 1];
+        return buildUnder16Exit({ ...session, localAuthority: la });
+      } else {
+        // Somewhere else or prefer not to say - show generic
+        return buildUnder16Exit(session);
+      }
+    
+    case 'CRISIS_FIRE_FLOOD_LOCATION':
+      // Same options as above
+      const fireFloodLAs = ['Wolverhampton', 'Birmingham', 'Coventry', 'Dudley', 'Sandwell', 'Solihull', 'Walsall'];
+      if (choice && choice >= 1 && choice <= 7) {
+        const la = fireFloodLAs[choice - 1];
+        return buildFireFloodExit({ ...session, localAuthority: la });
+      } else {
+        // Somewhere else or prefer not to say - show generic
+        return buildFireFloodExit(session);
       }
     
     // ========================================
