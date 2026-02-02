@@ -208,6 +208,22 @@ Support with Benefits and Grants | Turn2us - https://www.turn2us.org.uk/`
     text: `Thanks, I've found their location.`
   },
 
+  LOCATION_CONFIRM: {
+    text: `I've detected that you're in [LOCAL_AUTHORITY]. Is this where you need help, or would you like to select a different area?
+
+1. Yes, that's correct
+2. I need help in a different area`,
+    options: ["Yes, that's correct", "I need help in a different area"]
+  },
+
+  LOCATION_CONFIRM__SUPPORTER: {
+    text: `I've detected that they're in [LOCAL_AUTHORITY]. Is this where they need help, or would you like to select a different area?
+
+1. Yes, that's correct
+2. They need help in a different area`,
+    options: ["Yes, that's correct", "They need help in a different area"]
+  },
+
   LOCATION_OUTSIDE_WMCA: {
     text: `It looks like you're outside the West Midlands Combined Authority area. I can still help, but some local service information may be limited. Would you like to continue?
 

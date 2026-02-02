@@ -31,6 +31,7 @@ export type GateType =
   | 'LOCATION_CONSENT'
   | 'LOCATION_POSTCODE'
   | 'LOCATION_RESULT'
+  | 'LOCATION_CONFIRM'
   | 'LOCATION_OUTSIDE_WMCA'
   // Advice Mode
   | 'B4_ADVICE_TOPIC_SELECTION'
@@ -306,11 +307,164 @@ function shouldAskSocialServicesQuestions(session: SessionState): boolean {
 }
 
 // ============================================================
+// NEED TO CATEGORY MAPPING
+// Maps user-selected needs to service category parents in wmca_services_v7.json
+// ============================================================
+
+const needToCategoryMap: Record<string, string> = {
+  'Emergency Housing': 'accom',
+  'Food': 'foodbank',
+  'Work': 'employment',
+  'Health': 'medical',
+  'Advice': 'support',
+  'Drop In': 'dropin',
+  'Financial': 'financial',
+  'Items': 'items',
+  'Services': 'services',
+  'Comms': 'communications',
+  'Training': 'training',
+  'Activities': 'activities'
+};
+
+const needDisplayNames: Record<string, string> = {
+  'Emergency Housing': 'emergency housing',
+  'Food': 'food support',
+  'Work': 'employment support',
+  'Health': 'health services',
+  'Advice': 'advice and support',
+  'Drop In': 'drop-in services',
+  'Financial': 'financial help',
+  'Items': 'essential items',
+  'Services': 'support services',
+  'Comms': 'communication support',
+  'Training': 'training opportunities',
+  'Activities': 'activities and groups'
+};
+
+// Hardcoded services for non-housing needs
+// These will be shown when user selects Food, Health, Items, etc.
+const servicesByNeed: Record<string, Array<{name: string; phone?: string; website?: string; description: string}>> = {
+  'Food': [
+    {
+      name: 'Find a Food Bank',
+      website: 'https://www.trusselltrust.org/get-help/find-a-foodbank/',
+      description: 'Search for your nearest Trussell Trust food bank'
+    },
+    {
+      name: 'Street Support Network',
+      website: 'https://streetsupport.net/find-help/category/?category=foodbank',
+      description: 'Find food banks and food parcels in your area'
+    }
+  ],
+  'Health': [
+    {
+      name: 'NHS 111',
+      phone: '111',
+      website: 'https://111.nhs.uk',
+      description: 'For urgent medical help when it\'s not an emergency'
+    },
+    {
+      name: 'Find NHS Services',
+      website: 'https://www.nhs.uk/service-search',
+      description: 'Find GPs, pharmacies, hospitals and other NHS services'
+    }
+  ],
+  'Financial': [
+    {
+      name: 'Citizens Advice',
+      phone: '0800 144 8848',
+      website: 'https://www.citizensadvice.org.uk/debt-and-money/',
+      description: 'Free advice on benefits, debt and money problems'
+    },
+    {
+      name: 'Turn2us',
+      website: 'https://www.turn2us.org.uk',
+      description: 'Benefits calculator and grants search'
+    }
+  ],
+  'Work': [
+    {
+      name: 'Jobcentre Plus',
+      website: 'https://www.gov.uk/contact-jobcentre-plus',
+      description: 'Help with job searching, benefits and training'
+    },
+    {
+      name: 'National Careers Service',
+      phone: '0800 100 900',
+      website: 'https://nationalcareers.service.gov.uk',
+      description: 'Free careers advice and support'
+    }
+  ],
+  'Items': [
+    {
+      name: 'Street Support Network',
+      website: 'https://streetsupport.net/find-help/category/?category=items',
+      description: 'Find services offering clothes, furniture and household items'
+    }
+  ]
+};
+
+// ============================================================
+// NON-HOUSING TERMINAL BUILDER
+// For Food, Health, Items, Work, etc. - not housing-related needs
+// ============================================================
+
+function buildNonHousingTerminal(session: SessionState): string {
+  const need = session.supportNeed || 'support';
+  const la = session.localAuthority || 'your area';
+  const isSupporter = session.isSupporter;
+  const pronoun = isSupporter ? 'them' : 'you';
+  const possessive = isSupporter ? 'their' : 'your';
+  
+  const displayName = needDisplayNames[need] || need.toLowerCase();
+  const services = servicesByNeed[need] || [];
+  
+  let text = '';
+  
+  text += `I've found some ${displayName} services that may help.\n\n`;
+  
+  if (services.length > 0) {
+    text += `RECOMMENDED SERVICES\n`;
+    text += `--------------------\n`;
+    
+    for (const svc of services) {
+      text += `${svc.name}\n`;
+      if (svc.phone) {
+        text += `${svc.phone}\n`;
+      }
+      if (svc.website) {
+        text += `${svc.website}\n`;
+      }
+      text += `${svc.description}\n\n`;
+    }
+  }
+  
+  // Always add Street Support for local search
+  text += `FIND LOCAL SERVICES\n`;
+  text += `-------------------\n`;
+  text += `Street Support Network\n`;
+  text += `https://streetsupport.net/find-help/\n`;
+  text += `Search for ${displayName} in ${la} and surrounding areas.\n\n`;
+  
+  // Add note about housing if they also need it
+  text += `---\n`;
+  text += `If ${pronoun} also need help with housing, I can help with that too.\n`;
+  
+  return text;
+}
+
+// ============================================================
 // TERMINAL OUTPUT BUILDER - RESTRUCTURED v7.1
 // Clear hierarchy: First Step -> Outreach -> Local Support -> Specialist -> Youth -> Safety Net
 // ============================================================
 
 function buildTerminalServices(session: SessionState): string {
+  // Check if this is a non-housing need
+  const housingRelatedNeeds = ['Emergency Housing', 'Advice'];
+  if (session.supportNeed && !housingRelatedNeeds.includes(session.supportNeed)) {
+    return buildNonHousingTerminal(session);
+  }
+  
   const la = session.localAuthority || 'your local council';
   const isSupporter = session.isSupporter;
   const pronoun = isSupporter ? 'them' : 'you';
@@ -749,6 +903,28 @@ export function processInput(session: SessionState, input: string): RoutingResul
         ...phrase('B1_LOCAL_AUTHORITY', session.isSupporter),
         stateUpdates: { currentGate: 'B1_LOCAL_AUTHORITY', locationMethod: 'MANUAL' }
       };
+    
+    case 'LOCATION_CONFIRM':
+      // User confirms detected LA or wants to select different area
+      if (choice === 1) {
+        // Confirmed - proceed to B2_WHO_FOR
+        return {
+          ...phrase('B2_WHO_FOR', session.isSupporter),
+          stateUpdates: { currentGate: 'B2_WHO_FOR' }
+        };
+      } else {
+        // Want different area - show manual selection, clear location data
+        return {
+          ...phrase('B1_LOCAL_AUTHORITY', session.isSupporter),
+          stateUpdates: { 
+            currentGate: 'B1_LOCAL_AUTHORITY', 
+            locationMethod: 'MANUAL',
+            localAuthority: null,
+            latitude: null,
+            longitude: null
+          }
+        };
+      }
     
     case 'LOCATION_OUTSIDE_WMCA':
       // User is outside WMCA area - they chose whether to continue or select different area
@@ -1541,15 +1717,15 @@ export function processLocationInput(session: SessionState, locationData: Locati
     };
   }
   
-  // WMCA area - continue to next step
-  const confirmText = getPhrase('LOCATION_DETECTED', session.isSupporter)?.text || 'Thanks, I\'ve found your location.';
-  const nextPhrase = getPhrase('B2_WHO_FOR', session.isSupporter);
+  // WMCA area - ask user to confirm the detected LA
+  const confirmPhrase = getPhrase('LOCATION_CONFIRM', session.isSupporter);
+  const confirmText = confirmPhrase?.text?.replace('[LOCAL_AUTHORITY]', la) || `I've detected you're in ${la}. Is this correct?`;
   
   return {
-    text: `${confirmText}\n\n${nextPhrase?.text || ''}`,
-    options: nextPhrase?.options,
+    text: confirmText,
+    options: confirmPhrase?.options || ["Yes, that's correct", "I need help in a different area"],
     stateUpdates: { 
-      currentGate: 'B2_WHO_FOR',
+      currentGate: 'LOCATION_CONFIRM',
       localAuthority: la,
       latitude: locationData.latitude || null,
       longitude: locationData.longitude || null,
