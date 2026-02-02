@@ -1527,16 +1527,11 @@ Rape Crisis England & Wales
 https://rapecrisis.org.uk
 Specialist support for women and girls who have experienced sexual violence
 
-LOCAL COUNCIL
-Your local council's housing team
-https://www.gov.uk/find-local-council
-If you need somewhere safe to stay, your local council may be able to help. You may be considered "priority need" which can open up additional housing support.
-
 HOUSING ADVICE
 Shelter
 0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain your housing rights and help you understand your options
+https://england.shelter.org.uk/housing_advice/homelessness
+If you need somewhere safe to stay, they can explain your housing options and help you approach your local council
 
 ---
 Please reach out when you feel ready. I'll be here if you need help finding other services later.`
@@ -1553,16 +1548,11 @@ Rape Crisis England & Wales
 https://rapecrisis.org.uk
 Specialist support for women and girls who have experienced sexual violence
 
-LOCAL COUNCIL
-Local council housing team
-https://www.gov.uk/find-local-council
-If they need somewhere safe to stay, the local council may be able to help. They may be considered "priority need" which can open up additional housing support.
-
 HOUSING ADVICE
 Shelter
 0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain housing rights and help understand the options available
+https://england.shelter.org.uk/housing_advice/homelessness
+If they need somewhere safe to stay, Shelter can explain housing options and help them approach the local council
 
 ---
 Please encourage them to reach out when they feel ready. I'll be here if you need help finding other services later.`
@@ -1579,16 +1569,11 @@ SurvivorsUK
 https://survivorsuk.org
 Specialist, confidential support for men and boys
 
-LOCAL COUNCIL
-Your local council's housing team
-https://www.gov.uk/find-local-council
-If you need somewhere safe to stay, your local council may be able to help. You may be considered "priority need" which can open up additional housing support.
-
 HOUSING ADVICE
 Shelter
 0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain your housing rights and help you understand your options
+https://england.shelter.org.uk/housing_advice/homelessness
+If you need somewhere safe to stay, they can explain your housing options and help you approach your local council
 
 ---
 Please reach out when you feel ready. I'll be here if you need help finding other services later.`
@@ -1605,16 +1590,11 @@ SurvivorsUK
 https://survivorsuk.org
 Specialist, confidential support for men and boys
 
-LOCAL COUNCIL
-Local council housing team
-https://www.gov.uk/find-local-council
-If they need somewhere safe to stay, the local council may be able to help. They may be considered "priority need" which can open up additional housing support.
-
 HOUSING ADVICE
 Shelter
 0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain housing rights and help understand the options available
+https://england.shelter.org.uk/housing_advice/homelessness
+If they need somewhere safe to stay, Shelter can explain housing options and help them approach the local council
 
 ---
 Please encourage them to reach out when they feel ready. I'll be here if you need help finding other services later.`
@@ -1637,16 +1617,11 @@ SurvivorsUK
 https://survivorsuk.org
 Support for all genders
 
-LOCAL COUNCIL
-Your local council's housing team
-https://www.gov.uk/find-local-council
-If you need somewhere safe to stay, your local council may be able to help. You may be considered "priority need" which can open up additional housing support.
-
 HOUSING ADVICE
 Shelter
 0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain your housing rights and help you understand your options
+https://england.shelter.org.uk/housing_advice/homelessness
+If you need somewhere safe to stay, they can explain your housing options and help you approach your local council
 
 ---
 Please reach out when you feel ready. I'll be here if you need help finding other services later.`
@@ -1669,16 +1644,11 @@ SurvivorsUK
 https://survivorsuk.org
 Support for all genders
 
-LOCAL COUNCIL
-Local council housing team
-https://www.gov.uk/find-local-council
-If they need somewhere safe to stay, the local council may be able to help. They may be considered "priority need" which can open up additional housing support.
-
 HOUSING ADVICE
 Shelter
 0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain housing rights and help understand the options available
+https://england.shelter.org.uk/housing_advice/homelessness
+If they need somewhere safe to stay, Shelter can explain housing options and help them approach the local council
 
 ---
 Please encourage them to reach out when they feel ready. I'll be here if you need help finding other services later.`
@@ -1813,7 +1783,7 @@ SPECIALIST HELPLINE
 Childline
 0800 1111 (free, confidential, 24/7)
 https://www.childline.org.uk
-You can call or chat online about anything - no problem is too big or small
+A free helpline where you can call or chat online about anything
 
 CHILDREN'S SERVICES
 Local council Children's Services
@@ -1833,13 +1803,13 @@ SPECIALIST HELPLINE
 Childline
 0800 1111 (free, confidential, 24/7)
 https://www.childline.org.uk
-Young people can call or chat online about anything - no problem is too big or small
+A free helpline for young people to call or chat online about anything
 
 SPECIALIST HELPLINE
 NSPCC Helpline (for adults)
 0808 800 5000 (free, 24/7)
 https://www.nspcc.org.uk/keeping-children-safe/reporting-abuse/
-If you're worried about a child, they can advise on what to do next
+For adults who are worried about a child
 
 CHILDREN'S SERVICES
 Local council Children's Services
@@ -1863,8 +1833,8 @@ Contact them as soon as you can - they assess emergency situations urgently
 HOUSING ADVICE
 Shelter
 0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
-https://england.shelter.org.uk/housing_advice/homelessness/emergency_housing
-They can explain your housing rights and help you understand your options
+https://england.shelter.org.uk/housing_advice/homelessness/rules/priority_need
+People made homeless by fire or flood have priority need for housing - Shelter can explain your rights
 
 ---
 Please reach out when you can. I'll be here if you need help finding other services later.`
@@ -1881,8 +1851,8 @@ Contact them as soon as possible - they assess emergency situations urgently
 HOUSING ADVICE
 Shelter
 0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
-https://england.shelter.org.uk/housing_advice/homelessness/emergency_housing
-They can explain housing rights and help understand the options available
+https://england.shelter.org.uk/housing_advice/homelessness/rules/priority_need
+People made homeless by fire or flood have priority need for housing - Shelter can explain their rights
 
 ---
 Please encourage them to reach out when they can. I'll be here if you need help finding other services later.`

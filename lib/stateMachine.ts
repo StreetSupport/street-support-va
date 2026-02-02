@@ -346,9 +346,11 @@ function buildUnder16Exit(session: SessionState): RoutingResult {
   if (childServices) {
     text += `CHILDREN'S SERVICES\n`;
     text += `${childServices.name}\n`;
-    text += `${childServices.phone}\n`;
+    // Combine phone numbers on one line if there's an out of hours number
     if (childServices.outOfHours) {
-      text += `Out of hours: ${childServices.outOfHours}\n`;
+      text += `${childServices.phone} (out of hours: ${childServices.outOfHours})\n`;
+    } else {
+      text += `${childServices.phone}\n`;
     }
     text += `${childServices.website}\n`;
     text += `They can talk through what's happening and help work out the best support\n\n`;
@@ -364,19 +366,19 @@ function buildUnder16Exit(session: SessionState): RoutingResult {
   text += `Childline\n`;
   text += `0800 1111 (free, confidential, 24/7)\n`;
   text += `https://www.childline.org.uk\n`;
-  text += `${isSupporter ? 'Young people can call or chat online about anything - no problem is too big or small' : 'You can call or chat online about anything - no problem is too big or small'}\n\n`;
+  text += `${isSupporter ? 'A free helpline for young people to call or chat online about anything' : 'A free helpline where you can call or chat online about anything'}\n\n`;
   
   if (isSupporter) {
     text += `SPECIALIST HELPLINE\n`;
     text += `NSPCC Helpline (for adults)\n`;
     text += `0808 800 5000 (free, 24/7)\n`;
     text += `https://www.nspcc.org.uk/keeping-children-safe/reporting-abuse/\n`;
-    text += `If you're worried about a child, they can advise on what to do next\n\n`;
+    text += `For adults who are worried about a child\n\n`;
   }
   
   // Warm sign-off with separator
   text += `---\n`;
-  text += `Please reach out when ${isSupporter ? 'you' : 'you'} feel ready. I'll be here if you need help finding other services later.\n\n`;
+  text += `Please reach out when you feel ready. I'll be here if you need help finding other services later.\n\n`;
   text += `If ${isSupporter ? 'they are' : 'you are'} in immediate danger, call 999.`;
   
   return {
@@ -468,9 +470,11 @@ function buildFireFloodExit(session: SessionState): RoutingResult {
   if (council) {
     text += `LOCAL COUNCIL\n`;
     text += `${council.name}\n`;
-    text += `${council.phone}\n`;
+    // Combine phone numbers on one line if there's an out of hours number
     if (council.outOfHours) {
-      text += `Out of hours: ${council.outOfHours}\n`;
+      text += `${council.phone} (out of hours: ${council.outOfHours})\n`;
+    } else {
+      text += `${council.phone}\n`;
     }
     text += `${council.website}\n`;
     text += `Contact them as soon as ${isSupporter ? 'they' : 'you'} can - they assess emergency situations urgently\n\n`;
@@ -481,12 +485,12 @@ function buildFireFloodExit(session: SessionState): RoutingResult {
     text += `Contact them as soon as ${isSupporter ? 'they' : 'you'} can - they assess emergency situations urgently\n\n`;
   }
   
-  // Shelter
+  // Shelter - priority need page (fire/flood is automatic priority need)
   text += `HOUSING ADVICE\n`;
   text += `Shelter\n`;
   text += `0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)\n`;
-  text += `https://england.shelter.org.uk/housing_advice/homelessness/emergency_housing\n`;
-  text += `They can explain ${isSupporter ? 'their' : 'your'} housing rights and help understand the options\n\n`;
+  text += `https://england.shelter.org.uk/housing_advice/homelessness/rules/priority_need\n`;
+  text += `People made homeless by fire or flood have priority need for housing - Shelter can explain ${isSupporter ? 'their' : 'your'} rights\n\n`;
   
   // Warm sign-off with separator
   text += `---\n`;
