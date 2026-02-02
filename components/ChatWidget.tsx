@@ -3,6 +3,20 @@
 import { useState, useRef, useEffect } from 'react';
 
 // ============================================================
+// SSN BRAND COLORS (Official)
+// ============================================================
+const SSN_COLORS = {
+  primary: '#38ae8e',      // Main brand teal
+  primaryDark: '#2d8a70',  // Darker teal for text contrast
+  mint: '#b0dccf',         // Light teal
+  yellow: '#ffec83',       // Yellow (solid badges)
+  purple: '#5f3f77',       // Purple (solid badges)
+  text: '#333333',
+  grayBorder: '#dedede',
+  grayLight: '#f5f5f5',
+};
+
+// ============================================================
 // TYPES
 // ============================================================
 
@@ -34,6 +48,63 @@ interface ChatWidgetProps {
 }
 
 // ============================================================
+// LAUNCHER - Solid teal rectangle like website
+// ============================================================
+
+interface LauncherBubbleProps {
+  onClick: () => void;
+}
+
+export function LauncherBubble({ onClick }: LauncherBubbleProps) {
+  const [isVisible, setIsVisible] = useState(false);
+  const [showMessage, setShowMessage] = useState(true);
+  
+  useEffect(() => {
+    setTimeout(() => setIsVisible(true), 100);
+  }, []);
+
+  return (
+    <div className="fixed bottom-4 right-4 flex flex-col items-end gap-3 z-40">
+      {/* Teal message box - matches website */}
+      {showMessage && (
+        <div 
+          className="relative rounded-lg px-5 py-4 shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 max-w-[280px]"
+          style={{
+            backgroundColor: SSN_COLORS.primary,
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? 'translateY(0)' : 'translateY(10px)',
+          }}
+          onClick={onClick}
+        >
+          <p className="text-white text-base font-medium leading-snug pr-12">
+            I'm Street Support's Virtual Assistant. How can I help?
+          </p>
+          {/* Close button */}
+          <button 
+            className="absolute top-2 right-2 text-white/80 hover:text-white text-xs flex items-center gap-1 px-2 py-1"
+            onClick={(e) => { e.stopPropagation(); setShowMessage(false); }}
+          >
+            × Close
+          </button>
+        </div>
+      )}
+      
+      {/* Chat icon button */}
+      <button
+        onClick={onClick}
+        className="w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
+        style={{ backgroundColor: SSN_COLORS.primary }}
+        title="Chat with Street Support Assistant"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+      </button>
+    </div>
+  );
+}
+
+// ============================================================
 // LINKIFICATION
 // ============================================================
 
@@ -55,13 +126,15 @@ function LinkifiedText({ text }: { text: string }) {
     const matchedText = match[0];
     if (match[1]) {
       parts.push(
-        <a key={`url-${match.index}`} href={matchedText} target="_blank" rel="noopener noreferrer" className="text-ss-accent font-medium hover:underline break-all">
+        <a key={`url-${match.index}`} href={matchedText} target="_blank" rel="noopener noreferrer" 
+           className="font-medium hover:underline break-all" style={{ color: SSN_COLORS.primary }}>
           {matchedText}
         </a>
       );
     } else {
       parts.push(
-        <a key={`phone-${match.index}`} href={`tel:${matchedText.replace(/[\s-]/g, '')}`} className="text-ss-accent font-semibold hover:underline">
+        <a key={`phone-${match.index}`} href={`tel:${matchedText.replace(/[\s-]/g, '')}`} 
+           className="font-semibold hover:underline" style={{ color: SSN_COLORS.primary }}>
           {matchedText}
         </a>
       );
@@ -140,8 +213,6 @@ function parseServiceContent(text: string): ParsedContent {
   let outro = '';
   let reachedFirstSection = false;
   let collectingOutro = false;
-  let inShelterSection = false;
-  let shelterIntroText = '';
   
   const sectionHeaders = [
     'YOUR FIRST STEP',
@@ -169,8 +240,6 @@ function parseServiceContent(text: string): ParsedContent {
       currentCategory = trimmed;
       currentService = null;
       reachedFirstSection = true;
-      inShelterSection = trimmed === 'IF YOU NEED MORE HELP';
-      shelterIntroText = '';
       continue;
     }
     
@@ -188,58 +257,39 @@ function parseServiceContent(text: string): ParsedContent {
       continue;
     }
     
-    if (!trimmed) {
-      if (inShelterSection && currentService?.website && !currentService.description) {
-        continue;
-      }
-      if (currentService?.name && currentService.phone) {
-        services.push(currentService as ServiceCard);
-        currentService = null;
-      }
-      continue;
-    }
+    if (!trimmed) continue;
     
     if (collectingOutro) {
       outro += line + '\n';
       continue;
     }
     
-    if (inShelterSection) {
-      if (/^0\d/.test(trimmed) || trimmed.includes('(free')) {
-        if (!currentService) {
-          currentService = { 
-            name: 'Shelter', 
-            category: currentCategory,
-            description: shelterIntroText.trim()
-          };
-        }
-        currentService.phone = trimmed;
-        continue;
-      }
-      
-      if (trimmed.startsWith('http')) {
-        if (currentService) {
-          currentService.website = trimmed;
-        }
-        continue;
-      }
-      
-      if (trimmed.toLowerCase() === 'shelter') {
-        continue;
-      }
-      
-      if (currentService?.website) {
-        if (currentService.description) {
-          currentService.description += ' ' + trimmed;
-        } else {
-          currentService.description = trimmed;
-        }
-        continue;
-      }
-      
-      shelterIntroText += trimmed + ' ';
-      continue;
-    }
+    const looksLikeOrgName = 
+      !trimmed.startsWith('http') && 
+      !trimmed.startsWith('0') && 
+      !trimmed.includes('(free') &&
+      !trimmed.toLowerCase().startsWith('they ') &&
+      !trimmed.toLowerCase().startsWith('this ') &&
+      !trimmed.toLowerCase().startsWith('if ') &&
+      !trimmed.toLowerCase().startsWith('contact ') &&
+      !trimmed.toLowerCase().startsWith('explain ') &&
+      !trimmed.toLowerCase().startsWith('let ') &&
+      !trimmed.toLowerCase().startsWith('ask ') &&
+      !trimmed.toLowerCase().startsWith('drop-in') &&
+      trimmed.length < 80 &&
+      (trimmed.includes('Council') || 
+       trimmed.includes('Shelter') || 
+       trimmed.includes('P3') || 
+       trimmed.includes('Navigator') ||
+       trimmed.includes('Streetlink') ||
+       trimmed.includes('Outreach') ||
+       trimmed.includes('Support') ||
+       trimmed.includes('Service') ||
+       trimmed.includes('Team') ||
+       trimmed.includes('Helpline') ||
+       trimmed.includes('Centre') ||
+       trimmed.includes('Hub') ||
+       /^[A-Z]/.test(trimmed));
     
     if (!currentService) {
       currentService = { 
@@ -252,10 +302,20 @@ function parseServiceContent(text: string): ParsedContent {
       currentService.website = trimmed;
     } else if (/^0\d/.test(trimmed) || trimmed.includes('(free')) {
       currentService.phone = trimmed;
-    } else if (!currentService.description) {
-      currentService.description = trimmed;
+    } else if (looksLikeOrgName && currentService.phone) {
+      services.push(currentService as ServiceCard);
+      currentService = { 
+        name: trimmed, 
+        category: currentCategory,
+        isDropIn: currentCategory === 'LOCAL SUPPORT',
+        isVerified: currentCategory === 'YOUR FIRST STEP'
+      };
     } else {
-      currentService.description += ' ' + trimmed;
+      if (currentService.description) {
+        currentService.description += ' ' + trimmed;
+      } else {
+        currentService.description = trimmed;
+      }
     }
   }
   
@@ -272,53 +332,80 @@ function parseServiceContent(text: string): ParsedContent {
 }
 
 // ============================================================
-// SERVICE CARD COMPONENT
+// SERVICE CARD - Clean white style matching website
 // ============================================================
 
 function ServiceCardComponent({ service }: { service: ServiceCard }) {
-  const categoryStyles: Record<string, { bg: string; border: string; badge: string }> = {
-    'YOUR FIRST STEP': { bg: 'bg-green-50', border: 'border-green-300', badge: 'bg-green-600 text-white' },
-    'OUTREACH SUPPORT': { bg: 'bg-orange-50', border: 'border-orange-300', badge: 'bg-orange-500 text-white' },
-    'LOCAL SUPPORT': { bg: 'bg-blue-50', border: 'border-blue-300', badge: 'bg-blue-600 text-white' },
-    'SPECIALIST SUPPORT': { bg: 'bg-purple-50', border: 'border-purple-300', badge: 'bg-purple-600 text-white' },
-    "YOUNG PEOPLE'S SUPPORT": { bg: 'bg-yellow-50', border: 'border-yellow-400', badge: 'bg-yellow-500 text-white' },
-    'IMPORTANT FOR YOUNG PEOPLE': { bg: 'bg-yellow-50', border: 'border-yellow-400', badge: 'bg-yellow-500 text-white' },
-    'IF YOU NEED MORE HELP': { bg: 'bg-slate-50', border: 'border-slate-300', badge: 'bg-slate-600 text-white' },
+  // Category badge label mapping
+  const categoryLabel: Record<string, string> = {
+    'YOUR FIRST STEP': 'Your First Step',
+    'OUTREACH SUPPORT': 'Outreach Support',
+    'LOCAL SUPPORT': 'Local Support',
+    'SPECIALIST SUPPORT': 'Specialist Support',
+    "YOUNG PEOPLE'S SUPPORT": "Young People's Support",
+    'IMPORTANT FOR YOUNG PEOPLE': "Young People's Support",
+    'IF YOU NEED MORE HELP': 'Additional Support',
   };
-  
-  const style = categoryStyles[service.category] || categoryStyles['LOCAL SUPPORT'];
-  
+
   return (
-    <div className={`rounded-xl border-2 ${style.border} ${style.bg} p-4 mb-3 shadow-md`}>
-      {/* Top badges */}
+    <div 
+      className="rounded-lg p-4 mb-3 bg-white"
+      style={{ border: `1px solid ${SSN_COLORS.grayBorder}` }}
+    >
+      {/* Top badges row */}
       <div className="flex flex-wrap gap-2 mb-3">
+        {/* Verified badge - green outline style like website */}
         {service.isVerified && (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-green-600 text-white shadow-sm">
+          <span 
+            className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
+            style={{ 
+              backgroundColor: '#e8f5e9',
+              color: '#2e7d32',
+              border: '1px solid #4caf50'
+            }}
+          >
             <svg className="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
             Start Here
           </span>
         )}
+        
+        {/* Drop-in badge - gray outline like website categories */}
         {service.isDropIn && (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-blue-600 text-white shadow-sm">
+          <span 
+            className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+            style={{ 
+              backgroundColor: 'white',
+              color: SSN_COLORS.text,
+              border: `1px solid ${SSN_COLORS.grayBorder}`
+            }}
+          >
             Drop-in
           </span>
         )}
-        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold shadow-sm ${style.badge}`}>
-          {service.category === 'IF YOU NEED MORE HELP' ? 'Need More Help?' : service.category.replace(/'/g, "'")}
+        
+        {/* Category badge - solid purple like website service tags */}
+        <span 
+          className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold text-white"
+          style={{ backgroundColor: SSN_COLORS.purple }}
+        >
+          {categoryLabel[service.category] || service.category}
         </span>
       </div>
       
-      {/* Org name */}
-      <h4 className="font-bold text-gray-900 text-base mb-3">{service.name}</h4>
+      {/* Org name - larger, bolder for readability */}
+      <h4 className="font-bold text-base mb-3" style={{ color: SSN_COLORS.text }}>
+        {service.name}
+      </h4>
       
-      {/* Contact details */}
+      {/* Contact details - clear tappable buttons */}
       <div className="space-y-2 mb-3">
         {service.phone && (
           <a 
             href={`tel:${service.phone.replace(/[^\d+]/g, '')}`} 
-            className="flex items-center text-ss-accent hover:text-ss-primary font-semibold text-sm bg-white rounded-lg px-3 py-2 border border-gray-200 shadow-sm transition-colors"
+            className="flex items-center font-semibold text-sm bg-white rounded-lg px-3 py-2.5 transition-colors hover:bg-gray-50"
+            style={{ color: SSN_COLORS.primary, border: `1px solid ${SSN_COLORS.grayBorder}` }}
           >
             <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -331,7 +418,8 @@ function ServiceCardComponent({ service }: { service: ServiceCard }) {
             href={service.website} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center text-ss-accent hover:text-ss-primary font-medium text-sm bg-white rounded-lg px-3 py-2 border border-gray-200 shadow-sm transition-colors"
+            className="flex items-center font-medium text-sm bg-white rounded-lg px-3 py-2.5 transition-colors hover:bg-gray-50"
+            style={{ color: SSN_COLORS.primary, border: `1px solid ${SSN_COLORS.grayBorder}` }}
           >
             <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -341,9 +429,11 @@ function ServiceCardComponent({ service }: { service: ServiceCard }) {
         )}
       </div>
       
-      {/* Description */}
+      {/* Description - good line height for readability */}
       {service.description && (
-        <p className="text-gray-700 text-sm leading-relaxed">{service.description}</p>
+        <p className="text-sm leading-relaxed" style={{ color: '#555555' }}>
+          {service.description}
+        </p>
       )}
     </div>
   );
@@ -494,7 +584,9 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       return (
         <div className="space-y-3">
           {parsed.intro && (
-            <p className="text-sm leading-relaxed text-gray-800 font-medium mb-4">{parsed.intro}</p>
+            <p className="text-sm leading-relaxed font-medium mb-4" style={{ color: SSN_COLORS.text }}>
+              {parsed.intro}
+            </p>
           )}
           
           {parsed.services.map((service, idx) => (
@@ -502,7 +594,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
           ))}
           
           {parsed.outro && (
-            <p className="text-sm leading-relaxed text-gray-700 mt-4 pt-3 border-t border-gray-200 font-medium">
+            <p className="text-sm leading-relaxed mt-4 pt-3 font-medium" style={{ color: '#555555', borderTop: `1px solid ${SSN_COLORS.grayBorder}` }}>
               {parsed.outro}
             </p>
           )}
@@ -511,7 +603,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     }
     
     return (
-      <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-800">
+      <p className="whitespace-pre-wrap text-sm leading-relaxed" style={{ color: SSN_COLORS.text }}>
         <LinkifiedText text={content || ''} />
       </p>
     );
@@ -520,17 +612,31 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 w-full max-w-[480px] h-[640px] max-h-[90vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden z-50 border border-gray-300">
-      {/* Header */}
-      <div className="bg-ss-primary text-white px-4 py-3 flex items-center justify-between flex-shrink-0">
-        <h2 className="font-bold text-lg">Street Support Network's Assistant</h2>
+    <div 
+      className="fixed bottom-4 right-4 w-full max-w-[480px] h-[640px] max-h-[90vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden z-50"
+      style={{ border: `1px solid ${SSN_COLORS.grayBorder}` }}
+    >
+      {/* Header - SSN teal */}
+      <div 
+        className="text-white px-4 py-3 flex items-center justify-between flex-shrink-0"
+        style={{ backgroundColor: SSN_COLORS.primary }}
+      >
+        <h2 className="font-bold text-lg">Street Support Assistant</h2>
         <div className="flex items-center gap-2">
-          <button onClick={handleRestart} className="p-1.5 hover:bg-white/20 rounded-lg transition-colors" title="Start new conversation">
+          <button 
+            onClick={handleRestart} 
+            className="p-1.5 hover:bg-white/20 rounded-lg transition-colors" 
+            title="Start new conversation"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </button>
-          <button onClick={onClose} className="p-1.5 hover:bg-white/20 rounded-lg transition-colors" title="Close">
+          <button 
+            onClick={onClose} 
+            className="p-1.5 hover:bg-white/20 rounded-lg transition-colors" 
+            title="Close"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -538,25 +644,29 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content - light gray background for contrast */}
       <div 
         ref={messagesContainerRef}
         className="flex-1 overflow-y-auto p-4"
-        style={{ background: 'linear-gradient(180deg, #ffffff 0%, #e8f4f0 100%)' }}
+        style={{ backgroundColor: SSN_COLORS.grayLight }}
       >
         {/* Welcome Screen */}
         {!conversationStarted && (
           <div className="flex flex-col items-center justify-center h-full px-4">
-            <h1 className="text-2xl font-bold text-gray-900 text-center mb-8 leading-relaxed">
-              Hello, I'm Street Support Network's assistant! How can I help you today?
+            <h1 className="text-2xl font-bold text-center mb-8 leading-relaxed" style={{ color: SSN_COLORS.text }}>
+              Hello! How can I help you today?
             </h1>
-            <div className="flex flex-col gap-4 w-full max-w-sm">
+            <div className="flex flex-col gap-3 w-full max-w-sm">
               {conversationStarters.map((label, index) => (
                 <button
                   key={index}
                   onClick={handleStarterClick}
                   disabled={isLoading}
-                  className="px-6 py-4 text-base font-semibold border-2 border-gray-300 rounded-xl bg-white text-gray-800 hover:border-ss-accent hover:text-ss-accent hover:shadow-md transition-all text-left disabled:opacity-50 shadow-sm"
+                  className="px-5 py-4 text-base font-semibold rounded-lg bg-white text-left disabled:opacity-50 shadow-sm hover:shadow-md transition-all"
+                  style={{ 
+                    color: SSN_COLORS.text, 
+                    border: `1px solid ${SSN_COLORS.grayBorder}`,
+                  }}
                 >
                   {label}
                 </button>
@@ -577,11 +687,16 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                   ref={isLastMessage ? lastMessageRef : null}
                 >
                   <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[95%] rounded-xl px-4 py-3 ${
-                      message.role === 'user'
-                        ? 'bg-ss-secondary text-white shadow-md'
-                        : 'bg-white text-gray-800 shadow-md border border-gray-200'
-                    }`}>
+                    <div 
+                      className={`max-w-[95%] rounded-xl px-4 py-3 ${
+                        message.role === 'user' ? 'text-white' : ''
+                      }`}
+                      style={{
+                        backgroundColor: message.role === 'user' ? SSN_COLORS.primary : 'white',
+                        border: message.role === 'assistant' ? `1px solid ${SSN_COLORS.grayBorder}` : 'none',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
+                      }}
+                    >
                       {message.role === 'assistant' 
                         ? renderMessageContent(message.content)
                         : <p className="text-sm font-medium">{message.content}</p>
@@ -589,19 +704,23 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                     </div>
                   </div>
 
-                  {/* Quick Replies */}
+                  {/* Quick Replies - clean pill style */}
                   {message.role === 'assistant' && 
                    message.quickReplies && 
                    message.quickReplies.length > 0 && 
                    isLastMessage && 
                    !sessionEnded && (
-                    <div className="mt-4 flex flex-wrap gap-2">
+                    <div className="mt-3 flex flex-wrap gap-2">
                       {message.quickReplies.map((reply, idx) => (
                         <button
                           key={idx}
                           onClick={() => handleQuickReply(reply)}
                           disabled={isLoading}
-                          className="px-4 py-2.5 text-sm font-semibold border-2 border-gray-300 rounded-full bg-white text-gray-800 hover:border-ss-accent hover:text-ss-accent hover:shadow-md transition-all disabled:opacity-50 shadow-sm"
+                          className="px-4 py-2.5 text-sm font-semibold rounded-full bg-white disabled:opacity-50 shadow-sm hover:shadow-md transition-all"
+                          style={{ 
+                            color: SSN_COLORS.text, 
+                            border: `1px solid ${SSN_COLORS.grayBorder}`,
+                          }}
                         >
                           {reply.label}
                         </button>
@@ -615,11 +734,14 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
             {/* Typing Indicator */}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-white rounded-xl px-4 py-3 shadow-md border border-gray-200">
+                <div 
+                  className="bg-white rounded-xl px-4 py-3"
+                  style={{ border: `1px solid ${SSN_COLORS.grayBorder}`, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+                >
                   <div className="flex gap-1.5">
-                    <div className="w-2.5 h-2.5 bg-ss-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-2.5 h-2.5 bg-ss-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                    <div className="w-2.5 h-2.5 bg-ss-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    <div className="w-2.5 h-2.5 rounded-full animate-bounce" style={{ backgroundColor: SSN_COLORS.primary, animationDelay: '0ms' }}></div>
+                    <div className="w-2.5 h-2.5 rounded-full animate-bounce" style={{ backgroundColor: SSN_COLORS.primary, animationDelay: '150ms' }}></div>
+                    <div className="w-2.5 h-2.5 rounded-full animate-bounce" style={{ backgroundColor: SSN_COLORS.primary, animationDelay: '300ms' }}></div>
                   </div>
                 </div>
               </div>
@@ -631,9 +753,13 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       {/* Session Ended */}
       {sessionEnded && (
         <div className="px-4 py-3 bg-gray-100 border-t border-gray-200 text-center">
-          <p className="text-sm text-gray-700 font-medium">
+          <p className="text-sm font-medium" style={{ color: '#555555' }}>
             This conversation has ended.{' '}
-            <button onClick={handleRestart} className="text-ss-accent hover:underline font-bold">
+            <button 
+              onClick={handleRestart} 
+              className="font-bold hover:underline"
+              style={{ color: SSN_COLORS.primary }}
+            >
               Start a new conversation
             </button>
           </p>
@@ -642,21 +768,28 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
       {/* Input */}
       {conversationStarted && (
-        <form onSubmit={handleSubmit} className="p-3 bg-white border-t border-gray-200 flex-shrink-0">
+        <form onSubmit={handleSubmit} className="p-3 bg-white border-t flex-shrink-0" style={{ borderColor: SSN_COLORS.grayBorder }}>
           <div className="flex items-center gap-2">
             <input
               ref={inputRef}
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder={sessionEnded ? 'Conversation ended' : 'Type something...'}
+              placeholder={sessionEnded ? 'Conversation ended' : 'Type a message...'}
               disabled={isLoading || sessionEnded}
-              className="flex-1 px-4 py-2.5 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-ss-accent focus:ring-2 focus:ring-ss-accent/20 disabled:bg-gray-50 disabled:text-gray-400 text-gray-800 font-medium"
+              className="flex-1 px-4 py-2.5 rounded-lg disabled:bg-gray-50 disabled:text-gray-400 font-medium focus:outline-none"
+              style={{ 
+                color: SSN_COLORS.text, 
+                border: `1px solid ${SSN_COLORS.grayBorder}`,
+              }}
+              onFocus={(e) => e.currentTarget.style.borderColor = SSN_COLORS.primary}
+              onBlur={(e) => e.currentTarget.style.borderColor = SSN_COLORS.grayBorder}
             />
             <button
               type="submit"
               disabled={!inputValue?.trim() || isLoading || sessionEnded}
-              className="p-2.5 bg-ss-accent text-white rounded-xl hover:bg-ss-primary disabled:bg-gray-300 transition-colors shadow-sm"
+              className="p-2.5 text-white rounded-lg disabled:bg-gray-300 transition-colors"
+              style={{ backgroundColor: SSN_COLORS.primary }}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
