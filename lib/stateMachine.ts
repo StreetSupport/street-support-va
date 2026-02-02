@@ -344,7 +344,7 @@ function buildUnder16Exit(session: SessionState): RoutingResult {
   
   // Local Children's Services (if we have LA info)
   if (childServices) {
-    text += `LOCAL CHILDREN'S SERVICES\n`;
+    text += `CHILDREN'S SERVICES\n`;
     text += `${childServices.name}\n`;
     text += `${childServices.phone}\n`;
     if (childServices.outOfHours) {
@@ -353,28 +353,30 @@ function buildUnder16Exit(session: SessionState): RoutingResult {
     text += `${childServices.website}\n`;
     text += `They can talk through what's happening and help work out the best support\n\n`;
   } else {
-    text += `LOCAL CHILDREN'S SERVICES\n`;
-    text += `${isSupporter ? 'Their' : 'Your'} local council's Children's Services team can help.\n`;
+    text += `CHILDREN'S SERVICES\n`;
+    text += `Local council Children's Services\n`;
     text += `https://www.gov.uk/find-local-council\n`;
     text += `They can talk through what's happening and help work out the best support\n\n`;
   }
   
-  // Childline - prominent for self-referral
-  text += `CHILDLINE\n`;
+  // Childline
+  text += `SPECIALIST HELPLINE\n`;
+  text += `Childline\n`;
   text += `0800 1111 (free, confidential, 24/7)\n`;
   text += `https://www.childline.org.uk\n`;
   text += `${isSupporter ? 'Young people can call or chat online about anything - no problem is too big or small' : 'You can call or chat online about anything - no problem is too big or small'}\n\n`;
   
   if (isSupporter) {
-    text += `NSPCC HELPLINE (FOR ADULTS)\n`;
+    text += `SPECIALIST HELPLINE\n`;
+    text += `NSPCC Helpline (for adults)\n`;
     text += `0808 800 5000 (free, 24/7)\n`;
     text += `https://www.nspcc.org.uk/keeping-children-safe/reporting-abuse/\n`;
     text += `If you're worried about a child, they can advise on what to do next\n\n`;
   }
   
-  // Warm sign-off
-  text += `Please reach out to them when ${isSupporter ? 'you feel' : 'you feel'} ready. I'll be here if ${isSupporter ? 'you' : 'you'} need help finding other services later.\n\n`;
-  
+  // Warm sign-off with separator
+  text += `---\n`;
+  text += `Please reach out when ${isSupporter ? 'you' : 'you'} feel ready. I'll be here if you need help finding other services later.\n\n`;
   text += `If ${isSupporter ? 'they are' : 'you are'} in immediate danger, call 999.`;
   
   return {
@@ -464,7 +466,7 @@ function buildFireFloodExit(session: SessionState): RoutingResult {
   
   // Local council (if we have LA info)
   if (council) {
-    text += `LOCAL COUNCIL - EMERGENCY HOUSING\n`;
+    text += `LOCAL COUNCIL\n`;
     text += `${council.name}\n`;
     text += `${council.phone}\n`;
     if (council.outOfHours) {
@@ -473,20 +475,22 @@ function buildFireFloodExit(session: SessionState): RoutingResult {
     text += `${council.website}\n`;
     text += `Contact them as soon as ${isSupporter ? 'they' : 'you'} can - they assess emergency situations urgently\n\n`;
   } else {
-    text += `LOCAL COUNCIL - EMERGENCY HOUSING\n`;
-    text += `${isSupporter ? 'Their' : 'Your'} local council can help with emergency housing.\n`;
+    text += `LOCAL COUNCIL\n`;
+    text += `Local council housing team\n`;
     text += `https://www.gov.uk/find-local-council\n`;
     text += `Contact them as soon as ${isSupporter ? 'they' : 'you'} can - they assess emergency situations urgently\n\n`;
   }
   
   // Shelter
-  text += `SHELTER - EMERGENCY HOUSING ADVICE\n`;
+  text += `HOUSING ADVICE\n`;
+  text += `Shelter\n`;
   text += `0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)\n`;
   text += `https://england.shelter.org.uk/housing_advice/homelessness/emergency_housing\n`;
-  text += `Expert advice on ${isSupporter ? 'their' : 'your'} housing rights and options\n\n`;
+  text += `They can explain ${isSupporter ? 'their' : 'your'} housing rights and help understand the options\n\n`;
   
-  // Warm sign-off
-  text += `Please reach out to them when ${isSupporter ? 'they' : 'you'} can. I'll be here if ${isSupporter ? 'you' : 'you'} need help finding other services later.`;
+  // Warm sign-off with separator
+  text += `---\n`;
+  text += `Please reach out when ${isSupporter ? 'they' : 'you'} can. I'll be here if you need help finding other services later.`;
   
   return {
     text,
@@ -509,27 +513,30 @@ function buildSelfHarmExit(session: SessionState): RoutingResult {
   text += `${isSupporter ? 'They deserve' : 'You deserve'} support with this, and ${isSupporter ? 'they don\'t' : 'you don\'t'} have to go through it alone.\n\n`;
   
   // Samaritans
-  text += `SAMARITANS\n`;
+  text += `MENTAL HEALTH SUPPORT\n`;
+  text += `Samaritans\n`;
   text += `116 123 (24 hours, free)\n`;
   text += `https://www.samaritans.org\n`;
   text += `They're there to listen, any time of day or night - no judgement, no pressure\n\n`;
   
   // NHS
-  text += `NHS MENTAL HEALTH SUPPORT\n`;
+  text += `MENTAL HEALTH SUPPORT\n`;
+  text += `NHS Mental Health Helpline\n`;
   text += `Call 111, choose option 2\n`;
   text += `https://www.nhs.uk/mental-health/\n`;
   text += `24/7 mental health crisis support\n\n`;
   
   // Mind
-  text += `MIND\n`;
+  text += `MENTAL HEALTH SUPPORT\n`;
+  text += `Mind\n`;
   text += `0300 123 3393 (Mon-Fri 9am-6pm)\n`;
   text += `https://www.mind.org.uk/information-support/helplines/\n`;
   text += `Information and support for mental health\n\n`;
   
-  // Warm sign-off
-  text += `Please reach out when ${isSupporter ? 'they feel' : 'you feel'} able to. I'll be here if ${isSupporter ? 'you' : 'you'} need help finding other services later. `;
+  // Warm sign-off with separator
+  text += `---\n`;
+  text += `Please reach out when ${isSupporter ? 'they feel' : 'you feel'} able to. I'll be here if you need help finding other services later. `;
   text += `${isSupporter ? '' : 'Take care of yourself.'}\n\n`;
-  
   text += `If ${isSupporter ? 'they are' : 'you are'} in immediate danger, call 999 or go to A&E.`;
   
   return {
