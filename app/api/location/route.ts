@@ -19,46 +19,20 @@ interface PostcodeResult {
   error?: string;
 }
 
-// WMCA Local Authorities we support
-const SUPPORTED_LOCAL_AUTHORITIES = [
-  'Wolverhampton',
-  'Birmingham',
-  'Coventry',
-  'Dudley',
-  'Sandwell',
-  'Solihull',
-  'Walsall',
-  'City of Wolverhampton',
-  'City of Birmingham',
-  'City of Coventry',
-];
+// WMCA Local Authority names (core names without "City of" prefix)
+const WMCA_NAMES = ['wolverhampton', 'birmingham', 'coventry', 'dudley', 'sandwell', 'solihull', 'walsall'];
 
-// Normalize LA name to match our system
+// Normalize LA name - remove "City of" prefix for cleaner display
 function normalizeLocalAuthority(adminDistrict: string): string {
   if (!adminDistrict) return '';
-  
-  // Remove "City of" prefix for consistency
-  let normalized = adminDistrict
-    .replace(/^City of /i, '')
-    .trim();
-  
-  // Check if it's in our supported list
-  const supported = SUPPORTED_LOCAL_AUTHORITIES.find(
-    la => la.toLowerCase().includes(normalized.toLowerCase()) ||
-          normalized.toLowerCase().includes(la.toLowerCase())
-  );
-  
-  return supported ? normalized : adminDistrict;
+  return adminDistrict.replace(/^City of /i, '').trim();
 }
 
-// Check if LA is in WMCA region
+// Check if LA is in WMCA region - simple substring match
 function isInWMCA(adminDistrict: string): boolean {
   if (!adminDistrict) return false;
   const normalized = adminDistrict.toLowerCase();
-  return SUPPORTED_LOCAL_AUTHORITIES.some(
-    la => la.toLowerCase().includes(normalized) ||
-          normalized.includes(la.toLowerCase().replace('city of ', ''))
-  );
+  return WMCA_NAMES.some(name => normalized.includes(name));
 }
 
 export async function POST(request: NextRequest) {
@@ -94,7 +68,7 @@ export async function POST(request: NextRequest) {
               longitude: data.result.longitude,
               localAuthority: normalizeLocalAuthority(data.result.admin_district),
               postcode: data.result.postcode,
-              isInWMCA: isInWMCA(data.result.admin_district),
+              isWMCA: isInWMCA(data.result.admin_district),
               isTerminated: true
             });
           }
@@ -115,7 +89,7 @@ export async function POST(request: NextRequest) {
           longitude: data.result.longitude,
           localAuthority: normalizeLocalAuthority(data.result.admin_district),
           postcode: data.result.postcode,
-          isInWMCA: isInWMCA(data.result.admin_district)
+          isWMCA: isInWMCA(data.result.admin_district)
         });
       }
 
@@ -152,7 +126,7 @@ export async function POST(request: NextRequest) {
           longitude: result.longitude,
           localAuthority: normalizeLocalAuthority(result.admin_district),
           postcode: result.postcode,
-          isInWMCA: isInWMCA(result.admin_district)
+          isWMCA: isInWMCA(result.admin_district)
         });
       }
 
@@ -176,7 +150,7 @@ export async function POST(request: NextRequest) {
             latitude: result.latitude,
             longitude: result.longitude,
             localAuthority: normalizeLocalAuthority(adminDistrict),
-            isInWMCA: isInWMCA(adminDistrict),
+            isWMCA: isInWMCA(adminDistrict),
             approximate: true
           });
         }
