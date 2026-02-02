@@ -305,29 +305,53 @@ function getOrgName(orgId: string): string | null {
 
 /**
  * Check if service matches gender filter
+ * Checks client_groups, name, and description for gender-specific terms
  */
-function matchesGender(clientGroups: string[], gender: string | null): boolean {
+function matchesGender(service: Service, gender: string | null): boolean {
   if (!gender) return true;
   
   const genderLower = gender.toLowerCase();
+  const clientGroups = service.client_groups || [];
+  const name = service.name.toLowerCase();
+  const desc = service.description.toLowerCase();
   
-  // Check if service is gender-restricted
-  const isWomenOnly = clientGroups.some(g => 
+  // Women-only indicators
+  const womenOnlyTerms = ['women', 'woman', 'female', 'girls', 'mothers', 'period poverty', 'period products', 'menstrual', 'maternity', 'pregnancy'];
+  const menOnlyTerms = ['men only', 'for men', 'male only', 'fathers'];
+  
+  // Check if service is gender-restricted via client_groups
+  const hasWomenClientGroup = clientGroups.some(g => 
     clientGroupKeywords.women.some(k => g.toLowerCase().includes(k.toLowerCase()))
   );
-  const isMenOnly = clientGroups.some(g => 
+  const hasMenClientGroup = clientGroups.some(g => 
     clientGroupKeywords.men.some(k => g.toLowerCase().includes(k.toLowerCase()))
   );
   
-  // If service targets specific gender, check match
-  if (isWomenOnly && !['female', 'woman', 'girl'].some(g => genderLower.includes(g))) {
-    return false;
-  }
-  if (isMenOnly && !['male', 'man', 'boy'].some(g => genderLower.includes(g))) {
+  // Check if service name/description indicates women-only
+  const nameDescIndicatesWomenOnly = womenOnlyTerms.some(term => 
+    name.includes(term) || desc.includes(term)
+  );
+  
+  // Check if service name/description indicates men-only
+  const nameDescIndicatesMenOnly = menOnlyTerms.some(term => 
+    name.includes(term) || desc.includes(term)
+  );
+  
+  // Determine if service is gender-restricted
+  const isWomenOnly = hasWomenClientGroup || nameDescIndicatesWomenOnly;
+  const isMenOnly = hasMenClientGroup || nameDescIndicatesMenOnly;
+  
+  // If user is male and service is women-only, exclude
+  if (isWomenOnly && ['male', 'man', 'boy'].some(g => genderLower.includes(g))) {
     return false;
   }
   
-  return true;
+  // If user is female and service is men-only, exclude
+  if (isMenOnly && ['female', 'woman', 'girl'].some(g => genderLower.includes(g))) {
+    return false;
+  }
+  
+  return true;;
 }
 
 /**
@@ -435,8 +459,8 @@ export function filterByProfile(services: Service[], profile: UserProfile): Serv
   return services.filter(s => {
     const groups = s.client_groups || [];
     
-    // Gender filter
-    if (!matchesGender(groups, profile.gender)) {
+    // Gender filter - pass full service for name/description checking
+    if (!matchesGender(s, profile.gender)) {
       return false;
     }
     

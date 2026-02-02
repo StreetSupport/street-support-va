@@ -710,7 +710,8 @@ function buildNonHousingTerminal(session: SessionState): string {
   
   // Local services section
   if (hasLocalServices) {
-    text += `LOCAL SERVICES\n\n`;
+    text += `LOCAL SERVICES\n`;
+    text += `--------------\n\n`;
     
     for (const svc of localServices) {
       text += `${svc.name}\n`;
@@ -720,13 +721,14 @@ function buildNonHousingTerminal(session: SessionState): string {
       if (svc.website) {
         text += `${svc.website}\n`;
       }
-      text += `${svc.description}`;
+      // Description with access note
+      let desc = svc.description;
       if (svc.isDropIn) {
-        text += ` No appointment needed.`;
+        desc += ` No appointment needed.`;
       } else if (svc.appointmentOnly) {
-        text += ` Appointment required.`;
+        desc += ` Appointment required.`;
       }
-      text += `\n\n`;
+      text += `${desc}\n\n`;
     }
   }
   
@@ -734,8 +736,9 @@ function buildNonHousingTerminal(session: SessionState): string {
   if (hasFallbacks) {
     if (hasLocalServices) {
       text += `---\n\n`;
-      text += `NATIONAL RESOURCES\n\n`;
     }
+    text += `NATIONAL RESOURCES\n`;
+    text += `------------------\n\n`;
     
     for (const svc of fallbacks) {
       text += `${svc.name}\n`;
@@ -750,7 +753,8 @@ function buildNonHousingTerminal(session: SessionState): string {
   // If no local services found, add search link
   if (!hasLocalServices && categoryKey && la !== 'your area') {
     text += `---\n\n`;
-    text += `FIND MORE SERVICES\n\n`;
+    text += `FIND MORE SERVICES\n`;
+    text += `------------------\n\n`;
     text += `Search for ${displayName} in ${la}:\n`;
     text += `https://streetsupport.net/${la.toLowerCase().replace(/\s+/g, '-')}/find-help/category/?category=${categoryKey}\n`;
   }
