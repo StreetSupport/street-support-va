@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
               longitude: data.result.longitude,
               localAuthority: normalizeLocalAuthority(data.result.admin_district),
               postcode: data.result.postcode,
-              isInWMCA: isInWMCA(data.result.admin_district),
+              isWMCA: isInWMCA(data.result.admin_district),
               isTerminated: true
             });
           }
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
           longitude: data.result.longitude,
           localAuthority: normalizeLocalAuthority(data.result.admin_district),
           postcode: data.result.postcode,
-          isInWMCA: isInWMCA(data.result.admin_district)
+          isWMCA: isInWMCA(data.result.admin_district)
         });
       }
 
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
           longitude: result.longitude,
           localAuthority: normalizeLocalAuthority(result.admin_district),
           postcode: result.postcode,
-          isInWMCA: isInWMCA(result.admin_district)
+          isWMCA: isInWMCA(result.admin_district)
         });
       }
 
@@ -150,7 +150,7 @@ export async function POST(request: NextRequest) {
             latitude: result.latitude,
             longitude: result.longitude,
             localAuthority: normalizeLocalAuthority(adminDistrict),
-            isInWMCA: isInWMCA(adminDistrict),
+            isWMCA: isInWMCA(adminDistrict),
             approximate: true
           });
         }
