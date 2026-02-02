@@ -55,13 +55,13 @@ function LinkifiedText({ text }: { text: string }) {
     const matchedText = match[0];
     if (match[1]) {
       parts.push(
-        <a key={`url-${match.index}`} href={matchedText} target="_blank" rel="noopener noreferrer" className="text-ss-accent hover:underline break-all">
+        <a key={`url-${match.index}`} href={matchedText} target="_blank" rel="noopener noreferrer" className="text-ss-accent font-medium hover:underline break-all">
           {matchedText}
         </a>
       );
     } else {
       parts.push(
-        <a key={`phone-${match.index}`} href={`tel:${matchedText.replace(/[\s-]/g, '')}`} className="text-ss-accent hover:underline font-medium">
+        <a key={`phone-${match.index}`} href={`tel:${matchedText.replace(/[\s-]/g, '')}`} className="text-ss-accent font-semibold hover:underline">
           {matchedText}
         </a>
       );
@@ -140,8 +140,6 @@ function parseServiceContent(text: string): ParsedContent {
   let outro = '';
   let reachedFirstSection = false;
   let collectingOutro = false;
-  
-  // Track special handling for "IF YOU NEED MORE HELP" section
   let inShelterSection = false;
   let shelterIntroText = '';
   
@@ -159,14 +157,11 @@ function parseServiceContent(text: string): ParsedContent {
     const line = lines[i];
     const trimmed = line.trim();
     
-    // Skip separator lines
     if (/^-+$/.test(trimmed)) continue;
     
-    // Check for section headers
     const isHeader = sectionHeaders.some(h => trimmed === h);
     
     if (isHeader) {
-      // Save previous service
       if (currentService?.name) {
         services.push(currentService as ServiceCard);
       }
@@ -179,13 +174,11 @@ function parseServiceContent(text: string): ParsedContent {
       continue;
     }
     
-    // Before any section = intro
     if (!reachedFirstSection && trimmed) {
       intro += line + '\n';
       continue;
     }
     
-    // Outro marker (---)
     if (trimmed === '---') {
       if (currentService?.name) {
         services.push(currentService as ServiceCard);
@@ -195,13 +188,10 @@ function parseServiceContent(text: string): ParsedContent {
       continue;
     }
     
-    // Skip empty lines
     if (!trimmed) {
-      // In shelter section, empty line after website means description follows
       if (inShelterSection && currentService?.website && !currentService.description) {
         continue;
       }
-      // Normal section - save service on empty line
       if (currentService?.name && currentService.phone) {
         services.push(currentService as ServiceCard);
         currentService = null;
@@ -209,18 +199,14 @@ function parseServiceContent(text: string): ParsedContent {
       continue;
     }
     
-    // Collecting outro text (after ---)
     if (collectingOutro) {
       outro += line + '\n';
       continue;
     }
     
-    // SPECIAL HANDLING: IF YOU NEED MORE HELP (Shelter section)
     if (inShelterSection) {
-      // Check if this is a phone number line
       if (/^0\d/.test(trimmed) || trimmed.includes('(free')) {
         if (!currentService) {
-          // Create service with collected intro as part of card
           currentService = { 
             name: 'Shelter', 
             category: currentCategory,
@@ -231,7 +217,6 @@ function parseServiceContent(text: string): ParsedContent {
         continue;
       }
       
-      // Check if website
       if (trimmed.startsWith('http')) {
         if (currentService) {
           currentService.website = trimmed;
@@ -239,12 +224,10 @@ function parseServiceContent(text: string): ParsedContent {
         continue;
       }
       
-      // Check if it's just "Shelter" (org name we can skip since we hardcoded it)
       if (trimmed.toLowerCase() === 'shelter') {
         continue;
       }
       
-      // If we already have a service with website, this is follow-up description
       if (currentService?.website) {
         if (currentService.description) {
           currentService.description += ' ' + trimmed;
@@ -254,12 +237,10 @@ function parseServiceContent(text: string): ParsedContent {
         continue;
       }
       
-      // Otherwise it's intro text for Shelter
       shelterIntroText += trimmed + ' ';
       continue;
     }
     
-    // NORMAL SERVICE PARSING for other sections
     if (!currentService) {
       currentService = { 
         name: trimmed, 
@@ -278,7 +259,6 @@ function parseServiceContent(text: string): ParsedContent {
     }
   }
   
-  // Save last service
   if (currentService?.name) {
     services.push(currentService as ServiceCard);
   }
@@ -297,50 +277,50 @@ function parseServiceContent(text: string): ParsedContent {
 
 function ServiceCardComponent({ service }: { service: ServiceCard }) {
   const categoryStyles: Record<string, { bg: string; border: string; badge: string }> = {
-    'YOUR FIRST STEP': { bg: 'bg-green-50', border: 'border-green-200', badge: 'bg-green-100 text-green-800' },
-    'OUTREACH SUPPORT': { bg: 'bg-orange-50', border: 'border-orange-200', badge: 'bg-orange-100 text-orange-800' },
-    'LOCAL SUPPORT': { bg: 'bg-blue-50', border: 'border-blue-200', badge: 'bg-blue-100 text-blue-800' },
-    'SPECIALIST SUPPORT': { bg: 'bg-purple-50', border: 'border-purple-200', badge: 'bg-purple-100 text-purple-800' },
-    "YOUNG PEOPLE'S SUPPORT": { bg: 'bg-yellow-50', border: 'border-yellow-200', badge: 'bg-yellow-100 text-yellow-800' },
-    'IMPORTANT FOR YOUNG PEOPLE': { bg: 'bg-yellow-50', border: 'border-yellow-200', badge: 'bg-yellow-100 text-yellow-800' },
-    'IF YOU NEED MORE HELP': { bg: 'bg-gray-50', border: 'border-gray-200', badge: 'bg-gray-100 text-gray-700' },
+    'YOUR FIRST STEP': { bg: 'bg-green-50', border: 'border-green-300', badge: 'bg-green-600 text-white' },
+    'OUTREACH SUPPORT': { bg: 'bg-orange-50', border: 'border-orange-300', badge: 'bg-orange-500 text-white' },
+    'LOCAL SUPPORT': { bg: 'bg-blue-50', border: 'border-blue-300', badge: 'bg-blue-600 text-white' },
+    'SPECIALIST SUPPORT': { bg: 'bg-purple-50', border: 'border-purple-300', badge: 'bg-purple-600 text-white' },
+    "YOUNG PEOPLE'S SUPPORT": { bg: 'bg-yellow-50', border: 'border-yellow-400', badge: 'bg-yellow-500 text-white' },
+    'IMPORTANT FOR YOUNG PEOPLE': { bg: 'bg-yellow-50', border: 'border-yellow-400', badge: 'bg-yellow-500 text-white' },
+    'IF YOU NEED MORE HELP': { bg: 'bg-slate-50', border: 'border-slate-300', badge: 'bg-slate-600 text-white' },
   };
   
   const style = categoryStyles[service.category] || categoryStyles['LOCAL SUPPORT'];
   
   return (
-    <div className={`rounded-lg border ${style.border} ${style.bg} p-3 mb-3 shadow-sm`}>
+    <div className={`rounded-xl border-2 ${style.border} ${style.bg} p-4 mb-3 shadow-md`}>
       {/* Top badges */}
-      <div className="flex flex-wrap gap-1 mb-2">
+      <div className="flex flex-wrap gap-2 mb-3">
         {service.isVerified && (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-green-600 text-white shadow-sm">
+            <svg className="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
-            First Step
+            Start Here
           </span>
         )}
         {service.isDropIn && (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-blue-600 text-white shadow-sm">
             Drop-in
           </span>
         )}
-        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${style.badge}`}>
+        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold shadow-sm ${style.badge}`}>
           {service.category === 'IF YOU NEED MORE HELP' ? 'Need More Help?' : service.category.replace(/'/g, "'")}
         </span>
       </div>
       
       {/* Org name */}
-      <h4 className="font-semibold text-gray-900 text-sm mb-2">{service.name}</h4>
+      <h4 className="font-bold text-gray-900 text-base mb-3">{service.name}</h4>
       
       {/* Contact details */}
-      <div className="space-y-1 mb-2">
+      <div className="space-y-2 mb-3">
         {service.phone && (
           <a 
             href={`tel:${service.phone.replace(/[^\d+]/g, '')}`} 
-            className="flex items-center text-ss-accent hover:underline text-sm"
+            className="flex items-center text-ss-accent hover:text-ss-primary font-semibold text-sm bg-white rounded-lg px-3 py-2 border border-gray-200 shadow-sm transition-colors"
           >
-            <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
             </svg>
             {service.phone}
@@ -351,9 +331,9 @@ function ServiceCardComponent({ service }: { service: ServiceCard }) {
             href={service.website} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center text-ss-accent hover:underline text-sm"
+            className="flex items-center text-ss-accent hover:text-ss-primary font-medium text-sm bg-white rounded-lg px-3 py-2 border border-gray-200 shadow-sm transition-colors"
           >
-            <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
             <span className="truncate">{service.website.replace('https://', '').replace('http://', '')}</span>
@@ -363,7 +343,7 @@ function ServiceCardComponent({ service }: { service: ServiceCard }) {
       
       {/* Description */}
       {service.description && (
-        <p className="text-gray-600 text-xs leading-relaxed">{service.description}</p>
+        <p className="text-gray-700 text-sm leading-relaxed">{service.description}</p>
       )}
     </div>
   );
@@ -394,10 +374,8 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   const lastMessageRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Scroll to show the START of the latest message (not the end)
   useEffect(() => {
     if (lastMessageRef.current && messagesContainerRef.current) {
-      // Small delay to allow render
       setTimeout(() => {
         lastMessageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
@@ -509,7 +487,6 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     setConversationStarted(false);
   };
 
-  // Render message content
   const renderMessageContent = (content: string) => {
     const parsed = parseServiceContent(content);
     
@@ -517,7 +494,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       return (
         <div className="space-y-3">
           {parsed.intro && (
-            <p className="text-sm leading-relaxed text-gray-700 mb-4">{parsed.intro}</p>
+            <p className="text-sm leading-relaxed text-gray-800 font-medium mb-4">{parsed.intro}</p>
           )}
           
           {parsed.services.map((service, idx) => (
@@ -525,7 +502,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
           ))}
           
           {parsed.outro && (
-            <p className="text-sm leading-relaxed text-gray-600 mt-4 pt-3 border-t border-gray-200">
+            <p className="text-sm leading-relaxed text-gray-700 mt-4 pt-3 border-t border-gray-200 font-medium">
               {parsed.outro}
             </p>
           )}
@@ -534,7 +511,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     }
     
     return (
-      <p className="whitespace-pre-wrap text-sm leading-relaxed">
+      <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-800">
         <LinkifiedText text={content || ''} />
       </p>
     );
@@ -543,17 +520,17 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 w-full max-w-[480px] h-[640px] max-h-[90vh] bg-white rounded-lg shadow-2xl flex flex-col overflow-hidden z-50 border border-gray-200">
+    <div className="fixed bottom-4 right-4 w-full max-w-[480px] h-[640px] max-h-[90vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden z-50 border border-gray-300">
       {/* Header */}
       <div className="bg-ss-primary text-white px-4 py-3 flex items-center justify-between flex-shrink-0">
-        <h2 className="font-semibold text-lg">Street Support Network's Assistant</h2>
+        <h2 className="font-bold text-lg">Street Support Network's Assistant</h2>
         <div className="flex items-center gap-2">
-          <button onClick={handleRestart} className="p-1 hover:bg-white/20 rounded transition-colors" title="Start new conversation">
+          <button onClick={handleRestart} className="p-1.5 hover:bg-white/20 rounded-lg transition-colors" title="Start new conversation">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </button>
-          <button onClick={onClose} className="p-1 hover:bg-white/20 rounded transition-colors" title="Close">
+          <button onClick={onClose} className="p-1.5 hover:bg-white/20 rounded-lg transition-colors" title="Close">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -565,21 +542,21 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       <div 
         ref={messagesContainerRef}
         className="flex-1 overflow-y-auto p-4"
-        style={{ background: 'linear-gradient(180deg, #ffffff 0%, #f0f7f4 100%)' }}
+        style={{ background: 'linear-gradient(180deg, #ffffff 0%, #e8f4f0 100%)' }}
       >
         {/* Welcome Screen */}
         {!conversationStarted && (
           <div className="flex flex-col items-center justify-center h-full px-4">
-            <h1 className="text-2xl font-semibold text-ss-text text-center mb-8 leading-relaxed">
+            <h1 className="text-2xl font-bold text-gray-900 text-center mb-8 leading-relaxed">
               Hello, I'm Street Support Network's assistant! How can I help you today?
             </h1>
-            <div className="flex flex-col gap-3 w-full max-w-xs">
+            <div className="flex flex-col gap-4 w-full max-w-sm">
               {conversationStarters.map((label, index) => (
                 <button
                   key={index}
                   onClick={handleStarterClick}
                   disabled={isLoading}
-                  className="px-5 py-3 text-sm border border-gray-300 rounded-full bg-white text-ss-text hover:border-ss-accent hover:text-ss-accent transition-colors text-left disabled:opacity-50"
+                  className="px-6 py-4 text-base font-semibold border-2 border-gray-300 rounded-xl bg-white text-gray-800 hover:border-ss-accent hover:text-ss-accent hover:shadow-md transition-all text-left disabled:opacity-50 shadow-sm"
                 >
                   {label}
                 </button>
@@ -600,14 +577,14 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                   ref={isLastMessage ? lastMessageRef : null}
                 >
                   <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[95%] rounded-lg px-4 py-3 ${
+                    <div className={`max-w-[95%] rounded-xl px-4 py-3 ${
                       message.role === 'user'
-                        ? 'bg-ss-secondary text-white'
-                        : 'bg-white text-ss-text shadow-sm border border-gray-100'
+                        ? 'bg-ss-secondary text-white shadow-md'
+                        : 'bg-white text-gray-800 shadow-md border border-gray-200'
                     }`}>
                       {message.role === 'assistant' 
                         ? renderMessageContent(message.content)
-                        : <p className="text-sm">{message.content}</p>
+                        : <p className="text-sm font-medium">{message.content}</p>
                       }
                     </div>
                   </div>
@@ -618,13 +595,13 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                    message.quickReplies.length > 0 && 
                    isLastMessage && 
                    !sessionEnded && (
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    <div className="mt-4 flex flex-wrap gap-2">
                       {message.quickReplies.map((reply, idx) => (
                         <button
                           key={idx}
                           onClick={() => handleQuickReply(reply)}
                           disabled={isLoading}
-                          className="px-4 py-2 text-sm border border-gray-300 rounded-full bg-white text-ss-text hover:border-ss-accent hover:text-ss-accent transition-colors disabled:opacity-50"
+                          className="px-4 py-2.5 text-sm font-semibold border-2 border-gray-300 rounded-full bg-white text-gray-800 hover:border-ss-accent hover:text-ss-accent hover:shadow-md transition-all disabled:opacity-50 shadow-sm"
                         >
                           {reply.label}
                         </button>
@@ -638,11 +615,11 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
             {/* Typing Indicator */}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-white rounded-lg px-4 py-3 shadow-sm border border-gray-100">
-                  <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-ss-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-2 h-2 bg-ss-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                    <div className="w-2 h-2 bg-ss-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                <div className="bg-white rounded-xl px-4 py-3 shadow-md border border-gray-200">
+                  <div className="flex gap-1.5">
+                    <div className="w-2.5 h-2.5 bg-ss-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-2.5 h-2.5 bg-ss-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-2.5 h-2.5 bg-ss-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                   </div>
                 </div>
               </div>
@@ -653,10 +630,10 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
       {/* Session Ended */}
       {sessionEnded && (
-        <div className="px-4 py-2 bg-gray-100 border-t border-gray-200 text-center">
-          <p className="text-sm text-gray-600">
+        <div className="px-4 py-3 bg-gray-100 border-t border-gray-200 text-center">
+          <p className="text-sm text-gray-700 font-medium">
             This conversation has ended.{' '}
-            <button onClick={handleRestart} className="text-ss-accent hover:underline font-medium">
+            <button onClick={handleRestart} className="text-ss-accent hover:underline font-bold">
               Start a new conversation
             </button>
           </p>
@@ -674,14 +651,14 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
               onChange={(e) => setInputValue(e.target.value)}
               placeholder={sessionEnded ? 'Conversation ended' : 'Type something...'}
               disabled={isLoading || sessionEnded}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-ss-accent focus:ring-1 focus:ring-ss-accent disabled:bg-gray-50 disabled:text-gray-400"
+              className="flex-1 px-4 py-2.5 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-ss-accent focus:ring-2 focus:ring-ss-accent/20 disabled:bg-gray-50 disabled:text-gray-400 text-gray-800 font-medium"
             />
             <button
               type="submit"
               disabled={!inputValue?.trim() || isLoading || sessionEnded}
-              className="p-2 text-ss-accent hover:text-ss-primary disabled:text-gray-300 transition-colors"
+              className="p-2.5 bg-ss-accent text-white rounded-xl hover:bg-ss-primary disabled:bg-gray-300 transition-colors shadow-sm"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
               </svg>
             </button>
