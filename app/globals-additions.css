@@ -1,0 +1,46 @@
+/* Add these to your globals.css or tailwind config */
+
+/* Animation for typing dots */
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-6px);
+  }
+}
+
+/* If you prefer CSS classes over inline styles for the launcher */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* SSN Brand Colors for Tailwind config */
+/*
+  Add to your tailwind.config.js/ts:
+  
+  theme: {
+    extend: {
+      colors: {
+        'ss-primary': '#38ae8e',    // Main brand teal
+        'ss-secondary': '#2d8a70',  // Darker teal for contrast
+        'ss-accent': '#38ae8e',     // Same as primary
+        'ss-mint': '#b0dccf',       // Light teal
+        'ss-yellow': '#ffec83',     // Yellow
+        'ss-purple': '#5f3f77',     // Purple
+        'ss-text': '#333333',       // Dark gray for readability
+      },
+    },
+  },
+*/
