@@ -278,6 +278,19 @@ function parseServiceContent(text: string): ParsedContent {
     
     // For "IF YOU NEED MORE HELP" section - all content goes to description
     if (currentCategory === 'IF YOU NEED MORE HELP' && currentService) {
+      // Detect outro text - "You've taken..." starts the closing message
+      if (trimmed.toLowerCase().startsWith("you've taken") || 
+          trimmed.toLowerCase().startsWith("you have taken")) {
+        // Save current service and switch to outro collection
+        if (currentService?.name) {
+          services.push(currentService as ServiceCard);
+          currentService = null;
+        }
+        collectingOutro = true;
+        outro += line + '\n';
+        continue;
+      }
+      
       if (trimmed.startsWith('http')) {
         // Don't overwrite our pre-set homelessness advice URL
         if (!currentService.website) {
