@@ -198,7 +198,14 @@ function parseServiceContent(text: string): ParsedContent {
     text.includes('YOUR FIRST STEP') || 
     text.includes('LOCAL SUPPORT') ||
     text.includes('found some services') ||
-    text.includes('IF YOU NEED MORE HELP');
+    text.includes('IF YOU NEED MORE HELP') ||
+    // Crisis exit triggers
+    text.includes('CRISIS SUPPORT') ||
+    text.includes('SPECIALIST HELPLINE') ||
+    text.includes('LOCAL COUNCIL') ||
+    text.includes('HOUSING ADVICE') ||
+    text.includes('MENTAL HEALTH SUPPORT') ||
+    text.includes("CHILDREN'S SERVICES");
     
   if (!isServiceResponse) {
     return { intro: text, services: [], outro: '', isServiceResponse: false };
@@ -221,7 +228,14 @@ function parseServiceContent(text: string): ParsedContent {
     'SPECIALIST SUPPORT',
     "YOUNG PEOPLE'S SUPPORT",
     'IMPORTANT FOR YOUNG PEOPLE',
-    'IF YOU NEED MORE HELP'
+    'IF YOU NEED MORE HELP',
+    // Crisis exit headers
+    'CRISIS SUPPORT',
+    'SPECIALIST HELPLINE',
+    'LOCAL COUNCIL',
+    'HOUSING ADVICE',
+    'MENTAL HEALTH SUPPORT',
+    "CHILDREN'S SERVICES"
   ];
   
   for (let i = 0; i < lines.length; i++) {
@@ -394,6 +408,13 @@ function ServiceCardComponent({ service }: { service: ServiceCard }) {
     "YOUNG PEOPLE'S SUPPORT": "Young People's Support",
     'IMPORTANT FOR YOUNG PEOPLE': "Young People's Support",
     'IF YOU NEED MORE HELP': 'Additional Support',
+    // Crisis exit labels
+    'CRISIS SUPPORT': 'Crisis Support',
+    'SPECIALIST HELPLINE': 'Specialist Helpline',
+    'LOCAL COUNCIL': 'Local Council',
+    'HOUSING ADVICE': 'Housing Advice',
+    'MENTAL HEALTH SUPPORT': 'Mental Health Support',
+    "CHILDREN'S SERVICES": "Children's Services",
   };
 
   return (
