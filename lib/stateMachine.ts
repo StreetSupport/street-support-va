@@ -45,6 +45,12 @@ export type GateType =
   | 'B3_AGE_CATEGORY'
   | 'B4_GENDER'
   | 'B5_MAIN_SUPPORT_NEED'
+  | 'B5_PROFILE_AGE'
+  | 'B5_PROFILE_GENDER'
+  | 'B5_PROFILE_LGBTQ'
+  | 'B5_PROFILE_CONVICTIONS'
+  | 'B5_PROFILE_NRPF'
+  | 'B5_PROFILE_CHILDREN'
   | 'B5A_ADDITIONAL_NEED_SELECTION'
   | 'B6_HOMELESSNESS_STATUS'
   | 'B7_HOUSED_SITUATION'
@@ -602,6 +608,138 @@ const needDisplayNames: Record<string, string> = {
   'Training': 'training opportunities',
   'Activities': 'activities and groups'
 };
+
+// ============================================================
+// CATEGORY-SPECIFIC PROFILING CONFIGURATION
+// Defines what profile questions are needed for each support need
+// ============================================================
+
+// What profile fields each need requires for effective service matching
+const needProfileRequirements: Record<string, string[]> = {
+  // Health: Age (youth clinics), Gender (women's health), LGBTQ (inclusive services)
+  'Health': ['age', 'gender', 'lgbtq'],
+  
+  // Work: Age (youth employment), Convictions (ex-offender programs), NRPF (right to work)
+  'Work': ['age', 'convictions', 'nrpf'],
+  
+  // Financial: NRPF (benefits eligibility), Children (family support)
+  'Financial': ['nrpf', 'children'],
+  
+  // Training: Age (youth training, adult education)
+  'Training': ['age'],
+  
+  // Activities: Age (youth/elderly groups), Gender (some gender-specific)
+  'Activities': ['age', 'gender'],
+  
+  // Drop In: Age (youth drop-ins), Gender (some gender-specific)
+  'Drop In': ['age', 'gender'],
+  
+  // Location-only needs - no profiling required
+  'Food': [],
+  'Items': [],
+  'Services': [],
+  'Comms': []
+};
+
+// Map profile fields to their gate names
+const profileFieldToGate: Record<string, GateType> = {
+  'age': 'B5_PROFILE_AGE',
+  'gender': 'B5_PROFILE_GENDER',
+  'lgbtq': 'B5_PROFILE_LGBTQ',
+  'convictions': 'B5_PROFILE_CONVICTIONS',
+  'nrpf': 'B5_PROFILE_NRPF',
+  'children': 'B5_PROFILE_CHILDREN'
+};
+
+/**
+ * Determines the next profile question to ask based on the support need
+ * and what profile data has already been collected.
+ * Returns terminal output when all required fields are collected.
+ */
+function routeToNextProfileQuestion(session: SessionState): RoutingResult {
+  const need = session.supportNeed || '';
+  const required = needProfileRequirements[need] || [];
+  
+  // Check each required field in order
+  for (const field of required) {
+    // Age
+    if (field === 'age' && !session.ageCategory) {
+      return {
+        ...phrase('B5_PROFILE_AGE', session.isSupporter),
+        stateUpdates: { 
+          currentGate: 'B5_PROFILE_AGE', 
+          supportNeed: session.supportNeed,
+          needCount: session.needCount
+        }
+      };
+    }
+    
+    // Gender
+    if (field === 'gender' && !session.gender) {
+      return {
+        ...phrase('B5_PROFILE_GENDER', session.isSupporter),
+        stateUpdates: { 
+          currentGate: 'B5_PROFILE_GENDER',
+          ageCategory: session.ageCategory 
+        }
+      };
+    }
+    
+    // LGBTQ
+    if (field === 'lgbtq' && session.lgbtq === undefined) {
+      return {
+        ...phrase('B5_PROFILE_LGBTQ', session.isSupporter),
+        stateUpdates: { 
+          currentGate: 'B5_PROFILE_LGBTQ',
+          gender: session.gender 
+        }
+      };
+    }
+    
+    // Criminal convictions
+    if (field === 'convictions' && !session.criminalConvictions) {
+      return {
+        ...phrase('B5_PROFILE_CONVICTIONS', session.isSupporter),
+        stateUpdates: { 
+          currentGate: 'B5_PROFILE_CONVICTIONS',
+          ageCategory: session.ageCategory 
+        }
+      };
+    }
+    
+    // NRPF / Public funds access
+    if (field === 'nrpf' && session.publicFunds === undefined) {
+      return {
+        ...phrase('B5_PROFILE_NRPF', session.isSupporter),
+        stateUpdates: { 
+          currentGate: 'B5_PROFILE_NRPF',
+          criminalConvictions: session.criminalConvictions 
+        }
+      };
+    }
+    
+    // Children/dependents
+    if (field === 'children' && session.hasChildren === undefined) {
+      return {
+        ...phrase('B5_PROFILE_CHILDREN', session.isSupporter),
+        stateUpdates: { 
+          currentGate: 'B5_PROFILE_CHILDREN',
+          publicFunds: session.publicFunds 
+        }
+      };
+    }
+  }
+  
+  // All required fields collected - go to terminal
+  const services = buildTerminalServices(session);
+  const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
+  return {
+    text: services + '\n' + additionalNeeds?.text,
+    options: additionalNeeds?.options,
+    stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS' },
+    sessionEnded: false
+  };
+}
 
 // Note: Local services are now fetched dynamically via getServicesForNeed()
 // National fallbacks are defined in buildNonHousingTerminal()
@@ -1381,17 +1519,62 @@ export function processInput(session: SessionState, input: string): RoutingResul
           stateUpdates: { currentGate: 'B6_HOMELESSNESS_STATUS', supportNeed: need, needCount: session.needCount + 1 }
         };
       } else {
-        // Non-housing needs (Food, Items, Comms, etc.) - go straight to terminal
-        // No need to ask age/gender for these
-        const servicesSimple = buildTerminalServices({ ...session, supportNeed: need });
-        const additionalNeedsSimple = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-        return {
-          text: servicesSimple + '\n' + additionalNeedsSimple?.text,
-          options: additionalNeedsSimple?.options,
-          stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', supportNeed: need, needCount: session.needCount + 1 },
-          sessionEnded: false
-        };
+        // Non-housing need - route to category-specific profiling
+        const updatedSession = { ...session, supportNeed: need, needCount: session.needCount + 1 };
+        return routeToNextProfileQuestion(updatedSession);
       }
+    
+    // ============================================================
+    // CATEGORY-SPECIFIC PROFILING GATES
+    // ============================================================
+    
+    case 'B5_PROFILE_AGE':
+      const profAgeOptions = ['Under 18', '18-24', '25 or over'];
+      const profAge = choice ? profAgeOptions[choice - 1] : null;
+      
+      // Map to standard age categories
+      let mappedProfAge = profAge;
+      if (profAge === 'Under 18') mappedProfAge = '16-17';
+      if (profAge === '25 or over') mappedProfAge = '25+';
+      
+      const sessionWithAge = { ...session, ageCategory: mappedProfAge };
+      return routeToNextProfileQuestion(sessionWithAge);
+    
+    case 'B5_PROFILE_GENDER':
+      const profGenderOptions = ['Male', 'Female', 'Non-binary or other', 'Prefer not to say'];
+      const profGender = choice ? profGenderOptions[choice - 1] : null;
+      
+      const sessionWithGender = { ...session, gender: profGender };
+      return routeToNextProfileQuestion(sessionWithGender);
+    
+    case 'B5_PROFILE_LGBTQ':
+      // 1 = Yes, 2 = No, 3 = Prefer not to say
+      const lgbtqValue = choice === 1 ? true : (choice === 2 ? false : null);
+      
+      const sessionWithLgbtq = { ...session, lgbtq: lgbtqValue };
+      return routeToNextProfileQuestion(sessionWithLgbtq);
+    
+    case 'B5_PROFILE_CONVICTIONS':
+      const convictionOptions = ['Yes', 'No', 'Prefer not to say'];
+      const convictions = choice ? convictionOptions[choice - 1] : null;
+      
+      const sessionWithConvictions = { ...session, criminalConvictions: convictions };
+      return routeToNextProfileQuestion(sessionWithConvictions);
+    
+    case 'B5_PROFILE_NRPF':
+      // 1 = Yes (has access), 2 = No (NRPF), 3 = Not sure, 4 = Prefer not to say
+      const nrpfOptions = ['Yes', 'No', 'Not sure', 'Prefer not to say'];
+      const nrpfValue = choice ? nrpfOptions[choice - 1] : null;
+      
+      const sessionWithNrpf = { ...session, publicFunds: nrpfValue };
+      return routeToNextProfileQuestion(sessionWithNrpf);
+    
+    case 'B5_PROFILE_CHILDREN':
+      // 1 = Yes, 2 = No, 3 = Prefer not to say
+      const childrenValue = choice === 1 ? true : (choice === 2 ? false : null);
+      
+      const sessionWithChildren = { ...session, hasChildren: childrenValue };
+      return routeToNextProfileQuestion(sessionWithChildren);
     
     case 'B6_HOMELESSNESS_STATUS':
       const homeless = choice === 1;

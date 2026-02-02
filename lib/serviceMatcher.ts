@@ -387,25 +387,48 @@ function calculateMatchScore(service: Service, profile: UserProfile): number {
   let score = 50; // Base score for category match
   
   const groups = service.client_groups || [];
+  const desc = service.description.toLowerCase();
   
-  // LGBTQ+ match
+  // LGBTQ+ match - boost services targeting LGBTQ+ users
   if (profile.lgbtq && groups.some(g => 
     clientGroupKeywords.lgbtq.some(k => g.includes(k))
   )) {
     score += 20;
   }
   
-  // Youth match
+  // Youth match - boost youth-focused services for young users
   if (['16-17', '18-24', '18-20', '21-24'].includes(profile.ageCategory || '') && 
       groups.some(g => clientGroupKeywords.youth.some(k => g.includes(k)))) {
     score += 15;
   }
   
-  // Family match
+  // Family match - boost family services when user has children
   if (profile.hasChildren && groups.some(g => 
     clientGroupKeywords.families.some(k => g.includes(k))
   )) {
     score += 15;
+  }
+  
+  // Ex-offender match - boost services that support people with convictions
+  if (profile.criminalConvictions === 'Yes') {
+    if (groups.some(g => clientGroupKeywords.exOffenders.some(k => g.toLowerCase().includes(k.toLowerCase())))) {
+      score += 20;
+    }
+    // Also check description for relevant terms
+    if (desc.includes('ex-offender') || desc.includes('criminal record') || desc.includes('conviction')) {
+      score += 10;
+    }
+  }
+  
+  // NRPF match - boost services that support people with no recourse to public funds
+  if (profile.publicFunds === 'No' || profile.publicFunds === 'No, I have no recourse to public funds') {
+    if (groups.some(g => clientGroupKeywords.refugees.some(k => g.includes(k)))) {
+      score += 20;
+    }
+    // Also check description for relevant terms
+    if (desc.includes('nrpf') || desc.includes('no recourse') || desc.includes('asylum') || desc.includes('refugee') || desc.includes('migrant')) {
+      score += 15;
+    }
   }
   
   // Mental health match
