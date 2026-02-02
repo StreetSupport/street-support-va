@@ -242,6 +242,17 @@ function parseServiceContent(text: string): ParsedContent {
     const line = lines[i];
     const trimmed = line.trim();
     
+    // Check for outro separator FIRST (before skipping generic dash lines)
+    if (trimmed === '---') {
+      if (currentService?.name) {
+        services.push(currentService as ServiceCard);
+        currentService = null;
+      }
+      collectingOutro = true;
+      continue;
+    }
+    
+    // Skip other dash-only lines (visual separators)
     if (/^-+$/.test(trimmed)) continue;
     
     const isHeader = sectionHeaders.some(h => trimmed === h);
@@ -270,16 +281,6 @@ function parseServiceContent(text: string): ParsedContent {
     
     if (!reachedFirstSection && trimmed) {
       intro += line + '\n';
-      continue;
-    }
-    
-    // Outro separator
-    if (trimmed === '---') {
-      if (currentService?.name) {
-        services.push(currentService as ServiceCard);
-        currentService = null;
-      }
-      collectingOutro = true;
       continue;
     }
     
