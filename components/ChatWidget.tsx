@@ -1,7 +1,19 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Message, QuickReply } from '@/lib/types';
+
+// Types defined inline to avoid external dependency
+interface QuickReply {
+  label: string;
+  value: string;
+}
+
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+  quickReplies?: QuickReply[];
+}
 
 interface ChatWidgetProps {
   isOpen: boolean;
