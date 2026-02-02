@@ -709,9 +709,10 @@ export function processInput(session: SessionState, input: string): RoutingResul
       const userType = userTypes[choice || 1];
       const isSupporter = userType === 'SUPPORTER' || userType === 'PROFESSIONAL';
       
+      // Go straight to support need - age/gender asked later only if needed
       return {
-        ...phrase('B3_AGE_CATEGORY', isSupporter),
-        stateUpdates: { currentGate: 'B3_AGE_CATEGORY', userType, isSupporter }
+        ...phrase('B5_MAIN_SUPPORT_NEED', isSupporter),
+        stateUpdates: { currentGate: 'B5_MAIN_SUPPORT_NEED', userType, isSupporter }
       };
     
     case 'B3_AGE_CATEGORY':
@@ -752,10 +753,28 @@ export function processInput(session: SessionState, input: string): RoutingResul
       const needOptions = ['Emergency Housing', 'Food', 'Work', 'Health', 'Advice', 'Drop In', 'Financial', 'Items', 'Services', 'Comms', 'Training', 'Activities'];
       const need = choice ? needOptions[choice - 1] : null;
       
-      return {
-        ...phrase('B6_HOMELESSNESS_STATUS', session.isSupporter),
-        stateUpdates: { currentGate: 'B6_HOMELESSNESS_STATUS', supportNeed: need, needCount: session.needCount + 1 }
-      };
+      // Housing-related needs require full profiling (age, gender, homelessness status, etc.)
+      const housingRelatedNeeds = ['Emergency Housing', 'Advice'];
+      const needsFullProfiling = housingRelatedNeeds.includes(need || '');
+      
+      if (needsFullProfiling) {
+        // Continue to homelessness status question
+        return {
+          ...phrase('B6_HOMELESSNESS_STATUS', session.isSupporter),
+          stateUpdates: { currentGate: 'B6_HOMELESSNESS_STATUS', supportNeed: need, needCount: session.needCount + 1 }
+        };
+      } else {
+        // Non-housing needs (Food, Items, Comms, etc.) - go straight to terminal
+        // No need to ask age/gender for these
+        const servicesSimple = buildTerminalServices({ ...session, supportNeed: need });
+        const additionalNeedsSimple = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
+        return {
+          text: servicesSimple + '\n' + additionalNeedsSimple?.text,
+          options: additionalNeedsSimple?.options,
+          stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', supportNeed: need, needCount: session.needCount + 1 },
+          sessionEnded: false
+        };
+      }
     
     case 'B6_HOMELESSNESS_STATUS':
       const homeless = choice === 1;
