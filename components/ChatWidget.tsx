@@ -509,6 +509,8 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   const [sessionState, setSessionState] = useState<string | null>(null);
   const [sessionEnded, setSessionEnded] = useState(false);
   const [conversationStarted, setConversationStarted] = useState(false);
+  const [locationMode, setLocationMode] = useState<'none' | 'geolocation' | 'postcode'>('none');
+  const [awaitingPostcode, setAwaitingPostcode] = useState(false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -527,6 +529,133 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     }
   }, [isOpen, conversationStarted]);
 
+  // ============================================================
+  // LOCATION HANDLING
+  // ============================================================
+
+  const callLocationApi = async (data: { postcode?: string; latitude?: number; longitude?: number }) => {
+    try {
+      const response = await fetch('/api/location', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error('Location API failed');
+      return await response.json();
+    } catch (error) {
+      console.error('Location API error:', error);
+      return { success: false, error: 'Failed to detect location' };
+    }
+  };
+
+  const sendLocationResult = async (locationData: {
+    success: boolean;
+    localAuthority?: string;
+    latitude?: number;
+    longitude?: number;
+    isWMCA?: boolean;
+    isScotland?: boolean;
+    error?: string;
+  }) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          s: sessionState, 
+          message: '__LOCATION_RESULT__',
+          locationData 
+        }),
+      });
+      if (!response.ok) throw new Error('Failed');
+      const data = await response.json();
+      
+      if (data.s) setSessionState(data.s);
+      setLocationMode('none');
+      setAwaitingPostcode(false);
+      addAssistantMessage(data);
+    } catch (error) {
+      console.error('Error sending location result:', error);
+      addErrorMessage();
+    }
+    setIsLoading(false);
+  };
+
+  const requestGeolocation = async () => {
+    if (!navigator.geolocation) {
+      // Geolocation not supported - ask for postcode
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: "Your browser doesn't support location detection. Please enter your postcode instead.",
+        timestamp: new Date().toISOString(),
+      }]);
+      setAwaitingPostcode(true);
+      setLocationMode('postcode');
+      return;
+    }
+
+    setIsLoading(true);
+    setLocationMode('geolocation');
+
+    try {
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: false,
+          timeout: 10000,
+          maximumAge: 300000 // 5 minutes
+        });
+      });
+
+      const { latitude, longitude } = position.coords;
+      
+      // Call location API to reverse geocode
+      const locationData = await callLocationApi({ latitude, longitude });
+      
+      if (locationData.success) {
+        setMessages(prev => [...prev, {
+          role: 'user',
+          content: 'Location shared',
+          timestamp: new Date().toISOString(),
+        }]);
+      }
+      
+      await sendLocationResult(locationData);
+      
+    } catch (error) {
+      console.error('Geolocation error:', error);
+      setIsLoading(false);
+      setLocationMode('none');
+      
+      // Geolocation failed - ask for postcode
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: "I couldn't get your location automatically. Could you please enter your postcode?",
+        timestamp: new Date().toISOString(),
+      }]);
+      setAwaitingPostcode(true);
+      setLocationMode('postcode');
+    }
+  };
+
+  const handlePostcodeSubmit = async (postcode: string) => {
+    setMessages(prev => [...prev, {
+      role: 'user',
+      content: postcode,
+      timestamp: new Date().toISOString(),
+    }]);
+    
+    setIsLoading(true);
+    setInputValue('');
+    
+    const locationData = await callLocationApi({ postcode });
+    await sendLocationResult(locationData);
+  };
+
+  // ============================================================
+  // API CALLS
+  // ============================================================
+
   const callApi = async (text: string) => {
     try {
       const response = await fetch('/api/chat', {
@@ -542,7 +671,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     }
   };
 
-  const addAssistantMessage = (data: { m?: string; o?: string[]; e?: boolean }) => {
+  const addAssistantMessage = (data: { m?: string; o?: string[]; e?: boolean; responseType?: string }) => {
     const quickReplies: QuickReply[] = Array.isArray(data.o) 
       ? data.o.map((opt: string, idx: number) => ({ label: opt, value: String(idx + 1) }))
       : [];
@@ -551,14 +680,26 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       ? stripInstructionsAndOptions(data.m || '')
       : (data.m || '');
 
-    setMessages(prev => [...prev, {
-      role: 'assistant',
-      content: messageText,
-      timestamp: new Date().toISOString(),
-      quickReplies,
-    }]);
+    // Only add message if there's content
+    if (messageText) {
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: messageText,
+        timestamp: new Date().toISOString(),
+        quickReplies,
+      }]);
+    }
 
     if (data.e) setSessionEnded(true);
+    
+    // Handle special response types
+    if (data.responseType === 'request_geolocation') {
+      // Automatically trigger geolocation request
+      requestGeolocation();
+    } else if (data.responseType === 'postcode_input') {
+      setAwaitingPostcode(true);
+      setLocationMode('postcode');
+    }
   };
 
   const addErrorMessage = () => {
@@ -596,11 +737,23 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputValue?.trim()) sendMessage(inputValue);
+    if (!inputValue?.trim()) return;
+    
+    // If awaiting postcode, handle specially
+    if (awaitingPostcode) {
+      handlePostcodeSubmit(inputValue.trim());
+      return;
+    }
+    
+    sendMessage(inputValue);
   };
 
   const handleQuickReply = async (reply: QuickReply) => {
     if (!reply?.value || isLoading || sessionEnded) return;
+    
+    // Reset postcode mode when selecting quick reply
+    setAwaitingPostcode(false);
+    setLocationMode('none');
 
     setMessages(prev => [...prev, { role: 'user', content: reply.label, timestamp: new Date().toISOString() }]);
     setIsLoading(true);
@@ -624,6 +777,8 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     setSessionState(null);
     setSessionEnded(false);
     setConversationStarted(false);
+    setLocationMode('none');
+    setAwaitingPostcode(false);
   };
 
   const renderMessageContent = (content: string) => {
@@ -824,7 +979,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder={sessionEnded ? 'Conversation ended' : 'Type a message...'}
+              placeholder={sessionEnded ? 'Conversation ended' : awaitingPostcode ? 'Enter your postcode (e.g. WV1 1AA)...' : 'Type a message...'}
               disabled={isLoading || sessionEnded}
               className="flex-1 px-4 py-2.5 rounded-lg disabled:bg-gray-50 disabled:text-gray-400 font-medium focus:outline-none"
               style={{ 
