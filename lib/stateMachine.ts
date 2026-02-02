@@ -349,11 +349,6 @@ const servicesByNeed: Record<string, Array<{name: string; phone?: string; websit
       name: 'Find a Food Bank',
       website: 'https://www.trusselltrust.org/get-help/find-a-foodbank/',
       description: 'Search for your nearest Trussell Trust food bank'
-    },
-    {
-      name: 'Street Support Network',
-      website: 'https://streetsupport.net/find-help/category/?category=foodbank',
-      description: 'Find food banks and food parcels in your area'
     }
   ],
   'Health': [
@@ -395,13 +390,12 @@ const servicesByNeed: Record<string, Array<{name: string; phone?: string; websit
       description: 'Free careers advice and support'
     }
   ],
-  'Items': [
-    {
-      name: 'Street Support Network',
-      website: 'https://streetsupport.net/find-help/category/?category=items',
-      description: 'Find services offering clothes, furniture and household items'
-    }
-  ]
+  'Items': [],
+  'Drop In': [],
+  'Training': [],
+  'Activities': [],
+  'Comms': [],
+  'Services': []
 };
 
 // ============================================================
@@ -413,20 +407,16 @@ function buildNonHousingTerminal(session: SessionState): string {
   const need = session.supportNeed || 'support';
   const la = session.localAuthority || 'your area';
   const isSupporter = session.isSupporter;
-  const pronoun = isSupporter ? 'them' : 'you';
-  const possessive = isSupporter ? 'their' : 'your';
   
   const displayName = needDisplayNames[need] || need.toLowerCase();
   const services = servicesByNeed[need] || [];
+  const categoryKey = needToCategoryMap[need] || '';
   
   let text = '';
   
-  text += `I've found some ${displayName} services that may help.\n\n`;
+  text += `Here are some ${displayName} services that may help.\n\n`;
   
   if (services.length > 0) {
-    text += `RECOMMENDED SERVICES\n`;
-    text += `--------------------\n`;
-    
     for (const svc of services) {
       text += `${svc.name}\n`;
       if (svc.phone) {
@@ -439,18 +429,13 @@ function buildNonHousingTerminal(session: SessionState): string {
     }
   }
   
-  // Always add Street Support for local search
-  text += `FIND LOCAL SERVICES\n`;
-  text += `-------------------\n`;
-  text += `Street Support Network\n`;
-  text += `https://streetsupport.net/find-help/\n`;
-  text += `Search for ${displayName} in ${la} and surrounding areas.\n\n`;
+  // Add local search link if we have a category mapping
+  if (categoryKey && la !== 'your area') {
+    text += `Find more ${displayName} in ${la}:\n`;
+    text += `https://streetsupport.net/${la.toLowerCase().replace(/\s+/g, '-')}/find-help/category/?category=${categoryKey}\n`;
+  }
   
-  // Add note about housing if they also need it
-  text += `---\n`;
-  text += `If ${pronoun} also need help with housing, I can help with that too.\n`;
-  
-  return text;
+  return text.trim();
 }
 
 // ============================================================
