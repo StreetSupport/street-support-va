@@ -24,10 +24,8 @@ interface ServiceCard {
   website?: string;
   description?: string;
   category: string;
-  tags?: string[];
   isVerified?: boolean;
   isDropIn?: boolean;
-  isAppointmentOnly?: boolean;
 }
 
 interface ChatWidgetProps {
@@ -91,7 +89,6 @@ function stripInstructionsAndOptions(text: string): string {
   for (const line of lines) {
     const trimmed = line.trim().toLowerCase();
     
-    // Skip instruction lines about replying with numbers
     if (trimmed.includes('reply with the number') ||
         trimmed.includes('reply with a number') ||
         trimmed.includes('please select') ||
@@ -102,7 +99,6 @@ function stripInstructionsAndOptions(text: string): string {
       continue;
     }
     
-    // Skip numbered option lines
     if (/^\d+[\.\)]\s*.+/.test(line.trim())) {
       continue;
     }
@@ -125,7 +121,6 @@ interface ParsedContent {
 }
 
 function parseServiceContent(text: string): ParsedContent {
-  // Check if this is a terminal services response
   const isServiceResponse = 
     text.includes('YOUR FIRST STEP') || 
     text.includes('LOCAL SUPPORT') ||
@@ -144,7 +139,11 @@ function parseServiceContent(text: string): ParsedContent {
   let intro = '';
   let outro = '';
   let reachedFirstSection = false;
-  let inOutro = false;
+  let collectingOutro = false;
+  
+  // Track special handling for "IF YOU NEED MORE HELP" section
+  let inShelterSection = false;
+  let shelterIntroText = '';
   
   const sectionHeaders = [
     'YOUR FIRST STEP',
@@ -175,7 +174,8 @@ function parseServiceContent(text: string): ParsedContent {
       currentCategory = trimmed;
       currentService = null;
       reachedFirstSection = true;
-      inOutro = trimmed === 'IF YOU NEED MORE HELP';
+      inShelterSection = trimmed === 'IF YOU NEED MORE HELP';
+      shelterIntroText = '';
       continue;
     }
     
@@ -185,34 +185,82 @@ function parseServiceContent(text: string): ParsedContent {
       continue;
     }
     
-    // Outro marker
+    // Outro marker (---)
     if (trimmed === '---') {
       if (currentService?.name) {
         services.push(currentService as ServiceCard);
         currentService = null;
       }
-      inOutro = true;
+      collectingOutro = true;
       continue;
     }
     
-    // Skip empty lines but save current service
+    // Skip empty lines
     if (!trimmed) {
-      if (currentService?.name && currentService.description) {
+      // In shelter section, empty line after website means description follows
+      if (inShelterSection && currentService?.website && !currentService.description) {
+        continue;
+      }
+      // Normal section - save service on empty line
+      if (currentService?.name && currentService.phone) {
         services.push(currentService as ServiceCard);
         currentService = null;
       }
       continue;
     }
     
-    // Outro content (after ---)
-    if (inOutro && currentCategory !== 'IF YOU NEED MORE HELP') {
+    // Collecting outro text (after ---)
+    if (collectingOutro) {
       outro += line + '\n';
       continue;
     }
     
-    // Parse service content
+    // SPECIAL HANDLING: IF YOU NEED MORE HELP (Shelter section)
+    if (inShelterSection) {
+      // Check if this is a phone number line
+      if (/^0\d/.test(trimmed) || trimmed.includes('(free')) {
+        if (!currentService) {
+          // Create service with collected intro as part of card
+          currentService = { 
+            name: 'Shelter', 
+            category: currentCategory,
+            description: shelterIntroText.trim()
+          };
+        }
+        currentService.phone = trimmed;
+        continue;
+      }
+      
+      // Check if website
+      if (trimmed.startsWith('http')) {
+        if (currentService) {
+          currentService.website = trimmed;
+        }
+        continue;
+      }
+      
+      // Check if it's just "Shelter" (org name we can skip since we hardcoded it)
+      if (trimmed.toLowerCase() === 'shelter') {
+        continue;
+      }
+      
+      // If we already have a service with website, this is follow-up description
+      if (currentService?.website) {
+        if (currentService.description) {
+          currentService.description += ' ' + trimmed;
+        } else {
+          currentService.description = trimmed;
+        }
+        continue;
+      }
+      
+      // Otherwise it's intro text for Shelter
+      shelterIntroText += trimmed + ' ';
+      continue;
+    }
+    
+    // NORMAL SERVICE PARSING for other sections
     if (!currentService) {
-      // First content line in section = org name
       currentService = { 
         name: trimmed, 
         category: currentCategory,
@@ -248,7 +296,6 @@ function parseServiceContent(text: string): ParsedContent {
 // ============================================================
 
 function ServiceCardComponent({ service }: { service: ServiceCard }) {
-  // Category colors matching website
   const categoryStyles: Record<string, { bg: string; border: string; badge: string }> = {
     'YOUR FIRST STEP': { bg: 'bg-green-50', border: 'border-green-200', badge: 'bg-green-100 text-green-800' },
     'OUTREACH SUPPORT': { bg: 'bg-orange-50', border: 'border-orange-200', badge: 'bg-orange-100 text-orange-800' },
@@ -279,7 +326,7 @@ function ServiceCardComponent({ service }: { service: ServiceCard }) {
           </span>
         )}
         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${style.badge}`}>
-          {service.category.replace(/'/g, "'")}
+          {service.category === 'IF YOU NEED MORE HELP' ? 'Need More Help?' : service.category.replace(/'/g, "'")}
         </span>
       </div>
       
@@ -304,7 +351,7 @@ function ServiceCardComponent({ service }: { service: ServiceCard }) {
             href={service.website} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center text-ss-accent hover:underline text-sm break-all"
+            className="flex items-center text-ss-accent hover:underline text-sm"
           >
             <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -343,12 +390,17 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   const [sessionState, setSessionState] = useState<string | null>(null);
   const [sessionEnded, setSessionEnded] = useState(false);
   const [conversationStarted, setConversationStarted] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const lastMessageRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Scroll to show the START of the latest message (not the end)
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (lastMessageRef.current && messagesContainerRef.current) {
+      // Small delay to allow render
+      setTimeout(() => {
+        lastMessageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     }
   }, [messages]);
 
@@ -378,7 +430,6 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       ? data.o.map((opt: string, idx: number) => ({ label: opt, value: String(idx + 1) }))
       : [];
 
-    // Strip instructions when we have pill buttons
     const messageText = quickReplies.length > 0 
       ? stripInstructionsAndOptions(data.m || '')
       : (data.m || '');
@@ -512,6 +563,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
       {/* Main Content */}
       <div 
+        ref={messagesContainerRef}
         className="flex-1 overflow-y-auto p-4"
         style={{ background: 'linear-gradient(180deg, #ffffff 0%, #f0f7f4 100%)' }}
       >
@@ -539,42 +591,49 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
         {/* Messages */}
         {conversationStarted && (
           <div className="space-y-4">
-            {messages.map((message, index) => (
-              <div key={index}>
-                <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[95%] rounded-lg px-4 py-3 ${
-                    message.role === 'user'
-                      ? 'bg-ss-secondary text-white'
-                      : 'bg-white text-ss-text shadow-sm border border-gray-100'
-                  }`}>
-                    {message.role === 'assistant' 
-                      ? renderMessageContent(message.content)
-                      : <p className="text-sm">{message.content}</p>
-                    }
+            {messages.map((message, index) => {
+              const isLastMessage = index === messages.length - 1;
+              
+              return (
+                <div 
+                  key={index} 
+                  ref={isLastMessage ? lastMessageRef : null}
+                >
+                  <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[95%] rounded-lg px-4 py-3 ${
+                      message.role === 'user'
+                        ? 'bg-ss-secondary text-white'
+                        : 'bg-white text-ss-text shadow-sm border border-gray-100'
+                    }`}>
+                      {message.role === 'assistant' 
+                        ? renderMessageContent(message.content)
+                        : <p className="text-sm">{message.content}</p>
+                      }
+                    </div>
                   </div>
-                </div>
 
-                {/* Quick Replies */}
-                {message.role === 'assistant' && 
-                 message.quickReplies && 
-                 message.quickReplies.length > 0 && 
-                 index === messages.length - 1 && 
-                 !sessionEnded && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {message.quickReplies.map((reply, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => handleQuickReply(reply)}
-                        disabled={isLoading}
-                        className="px-4 py-2 text-sm border border-gray-300 rounded-full bg-white text-ss-text hover:border-ss-accent hover:text-ss-accent transition-colors disabled:opacity-50"
-                      >
-                        {reply.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+                  {/* Quick Replies */}
+                  {message.role === 'assistant' && 
+                   message.quickReplies && 
+                   message.quickReplies.length > 0 && 
+                   isLastMessage && 
+                   !sessionEnded && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {message.quickReplies.map((reply, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => handleQuickReply(reply)}
+                          disabled={isLoading}
+                          className="px-4 py-2 text-sm border border-gray-300 rounded-full bg-white text-ss-text hover:border-ss-accent hover:text-ss-accent transition-colors disabled:opacity-50"
+                        >
+                          {reply.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
 
             {/* Typing Indicator */}
             {isLoading && (
@@ -588,8 +647,6 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                 </div>
               </div>
             )}
-
-            <div ref={messagesEndRef} />
           </div>
         )}
       </div>
