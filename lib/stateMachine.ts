@@ -83,6 +83,9 @@ export type GateType =
   | 'DV_GENDER_ASK'
   | 'DV_CHILDREN_ASK'
   | 'SA_GENDER_ASK'
+  // Crisis Location Gates
+  | 'CRISIS_UNDER16_LOCATION'
+  | 'CRISIS_FIRE_FLOOD_LOCATION'
   // Terminal
   | 'TERMINAL_SERVICES'
   | 'TERMINAL_ADDITIONAL_NEEDS'
