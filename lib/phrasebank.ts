@@ -1211,7 +1211,8 @@ National Domestic Violence Helpline
 0808 2000 247 (24/7, free, confidential)
 https://nationaldahelpline.org.uk
 
-Shelter - Domestic Violence Advice
+Shelter - Housing and Safety Advice
+0808 800 4444 (free)
 https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
@@ -1222,7 +1223,8 @@ National Domestic Violence Helpline
 0808 2000 247 (24/7, free, confidential)
 https://nationaldahelpline.org.uk
 
-Shelter - Domestic Violence Advice
+Shelter - Housing and Safety Advice
+0808 800 4444 (free)
 https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
@@ -1233,7 +1235,8 @@ National Domestic Violence Helpline
 0808 2000 247 (24/7, free, confidential)
 https://nationaldahelpline.org.uk
 
-Shelter - Domestic Violence Advice
+Shelter - Housing and Safety Advice
+0808 800 4444 (free)
 https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
@@ -1244,7 +1247,8 @@ National Domestic Violence Helpline
 0808 2000 247 (24/7, free, confidential)
 https://nationaldahelpline.org.uk
 
-Shelter - Domestic Violence Advice
+Shelter - Housing and Safety Advice
+0808 800 4444 (free)
 https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
@@ -1252,68 +1256,104 @@ https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk
     text: `I'm really sorry this is happening. You deserve support, and these services are here to help. They can talk through your options, help with safety planning, and connect you with emergency housing if needed. Everything is confidential.
 
 ManKind Initiative
-0808 800 1170
+0808 800 1170 (free, confidential)
 https://mankind.org.uk
-Confidential support for men affected by domestic violence`
+Support for men experiencing domestic abuse
+
+Shelter - Housing and Safety Advice
+0808 800 4444 (free)
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   DV_MALE_CHILDREN_YES__SUPPORTER: {
     text: `I'm really sorry this is happening to them. They deserve support, and these services are here to help. They can talk through options, help with safety planning, and connect them with emergency housing if needed. Everything is confidential.
 
 ManKind Initiative
-0808 800 1170
+0808 800 1170 (free, confidential)
 https://mankind.org.uk
-Confidential support for men affected by domestic violence`
+Support for men experiencing domestic abuse
+
+Shelter - Housing and Safety Advice
+0808 800 4444 (free)
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   DV_MALE_CHILDREN_NO: {
-    text: `I'm really sorry this is happening. You need support from people who can help right now.
+    text: `I'm really sorry this is happening. You deserve support, and these services are here to help. They can talk through your options, help with safety planning, and connect you with housing if needed. Everything is confidential.
 
 ManKind Initiative
-0808 800 1170
-https://mankind.org.uk`
+0808 800 1170 (free, confidential)
+https://mankind.org.uk
+Support for men experiencing domestic abuse
+
+Shelter - Housing and Safety Advice
+0808 800 4444 (free)
+https://england.shelter.org.uk/housing_advice/homelessness`
   },
 
   DV_MALE_CHILDREN_NO__SUPPORTER: {
-    text: `I'm really sorry this is happening to them. They need support from people who can help right now.
+    text: `I'm really sorry this is happening to them. They deserve support, and these services are here to help. They can talk through options, help with safety planning, and connect them with housing if needed. Everything is confidential.
 
 ManKind Initiative
-0808 800 1170
-https://mankind.org.uk`
+0808 800 1170 (free, confidential)
+https://mankind.org.uk
+Support for men experiencing domestic abuse
+
+Shelter - Housing and Safety Advice
+0808 800 4444 (free)
+https://england.shelter.org.uk/housing_advice/homelessness`
   },
 
   DV_LGBTQ_CHILDREN_YES: {
-    text: `I'm really sorry this is happening. You need support from people who can help right now.
+    text: `I'm really sorry this is happening. You deserve support, and these services are here to help. They understand the unique challenges LGBTQ+ people face and can talk through your options, help with safety planning, and connect you with emergency housing if needed. Everything is confidential.
 
 Galop
-0800 999 5428
+0800 999 5428 (free, confidential)
 https://galop.org.uk
-National helpline for LGBTQ+ people affected by abuse or violence`
+National helpline for LGBTQ+ people affected by abuse or violence
+
+Shelter - Housing and Safety Advice
+0808 800 4444 (free)
+https://england.shelter.org.uk/housing_advice/homelessness`
   },
 
   DV_LGBTQ_CHILDREN_YES__SUPPORTER: {
-    text: `I'm really sorry this is happening to them. They need support from people who can help right now.
+    text: `I'm really sorry this is happening to them. They deserve support, and these services are here to help. They understand the unique challenges LGBTQ+ people face and can talk through options, help with safety planning, and connect them with emergency housing if needed. Everything is confidential.
 
 Galop
-0800 999 5428
+0800 999 5428 (free, confidential)
 https://galop.org.uk
-National helpline for LGBTQ+ people affected by abuse or violence`
+National helpline for LGBTQ+ people affected by abuse or violence
+
+Shelter - Housing and Safety Advice
+0808 800 4444 (free)
+https://england.shelter.org.uk/housing_advice/homelessness`
   },
 
   DV_LGBTQ_CHILDREN_NO: {
-    text: `I'm really sorry this is happening. You need support from people who can help right now.
+    text: `I'm really sorry this is happening. You deserve support, and these services are here to help. They understand the unique challenges LGBTQ+ people face and can talk through your options, help with safety planning, and connect you with housing if needed. Everything is confidential.
 
 Galop
-0800 999 5428
-https://galop.org.uk`
+0800 999 5428 (free, confidential)
+https://galop.org.uk
+National helpline for LGBTQ+ people affected by abuse or violence
+
+Shelter - Housing and Safety Advice
+0808 800 4444 (free)
+https://england.shelter.org.uk/housing_advice/homelessness`
   },
 
   DV_LGBTQ_CHILDREN_NO__SUPPORTER: {
-    text: `I'm really sorry this is happening to them. They need support from people who can help right now.
+    text: `I'm really sorry this is happening to them. They deserve support, and these services are here to help. They understand the unique challenges LGBTQ+ people face and can talk through options, help with safety planning, and connect them with housing if needed. Everything is confidential.
 
 Galop
-0800 999 5428
-https://galop.org.uk`
+0800 999 5428 (free, confidential)
+https://galop.org.uk
+National helpline for LGBTQ+ people affected by abuse or violence
+
+Shelter - Housing and Safety Advice
+0808 800 4444 (free)
+https://england.shelter.org.uk/housing_advice/homelessness`
   },
 
   SA_FEMALE_16PLUS: {
