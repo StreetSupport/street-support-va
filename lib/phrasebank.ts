@@ -80,9 +80,7 @@ The full guided route asks about things like health conditions, immigration stat
 
 If none of those apply to you, the quicker route will assume the answers are 'no' or 'none' and get you to relevant services faster.
 
-This is entirely up to you.
-
-Which would you prefer?
+This is entirely up to you - which would you prefer?
 
 1. Full Guided Route (tailored support)
 2. Quicker Route (general support)`,
@@ -658,9 +656,9 @@ Some of these might be about sensitive topics - like your health, ethnicity, or 
 - Your answers are only used to match you with the right organisation
 - You can skip any question or choose "Prefer not to say"
 
-If you'd like to know more about how we handle privacy and data, you can read more here: https://streetsupport.net/about/privacy-and-data/
+Privacy info: https://streetsupport.net/about/privacy-and-data/
 
-Do you give your consent for me to ask these additional questions? Your answers will only be used to match you with appropriate services and will not be stored with any personally identifying information.
+Do you give your consent for me to ask these additional questions?
 
 1. Yes, I consent
 2. No, I do not consent`,
@@ -678,9 +676,9 @@ Please check with them before you answer.
 - Their answers are only used to match them with the right organisation
 - They can skip any question or choose "Prefer not to say"
 
-If they'd like to know more about how we handle privacy and data, you can read more here: https://streetsupport.net/about/privacy-and-data/
+Privacy info: https://streetsupport.net/about/privacy-and-data/
 
-Do they give their consent for me to ask these additional questions? Their answers will only be used to match them with appropriate services and will not be stored with any personally identifying information.
+Do they give their consent for me to ask these additional questions?
 
 1. Yes, they consent
 2. No, they do not consent`,
