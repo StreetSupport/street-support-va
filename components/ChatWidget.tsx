@@ -91,7 +91,31 @@ function LinkifiedText({ text }: { text: string }) {
 }
 
 // ============================================================
-// CONVERSATION STARTERS (visual only - all trigger 'hi')
+// TEXT PROCESSING - Strip numbered options when pills shown
+// ============================================================
+
+function stripNumberedOptions(text: string): string {
+  if (!text) return '';
+  
+  const lines = text.split('\n');
+  const cleanedLines: string[] = [];
+  
+  for (const line of lines) {
+    const trimmed = line.trim();
+    // Skip lines that are numbered options: "1. Something" or "1) Something" or just "1."
+    const isNumberedOption = /^\d+[\.\)]\s*[A-Za-z]/.test(trimmed) || /^\d+[\.\)]$/.test(trimmed);
+    
+    if (!isNumberedOption) {
+      cleanedLines.push(line);
+    }
+  }
+  
+  // Join and clean up extra blank lines
+  return cleanedLines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+// ============================================================
+// CONVERSATION STARTERS
 // ============================================================
 
 const conversationStarters = [
@@ -114,29 +138,80 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
 
-  // Focus input when conversation starts
   useEffect(() => {
     if (isOpen && conversationStarted && inputRef.current) {
       inputRef.current.focus();
     }
   }, [isOpen, conversationStarted]);
 
+  const callApi = async (text: string): Promise<{ s?: string; m?: string; o?: string[]; e?: boolean } | null> => {
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          s: sessionState,
+          message: text,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to send message');
+      return await response.json();
+    } catch (error) {
+      console.error('Error:', error);
+      return null;
+    }
+  };
+
+  const addAssistantMessage = (data: { m?: string; o?: string[]; e?: boolean }) => {
+    const quickReplies: QuickReply[] = Array.isArray(data.o) 
+      ? data.o.map((opt: string, idx: number) => ({
+          label: opt,
+          value: String(idx + 1)
+        }))
+      : [];
+
+    // Strip numbered options from text if we have pill buttons
+    const messageText = quickReplies.length > 0 
+      ? stripNumberedOptions(data.m || '')
+      : (data.m || '');
+
+    const assistantMessage: Message = {
+      role: 'assistant',
+      content: messageText,
+      timestamp: new Date().toISOString(),
+      quickReplies,
+    };
+    setMessages(prev => [...prev, assistantMessage]);
+
+    if (data.e) {
+      setSessionEnded(true);
+    }
+  };
+
+  const addErrorMessage = () => {
+    const errorMessage: Message = {
+      role: 'assistant',
+      content: 'I\'m sorry, something went wrong. Please try again or call Shelter on 0808 800 4444 for immediate help.',
+      timestamp: new Date().toISOString(),
+      quickReplies: [],
+    };
+    setMessages(prev => [...prev, errorMessage]);
+  };
+
   const sendMessage = async (text: string, hideUserMessage: boolean = false) => {
     if (!text || !text.trim() || isLoading || sessionEnded) return;
 
-    // Mark conversation as started
     if (!conversationStarted) {
       setConversationStarted(true);
     }
 
-    // Add user message to display (unless hidden, like for initial 'hi')
     if (!hideUserMessage) {
       const userMessage: Message = {
         role: 'user',
@@ -149,59 +224,16 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     setInputValue('');
     setIsLoading(true);
 
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          s: sessionState,  // Send encoded session state
-          message: text,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to send message');
-      }
-
-      const data = await response.json();
-
-      // API returns: s (state), m (message), o (options), e (ended)
-      if (data.s) {
-        setSessionState(data.s);
-      }
-
-      // Convert options array to quickReplies format
-      const quickReplies: QuickReply[] = Array.isArray(data.o) 
-        ? data.o.map((opt: string, idx: number) => ({
-            label: opt,
-            value: String(idx + 1)  // Options are 1-indexed
-          }))
-        : [];
-
-      const assistantMessage: Message = {
-        role: 'assistant',
-        content: data.m || '',
-        timestamp: new Date().toISOString(),
-        quickReplies,
-      };
-      setMessages(prev => [...prev, assistantMessage]);
-
-      if (data.e) {
-        setSessionEnded(true);
-      }
-
-    } catch (error) {
-      console.error('Error sending message:', error);
-      const errorMessage: Message = {
-        role: 'assistant',
-        content: 'I\'m sorry, something went wrong. Please try again or call Shelter on 0808 800 4444 for immediate help.',
-        timestamp: new Date().toISOString(),
-        quickReplies: [],
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
+    const data = await callApi(text);
+    
+    if (data) {
+      if (data.s) setSessionState(data.s);
+      addAssistantMessage(data);
+    } else {
+      addErrorMessage();
     }
+
+    setIsLoading(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -211,83 +243,32 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     }
   };
 
-  const handleQuickReply = (reply: QuickReply) => {
-    if (reply && reply.value) {
-      // Show the label but send the value (number)
-      const userMessage: Message = {
-        role: 'user',
-        content: reply.label,
-        timestamp: new Date().toISOString(),
-      };
-      setMessages(prev => [...prev, userMessage]);
-      
-      // Send just the number, hide from display (already added above)
-      sendMessageDirect(reply.value);
-    }
-  };
+  const handleQuickReply = async (reply: QuickReply) => {
+    if (!reply || !reply.value || isLoading || sessionEnded) return;
 
-  // Send without adding user message (already added by handleQuickReply)
-  const sendMessageDirect = async (text: string) => {
-    if (!text || isLoading || sessionEnded) return;
-
+    // Show the label in chat
+    const userMessage: Message = {
+      role: 'user',
+      content: reply.label,
+      timestamp: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, userMessage]);
+    
     setIsLoading(true);
 
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          s: sessionState,
-          message: text,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to send message');
-      }
-
-      const data = await response.json();
-
-      if (data.s) {
-        setSessionState(data.s);
-      }
-
-      const quickReplies: QuickReply[] = Array.isArray(data.o) 
-        ? data.o.map((opt: string, idx: number) => ({
-            label: opt,
-            value: String(idx + 1)
-          }))
-        : [];
-
-      const assistantMessage: Message = {
-        role: 'assistant',
-        content: data.m || '',
-        timestamp: new Date().toISOString(),
-        quickReplies,
-      };
-      setMessages(prev => [...prev, assistantMessage]);
-
-      if (data.e) {
-        setSessionEnded(true);
-      }
-
-    } catch (error) {
-      console.error('Error sending message:', error);
-      const errorMessage: Message = {
-        role: 'assistant',
-        content: 'I\'m sorry, something went wrong. Please try again or call Shelter on 0808 800 4444 for immediate help.',
-        timestamp: new Date().toISOString(),
-        quickReplies: [],
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
+    const data = await callApi(reply.value);
+    
+    if (data) {
+      if (data.s) setSessionState(data.s);
+      addAssistantMessage(data);
+    } else {
+      addErrorMessage();
     }
+
+    setIsLoading(false);
   };
 
   const handleStarterClick = () => {
-    // All starters send 'hi' to begin the conversation and show crisis gate
-    // The 'hi' message is hidden from display
     sendMessage('hi', true);
   };
 
@@ -334,7 +315,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
           background: 'linear-gradient(180deg, #ffffff 0%, #f0f7f4 100%)'
         }}
       >
-        {/* Welcome Screen - shown before conversation starts */}
+        {/* Welcome Screen */}
         {!conversationStarted && (
           <div className="flex flex-col items-center justify-center h-full px-4">
             <h1 className="text-2xl font-semibold text-ss-text text-center mb-8 leading-relaxed">
@@ -356,14 +337,12 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
           </div>
         )}
 
-        {/* Messages - shown after conversation starts */}
+        {/* Messages */}
         {conversationStarted && (
           <div className="space-y-4">
-            {messages && messages.length > 0 && messages.map((message, index) => (
+            {messages.map((message, index) => (
               <div key={index}>
-                <div
-                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
+                <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div
                     className={`max-w-[85%] rounded-lg px-4 py-2 ${
                       message.role === 'user'
@@ -381,7 +360,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                   </div>
                 </div>
 
-                {/* Quick Replies */}
+                {/* Quick Replies - only on last assistant message */}
                 {message.role === 'assistant' && 
                  Array.isArray(message.quickReplies) && 
                  message.quickReplies.length > 0 && 
@@ -436,7 +415,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
         </div>
       )}
 
-      {/* Input - only show after conversation starts */}
+      {/* Input */}
       {conversationStarted && (
         <form onSubmit={handleSubmit} className="p-3 bg-white border-t border-gray-200 flex-shrink-0">
           <div className="flex items-center gap-2">
