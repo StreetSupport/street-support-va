@@ -13,8 +13,11 @@ import {
   getYouthOrgs,
   getShelterInfo,
   getStreetLinkInfo,
+  getServicesForNeed,
+  isProfileRelevantNeed,
   DefaultOrg,
-  UserProfile
+  UserProfile,
+  MatchedService
 } from './serviceMatcher';
 
 // ============================================================
@@ -600,9 +603,16 @@ const needDisplayNames: Record<string, string> = {
   'Activities': 'activities and groups'
 };
 
-// Hardcoded services for non-housing needs
-// These will be shown when user selects Food, Health, Items, etc.
-const servicesByNeed: Record<string, Array<{name: string; phone?: string; website?: string; description: string}>> = {
+// Note: Local services are now fetched dynamically via getServicesForNeed()
+// National fallbacks are defined in buildNonHousingTerminal()
+
+// ============================================================
+// NON-HOUSING TERMINAL BUILDER
+// For Food, Health, Items, Work, etc. - uses local service matching
+// ============================================================
+
+// National fallback services for each need type
+const nationalFallbacks: Record<string, Array<{name: string; phone?: string; website: string; description: string}>> = {
   'Food': [
     {
       name: 'Find a Food Bank',
@@ -615,7 +625,7 @@ const servicesByNeed: Record<string, Array<{name: string; phone?: string; websit
       name: 'NHS 111',
       phone: '111',
       website: 'https://111.nhs.uk',
-      description: 'For urgent medical help when it\'s not an emergency'
+      description: 'For urgent medical help when it is not an emergency'
     },
     {
       name: 'Find NHS Services',
@@ -649,34 +659,60 @@ const servicesByNeed: Record<string, Array<{name: string; phone?: string; websit
       description: 'Free careers advice and support'
     }
   ],
-  'Items': [],
-  'Drop In': [],
-  'Training': [],
-  'Activities': [],
-  'Comms': [],
-  'Services': []
+  'Training': [
+    {
+      name: 'National Careers Service',
+      phone: '0800 100 900',
+      website: 'https://nationalcareers.service.gov.uk',
+      description: 'Free careers advice, skills assessment and training information'
+    }
+  ]
 };
-
-// ============================================================
-// NON-HOUSING TERMINAL BUILDER
-// For Food, Health, Items, Work, etc. - not housing-related needs
-// ============================================================
 
 function buildNonHousingTerminal(session: SessionState): string {
   const need = session.supportNeed || 'support';
   const la = session.localAuthority || 'your area';
-  const isSupporter = session.isSupporter;
-  
   const displayName = needDisplayNames[need] || need.toLowerCase();
-  const services = servicesByNeed[need] || [];
   const categoryKey = needToCategoryMap[need] || '';
+  
+  // Build profile for service matching
+  const profile: UserProfile = {
+    localAuthority: session.localAuthority,
+    supportNeed: session.supportNeed,
+    gender: session.gender,
+    ageCategory: session.ageCategory,
+    lgbtq: session.lgbtq,
+    criminalConvictions: session.criminalConvictions,
+    hasChildren: session.hasChildren,
+    sleepingSituation: session.sleepingSituation,
+    mentalHealth: session.mentalHealth,
+    physicalHealth: session.physicalHealth,
+    immigrationStatus: session.immigrationStatus,
+    publicFunds: session.publicFunds
+  };
+  
+  // Get matched local services
+  const localServices = getServicesForNeed(need, profile);
+  const fallbacks = nationalFallbacks[need] || [];
+  const hasLocalServices = localServices.length > 0;
+  const hasFallbacks = fallbacks.length > 0;
   
   let text = '';
   
-  text += `Here are some ${displayName} services that may help.\n\n`;
+  // Opening line - personalised if profile was used
+  if (isProfileRelevantNeed(need) && hasLocalServices) {
+    text += `Based on what you have told me, here are some ${displayName} in ${la} that may be able to help.\n\n`;
+  } else if (hasLocalServices) {
+    text += `Here are some ${displayName} in ${la}.\n\n`;
+  } else {
+    text += `Here is some information about ${displayName}.\n\n`;
+  }
   
-  if (services.length > 0) {
-    for (const svc of services) {
+  // Local services section
+  if (hasLocalServices) {
+    text += `LOCAL SERVICES\n\n`;
+    
+    for (const svc of localServices) {
       text += `${svc.name}\n`;
       if (svc.phone) {
         text += `${svc.phone}\n`;
@@ -684,12 +720,44 @@ function buildNonHousingTerminal(session: SessionState): string {
       if (svc.website) {
         text += `${svc.website}\n`;
       }
+      text += `${svc.description}`;
+      if (svc.isDropIn) {
+        text += ` No appointment needed.`;
+      } else if (svc.appointmentOnly) {
+        text += ` Appointment required.`;
+      }
+      text += `\n\n`;
+    }
+  }
+  
+  // National fallbacks section
+  if (hasFallbacks) {
+    if (hasLocalServices) {
+      text += `---\n\n`;
+      text += `NATIONAL RESOURCES\n\n`;
+    }
+    
+    for (const svc of fallbacks) {
+      text += `${svc.name}\n`;
+      if (svc.phone) {
+        text += `${svc.phone}\n`;
+      }
+      text += `${svc.website}\n`;
       text += `${svc.description}\n\n`;
     }
   }
   
-  // Add local search link if we have a category mapping
-  if (categoryKey && la !== 'your area') {
+  // If no local services found, add search link
+  if (!hasLocalServices && categoryKey && la !== 'your area') {
+    text += `---\n\n`;
+    text += `FIND MORE SERVICES\n\n`;
+    text += `Search for ${displayName} in ${la}:\n`;
+    text += `https://streetsupport.net/${la.toLowerCase().replace(/\s+/g, '-')}/find-help/category/?category=${categoryKey}\n`;
+  }
+  
+  // Always add search link at the end if we have local services (for more options)
+  if (hasLocalServices && categoryKey && la !== 'your area') {
+    text += `---\n\n`;
     text += `Find more ${displayName} in ${la}:\n`;
     text += `https://streetsupport.net/${la.toLowerCase().replace(/\s+/g, '-')}/find-help/category/?category=${categoryKey}\n`;
   }

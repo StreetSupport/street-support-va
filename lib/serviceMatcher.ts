@@ -1,26 +1,62 @@
-// Street Support VA v7.1 Service Matcher
+// Street Support VA v7.1.3 Service Matcher
 // UPDATES:
-// - Deduplication by organization_id
-// - Exclude council-adjacent services (ALMOs like Wolverhampton Homes)
-// - Prioritize drop-in/helpline over appointment-only
-// - Max 3 matched services with relevance threshold
-// - Enhanced P3 descriptions
-// - Better specialist org exports for terminal building
+// - Local service matching for ALL needs (not just housing)
+// - Profile-based filtering for relevant categories
+// - Location-only filtering for food/items/comms/services
+// - Database-driven service lookup by category
+
+import servicesData from './data/wmca_services_v7.json';
+import orgsData from './data/wmca_organizations_v7.json';
 
 // ============================================================
 // TYPES
 // ============================================================
 
+interface Service {
+  service_id: string;
+  organization_id: string;
+  local_authority: string;
+  name: string;
+  description: string;
+  category: {
+    parent: string;
+    sub: string;
+  };
+  access: {
+    appointment_only: boolean;
+    telephone_service: boolean;
+  };
+  location: {
+    latitude: number | null;
+    longitude: number | null;
+    has_location: boolean;
+  };
+  client_groups: string[];
+}
+
+interface Organization {
+  organization_id: string;
+  name: string;
+  verified: boolean;
+  contact: {
+    email: string | null;
+    phone: string | null;
+    website: string | null;
+    quality: string;
+  };
+  areas_served: string[];
+}
+
 export interface MatchedService {
   name: string;
   description: string;
   phone: string | null;
-  email: string | null;
   website: string | null;
   category: string;
   appointmentOnly: boolean;
   matchScore: number;
   organizationId: string;
+  isDropIn?: boolean;
 }
 
 export interface DefaultOrg {
@@ -49,8 +85,47 @@ export interface UserProfile {
 }
 
 // ============================================================
+// CATEGORY MAPPINGS
+// ============================================================
+
+// Map B5 support needs to database category.parent values
+const needToCategoryMap: Record<string, string[]> = {
+  'Emergency Housing': ['accom'],
+  'Food': ['foodbank'],
+  'Work': ['employment'],
+  'Health': ['medical'],
+  'Advice': ['support'],
+  'Drop In': ['dropin'],
+  'Financial': ['financial', 'support'],
+  'Items': ['items'],
+  'Services': ['services'],
+  'Comms': ['communications'],
+  'Training': ['training'],
+  'Activities': ['activities']
+};
+
+// Needs where profile (gender, age, LGBTQ+, etc.) should affect filtering
+const profileRelevantNeeds = ['Health', 'Work', 'Financial', 'Training', 'Activities', 'Drop In'];
+
+// Needs where we just match on location (profile doesn't matter)
+const locationOnlyNeeds = ['Food', 'Items', 'Services', 'Comms'];
+
+// Client group keywords for matching
+const clientGroupKeywords = {
+  women: ['Women', 'Female', 'Girls'],
+  men: ['Men', 'Male', 'Boys'],
+  lgbtq: ['LGBT+', 'Gay', 'Lesbian', 'Bisexual', 'Transgender', 'LGBTQ'],
+  youth: ['Young People', 'Youth', '16-25', 'Young Adults'],
+  families: ['Families', 'Children', 'Parents'],
+  elderly: ['Older people', 'Elderly', 'Over 50'],
+  mentalHealth: ['Mental Health', 'Mental health'],
+  roughSleepers: ['Rough sleepers', 'Homeless'],
+  refugees: ['Refugees', 'Asylum seekers', 'Migrants'],
+  exOffenders: ['Ex-Offenders', 'Ex-offenders', 'Offenders']
+};
+
+// ============================================================
 // HARDCODED DEFAULT ORGANIZATIONS BY LOCAL AUTHORITY
-// Council Housing Options always first, then accessible drop-in services
 // ============================================================
 
 const defaultOrgsByLA: Record<string, DefaultOrg[]> = {
@@ -148,7 +223,7 @@ const defaultOrgsByLA: Record<string, DefaultOrg[]> = {
 };
 
 // ============================================================
-// LGBTQ+ SPECIALIST ORGANISATIONS (National)
+// SPECIALIST ORGANISATIONS
 // ============================================================
 
 const lgbtqOrgs: DefaultOrg[] = [
@@ -166,10 +241,6 @@ const lgbtqOrgs: DefaultOrg[] = [
   }
 ];
 
-// ============================================================
-// IMMIGRATION & NRPF SPECIALIST ORGANISATIONS
-// ============================================================
-
 const immigrationOrgs: DefaultOrg[] = [
   {
     name: "Migrant Help",
@@ -185,29 +256,6 @@ const immigrationOrgs: DefaultOrg[] = [
   }
 ];
 
-// ============================================================
-// WOMEN'S AID / DV ORGANISATIONS
-// ============================================================
-
-const womensAidOrgs: DefaultOrg[] = [
-  {
-    name: "National Domestic Abuse Helpline",
-    phone: "0808 2000 247",
-    website: "https://www.nationaldahelpline.org.uk",
-    description: "24-hour helpline for women experiencing domestic abuse"
-  },
-  {
-    name: "Black Country Women's Aid",
-    phone: "0121 552 6448",
-    website: "https://blackcountrywomensaid.co.uk",
-    description: "Support for women and children affected by domestic abuse"
-  }
-];
-
-// ============================================================
-// YOUTH ORGANISATIONS
-// ============================================================
-
 const youthOrgs: DefaultOrg[] = [
   {
     name: "Centrepoint",
@@ -222,23 +270,6 @@ const youthOrgs: DefaultOrg[] = [
     description: "Emergency accommodation for young people in safe volunteer homes"
   }
 ];
-
-// ============================================================
-// COUNCIL-ADJACENT EXCLUSION LIST
-// These are ALMOs or council-related orgs that duplicate the council pathway
-// ============================================================
-
-const councilAdjacentOrgNames = [
-  'wolverhampton homes',
-  'birmingham municipal housing',
-  'council housing',
-  'housing solutions' // generic term often used by councils
-];
-
-function isCouncilAdjacent(orgName: string): boolean {
-  const lower = orgName.toLowerCase();
-  return councilAdjacentOrgNames.some(name => lower.includes(name));
-}
 
 // ============================================================
 // HELPER FUNCTIONS
@@ -260,43 +291,271 @@ function formatPhone(phone: string): string {
   return phone;
 }
 
+function getOrgContact(orgId: string): Organization['contact'] | null {
+  const orgs = (orgsData as any).organizations as Organization[];
+  const org = orgs.find(o => o.organization_id === orgId);
+  return org?.contact || null;
+}
+
+function getOrgName(orgId: string): string | null {
+  const orgs = (orgsData as any).organizations as Organization[];
+  const org = orgs.find(o => o.organization_id === orgId);
+  return org?.name || null;
+}
+
+/**
+ * Check if service matches gender filter
+ */
+function matchesGender(clientGroups: string[], gender: string | null): boolean {
+  if (!gender) return true;
+  
+  const genderLower = gender.toLowerCase();
+  
+  // Check if service is gender-restricted
+  const isWomenOnly = clientGroups.some(g => 
+    clientGroupKeywords.women.some(k => g.toLowerCase().includes(k.toLowerCase()))
+  );
+  const isMenOnly = clientGroups.some(g => 
+    clientGroupKeywords.men.some(k => g.toLowerCase().includes(k.toLowerCase()))
+  );
+  
+  // If service targets specific gender, check match
+  if (isWomenOnly && !['female', 'woman', 'girl'].some(g => genderLower.includes(g))) {
+    return false;
+  }
+  if (isMenOnly && !['male', 'man', 'boy'].some(g => genderLower.includes(g))) {
+    return false;
+  }
+  
+  return true;
+}
+
+/**
+ * Check if service matches age filter
+ */
+function matchesAge(clientGroups: string[], ageCategory: string | null): boolean {
+  if (!ageCategory) return true;
+  
+  const isYouthService = clientGroups.some(g => 
+    clientGroupKeywords.youth.some(k => g.includes(k))
+  );
+  const isElderlyService = clientGroups.some(g => 
+    clientGroupKeywords.elderly.some(k => g.includes(k))
+  );
+  
+  // Youth services: only show to young people
+  if (isYouthService) {
+    return ['16-17', '18-24', '18-20', '21-24'].includes(ageCategory);
+  }
+  
+  // Elderly services: only show to older people
+  if (isElderlyService) {
+    return ageCategory === '25+' || ageCategory === '50+';
+  }
+  
+  return true;
+}
+
+/**
+ * Calculate match score for a service based on profile
+ */
+function calculateMatchScore(service: Service, profile: UserProfile): number {
+  let score = 50; // Base score for category match
+  
+  const groups = service.client_groups || [];
+  
+  // LGBTQ+ match
+  if (profile.lgbtq && groups.some(g => 
+    clientGroupKeywords.lgbtq.some(k => g.includes(k))
+  )) {
+    score += 20;
+  }
+  
+  // Youth match
+  if (['16-17', '18-24', '18-20', '21-24'].includes(profile.ageCategory || '') && 
+      groups.some(g => clientGroupKeywords.youth.some(k => g.includes(k)))) {
+    score += 15;
+  }
+  
+  // Family match
+  if (profile.hasChildren && groups.some(g => 
+    clientGroupKeywords.families.some(k => g.includes(k))
+  )) {
+    score += 15;
+  }
+  
+  // Mental health match
+  if (profile.mentalHealth && profile.mentalHealth !== 'None' && profile.mentalHealth !== 'Prefer not to say') {
+    if (groups.some(g => clientGroupKeywords.mentalHealth.some(k => g.includes(k)))) {
+      score += 15;
+    }
+  }
+  
+  // Drop-in bonus (more accessible)
+  if (!service.access.appointment_only) {
+    score += 10;
+  }
+  
+  // Telephone service bonus
+  if (service.access.telephone_service) {
+    score += 5;
+  }
+  
+  return score;
+}
+
 // ============================================================
-// EXPORTED FUNCTIONS
+// CORE SERVICE MATCHING FUNCTIONS
 // ============================================================
 
 /**
- * Get default organizations for a local authority
- * Returns council first, then drop-in services
+ * Get services by category and location
  */
+export function getServicesByCategory(
+  localAuthority: string | null, 
+  categories: string[]
+): Service[] {
+  if (!localAuthority || categories.length === 0) return [];
+  
+  const la = normalizeLA(localAuthority);
+  const services = (servicesData as any).services as Service[];
+  
+  return services.filter(s => {
+    const serviceLA = normalizeLA(s.local_authority);
+    const matchesLA = serviceLA === la;
+    const matchesCategory = categories.includes(s.category.parent);
+    return matchesLA && matchesCategory;
+  });
+}
+
+/**
+ * Filter services based on user profile (gender, age, etc.)
+ */
+export function filterByProfile(services: Service[], profile: UserProfile): Service[] {
+  return services.filter(s => {
+    const groups = s.client_groups || [];
+    
+    // Gender filter
+    if (!matchesGender(groups, profile.gender)) {
+      return false;
+    }
+    
+    // Age filter
+    if (!matchesAge(groups, profile.ageCategory)) {
+      return false;
+    }
+    
+    return true;
+  });
+}
+
+/**
+ * Score and sort services, return top matches
+ */
+export function rankServices(services: Service[], profile: UserProfile, limit: number = 5): MatchedService[] {
+  // Score each service
+  const scored = services.map(s => ({
+    service: s,
+    score: calculateMatchScore(s, profile)
+  }));
+  
+  // Sort by score descending
+  scored.sort((a, b) => b.score - a.score);
+  
+  // Deduplicate by organization (keep highest scoring)
+  const seenOrgs = new Set<string>();
+  const deduplicated = scored.filter(item => {
+    if (seenOrgs.has(item.service.organization_id)) {
+      return false;
+    }
+    seenOrgs.add(item.service.organization_id);
+    return true;
+  });
+  
+  // Take top N
+  const top = deduplicated.slice(0, limit);
+  
+  // Convert to MatchedService format
+  return top.map(item => {
+    const s = item.service;
+    const contact = getOrgContact(s.organization_id);
+    const orgName = getOrgName(s.organization_id);
+    
+    return {
+      name: orgName || s.name,
+      description: s.description.length > 150 
+        ? s.description.substring(0, 150) + '...' 
+        : s.description,
+      phone: contact?.phone || null,
+      website: contact?.website 
+        ? (contact.website.startsWith('http') ? contact.website : `https://${contact.website}`)
+        : null,
+      category: s.category.parent,
+      appointmentOnly: s.access.appointment_only,
+      matchScore: item.score,
+      organizationId: s.organization_id,
+      isDropIn: !s.access.appointment_only
+    };
+  });
+}
+
+/**
+ * Main function: Get matched services for a non-housing need
+ */
+export function getServicesForNeed(need: string, profile: UserProfile): MatchedService[] {
+  const categories = needToCategoryMap[need] || [];
+  if (categories.length === 0) return [];
+  
+  // Get services matching category and location
+  let services = getServicesByCategory(profile.localAuthority, categories);
+  
+  // Apply profile filtering if relevant for this need
+  if (profileRelevantNeeds.includes(need)) {
+    services = filterByProfile(services, profile);
+  }
+  // For location-only needs, skip profile filtering
+  
+  // Rank and return top matches
+  return rankServices(services, profile, 5);
+}
+
+/**
+ * Check if a need uses profile-based filtering
+ */
+export function isProfileRelevantNeed(need: string): boolean {
+  return profileRelevantNeeds.includes(need);
+}
+
+/**
+ * Check if a need is location-only
+ */
+export function isLocationOnlyNeed(need: string): boolean {
+  return locationOnlyNeeds.includes(need);
+}
+
+// ============================================================
+// EXISTING HOUSING-RELATED FUNCTIONS
+// ============================================================
+
 export function getDefaultOrgs(localAuthority: string | null): DefaultOrg[] {
   if (!localAuthority) return [];
   const la = normalizeLA(localAuthority);
   return defaultOrgsByLA[la] || [];
 }
 
-/**
- * Get council org separately (for "first step" section)
- */
 export function getCouncilOrg(localAuthority: string | null): DefaultOrg | null {
   const orgs = getDefaultOrgs(localAuthority);
   return orgs.find(o => o.isCouncil) || null;
 }
 
-/**
- * Get local support orgs (non-council, drop-ins)
- */
 export function getLocalSupportOrgs(localAuthority: string | null): DefaultOrg[] {
   const orgs = getDefaultOrgs(localAuthority);
   return orgs.filter(o => !o.isCouncil);
 }
 
-/**
- * Get specialist organizations based on user profile
- */
 export function getSpecialistOrgs(profile: UserProfile): DefaultOrg[] {
   const orgs: DefaultOrg[] = [];
   
-  // LGBTQ+ organizations
   if (profile.lgbtq) {
     const pref = profile.lgbtqServicePreference;
     if (pref !== 'Local only') {
@@ -304,7 +563,6 @@ export function getSpecialistOrgs(profile: UserProfile): DefaultOrg[] {
     }
   }
   
-  // Immigration/NRPF organizations
   if (profile.immigrationStatus === 'No status' || 
       profile.immigrationStatus === 'Asylum seeker' ||
       profile.publicFunds === 'No') {
@@ -314,9 +572,6 @@ export function getSpecialistOrgs(profile: UserProfile): DefaultOrg[] {
   return orgs;
 }
 
-/**
- * Get youth organizations if applicable
- */
 export function getYouthOrgs(profile: UserProfile): DefaultOrg[] {
   const age = profile.ageCategory;
   if (age === '16-17' || age === '18-24' || age === '18-20' || age === '21-24') {
@@ -325,36 +580,6 @@ export function getYouthOrgs(profile: UserProfile): DefaultOrg[] {
   return [];
 }
 
-/**
- * Check if user needs youth services guidance
- */
-export function needsYouthServicesFlag(profile: UserProfile): boolean {
-  const age = profile.ageCategory;
-  return age === '16-17' || age === '18-24' || age === '18-20';
-}
-
-/**
- * Match services from database with deduplication and filtering
- * Returns max 3 high-quality matches
- */
-export function matchServices(profile: UserProfile, limit: number = 3): MatchedService[] {
-  // For now, return empty array since we're using hardcoded orgs
-  // This function would query the actual services JSON when integrated
-  
-  // In production, this would:
-  // 1. Filter by local authority
-  // 2. Score by category match, client groups, accessibility
-  // 3. Deduplicate by organization_id (keep highest score)
-  // 4. Exclude council-adjacent services
-  // 5. Prioritize drop-in over appointment-only
-  // 6. Return top 3 with score > threshold
-  
-  return [];
-}
-
-/**
- * Get Shelter info (for safety net section)
- */
 export function getShelterInfo(jurisdiction: 'ENGLAND' | 'SCOTLAND' = 'ENGLAND'): DefaultOrg {
   if (jurisdiction === 'SCOTLAND') {
     return {
@@ -372,9 +597,6 @@ export function getShelterInfo(jurisdiction: 'ENGLAND' | 'SCOTLAND' = 'ENGLAND')
   };
 }
 
-/**
- * Get StreetLink info (for rough sleepers)
- */
 export function getStreetLinkInfo(): DefaultOrg {
   return {
     name: "StreetLink",
@@ -384,9 +606,6 @@ export function getStreetLinkInfo(): DefaultOrg {
   };
 }
 
-/**
- * Format a phone number for display
- */
 export function formatPhoneNumber(phone: string | null): string {
   if (!phone) return '';
   return formatPhone(phone);
