@@ -91,13 +91,13 @@ function LinkifiedText({ text }: { text: string }) {
 }
 
 // ============================================================
-// CONVERSATION STARTERS
+// CONVERSATION STARTERS (visual only - all trigger 'hi')
 // ============================================================
 
 const conversationStarters: QuickReply[] = [
-  { label: 'Advice and Guidance', value: '1' },
-  { label: 'Help connecting to support', value: '2' },
-  { label: 'Search for a specific organisation', value: '3' },
+  { label: 'Advice and Guidance', value: 'hi' },
+  { label: 'Help connecting to support', value: 'hi' },
+  { label: 'Search for a specific organisation', value: 'hi' },
 ];
 
 // ============================================================
@@ -128,7 +128,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     }
   }, [isOpen, conversationStarted]);
 
-  const sendMessage = async (text: string, displayText?: string) => {
+  const sendMessage = async (text: string, hideUserMessage: boolean = false) => {
     if (!text || !text.trim() || isLoading || sessionEnded) return;
 
     // Mark conversation as started
@@ -136,13 +136,15 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       setConversationStarted(true);
     }
 
-    // Add user message to display
-    const userMessage: Message = {
-      role: 'user',
-      content: displayText || text,
-      timestamp: new Date().toISOString(),
-    };
-    setMessages(prev => [...prev, userMessage]);
+    // Add user message to display (unless hidden, like for initial 'hi')
+    if (!hideUserMessage) {
+      const userMessage: Message = {
+        role: 'user',
+        content: text,
+        timestamp: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, userMessage]);
+    }
     
     setInputValue('');
     setIsLoading(true);
@@ -202,14 +204,14 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
   const handleQuickReply = (reply: QuickReply) => {
     if (reply && reply.value) {
-      sendMessage(reply.value, reply.label);
+      sendMessage(reply.value, false);
     }
   };
 
-  const handleStarterClick = (starter: QuickReply) => {
-    if (starter && starter.value) {
-      sendMessage(starter.value, starter.label);
-    }
+  const handleStarterClick = () => {
+    // All starters send 'hi' to begin the conversation and show crisis gate
+    // The 'hi' message is hidden from display
+    sendMessage('hi', true);
   };
 
   const handleRestart = () => {
@@ -266,8 +268,9 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
               {conversationStarters.map((starter, index) => (
                 <button
                   key={index}
-                  onClick={() => handleStarterClick(starter)}
-                  className="px-5 py-3 text-sm border border-gray-300 rounded-full bg-white text-ss-text hover:border-ss-accent hover:text-ss-accent transition-colors text-left"
+                  onClick={handleStarterClick}
+                  disabled={isLoading}
+                  className="px-5 py-3 text-sm border border-gray-300 rounded-full bg-white text-ss-text hover:border-ss-accent hover:text-ss-accent transition-colors text-left disabled:opacity-50"
                 >
                   {starter.label}
                 </button>
