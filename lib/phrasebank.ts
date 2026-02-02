@@ -5,6 +5,7 @@
 export interface PhraseEntry {
   text: string;
   options?: string[];
+  responseType?: string;
 }
 
 export const phrasebank: Record<string, PhraseEntry> = {
@@ -155,6 +156,68 @@ Support with Benefits and Grants | Turn2us - https://www.turn2us.org.uk/`
 
   // ============================================================
   // SECTION B: CORE PROFILE (B1-B7A)
+  // ============================================================
+
+  // ============================================================
+  // LOCATION DETECTION (Geolocation + Postcode flow)
+  // ============================================================
+
+  LOCATION_CONSENT: {
+    text: `To help me connect you to the right local services, please allow location access when your browser asks. It only takes a moment, and it means I can show you support that's nearby.
+
+1. Share my location
+2. I'll enter my postcode instead
+3. I don't want to share my location`,
+    options: ["Share my location", "I'll enter my postcode instead", "I don't want to share my location"],
+    responseType: "location_consent"
+  },
+
+  LOCATION_CONSENT__SUPPORTER: {
+    text: `To help me connect them to the right local services, please allow location access when your browser asks. It only takes a moment, and it means I can show support that's nearby.
+
+1. Share location
+2. I'll enter their postcode instead
+3. I don't want to share location`,
+    options: ["Share location", "I'll enter their postcode instead", "I don't want to share location"],
+    responseType: "location_consent"
+  },
+
+  LOCATION_POSTCODE_REQUEST: {
+    text: `No problem - please enter your postcode so I can find local services for you.`,
+    responseType: "postcode_input"
+  },
+
+  LOCATION_POSTCODE_REQUEST__SUPPORTER: {
+    text: `No problem - please enter their postcode so I can find local services for them.`,
+    responseType: "postcode_input"
+  },
+
+  LOCATION_POSTCODE_INVALID: {
+    text: `That doesn't seem to be a valid UK postcode. Would you like to try again or select your local authority from the list?
+
+1. Try entering postcode again
+2. Select from list`,
+    options: ["Try entering postcode again", "Select from list"]
+  },
+
+  LOCATION_DETECTED: {
+    text: `Thanks, I've found your location.`
+  },
+
+  LOCATION_DETECTED__SUPPORTER: {
+    text: `Thanks, I've found their location.`
+  },
+
+  LOCATION_OUTSIDE_WMCA: {
+    text: `It looks like you're outside the West Midlands Combined Authority area. I can still help, but some local service information may be limited. Would you like to continue?
+
+1. Yes, continue
+2. Let me select a different area`,
+    options: ["Yes, continue", "Let me select a different area"]
+  },
+
+  // ============================================================
+  // LOCAL AUTHORITY SELECTION (fallback)
   // ============================================================
 
   B1_LOCAL_AUTHORITY: {

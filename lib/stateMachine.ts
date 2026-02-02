@@ -27,6 +27,11 @@ export type GateType =
   | 'GATE0_CRISIS_DANGER'
   | 'GATE1_INTENT'
   | 'GATE2_ROUTE_SELECTION'
+  // Location Detection
+  | 'LOCATION_CONSENT'
+  | 'LOCATION_POSTCODE'
+  | 'LOCATION_RESULT'
+  | 'LOCATION_OUTSIDE_WMCA'
   // Advice Mode
   | 'B4_ADVICE_TOPIC_SELECTION'
   | 'ADVICE_BRIDGE'
@@ -96,6 +101,9 @@ export interface SessionState {
   
   // Core profile
   localAuthority: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  locationMethod: 'GEOLOCATION' | 'POSTCODE' | 'MANUAL' | null;
   jurisdiction: 'ENGLAND' | 'SCOTLAND';
   userType: 'SELF' | 'SUPPORTER' | 'PROFESSIONAL' | null;
   ageCategory: string | null;
@@ -169,7 +177,8 @@ export interface RoutingResult {
   text: string;
   options?: string[];
   stateUpdates: Partial<SessionState>;
-  sessionEnded: boolean;
+  sessionEnded?: boolean;
+  responseType?: string; // For special handling in widget (e.g., 'request_geolocation', 'postcode_input')
 }
 
 // ============================================================
@@ -183,6 +192,9 @@ export function createSession(sessionId: string): SessionState {
     routeType: null,
     intentType: null,
     localAuthority: null,
+    latitude: null,
+    longitude: null,
+    locationMethod: null,
     jurisdiction: 'ENGLAND',
     userType: null,
     ageCategory: null,
@@ -248,6 +260,7 @@ function phrase(key: string, isSupporter: boolean): RoutingResult {
     options: p?.options,
     stateUpdates: { currentGate: key as GateType },
     sessionEnded: false,
+    responseType: p?.responseType,
   };
 }
 
@@ -674,9 +687,90 @@ export function processInput(session: SessionState, input: string): RoutingResul
     case 'GATE2_ROUTE_SELECTION':
       const routeType = choice === 1 ? 'FULL' : 'QUICK';
       return {
-        ...phrase('B1_LOCAL_AUTHORITY', session.isSupporter),
-        stateUpdates: { currentGate: 'B1_LOCAL_AUTHORITY', routeType }
+        ...phrase('LOCATION_CONSENT', session.isSupporter),
+        stateUpdates: { currentGate: 'LOCATION_CONSENT', routeType },
+        responseType: 'location_consent'
       };
+    
+    // ========================================
+    // LOCATION DETECTION
+    // ========================================
+    case 'LOCATION_CONSENT':
+      // Choice 1: Share location (widget will handle geolocation)
+      // Choice 2: Enter postcode
+      // Choice 3: Don't want to share
+      if (choice === 1) {
+        // Widget will request geolocation and send back result
+        // This is handled by the widget, not here
+        // The widget will call processInput with location data
+        return {
+          text: '',
+          stateUpdates: { currentGate: 'LOCATION_RESULT' },
+          responseType: 'request_geolocation'
+        };
+      } else if (choice === 2) {
+        return {
+          ...phrase('LOCATION_POSTCODE_REQUEST', session.isSupporter),
+          stateUpdates: { currentGate: 'LOCATION_POSTCODE' },
+          responseType: 'postcode_input'
+        };
+      } else {
+        // User doesn't want to share - fall back to manual selection
+        return {
+          ...phrase('B1_LOCAL_AUTHORITY', session.isSupporter),
+          stateUpdates: { currentGate: 'B1_LOCAL_AUTHORITY', locationMethod: 'MANUAL' }
+        };
+      }
+    
+    case 'LOCATION_POSTCODE':
+      // This is handled specially - widget sends postcode to /api/location
+      // and then calls processInput with the result
+      // If we get here with a choice, it's the postcode retry/fallback menu
+      if (choice === 1) {
+        // Try again
+        return {
+          ...phrase('LOCATION_POSTCODE_REQUEST', session.isSupporter),
+          stateUpdates: { currentGate: 'LOCATION_POSTCODE' },
+          responseType: 'postcode_input'
+        };
+      } else {
+        // Select from list
+        return {
+          ...phrase('B1_LOCAL_AUTHORITY', session.isSupporter),
+          stateUpdates: { currentGate: 'B1_LOCAL_AUTHORITY', locationMethod: 'MANUAL' }
+        };
+      }
+    
+    case 'LOCATION_RESULT':
+      // Widget sends location data here after geo/postcode lookup
+      // This case should be handled by processLocationInput, not processInput
+      // Fallback to manual selection
+      return {
+        ...phrase('B1_LOCAL_AUTHORITY', session.isSupporter),
+        stateUpdates: { currentGate: 'B1_LOCAL_AUTHORITY', locationMethod: 'MANUAL' }
+      };
+    
+    case 'LOCATION_OUTSIDE_WMCA':
+      // User is outside WMCA area - they chose whether to continue or select different area
+      if (choice === 1) {
+        // Continue anyway with detected LA
+        return {
+          ...phrase('B2_WHO_FOR', session.isSupporter),
+          stateUpdates: { currentGate: 'B2_WHO_FOR' }
+        };
+      } else {
+        // Let them select different area - clear location data
+        return {
+          ...phrase('B1_LOCAL_AUTHORITY', session.isSupporter),
+          stateUpdates: { 
+            currentGate: 'B1_LOCAL_AUTHORITY', 
+            locationMethod: 'MANUAL',
+            localAuthority: null,
+            latitude: null,
+            longitude: null
+          }
+        };
+      }
     
     // ========================================
     // SECTION B: CORE PROFILING
@@ -1388,5 +1482,99 @@ export function processInput(session: SessionState, input: string): RoutingResul
     default:
       // Fallback
       return phrase('GATE0_CRISIS_DANGER', session.isSupporter);
+  }
+}
+
+// ============================================================
+// LOCATION INPUT PROCESSING
+// ============================================================
+
+interface LocationData {
+  success: boolean;
+  localAuthority?: string;
+  latitude?: number;
+  longitude?: number;
+  isWMCA?: boolean;
+  isScotland?: boolean;
+  error?: string;
+}
+
+export function processLocationInput(session: SessionState, locationData: LocationData): RoutingResult {
+  // Handle location detection result
+  
+  if (!locationData.success || !locationData.localAuthority) {
+    // Location detection failed - show invalid postcode message or fall back to manual
+    if (session.currentGate === 'LOCATION_POSTCODE') {
+      return {
+        ...phrase('LOCATION_POSTCODE_INVALID', session.isSupporter),
+        stateUpdates: { currentGate: 'LOCATION_POSTCODE' }
+      };
+    }
+    // Fall back to manual selection
+    return {
+      ...phrase('B1_LOCAL_AUTHORITY', session.isSupporter),
+      stateUpdates: { currentGate: 'B1_LOCAL_AUTHORITY', locationMethod: 'MANUAL' }
+    };
+  }
+  
+  // Location detected successfully
+  const la = locationData.localAuthority;
+  const jurisdiction: 'ENGLAND' | 'SCOTLAND' = locationData.isScotland ? 'SCOTLAND' : 'ENGLAND';
+  const locationMethod = session.currentGate === 'LOCATION_POSTCODE' ? 'POSTCODE' : 'GEOLOCATION';
+  
+  // Check if outside WMCA area
+  if (!locationData.isWMCA) {
+    // Store the detected LA but show notice about limited coverage
+    return {
+      ...phrase('LOCATION_OUTSIDE_WMCA', session.isSupporter),
+      stateUpdates: { 
+        currentGate: 'LOCATION_OUTSIDE_WMCA',
+        localAuthority: la,
+        latitude: locationData.latitude || null,
+        longitude: locationData.longitude || null,
+        locationMethod,
+        jurisdiction
+      }
+    };
+  }
+  
+  // WMCA area - continue to next step
+  const confirmText = getPhrase('LOCATION_DETECTED', session.isSupporter)?.text || 'Thanks, I\'ve found your location.';
+  const nextPhrase = getPhrase('B2_WHO_FOR', session.isSupporter);
+  
+  return {
+    text: `${confirmText}\n\n${nextPhrase?.text || ''}`,
+    options: nextPhrase?.options,
+    stateUpdates: { 
+      currentGate: 'B2_WHO_FOR',
+      localAuthority: la,
+      latitude: locationData.latitude || null,
+      longitude: locationData.longitude || null,
+      locationMethod,
+      jurisdiction
+    }
+  };
+}
+
+// Handle LOCATION_OUTSIDE_WMCA response
+export function processOutsideWMCAResponse(session: SessionState, choice: number): RoutingResult {
+  if (choice === 1) {
+    // Continue anyway
+    return {
+      ...phrase('B2_WHO_FOR', session.isSupporter),
+      stateUpdates: { currentGate: 'B2_WHO_FOR' }
+    };
+  } else {
+    // Let them select different area
+    return {
+      ...phrase('B1_LOCAL_AUTHORITY', session.isSupporter),
+      stateUpdates: { 
+        currentGate: 'B1_LOCAL_AUTHORITY', 
+        locationMethod: 'MANUAL',
+        localAuthority: null,
+        latitude: null,
+        longitude: null
+      }
+    };
   }
 }
