@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-// Types defined inline to avoid external dependency
+// Types defined inline
 interface QuickReply {
   label: string;
   value: string;
@@ -24,26 +24,16 @@ interface ChatWidgetProps {
 // LINKIFICATION COMPONENT
 // ============================================================
 
-/**
- * Renders text with clickable URLs and phone numbers
- * - URLs become links that open in new tab
- * - Phone numbers become tel: links (tap to call on mobile)
- */
 function LinkifiedText({ text }: { text: string }) {
-  // Combined regex for URLs and UK phone numbers
-  // URLs: https://... or http://...
-  // Phones: 0800 123 4567, 0808 800 4444, 116 123, 0300 500 0914, 020 3598 3898, etc.
   const combinedRegex = /(https?:\/\/[^\s<>"')\]]+)|(\b(?:116\s?123|0\d{2,4}[\s-]?\d{3,4}[\s-]?\d{3,4})\b)/g;
 
   const parts: React.ReactNode[] = [];
   let lastIndex = 0;
   let match;
 
-  // Reset regex state
   combinedRegex.lastIndex = 0;
 
   while ((match = combinedRegex.exec(text)) !== null) {
-    // Add text before the match
     if (match.index > lastIndex) {
       parts.push(
         <span key={`text-${lastIndex}`}>
@@ -56,7 +46,6 @@ function LinkifiedText({ text }: { text: string }) {
     const isUrl = match[1] !== undefined;
 
     if (isUrl) {
-      // URL link - opens in new tab
       parts.push(
         <a
           key={`url-${match.index}`}
@@ -69,7 +58,6 @@ function LinkifiedText({ text }: { text: string }) {
         </a>
       );
     } else {
-      // Phone number - tap to call
       const phoneDigits = matchedText.replace(/[\s-]/g, '');
       parts.push(
         <a
@@ -85,7 +73,6 @@ function LinkifiedText({ text }: { text: string }) {
     lastIndex = match.index + matchedText.length;
   }
 
-  // Add remaining text after last match
   if (lastIndex < text.length) {
     parts.push(
       <span key={`text-end-${lastIndex}`}>
@@ -94,13 +81,22 @@ function LinkifiedText({ text }: { text: string }) {
     );
   }
 
-  // If no matches found, return original text
   if (parts.length === 0) {
     return <>{text}</>;
   }
 
   return <>{parts}</>;
 }
+
+// ============================================================
+// CONVERSATION STARTERS
+// ============================================================
+
+const conversationStarters = [
+  { label: 'Advice and Guidance', value: '1' },
+  { label: 'Help connecting to support', value: '2' },
+  { label: 'Search for a specific organisation', value: '3' },
+];
 
 // ============================================================
 // CHAT WIDGET COMPONENT
@@ -112,6 +108,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [sessionEnded, setSessionEnded] = useState(false);
+  const [conversationStarted, setConversationStarted] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -120,30 +117,31 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Focus input when widget opens
+  // Focus input when conversation starts
   useEffect(() => {
-    if (isOpen && inputRef.current) {
+    if (isOpen && conversationStarted && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isOpen]);
+  }, [isOpen, conversationStarted]);
 
-  // Send initial greeting when widget first opens
-  useEffect(() => {
-    if (isOpen && messages.length === 0 && !sessionId) {
-      sendMessage('hi');
-    }
-  }, [isOpen]);
-
-  const sendMessage = async (text: string) => {
+  const sendMessage = async (text: string, isStarter: boolean = false) => {
     if (!text.trim() || isLoading || sessionEnded) return;
 
-    // Add user message to display
-    const userMessage: Message = {
-      role: 'user',
-      content: text,
-      timestamp: new Date().toISOString(),
-    };
-    setMessages(prev => [...prev, userMessage]);
+    // Mark conversation as started
+    if (!conversationStarted) {
+      setConversationStarted(true);
+    }
+
+    // Add user message to display (skip for initial starter)
+    if (!isStarter || conversationStarted) {
+      const userMessage: Message = {
+        role: 'user',
+        content: isStarter ? conversationStarters.find(s => s.value === text)?.label || text : text,
+        timestamp: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, userMessage]);
+    }
+    
     setInputValue('');
     setIsLoading(true);
 
@@ -163,12 +161,10 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
       const data = await response.json();
 
-      // Store session ID
       if (data.sessionId) {
         setSessionId(data.sessionId);
       }
 
-      // Add assistant message
       const assistantMessage: Message = {
         role: 'assistant',
         content: data.message,
@@ -177,7 +173,6 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       };
       setMessages(prev => [...prev, assistantMessage]);
 
-      // Handle session end
       if (data.sessionEnded) {
         setSessionEnded(true);
       }
@@ -204,12 +199,16 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     sendMessage(reply.value);
   };
 
+  const handleStarterClick = (starter: typeof conversationStarters[0]) => {
+    setConversationStarted(true);
+    sendMessage(starter.value, true);
+  };
+
   const handleRestart = () => {
     setMessages([]);
     setSessionId(null);
     setSessionEnded(false);
-    // Trigger new session
-    setTimeout(() => sendMessage('hi'), 100);
+    setConversationStarted(false);
   };
 
   if (!isOpen) return null;
@@ -222,7 +221,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
         <div className="flex items-center gap-2">
           <button
             onClick={handleRestart}
-            className="p-1 hover:bg-ss-accent rounded transition-colors"
+            className="p-1 hover:bg-white/20 rounded transition-colors"
             title="Start new conversation"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -231,7 +230,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
           </button>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-ss-accent rounded transition-colors"
+            className="p-1 hover:bg-white/20 rounded transition-colors"
             title="Close"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -241,63 +240,93 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-ss-bg chat-messages">
-        {messages.map((message, index) => (
-          <div key={index}>
-            <div
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div
-                className={`max-w-[85%] rounded-lg px-4 py-2 ${
-                  message.role === 'user'
-                    ? 'bg-ss-secondary text-white'
-                    : 'bg-white text-ss-text shadow-sm border border-gray-100'
-                }`}
-              >
-                {/* UPDATED: Use LinkifiedText for assistant messages */}
-                <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                  {message.role === 'assistant' ? (
-                    <LinkifiedText text={message.content} />
-                  ) : (
-                    message.content
-                  )}
-                </p>
-              </div>
-            </div>
-
-            {/* Quick Replies */}
-            {message.role === 'assistant' && message.quickReplies && message.quickReplies.length > 0 && index === messages.length - 1 && !sessionEnded && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {message.quickReplies.map((reply, replyIndex) => (
-                  <button
-                    key={replyIndex}
-                    onClick={() => handleQuickReply(reply)}
-                    disabled={isLoading}
-                    className="px-4 py-2 text-sm border border-gray-300 rounded-full bg-white text-ss-text hover:border-ss-accent hover:text-ss-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {reply.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-
-        {/* Typing Indicator */}
-        {isLoading && (
-          <div className="flex justify-start">
-            <div className="bg-white rounded-lg px-4 py-3 shadow-sm border border-gray-100">
-              <div className="flex gap-1">
-                <div className="w-2 h-2 bg-ss-primary rounded-full typing-dot"></div>
-                <div className="w-2 h-2 bg-ss-primary rounded-full typing-dot"></div>
-                <div className="w-2 h-2 bg-ss-primary rounded-full typing-dot"></div>
-              </div>
+      {/* Main Content Area */}
+      <div 
+        className="flex-1 overflow-y-auto p-4 chat-messages"
+        style={{
+          background: 'linear-gradient(180deg, #ffffff 0%, #f0f7f4 100%)'
+        }}
+      >
+        {/* Welcome Screen - shown before conversation starts */}
+        {!conversationStarted && (
+          <div className="flex flex-col items-center justify-center h-full px-4">
+            <h1 className="text-2xl font-semibold text-ss-text text-center mb-8 leading-relaxed">
+              Hello, I'm Street Support Network's assistant! How can I help you today?
+            </h1>
+            
+            <div className="flex flex-col gap-3 w-full max-w-xs">
+              {conversationStarters.map((starter, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleStarterClick(starter)}
+                  className="px-5 py-3 text-sm border border-gray-300 rounded-full bg-white text-ss-text hover:border-ss-accent hover:text-ss-accent transition-colors text-left"
+                >
+                  {starter.label}
+                </button>
+              ))}
             </div>
           </div>
         )}
 
-        <div ref={messagesEndRef} />
+        {/* Messages - shown after conversation starts */}
+        {conversationStarted && (
+          <div className="space-y-4">
+            {messages.map((message, index) => (
+              <div key={index}>
+                <div
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-[85%] rounded-lg px-4 py-2 ${
+                      message.role === 'user'
+                        ? 'bg-ss-secondary text-white'
+                        : 'bg-white text-ss-text shadow-sm border border-gray-100'
+                    }`}
+                  >
+                    <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                      {message.role === 'assistant' ? (
+                        <LinkifiedText text={message.content} />
+                      ) : (
+                        message.content
+                      )}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Quick Replies */}
+                {message.role === 'assistant' && message.quickReplies && message.quickReplies.length > 0 && index === messages.length - 1 && !sessionEnded && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {message.quickReplies.map((reply, replyIndex) => (
+                      <button
+                        key={replyIndex}
+                        onClick={() => handleQuickReply(reply)}
+                        disabled={isLoading}
+                        className="px-4 py-2 text-sm border border-gray-300 rounded-full bg-white text-ss-text hover:border-ss-accent hover:text-ss-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {reply.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {/* Typing Indicator */}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-white rounded-lg px-4 py-3 shadow-sm border border-gray-100">
+                  <div className="flex gap-1">
+                    <div className="w-2 h-2 bg-ss-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-2 h-2 bg-ss-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-2 h-2 bg-ss-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div ref={messagesEndRef} />
+          </div>
+        )}
       </div>
 
       {/* Session Ended Notice */}
@@ -315,29 +344,31 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
         </div>
       )}
 
-      {/* Input */}
-      <form onSubmit={handleSubmit} className="p-3 bg-white border-t border-gray-200 flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <input
-            ref={inputRef}
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder={sessionEnded ? 'Conversation ended' : 'Type something...'}
-            disabled={isLoading || sessionEnded}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-ss-accent focus:ring-1 focus:ring-ss-accent disabled:bg-gray-50 disabled:text-gray-400"
-          />
-          <button
-            type="submit"
-            disabled={!inputValue.trim() || isLoading || sessionEnded}
-            className="p-2 text-ss-accent hover:text-ss-primary disabled:text-gray-300 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-            </svg>
-          </button>
-        </div>
-      </form>
+      {/* Input - only show after conversation starts */}
+      {conversationStarted && (
+        <form onSubmit={handleSubmit} className="p-3 bg-white border-t border-gray-200 flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <input
+              ref={inputRef}
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder={sessionEnded ? 'Conversation ended' : 'Type something...'}
+              disabled={isLoading || sessionEnded}
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-ss-accent focus:ring-1 focus:ring-ss-accent disabled:bg-gray-50 disabled:text-gray-400"
+            />
+            <button
+              type="submit"
+              disabled={!inputValue.trim() || isLoading || sessionEnded}
+              className="p-2 text-ss-accent hover:text-ss-primary disabled:text-gray-300 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
+            </button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }
