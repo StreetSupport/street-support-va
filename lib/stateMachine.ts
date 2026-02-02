@@ -1495,6 +1495,7 @@ interface LocationData {
   latitude?: number;
   longitude?: number;
   isWMCA?: boolean;
+  isInWMCA?: boolean; // Also accept this variant
   isScotland?: boolean;
   error?: string;
 }
@@ -1522,8 +1523,10 @@ export function processLocationInput(session: SessionState, locationData: Locati
   const jurisdiction: 'ENGLAND' | 'SCOTLAND' = locationData.isScotland ? 'SCOTLAND' : 'ENGLAND';
   const locationMethod = session.currentGate === 'LOCATION_POSTCODE' ? 'POSTCODE' : 'GEOLOCATION';
   
-  // Check if outside WMCA area
-  if (!locationData.isWMCA) {
+  // Check if outside WMCA area - accept both property names
+  const inWMCA = locationData.isWMCA ?? locationData.isInWMCA ?? false;
+  
+  if (!inWMCA) {
     // Store the detected LA but show notice about limited coverage
     return {
       ...phrase('LOCATION_OUTSIDE_WMCA', session.isSupporter),
