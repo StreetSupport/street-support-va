@@ -331,6 +331,7 @@ function parseServiceContent(text: string): ParsedContent {
       !trimmed.startsWith('http') && 
       !trimmed.startsWith('0') && 
       !trimmed.includes('(free') &&
+      // Exclude description-like patterns
       !trimmed.toLowerCase().startsWith('they ') &&
       !trimmed.toLowerCase().startsWith('this ') &&
       !trimmed.toLowerCase().startsWith('if ') &&
@@ -339,6 +340,18 @@ function parseServiceContent(text: string): ParsedContent {
       !trimmed.toLowerCase().startsWith('let ') &&
       !trimmed.toLowerCase().startsWith('ask ') &&
       !trimmed.toLowerCase().startsWith('drop-in') &&
+      !trimmed.toLowerCase().startsWith('specialist ') &&
+      !trimmed.toLowerCase().startsWith('support for') &&
+      !trimmed.toLowerCase().startsWith('for ') &&
+      !trimmed.toLowerCase().startsWith('24/') &&
+      !trimmed.toLowerCase().startsWith('24 hour') &&
+      !trimmed.toLowerCase().startsWith('expert') &&
+      !trimmed.toLowerCase().startsWith('free ') &&
+      !trimmed.toLowerCase().startsWith('information') &&
+      !trimmed.toLowerCase().startsWith('you can') &&
+      !trimmed.toLowerCase().startsWith('young people') &&
+      !trimmed.toLowerCase().startsWith('once you') &&
+      !trimmed.toLowerCase().startsWith('out of hours') &&
       trimmed.length < 80 &&
       (trimmed.includes('Council') || 
        trimmed.includes('Shelter') || 
