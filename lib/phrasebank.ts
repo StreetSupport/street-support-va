@@ -208,22 +208,6 @@ Support with Benefits and Grants | Turn2us - https://www.turn2us.org.uk/`
     text: `Thanks, I've found their location.`
   },
 
-  LOCATION_CONFIRM: {
-    text: `I've detected that you're in [LOCAL_AUTHORITY]. Is this where you need help, or would you like to select a different area?
-
-1. Yes, that's correct
-2. I need help in a different area`,
-    options: ["Yes, that's correct", "I need help in a different area"]
-  },
-
-  LOCATION_CONFIRM__SUPPORTER: {
-    text: `I've detected that they're in [LOCAL_AUTHORITY]. Is this where they need help, or would you like to select a different area?
-
-1. Yes, that's correct
-2. They need help in a different area`,
-    options: ["Yes, that's correct", "They need help in a different area"]
-  },
-
   LOCATION_OUTSIDE_WMCA: {
     text: `It looks like you're outside the West Midlands Combined Authority area. I can still help, but some local service information may be limited. Would you like to continue?
 
@@ -348,6 +332,145 @@ Support with Benefits and Grants | Turn2us - https://www.turn2us.org.uk/`
 11. Training
 12. Activities`,
     options: ["Emergency Housing or Other Accommodation", "Food", "Work", "Health Services", "Advice Services", "Drop In", "Financial Help", "Personal Items", "Personal Services", "Communications", "Training", "Activities"]
+  },
+
+  // ============================================================
+  // CATEGORY-SPECIFIC PROFILING GATES
+  // Asked based on which support need was selected
+  // ============================================================
+
+  // AGE - Asked for: Health, Work, Training, Activities, Drop In
+  B5_PROFILE_AGE: {
+    text: `To help find the most relevant services, which age group are you in?
+
+1. Under 18
+2. 18-24
+3. 25 or over`,
+    options: ["Under 18", "18-24", "25 or over"]
+  },
+
+  B5_PROFILE_AGE__SUPPORTER: {
+    text: `To help find the most relevant services, which age group are they in?
+
+1. Under 18
+2. 18-24
+3. 25 or over`,
+    options: ["Under 18", "18-24", "25 or over"]
+  },
+
+  // GENDER - Asked for: Health, Activities, Drop In
+  B5_PROFILE_GENDER: {
+    text: `And which best describes you?
+
+1. Male
+2. Female
+3. Non-binary or other
+4. Prefer not to say`,
+    options: ["Male", "Female", "Non-binary or other", "Prefer not to say"]
+  },
+
+  B5_PROFILE_GENDER__SUPPORTER: {
+    text: `And which best describes them?
+
+1. Male
+2. Female
+3. Non-binary or other
+4. Prefer not to say`,
+    options: ["Male", "Female", "Non-binary or other", "Prefer not to say"]
+  },
+
+  // LGBTQ - Asked for: Health (inclusive services, sexual health, gender identity)
+  B5_PROFILE_LGBTQ: {
+    text: `Do you identify as LGBTQ+?
+
+Some health services specialise in supporting LGBTQ+ people, so this helps us show you the most relevant options.
+
+1. Yes
+2. No
+3. Prefer not to say`,
+    options: ["Yes", "No", "Prefer not to say"]
+  },
+
+  B5_PROFILE_LGBTQ__SUPPORTER: {
+    text: `Do they identify as LGBTQ+?
+
+Some health services specialise in supporting LGBTQ+ people, so this helps us show the most relevant options.
+
+1. Yes
+2. No
+3. Prefer not to say`,
+    options: ["Yes", "No", "Prefer not to say"]
+  },
+
+  // CRIMINAL CONVICTIONS - Asked for: Work (ex-offender employment programs)
+  B5_PROFILE_CONVICTIONS: {
+    text: `Do you have any criminal convictions?
+
+Some employment services specialise in supporting people with convictions. This is optional and helps us show relevant support.
+
+1. Yes
+2. No
+3. Prefer not to say`,
+    options: ["Yes", "No", "Prefer not to say"]
+  },
+
+  B5_PROFILE_CONVICTIONS__SUPPORTER: {
+    text: `Do they have any criminal convictions?
+
+Some employment services specialise in supporting people with convictions. This is optional and helps us show relevant support.
+
+1. Yes
+2. No
+3. Prefer not to say`,
+    options: ["Yes", "No", "Prefer not to say"]
+  },
+
+  // NRPF / PUBLIC FUNDS - Asked for: Work, Financial (benefits eligibility, right to work)
+  B5_PROFILE_NRPF: {
+    text: `Do you have access to public funds and benefits?
+
+This includes things like Universal Credit, Housing Benefit and other government support. Some people have restrictions on what they can access.
+
+1. Yes, I can access benefits
+2. No, I have no recourse to public funds
+3. Not sure
+4. Prefer not to say`,
+    options: ["Yes, I can access benefits", "No, I have no recourse to public funds", "Not sure", "Prefer not to say"]
+  },
+
+  B5_PROFILE_NRPF__SUPPORTER: {
+    text: `Do they have access to public funds and benefits?
+
+This includes things like Universal Credit, Housing Benefit and other government support. Some people have restrictions on what they can access.
+
+1. Yes, they can access benefits
+2. No, they have no recourse to public funds
+3. Not sure
+4. Prefer not to say`,
+    options: ["Yes, they can access benefits", "No, they have no recourse to public funds", "Not sure", "Prefer not to say"]
+  },
+
+  // CHILDREN - Asked for: Financial (family support, child benefit)
+  B5_PROFILE_CHILDREN: {
+    text: `Do you have any children or dependents?
+
+This helps us show family-focused financial support if relevant.
+
+1. Yes
+2. No
+3. Prefer not to say`,
+    options: ["Yes", "No", "Prefer not to say"]
+  },
+
+  B5_PROFILE_CHILDREN__SUPPORTER: {
+    text: `Do they have any children or dependents?
+
+This helps us show family-focused financial support if relevant.
+
+1. Yes
+2. No
+3. Prefer not to say`,
+    options: ["Yes", "No", "Prefer not to say"]
   },
 
   B6_HOMELESSNESS_STATUS: {
@@ -1205,706 +1328,251 @@ Once they are safe, I can help you find support services for them.`
   },
 
   DV_FEMALE_CHILDREN_YES: {
-    text: `I'm really sorry this is happening. You deserve support, and you don't have to face this alone.
+    text: `I'm really sorry this is happening. You deserve support, and these services are here to help. They can talk through your options, help with safety planning, and connect you with emergency housing if needed. Everything is confidential.
 
-These services can talk through your options, help with safety planning, and connect you with emergency housing if needed. Everything is confidential.
-
-SPECIALIST HELPLINE
 National Domestic Violence Helpline
 0808 2000 247 (24/7, free, confidential)
 https://nationaldahelpline.org.uk
-They can help you make a safety plan and explore your housing options
 
-LOCAL COUNCIL
-Your local council's housing team
-https://www.gov.uk/find-local-council
-You can approach any council for help - you don't need to return to the area where the abuse happened. Because you're fleeing domestic abuse with children, you may be considered "priority need" which can open up more housing options.
-
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain your housing rights and help you understand your options
-
----
-Please reach out when you feel ready. I'll be here if you need help finding other services later.`
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   DV_FEMALE_CHILDREN_YES__SUPPORTER: {
-    text: `I'm really sorry this is happening to them. They deserve support, and they don't have to face this alone.
+    text: `I'm really sorry this is happening to them. They deserve support, and these services are here to help. They can talk through options, help with safety planning, and connect them with emergency housing if needed. Everything is confidential.
 
-These services can talk through their options, help with safety planning, and connect them with emergency housing if needed. Everything is confidential.
-
-SPECIALIST HELPLINE
 National Domestic Violence Helpline
 0808 2000 247 (24/7, free, confidential)
 https://nationaldahelpline.org.uk
-They can help make a safety plan and explore housing options
 
-LOCAL COUNCIL
-Local council housing team
-https://www.gov.uk/find-local-council
-They can approach any council for help - they don't need to return to the area where the abuse happened. Because they're fleeing domestic abuse with children, they may be considered "priority need" which can open up more housing options.
-
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain housing rights and help understand the options available
-
----
-Please encourage them to reach out when they feel ready. I'll be here if you need help finding other services later.`
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   DV_FEMALE_CHILDREN_NO: {
-    text: `I'm really sorry this is happening. You deserve support, and you don't have to face this alone.
+    text: `I'm really sorry this is happening. You deserve support, and these services are here to help. They can talk through your options, help with safety planning, and connect you with emergency housing if needed. Everything is confidential.
 
-These services can talk through your options, help with safety planning, and connect you with housing if needed. Everything is confidential.
-
-SPECIALIST HELPLINE
 National Domestic Violence Helpline
 0808 2000 247 (24/7, free, confidential)
 https://nationaldahelpline.org.uk
-They can help you make a safety plan and explore your housing options
 
-LOCAL COUNCIL
-Your local council's housing team
-https://www.gov.uk/find-local-council
-You can approach any council for help - you don't need to return to the area where the abuse happened. Because you're fleeing domestic abuse, you may be able to access additional housing support.
-
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain your housing rights and help you understand your options
-
----
-Please reach out when you feel ready. I'll be here if you need help finding other services later.`
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   DV_FEMALE_CHILDREN_NO__SUPPORTER: {
-    text: `I'm really sorry this is happening to them. They deserve support, and they don't have to face this alone.
+    text: `I'm really sorry this is happening to them. They deserve support, and these services are here to help. They can talk through options, help with safety planning, and connect them with emergency housing if needed. Everything is confidential.
 
-These services can talk through their options, help with safety planning, and connect them with housing if needed. Everything is confidential.
-
-SPECIALIST HELPLINE
 National Domestic Violence Helpline
 0808 2000 247 (24/7, free, confidential)
 https://nationaldahelpline.org.uk
-They can help make a safety plan and explore housing options
 
-LOCAL COUNCIL
-Local council housing team
-https://www.gov.uk/find-local-council
-They can approach any council for help - they don't need to return to the area where the abuse happened. Because they're fleeing domestic abuse, they may be able to access additional housing support.
-
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain housing rights and help understand the options available
-
----
-Please encourage them to reach out when they feel ready. I'll be here if you need help finding other services later.`
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   DV_MALE_CHILDREN_YES: {
-    text: `I'm really sorry this is happening. You deserve support, and you don't have to face this alone.
+    text: `I'm really sorry this is happening. You deserve support, and these services are here to help. They can talk through your options, help with safety planning, and connect you with emergency housing if needed. Everything is confidential.
 
-These services can talk through your options, help with safety planning, and connect you with emergency housing if needed. Everything is confidential.
-
-SPECIALIST HELPLINE
 ManKind Initiative
-0808 800 1170 (free, confidential)
+0808 800 1170
 https://mankind.org.uk
-Specialist support for men experiencing domestic abuse
-
-LOCAL COUNCIL
-Your local council's housing team
-https://www.gov.uk/find-local-council
-You can approach any council for help - you don't need to return to the area where the abuse happened. Because you're fleeing domestic abuse with children, you may be considered "priority need" which can open up more housing options.
-
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain your housing rights and help you understand your options
-
----
-Please reach out when you feel ready. I'll be here if you need help finding other services later.`
+Confidential support for men affected by domestic violence`
   },
 
   DV_MALE_CHILDREN_YES__SUPPORTER: {
-    text: `I'm really sorry this is happening to them. They deserve support, and they don't have to face this alone.
+    text: `I'm really sorry this is happening to them. They deserve support, and these services are here to help. They can talk through options, help with safety planning, and connect them with emergency housing if needed. Everything is confidential.
 
-These services can talk through their options, help with safety planning, and connect them with emergency housing if needed. Everything is confidential.
-
-SPECIALIST HELPLINE
 ManKind Initiative
-0808 800 1170 (free, confidential)
+0808 800 1170
 https://mankind.org.uk
-Specialist support for men experiencing domestic abuse
-
-LOCAL COUNCIL
-Local council housing team
-https://www.gov.uk/find-local-council
-They can approach any council for help - they don't need to return to the area where the abuse happened. Because they're fleeing domestic abuse with children, they may be considered "priority need" which can open up more housing options.
-
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain housing rights and help understand the options available
-
----
-Please encourage them to reach out when they feel ready. I'll be here if you need help finding other services later.`
+Confidential support for men affected by domestic violence`
   },
 
   DV_MALE_CHILDREN_NO: {
-    text: `I'm really sorry this is happening. You deserve support, and you don't have to face this alone.
+    text: `I'm really sorry this is happening. You need support from people who can help right now.
 
-These services can talk through your options, help with safety planning, and connect you with housing if needed. Everything is confidential.
-
-SPECIALIST HELPLINE
 ManKind Initiative
-0808 800 1170 (free, confidential)
-https://mankind.org.uk
-Specialist support for men experiencing domestic abuse
-
-LOCAL COUNCIL
-Your local council's housing team
-https://www.gov.uk/find-local-council
-You can approach any council for help - you don't need to return to the area where the abuse happened. Because you're fleeing domestic abuse, you may be able to access additional housing support.
-
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain your housing rights and help you understand your options
-
----
-Please reach out when you feel ready. I'll be here if you need help finding other services later.`
+0808 800 1170
+https://mankind.org.uk`
   },
 
   DV_MALE_CHILDREN_NO__SUPPORTER: {
-    text: `I'm really sorry this is happening to them. They deserve support, and they don't have to face this alone.
+    text: `I'm really sorry this is happening to them. They need support from people who can help right now.
 
-These services can talk through their options, help with safety planning, and connect them with housing if needed. Everything is confidential.
-
-SPECIALIST HELPLINE
 ManKind Initiative
-0808 800 1170 (free, confidential)
-https://mankind.org.uk
-Specialist support for men experiencing domestic abuse
-
-LOCAL COUNCIL
-Local council housing team
-https://www.gov.uk/find-local-council
-They can approach any council for help - they don't need to return to the area where the abuse happened. Because they're fleeing domestic abuse, they may be able to access additional housing support.
-
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain housing rights and help understand the options available
-
----
-Please encourage them to reach out when they feel ready. I'll be here if you need help finding other services later.`
+0808 800 1170
+https://mankind.org.uk`
   },
 
   DV_LGBTQ_CHILDREN_YES: {
-    text: `I'm really sorry this is happening. You deserve support, and you don't have to face this alone.
+    text: `I'm really sorry this is happening. You need support from people who can help right now.
 
-These services understand the unique challenges LGBTQ+ people face and can talk through your options, help with safety planning, and connect you with emergency housing if needed. Everything is confidential.
-
-SPECIALIST HELPLINE
 Galop
-0800 999 5428 (free, confidential)
+0800 999 5428
 https://galop.org.uk
-Specialist support for LGBTQ+ people affected by abuse or violence
-
-LOCAL COUNCIL
-Your local council's housing team
-https://www.gov.uk/find-local-council
-You can approach any council for help - you don't need to return to the area where the abuse happened. Because you're fleeing domestic abuse with children, you may be considered "priority need" which can open up more housing options.
-
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain your housing rights and help you understand your options
-
----
-Please reach out when you feel ready. I'll be here if you need help finding other services later.`
+National helpline for LGBTQ+ people affected by abuse or violence`
   },
 
   DV_LGBTQ_CHILDREN_YES__SUPPORTER: {
-    text: `I'm really sorry this is happening to them. They deserve support, and they don't have to face this alone.
+    text: `I'm really sorry this is happening to them. They need support from people who can help right now.
 
-These services understand the unique challenges LGBTQ+ people face and can talk through their options, help with safety planning, and connect them with emergency housing if needed. Everything is confidential.
-
-SPECIALIST HELPLINE
 Galop
-0800 999 5428 (free, confidential)
+0800 999 5428
 https://galop.org.uk
-Specialist support for LGBTQ+ people affected by abuse or violence
-
-LOCAL COUNCIL
-Local council housing team
-https://www.gov.uk/find-local-council
-They can approach any council for help - they don't need to return to the area where the abuse happened. Because they're fleeing domestic abuse with children, they may be considered "priority need" which can open up more housing options.
-
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain housing rights and help understand the options available
-
----
-Please encourage them to reach out when they feel ready. I'll be here if you need help finding other services later.`
+National helpline for LGBTQ+ people affected by abuse or violence`
   },
 
   DV_LGBTQ_CHILDREN_NO: {
-    text: `I'm really sorry this is happening. You deserve support, and you don't have to face this alone.
+    text: `I'm really sorry this is happening. You need support from people who can help right now.
 
-These services understand the unique challenges LGBTQ+ people face and can talk through your options, help with safety planning, and connect you with housing if needed. Everything is confidential.
-
-SPECIALIST HELPLINE
 Galop
-0800 999 5428 (free, confidential)
-https://galop.org.uk
-Specialist support for LGBTQ+ people affected by abuse or violence
-
-LOCAL COUNCIL
-Your local council's housing team
-https://www.gov.uk/find-local-council
-You can approach any council for help - you don't need to return to the area where the abuse happened. Because you're fleeing domestic abuse, you may be able to access additional housing support.
-
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain your housing rights and help you understand your options
-
----
-Please reach out when you feel ready. I'll be here if you need help finding other services later.`
+0800 999 5428
+https://galop.org.uk`
   },
 
   DV_LGBTQ_CHILDREN_NO__SUPPORTER: {
-    text: `I'm really sorry this is happening to them. They deserve support, and they don't have to face this alone.
+    text: `I'm really sorry this is happening to them. They need support from people who can help right now.
 
-These services understand the unique challenges LGBTQ+ people face and can talk through their options, help with safety planning, and connect them with housing if needed. Everything is confidential.
-
-SPECIALIST HELPLINE
 Galop
-0800 999 5428 (free, confidential)
-https://galop.org.uk
-Specialist support for LGBTQ+ people affected by abuse or violence
-
-LOCAL COUNCIL
-Local council housing team
-https://www.gov.uk/find-local-council
-They can approach any council for help - they don't need to return to the area where the abuse happened. Because they're fleeing domestic abuse, they may be able to access additional housing support.
-
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain housing rights and help understand the options available
-
----
-Please encourage them to reach out when they feel ready. I'll be here if you need help finding other services later.`
+0800 999 5428
+https://galop.org.uk`
   },
 
   SA_FEMALE_16PLUS: {
-    text: `I'm really sorry this has happened. You deserve support, and you don't have to face this alone.
+    text: `I'm really sorry this has happened. You need support from people who can help right now.
 
-These services offer confidential support and can help you understand your options.
-
-SPECIALIST HELPLINE
 Rape Crisis England & Wales
-0808 500 2222 (free, confidential, 24/7)
-https://rapecrisis.org.uk
-Specialist support for women and girls who have experienced sexual violence
-
-LOCAL COUNCIL
-Your local council's housing team
-https://www.gov.uk/find-local-council
-If you need somewhere safe to stay, your local council may be able to help. You may be considered "priority need" which can open up additional housing support.
-
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain your housing rights and help you understand your options
-
----
-Please reach out when you feel ready. I'll be here if you need help finding other services later.`
+0808 500 2222 (Free, confidential, 24/7)
+https://rapecrisis.org.uk`
   },
 
   SA_FEMALE_16PLUS__SUPPORTER: {
-    text: `I'm really sorry this has happened to them. They deserve support, and they don't have to face this alone.
+    text: `I'm really sorry this has happened to them. They need support from people who can help right now.
 
-These services offer confidential support and can help them understand their options.
-
-SPECIALIST HELPLINE
 Rape Crisis England & Wales
-0808 500 2222 (free, confidential, 24/7)
-https://rapecrisis.org.uk
-Specialist support for women and girls who have experienced sexual violence
-
-LOCAL COUNCIL
-Local council housing team
-https://www.gov.uk/find-local-council
-If they need somewhere safe to stay, the local council may be able to help. They may be considered "priority need" which can open up additional housing support.
-
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain housing rights and help understand the options available
-
----
-Please encourage them to reach out when they feel ready. I'll be here if you need help finding other services later.`
+0808 500 2222 (Free, confidential, 24/7)
+https://rapecrisis.org.uk`
   },
 
   SA_MALE_16PLUS: {
-    text: `I'm really sorry this has happened. You deserve support, and you don't have to face this alone.
+    text: `I'm really sorry this has happened. You need support from people who can help right now.
 
-These services offer confidential support and can help you understand your options.
-
-SPECIALIST HELPLINE
 SurvivorsUK
 020 3598 3898
 https://survivorsuk.org
-Specialist, confidential support for men and boys
-
-LOCAL COUNCIL
-Your local council's housing team
-https://www.gov.uk/find-local-council
-If you need somewhere safe to stay, your local council may be able to help. You may be considered "priority need" which can open up additional housing support.
-
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain your housing rights and help you understand your options
-
----
-Please reach out when you feel ready. I'll be here if you need help finding other services later.`
+Specialist, confidential support for men and boys aged 16 and over`
   },
 
   SA_MALE_16PLUS__SUPPORTER: {
-    text: `I'm really sorry this has happened to them. They deserve support, and they don't have to face this alone.
+    text: `I'm really sorry this has happened to them. They need support from people who can help right now.
 
-These services offer confidential support and can help them understand their options.
-
-SPECIALIST HELPLINE
 SurvivorsUK
 020 3598 3898
 https://survivorsuk.org
-Specialist, confidential support for men and boys
-
-LOCAL COUNCIL
-Local council housing team
-https://www.gov.uk/find-local-council
-If they need somewhere safe to stay, the local council may be able to help. They may be considered "priority need" which can open up additional housing support.
-
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain housing rights and help understand the options available
-
----
-Please encourage them to reach out when they feel ready. I'll be here if you need help finding other services later.`
+Specialist, confidential support for men and boys aged 16 and over`
   },
 
   SA_LGBTQ_OR_NONBINARY: {
-    text: `I'm really sorry this has happened. You deserve support, and you don't have to face this alone.
+    text: `I'm really sorry this has happened. You need support from people who can help right now.
 
-These services offer confidential support and can help you understand your options.
-
-SPECIALIST HELPLINE
-Galop
-0800 999 5428 (free, confidential)
-https://galop.org.uk
-Specialist support for LGBTQ+ people
-
-SPECIALIST HELPLINE
 SurvivorsUK
 020 3598 3898
 https://survivorsuk.org
-Support for all genders
 
-LOCAL COUNCIL
-Your local council's housing team
-https://www.gov.uk/find-local-council
-If you need somewhere safe to stay, your local council may be able to help. You may be considered "priority need" which can open up additional housing support.
-
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain your housing rights and help you understand your options
-
----
-Please reach out when you feel ready. I'll be here if you need help finding other services later.`
+Galop
+0800 999 5428
+https://galop.org.uk`
   },
 
   SA_LGBTQ_OR_NONBINARY__SUPPORTER: {
-    text: `I'm really sorry this has happened to them. They deserve support, and they don't have to face this alone.
+    text: `I'm really sorry this has happened to them. They need support from people who can help right now.
 
-These services offer confidential support and can help them understand their options.
-
-SPECIALIST HELPLINE
-Galop
-0800 999 5428 (free, confidential)
-https://galop.org.uk
-Specialist support for LGBTQ+ people
-
-SPECIALIST HELPLINE
 SurvivorsUK
 020 3598 3898
 https://survivorsuk.org
-Support for all genders
 
-LOCAL COUNCIL
-Local council housing team
-https://www.gov.uk/find-local-council
-If they need somewhere safe to stay, the local council may be able to help. They may be considered "priority need" which can open up additional housing support.
-
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free)
-https://england.shelter.org.uk/housing_advice/homelessness/help_if_youre_homeless_because_of_domestic_abuse
-They can explain housing rights and help understand the options available
-
----
-Please encourage them to reach out when they feel ready. I'll be here if you need help finding other services later.`
+Galop
+0800 999 5428
+https://galop.org.uk`
   },
-
-  // ============================================================
-  // CRISIS LOCATION GATES
-  // ============================================================
-
-  CRISIS_UNDER16_LOCATION: {
-    text: `To help find the right local services for you, which area are you in?
-
-1. Wolverhampton
-2. Birmingham
-3. Coventry
-4. Dudley
-5. Sandwell
-6. Solihull
-7. Walsall
-8. Somewhere else
-9. I'd prefer not to say`,
-    options: ['Wolverhampton', 'Birmingham', 'Coventry', 'Dudley', 'Sandwell', 'Solihull', 'Walsall', 'Somewhere else', "I'd prefer not to say"]
-  },
-
-  CRISIS_UNDER16_LOCATION__SUPPORTER: {
-    text: `To help find the right local services for them, which area are they in?
-
-1. Wolverhampton
-2. Birmingham
-3. Coventry
-4. Dudley
-5. Sandwell
-6. Solihull
-7. Walsall
-8. Somewhere else
-9. I'd prefer not to say`,
-    options: ['Wolverhampton', 'Birmingham', 'Coventry', 'Dudley', 'Sandwell', 'Solihull', 'Walsall', 'Somewhere else', "I'd prefer not to say"]
-  },
-
-  CRISIS_FIRE_FLOOD_LOCATION: {
-    text: `To help find the right local services for you, which area are you in?
-
-1. Wolverhampton
-2. Birmingham
-3. Coventry
-4. Dudley
-5. Sandwell
-6. Solihull
-7. Walsall
-8. Somewhere else
-9. I'd prefer not to say`,
-    options: ['Wolverhampton', 'Birmingham', 'Coventry', 'Dudley', 'Sandwell', 'Solihull', 'Walsall', 'Somewhere else', "I'd prefer not to say"]
-  },
-
-  CRISIS_FIRE_FLOOD_LOCATION__SUPPORTER: {
-    text: `To help find the right local services for them, which area are they in?
-
-1. Wolverhampton
-2. Birmingham
-3. Coventry
-4. Dudley
-5. Sandwell
-6. Solihull
-7. Walsall
-8. Somewhere else
-9. I'd prefer not to say`,
-    options: ['Wolverhampton', 'Birmingham', 'Coventry', 'Dudley', 'Sandwell', 'Solihull', 'Walsall', 'Somewhere else', "I'd prefer not to say"]
-  },
-
-  // ============================================================
-  // SELF-HARM EXIT (now built dynamically in stateMachine)
-  // ============================================================
 
   SELF_HARM_EXIT: {
-    text: `You deserve support with this, and you don't have to go through it alone.
+    text: `You deserve support with this, and you do not have to go through it alone.
 
-MENTAL HEALTH SUPPORT
-Samaritans
-116 123 (24 hours, free)
-https://www.samaritans.org
-They're there to listen, any time of day or night - no judgement, no pressure
+Samaritans: 116 123 (24 hours, free)
+https://samaritans.org
 
-MENTAL HEALTH SUPPORT
-NHS Mental Health Helpline
-Call 111, choose option 2
-https://www.nhs.uk/mental-health/
-24/7 mental health crisis support
+NHS Mental Health Helpline: call 111 and choose option 2
 
-MENTAL HEALTH SUPPORT
-Mind
-0300 123 3393 (Mon-Fri 9am-6pm)
-https://www.mind.org.uk/information-support/helplines/
-Information and support for mental health
-
----
-Please reach out when you feel able to. I'll be here if you need help finding other services later. Take care of yourself.
-
-If you are in immediate danger, call 999 or go to A&E.`
+If you are in immediate danger, call 999 or go to A and E.`
   },
 
   SELF_HARM_EXIT__SUPPORTER: {
-    text: `They deserve support with this, and they don't have to go through it alone.
+    text: `They deserve support with this, and they do not have to go through it alone.
 
-MENTAL HEALTH SUPPORT
-Samaritans
-116 123 (24 hours, free)
-https://www.samaritans.org
-They're there to listen, any time of day or night - no judgement, no pressure
+You can encourage them to contact:
 
-MENTAL HEALTH SUPPORT
-NHS Mental Health Helpline
-Call 111, choose option 2
-https://www.nhs.uk/mental-health/
-24/7 mental health crisis support
+Samaritans: 116 123 (24 hours, free)
+https://samaritans.org
 
-MENTAL HEALTH SUPPORT
-Mind
-0300 123 3393 (Mon-Fri 9am-6pm)
-https://www.mind.org.uk/information-support/helplines/
-Information and support for mental health
+NHS Mental Health Helpline: call 111 and choose option 2
 
----
-Please encourage them to reach out when they feel able to. I'll be here if you need help finding other services later.
-
-If they are in immediate danger, call 999 or go to A&E.`
+If they are in immediate danger, call 999 or go to A and E.`
   },
 
   UNDER_16_EXIT: {
-    text: `Thank you for reaching out. Because you are under 16, there are specific services designed to help keep you safe. It takes courage to ask for help, and you've done the right thing.
+    text: `Thank you for reaching out. Because you are under 16, there are specific services designed to help keep you safe.
 
-SPECIALIST HELPLINE
-Childline
-0800 1111 (free, confidential, 24/7)
-https://www.childline.org.uk
-You can call or chat online about anything - no problem is too big or small
+The best next step is to contact your local Children's Services team.
 
-CHILDREN'S SERVICES
-Local council Children's Services
-https://www.gov.uk/find-local-council
-They can talk through what's happening and help work out the best support
-
----
-Please reach out when you feel ready. I'll be here if you need help finding other services later.
+Childline: 0800 1111 (free and confidential)
 
 If you are in immediate danger, call 999.`
   },
 
   UNDER_16_EXIT__SUPPORTER: {
-    text: `Thank you for reaching out. Because they are under 16, there are specific services designed to help keep them safe. It's really good that you're looking for support for them.
+    text: `Thank you for reaching out. Because they are under 16, there are specific services designed to help keep them safe.
 
-SPECIALIST HELPLINE
-Childline
-0800 1111 (free, confidential, 24/7)
-https://www.childline.org.uk
-Young people can call or chat online about anything - no problem is too big or small
+The best next step is to contact the local Children's Services team.
 
-SPECIALIST HELPLINE
-NSPCC Helpline (for adults)
-0808 800 5000 (free, 24/7)
-https://www.nspcc.org.uk/keeping-children-safe/reporting-abuse/
-If you're worried about a child, they can advise on what to do next
-
-CHILDREN'S SERVICES
-Local council Children's Services
-https://www.gov.uk/find-local-council
-They can talk through what's happening and help work out the best support
-
----
-Please reach out when you feel ready. I'll be here if you need help finding other services later.
+Childline: 0800 1111 (free and confidential, for young people)
+NSPCC: 0808 800 5000 (for adults concerned about a child)
 
 If they are in immediate danger, call 999.`
   },
 
   FIRE_FLOOD_EXIT: {
-    text: `Losing your home due to fire, flood, or another emergency is frightening. You deserve support, and help is available.
+    text: `Losing your home due to fire, flood, or another emergency is frightening, and it makes sense to want urgent help.
 
-LOCAL COUNCIL
-Local council Housing Options team
-https://www.gov.uk/find-local-council
-Contact them as soon as you can - they assess emergency situations urgently
+Local councils assess emergency housing situations urgently.
 
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
-https://england.shelter.org.uk/housing_advice/homelessness/emergency_housing
-They can explain your housing rights and help you understand your options
+Please contact your local council's Housing Options team as soon as you can so they can assess what support may be available.
 
----
-Please reach out when you can. I'll be here if you need help finding other services later.`
+Find your local council: https://www.gov.uk/find-local-council
+
+Shelter: 0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
+https://england.shelter.org.uk`
   },
 
   FIRE_FLOOD_EXIT__SUPPORTER: {
-    text: `Losing their home due to fire, flood, or another emergency is frightening. They deserve support, and help is available.
+    text: `Losing their home due to fire, flood, or another emergency is frightening, and it makes sense to want urgent help.
 
-LOCAL COUNCIL
-Local council Housing Options team
-https://www.gov.uk/find-local-council
-Contact them as soon as possible - they assess emergency situations urgently
+Local councils assess emergency housing situations urgently.
 
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
-https://england.shelter.org.uk/housing_advice/homelessness/emergency_housing
-They can explain housing rights and help understand the options available
+Please contact the local council's Housing Options team as soon as you can so they can assess what support may be available.
 
----
-Please encourage them to reach out when they can. I'll be here if you need help finding other services later.`
+Find the local council: https://www.gov.uk/find-local-council
+
+Shelter: 0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
+https://england.shelter.org.uk`
   },
 
   CHILD_AT_RISK_EXIT: {
     text: `Thank you for sharing this. When a child's safety is at risk, it's important to get the right people involved.
 
-SPECIALIST HELPLINE
-NSPCC
-0808 800 5000 (free, 24/7)
-https://www.nspcc.org.uk
-For adults who are concerned about a child - they can advise on what to do next
-
-SPECIALIST HELPLINE
-Childline
-0800 1111 (free, confidential, 24/7)
-https://www.childline.org.uk
-For children and young people to talk about anything
-
----
-Please reach out to them - they can help work out what to do next. I'll be here if you need help finding other services later.
+NSPCC: 0808 800 5000 (for adults concerned about a child)
+Childline: 0800 1111 (for children and young people)
 
 If a child is in immediate danger, call 999.`
   },
@@ -1914,14 +1582,11 @@ If a child is in immediate danger, call 999.`
   // ============================================================
 
   STREETLINK_SIGNPOST: {
-    text: `If you'd like to, you can make a StreetLink alert. This lets your local outreach team know where you are so they can try to find you and offer support.
-
-CRISIS SUPPORT
-StreetLink
+    text: `If you'd like to, you can make a StreetLink alert. This lets your local outreach team know where you are so they can try to find you and offer support. You can do that here:
 https://streetlink.org.uk
-Once you submit an alert, your information goes straight to a local outreach team. They'll do their best to find you, check in, and connect you with the right help.
 
----
+Once you submit the alert, your information goes straight to a local outreach team. They'll do their best to find you, check in, and connect you with the right help.
+
 StreetLink doesn't provide housing directly, but it helps link people sleeping rough with services that can.
 
 In the meantime, keep chatting with me. I can help you look for more support now.`
@@ -1964,12 +1629,11 @@ In the meantime, keep chatting with me. I can help you look for more support now
   },
 
   TERMINAL_SOCIAL_SERVICES_GUIDANCE: {
-    text: `Based on your situation, you may be able to get support from social services. They can provide support for young people and care leavers with housing.
+    text: `Based on your situation, you may be entitled to support from social services. They have a duty to help young people and care leavers with housing.
 
-CHILDREN'S SERVICES
-Local council Children's Services or Leaving Care team
-https://www.gov.uk/find-local-council
-You can contact your local council and ask for the Children's Services or Leaving Care team`
+You can contact your local council and ask for the Children's Services or Leaving Care team.
+
+Find your local council: https://www.gov.uk/find-local-council`
   },
 
   // ============================================================
@@ -2001,16 +1665,13 @@ I can still provide general information about how homelessness support usually w
   },
 
   LOCAL_AUTHORITY_FALLBACK_EXTENDED: {
-    text: `LOCAL COUNCIL
-Housing Options team
-https://www.gov.uk/find-local-council
-They can help with housing options in your area
+    text: `Contact your local council's Housing Options or homelessness team. They have a legal duty to help.
 
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
-https://england.shelter.org.uk
-Expert housing advice if you need support now`
+Find your local council: https://www.gov.uk/find-local-council
+
+If you need immediate advice:
+Shelter: 0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
+https://england.shelter.org.uk`
   },
 
   // ============================================================
@@ -2058,67 +1719,47 @@ What would be most helpful right now?`,
   ESCALATION_LEVEL_2_LEGAL_EMERGENCY: {
     text: `This sounds urgent. With an eviction notice, there are specific legal steps that need to happen, and getting the right advice quickly can make a real difference.
 
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
+Shelter: 0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
 https://england.shelter.org.uk/get_help/helpline
-They can check if the notice is valid and explain your options
 
-HOUSING ADVICE
-Citizens Advice
-https://www.citizensadvice.org.uk/housing/
-Free, independent advice on housing and legal rights`
+Citizens Advice: https://www.citizensadvice.org.uk/housing/
+
+They can check if the notice is valid and explain your options.`
   },
 
   ESCALATION_LEVEL_2_CHILDREN_RISK: {
-    text: `When children are involved and housing is at risk, there are extra protections available. Local councils can help prevent homelessness for families with children.
+    text: `When children are involved and housing is at risk, there are extra protections available. Local councils have a duty to help prevent homelessness for families with children.
 
-LOCAL COUNCIL
-Housing Options team
-https://www.gov.uk/find-local-council
-Contact them as soon as possible - they should assess your situation urgently
+Please contact your local council's Housing Options team as soon as possible. They should assess your situation urgently.
 
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free)
-https://england.shelter.org.uk
-They can explain your rights and options when housing is at risk with children`
+Shelter: 0808 800 4444 (free)
+https://england.shelter.org.uk`
   },
 
   ESCALATION_LEVEL_2_HEALTH_CRISIS: {
     text: `It sounds like you're dealing with a lot right now. Health and housing are closely connected, and there are services that understand both.
 
-CRISIS SUPPORT
-NHS 111
-Call 111
-https://111.nhs.uk
-For urgent but non-emergency health needs - available 24/7
+If you're in a health crisis right now:
+NHS 111 - for urgent but non-emergency health needs
+999 - for emergencies
 
-HOUSING ADVICE
-Shelter
-0808 800 4444 (free)
-https://england.shelter.org.uk
-They can help with housing support alongside health challenges
-
----
-If this is a medical emergency, call 999.`
+For housing support alongside health:
+Shelter: 0808 800 4444 (free)
+https://england.shelter.org.uk`
   },
 
   ESCALATION_LEVEL_3_EXIT: {
     text: `I can see this isn't working for you right now, and I'm sorry I couldn't help in the way you needed. That's okay - there are other ways to get support.
 
-HOUSING ADVICE
-Shelter
+These services can help:
+
+Shelter Emergency Helpline
 0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
 https://england.shelter.org.uk/get_help/helpline
-Expert housing advice and support
 
-CRISIS SUPPORT
 Crisis
 https://crisis.org.uk/get-help
-Support for people facing homelessness
 
----
 Whatever you're going through, you deserve support. You're welcome back anytime.`
   },
 
@@ -2131,17 +1772,17 @@ Whatever you're going through, you deserve support. You're welcome back anytime.
 
 1. You'll speak to someone in the Housing Options team
 2. They'll ask about your situation and do an assessment
-3. If you're homeless or at risk, they can help
+3. If you're homeless or at risk, they have duties to help
 4. You may be offered temporary accommodation while they investigate
 5. They'll make a decision about what help they can provide
 
-You can ask the council for a written decision. If you disagree, you can ask for a review.
+The council must give you a written decision. If you disagree, you can ask for a review.
 
 Shelter has detailed guides: https://england.shelter.org.uk/housing_advice/homelessness`
   },
 
   ADVICE_PRIORITY_NEED: {
-    text: `In England, councils can provide accommodation to people who are homeless and in 'priority need'. This includes:
+    text: `In England, councils must provide accommodation to people who are homeless and in 'priority need'. This includes:
 
 - People with dependent children
 - Pregnant women
@@ -2151,7 +1792,7 @@ Shelter has detailed guides: https://england.shelter.org.uk/housing_advice/homel
 - People made homeless by fire, flood, or emergency
 - People fleeing domestic abuse
 
-Even if you don't think you're in priority need, the council can still help prevent homelessness and help you find somewhere to live.
+Even if you don't think you're in priority need, the council still has duties to help prevent homelessness and help you find somewhere to live.
 
 More info: https://england.shelter.org.uk/housing_advice/homelessness/priority_need`
   },
@@ -2199,7 +1840,7 @@ Citizens Advice: https://www.citizensadvice.org.uk/housing/renting-privately/end
   ADVICE_SLEEP_TONIGHT: {
     text: `If you need somewhere to sleep tonight:
 
-1. Contact your local council's Housing Options team - they can help if you're homeless tonight. Many have out-of-hours numbers.
+1. Contact your local council's Housing Options team - they have a duty to help if you're homeless tonight. Many have out-of-hours numbers.
 
 2. StreetLink can alert local outreach services to your location: https://streetlink.org.uk
 
@@ -2316,7 +1957,7 @@ You may be legally homeless if:
 - You're being asked to leave
 - Your situation is unstable or temporary
 
-The council can help prevent homelessness up to 56 days before you'd have to leave.
+The council has a duty to help prevent homelessness up to 56 days before you'd have to leave.
 
 What to do:
 1. Approach your local council's Housing Options team
@@ -2329,7 +1970,7 @@ Shelter: 0808 800 4444`
   ADVICE_STAYING_WITH_OTHERS_SCOTLAND: {
     text: `If you've been asked to leave by family or friends in Scotland, or you're worried they might:
 
-You can approach your local council for help. In Scotland, the council can assess your situation and provide advice.
+You can approach your local council for help. In Scotland, the council has duties to assess your situation and provide advice.
 
 You may be considered homeless if you have no legal right to stay where you are.
 

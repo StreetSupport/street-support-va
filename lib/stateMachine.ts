@@ -13,8 +13,11 @@ import {
   getYouthOrgs,
   getShelterInfo,
   getStreetLinkInfo,
+  getServicesForNeed,
+  isProfileRelevantNeed,
   DefaultOrg,
-  UserProfile
+  UserProfile,
+  MatchedService
 } from './serviceMatcher';
 
 // ============================================================
@@ -42,6 +45,12 @@ export type GateType =
   | 'B3_AGE_CATEGORY'
   | 'B4_GENDER'
   | 'B5_MAIN_SUPPORT_NEED'
+  | 'B5_PROFILE_AGE'
+  | 'B5_PROFILE_GENDER'
+  | 'B5_PROFILE_LGBTQ'
+  | 'B5_PROFILE_CONVICTIONS'
+  | 'B5_PROFILE_NRPF'
+  | 'B5_PROFILE_CHILDREN'
   | 'B5A_ADDITIONAL_NEED_SELECTION'
   | 'B6_HOMELESSNESS_STATUS'
   | 'B7_HOUSED_SITUATION'
@@ -346,9 +355,11 @@ function buildUnder16Exit(session: SessionState): RoutingResult {
   if (childServices) {
     text += `CHILDREN'S SERVICES\n`;
     text += `${childServices.name}\n`;
-    text += `${childServices.phone}\n`;
+    // Combine phone numbers on one line if there's an out of hours number
     if (childServices.outOfHours) {
-      text += `Out of hours: ${childServices.outOfHours}\n`;
+      text += `${childServices.phone} (out of hours: ${childServices.outOfHours})\n`;
+    } else {
+      text += `${childServices.phone}\n`;
     }
     text += `${childServices.website}\n`;
     text += `They can talk through what's happening and help work out the best support\n\n`;
@@ -364,19 +375,19 @@ function buildUnder16Exit(session: SessionState): RoutingResult {
   text += `Childline\n`;
   text += `0800 1111 (free, confidential, 24/7)\n`;
   text += `https://www.childline.org.uk\n`;
-  text += `${isSupporter ? 'Young people can call or chat online about anything - no problem is too big or small' : 'You can call or chat online about anything - no problem is too big or small'}\n\n`;
+  text += `${isSupporter ? 'A free helpline for young people to call or chat online about anything' : 'A free helpline where you can call or chat online about anything'}\n\n`;
   
   if (isSupporter) {
     text += `SPECIALIST HELPLINE\n`;
     text += `NSPCC Helpline (for adults)\n`;
     text += `0808 800 5000 (free, 24/7)\n`;
     text += `https://www.nspcc.org.uk/keeping-children-safe/reporting-abuse/\n`;
-    text += `If you're worried about a child, they can advise on what to do next\n\n`;
+    text += `For adults who are worried about a child\n\n`;
   }
   
   // Warm sign-off with separator
   text += `---\n`;
-  text += `Please reach out when ${isSupporter ? 'you' : 'you'} feel ready. I'll be here if you need help finding other services later.\n\n`;
+  text += `Please reach out when you feel ready. I'll be here if you need help finding other services later.\n\n`;
   text += `If ${isSupporter ? 'they are' : 'you are'} in immediate danger, call 999.`;
   
   return {
@@ -468,9 +479,11 @@ function buildFireFloodExit(session: SessionState): RoutingResult {
   if (council) {
     text += `LOCAL COUNCIL\n`;
     text += `${council.name}\n`;
-    text += `${council.phone}\n`;
+    // Combine phone numbers on one line if there's an out of hours number
     if (council.outOfHours) {
-      text += `Out of hours: ${council.outOfHours}\n`;
+      text += `${council.phone} (out of hours: ${council.outOfHours})\n`;
+    } else {
+      text += `${council.phone}\n`;
     }
     text += `${council.website}\n`;
     text += `Contact them as soon as ${isSupporter ? 'they' : 'you'} can - they assess emergency situations urgently\n\n`;
@@ -481,12 +494,12 @@ function buildFireFloodExit(session: SessionState): RoutingResult {
     text += `Contact them as soon as ${isSupporter ? 'they' : 'you'} can - they assess emergency situations urgently\n\n`;
   }
   
-  // Shelter
+  // Shelter - priority need page (fire/flood is automatic priority need)
   text += `HOUSING ADVICE\n`;
   text += `Shelter\n`;
   text += `0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)\n`;
-  text += `https://england.shelter.org.uk/housing_advice/homelessness/emergency_housing\n`;
-  text += `They can explain ${isSupporter ? 'their' : 'your'} housing rights and help understand the options\n\n`;
+  text += `https://england.shelter.org.uk/housing_advice/homelessness/rules/priority_need\n`;
+  text += `People made homeless by fire or flood have priority need for housing - Shelter can explain ${isSupporter ? 'their' : 'your'} rights\n\n`;
   
   // Warm sign-off with separator
   text += `---\n`;
@@ -596,9 +609,148 @@ const needDisplayNames: Record<string, string> = {
   'Activities': 'activities and groups'
 };
 
-// Hardcoded services for non-housing needs
-// These will be shown when user selects Food, Health, Items, etc.
-const servicesByNeed: Record<string, Array<{name: string; phone?: string; website?: string; description: string}>> = {
+// ============================================================
+// CATEGORY-SPECIFIC PROFILING CONFIGURATION
+// Defines what profile questions are needed for each support need
+// ============================================================
+
+// What profile fields each need requires for effective service matching
+const needProfileRequirements: Record<string, string[]> = {
+  // Health: Age (youth clinics), Gender (women's health), LGBTQ (inclusive services)
+  'Health': ['age', 'gender', 'lgbtq'],
+  
+  // Work: Age (youth employment), Convictions (ex-offender programs), NRPF (right to work)
+  'Work': ['age', 'convictions', 'nrpf'],
+  
+  // Financial: NRPF (benefits eligibility), Children (family support)
+  'Financial': ['nrpf', 'children'],
+  
+  // Training: Age (youth training, adult education)
+  'Training': ['age'],
+  
+  // Activities: Age (youth/elderly groups), Gender (some gender-specific)
+  'Activities': ['age', 'gender'],
+  
+  // Drop In: Age (youth drop-ins), Gender (some gender-specific)
+  'Drop In': ['age', 'gender'],
+  
+  // Location-only needs - no profiling required
+  'Food': [],
+  'Items': [],
+  'Services': [],
+  'Comms': []
+};
+
+// Map profile fields to their gate names
+const profileFieldToGate: Record<string, GateType> = {
+  'age': 'B5_PROFILE_AGE',
+  'gender': 'B5_PROFILE_GENDER',
+  'lgbtq': 'B5_PROFILE_LGBTQ',
+  'convictions': 'B5_PROFILE_CONVICTIONS',
+  'nrpf': 'B5_PROFILE_NRPF',
+  'children': 'B5_PROFILE_CHILDREN'
+};
+
+/**
+ * Determines the next profile question to ask based on the support need
+ * and what profile data has already been collected.
+ * Returns terminal output when all required fields are collected.
+ */
+function routeToNextProfileQuestion(session: SessionState): RoutingResult {
+  const need = session.supportNeed || '';
+  const required = needProfileRequirements[need] || [];
+  
+  // Check each required field in order
+  for (const field of required) {
+    // Age
+    if (field === 'age' && !session.ageCategory) {
+      return {
+        ...phrase('B5_PROFILE_AGE', session.isSupporter),
+        stateUpdates: { 
+          currentGate: 'B5_PROFILE_AGE', 
+          supportNeed: session.supportNeed,
+          needCount: session.needCount
+        }
+      };
+    }
+    
+    // Gender
+    if (field === 'gender' && !session.gender) {
+      return {
+        ...phrase('B5_PROFILE_GENDER', session.isSupporter),
+        stateUpdates: { 
+          currentGate: 'B5_PROFILE_GENDER',
+          ageCategory: session.ageCategory 
+        }
+      };
+    }
+    
+    // LGBTQ
+    if (field === 'lgbtq' && session.lgbtq === undefined) {
+      return {
+        ...phrase('B5_PROFILE_LGBTQ', session.isSupporter),
+        stateUpdates: { 
+          currentGate: 'B5_PROFILE_LGBTQ',
+          gender: session.gender 
+        }
+      };
+    }
+    
+    // Criminal convictions
+    if (field === 'convictions' && !session.criminalConvictions) {
+      return {
+        ...phrase('B5_PROFILE_CONVICTIONS', session.isSupporter),
+        stateUpdates: { 
+          currentGate: 'B5_PROFILE_CONVICTIONS',
+          ageCategory: session.ageCategory 
+        }
+      };
+    }
+    
+    // NRPF / Public funds access
+    if (field === 'nrpf' && session.publicFunds === undefined) {
+      return {
+        ...phrase('B5_PROFILE_NRPF', session.isSupporter),
+        stateUpdates: { 
+          currentGate: 'B5_PROFILE_NRPF',
+          criminalConvictions: session.criminalConvictions 
+        }
+      };
+    }
+    
+    // Children/dependents
+    if (field === 'children' && session.hasChildren === undefined) {
+      return {
+        ...phrase('B5_PROFILE_CHILDREN', session.isSupporter),
+        stateUpdates: { 
+          currentGate: 'B5_PROFILE_CHILDREN',
+          publicFunds: session.publicFunds 
+        }
+      };
+    }
+  }
+  
+  // All required fields collected - go to terminal
+  const services = buildTerminalServices(session);
+  const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
+  return {
+    text: services + '\n' + additionalNeeds?.text,
+    options: additionalNeeds?.options,
+    stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS' },
+    sessionEnded: false
+  };
+}
+
+// Note: Local services are now fetched dynamically via getServicesForNeed()
+// National fallbacks are defined in buildNonHousingTerminal()
+
+// ============================================================
+// NON-HOUSING TERMINAL BUILDER
+// For Food, Health, Items, Work, etc. - uses local service matching
+// ============================================================
+
+// National fallback services for each need type
+const nationalFallbacks: Record<string, Array<{name: string; phone?: string; website: string; description: string}>> = {
   'Food': [
     {
       name: 'Find a Food Bank',
@@ -611,7 +763,7 @@ const servicesByNeed: Record<string, Array<{name: string; phone?: string; websit
       name: 'NHS 111',
       phone: '111',
       website: 'https://111.nhs.uk',
-      description: 'For urgent medical help when it\'s not an emergency'
+      description: 'For urgent medical help when it is not an emergency'
     },
     {
       name: 'Find NHS Services',
@@ -645,34 +797,61 @@ const servicesByNeed: Record<string, Array<{name: string; phone?: string; websit
       description: 'Free careers advice and support'
     }
   ],
-  'Items': [],
-  'Drop In': [],
-  'Training': [],
-  'Activities': [],
-  'Comms': [],
-  'Services': []
+  'Training': [
+    {
+      name: 'National Careers Service',
+      phone: '0800 100 900',
+      website: 'https://nationalcareers.service.gov.uk',
+      description: 'Free careers advice, skills assessment and training information'
+    }
+  ]
 };
-
-// ============================================================
-// NON-HOUSING TERMINAL BUILDER
-// For Food, Health, Items, Work, etc. - not housing-related needs
-// ============================================================
 
 function buildNonHousingTerminal(session: SessionState): string {
   const need = session.supportNeed || 'support';
   const la = session.localAuthority || 'your area';
-  const isSupporter = session.isSupporter;
-  
   const displayName = needDisplayNames[need] || need.toLowerCase();
-  const services = servicesByNeed[need] || [];
   const categoryKey = needToCategoryMap[need] || '';
+  
+  // Build profile for service matching
+  const profile: UserProfile = {
+    localAuthority: session.localAuthority,
+    supportNeed: session.supportNeed,
+    gender: session.gender,
+    ageCategory: session.ageCategory,
+    lgbtq: session.lgbtq,
+    criminalConvictions: session.criminalConvictions,
+    hasChildren: session.hasChildren,
+    sleepingSituation: session.sleepingSituation,
+    mentalHealth: session.mentalHealth,
+    physicalHealth: session.physicalHealth,
+    immigrationStatus: session.immigrationStatus,
+    publicFunds: session.publicFunds
+  };
+  
+  // Get matched local services
+  const localServices = getServicesForNeed(need, profile);
+  const fallbacks = nationalFallbacks[need] || [];
+  const hasLocalServices = localServices.length > 0;
+  const hasFallbacks = fallbacks.length > 0;
   
   let text = '';
   
-  text += `Here are some ${displayName} services that may help.\n\n`;
+  // Opening line - personalised if profile was used
+  if (isProfileRelevantNeed(need) && hasLocalServices) {
+    text += `Based on what you have told me, here are some ${displayName} in ${la} that may be able to help.\n\n`;
+  } else if (hasLocalServices) {
+    text += `Here are some ${displayName} in ${la}.\n\n`;
+  } else {
+    text += `Here is some information about ${displayName}.\n\n`;
+  }
   
-  if (services.length > 0) {
-    for (const svc of services) {
+  // Local services section
+  if (hasLocalServices) {
+    text += `LOCAL SERVICES\n`;
+    text += `--------------\n\n`;
+    
+    for (const svc of localServices) {
       text += `${svc.name}\n`;
       if (svc.phone) {
         text += `${svc.phone}\n`;
@@ -680,12 +859,47 @@ function buildNonHousingTerminal(session: SessionState): string {
       if (svc.website) {
         text += `${svc.website}\n`;
       }
+      // Description with access note
+      let desc = svc.description;
+      if (svc.isDropIn) {
+        desc += ` No appointment needed.`;
+      } else if (svc.appointmentOnly) {
+        desc += ` Appointment required.`;
+      }
+      text += `${desc}\n\n`;
+    }
+  }
+  
+  // National fallbacks section
+  if (hasFallbacks) {
+    if (hasLocalServices) {
+      text += `---\n\n`;
+    }
+    text += `NATIONAL RESOURCES\n`;
+    text += `------------------\n\n`;
+    
+    for (const svc of fallbacks) {
+      text += `${svc.name}\n`;
+      if (svc.phone) {
+        text += `${svc.phone}\n`;
+      }
+      text += `${svc.website}\n`;
       text += `${svc.description}\n\n`;
     }
   }
   
-  // Add local search link if we have a category mapping
-  if (categoryKey && la !== 'your area') {
+  // If no local services found, add search link
+  if (!hasLocalServices && categoryKey && la !== 'your area') {
+    text += `---\n\n`;
+    text += `FIND MORE SERVICES\n`;
+    text += `------------------\n\n`;
+    text += `Search for ${displayName} in ${la}:\n`;
+    text += `https://streetsupport.net/${la.toLowerCase().replace(/\s+/g, '-')}/find-help/category/?category=${categoryKey}\n`;
+  }
+  
+  // Always add search link at the end if we have local services (for more options)
+  if (hasLocalServices && categoryKey && la !== 'your area') {
+    text += `---\n\n`;
     text += `Find more ${displayName} in ${la}:\n`;
     text += `https://streetsupport.net/${la.toLowerCase().replace(/\s+/g, '-')}/find-help/category/?category=${categoryKey}\n`;
   }
@@ -1305,17 +1519,62 @@ export function processInput(session: SessionState, input: string): RoutingResul
           stateUpdates: { currentGate: 'B6_HOMELESSNESS_STATUS', supportNeed: need, needCount: session.needCount + 1 }
         };
       } else {
-        // Non-housing needs (Food, Items, Comms, etc.) - go straight to terminal
-        // No need to ask age/gender for these
-        const servicesSimple = buildTerminalServices({ ...session, supportNeed: need });
-        const additionalNeedsSimple = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-        return {
-          text: servicesSimple + '\n' + additionalNeedsSimple?.text,
-          options: additionalNeedsSimple?.options,
-          stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', supportNeed: need, needCount: session.needCount + 1 },
-          sessionEnded: false
-        };
+        // Non-housing need - route to category-specific profiling
+        const updatedSession = { ...session, supportNeed: need, needCount: session.needCount + 1 };
+        return routeToNextProfileQuestion(updatedSession);
       }
+    
+    // ============================================================
+    // CATEGORY-SPECIFIC PROFILING GATES
+    // ============================================================
+    
+    case 'B5_PROFILE_AGE':
+      const profAgeOptions = ['Under 18', '18-24', '25 or over'];
+      const profAge = choice ? profAgeOptions[choice - 1] : null;
+      
+      // Map to standard age categories
+      let mappedProfAge = profAge;
+      if (profAge === 'Under 18') mappedProfAge = '16-17';
+      if (profAge === '25 or over') mappedProfAge = '25+';
+      
+      const sessionWithAge = { ...session, ageCategory: mappedProfAge };
+      return routeToNextProfileQuestion(sessionWithAge);
+    
+    case 'B5_PROFILE_GENDER':
+      const profGenderOptions = ['Male', 'Female', 'Non-binary or other', 'Prefer not to say'];
+      const profGender = choice ? profGenderOptions[choice - 1] : null;
+      
+      const sessionWithGender = { ...session, gender: profGender };
+      return routeToNextProfileQuestion(sessionWithGender);
+    
+    case 'B5_PROFILE_LGBTQ':
+      // 1 = Yes, 2 = No, 3 = Prefer not to say
+      const lgbtqValue = choice === 1 ? true : (choice === 2 ? false : null);
+      
+      const sessionWithLgbtq = { ...session, lgbtq: lgbtqValue };
+      return routeToNextProfileQuestion(sessionWithLgbtq);
+    
+    case 'B5_PROFILE_CONVICTIONS':
+      const convictionOptions = ['Yes', 'No', 'Prefer not to say'];
+      const convictions = choice ? convictionOptions[choice - 1] : null;
+      
+      const sessionWithConvictions = { ...session, criminalConvictions: convictions };
+      return routeToNextProfileQuestion(sessionWithConvictions);
+    
+    case 'B5_PROFILE_NRPF':
+      // 1 = Yes (has access), 2 = No (NRPF), 3 = Not sure, 4 = Prefer not to say
+      const nrpfOptions = ['Yes', 'No', 'Not sure', 'Prefer not to say'];
+      const nrpfValue = choice ? nrpfOptions[choice - 1] : null;
+      
+      const sessionWithNrpf = { ...session, publicFunds: nrpfValue };
+      return routeToNextProfileQuestion(sessionWithNrpf);
+    
+    case 'B5_PROFILE_CHILDREN':
+      // 1 = Yes, 2 = No, 3 = Prefer not to say
+      const childrenValue = choice === 1 ? true : (choice === 2 ? false : null);
+      
+      const sessionWithChildren = { ...session, hasChildren: childrenValue };
+      return routeToNextProfileQuestion(sessionWithChildren);
     
     case 'B6_HOMELESSNESS_STATUS':
       const homeless = choice === 1;

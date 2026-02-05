@@ -242,6 +242,17 @@ function parseServiceContent(text: string): ParsedContent {
     const line = lines[i];
     const trimmed = line.trim();
     
+    // Check for outro separator FIRST (before skipping generic dash lines)
+    if (trimmed === '---') {
+      if (currentService?.name) {
+        services.push(currentService as ServiceCard);
+        currentService = null;
+      }
+      collectingOutro = true;
+      continue;
+    }
+    
+    // Skip other dash-only lines (visual separators)
     if (/^-+$/.test(trimmed)) continue;
     
     const isHeader = sectionHeaders.some(h => trimmed === h);
@@ -270,16 +281,6 @@ function parseServiceContent(text: string): ParsedContent {
     
     if (!reachedFirstSection && trimmed) {
       intro += line + '\n';
-      continue;
-    }
-    
-    // Outro separator
-    if (trimmed === '---') {
-      if (currentService?.name) {
-        services.push(currentService as ServiceCard);
-        currentService = null;
-      }
-      collectingOutro = true;
       continue;
     }
     
@@ -331,6 +332,7 @@ function parseServiceContent(text: string): ParsedContent {
       !trimmed.startsWith('http') && 
       !trimmed.startsWith('0') && 
       !trimmed.includes('(free') &&
+      // Exclude description-like patterns
       !trimmed.toLowerCase().startsWith('they ') &&
       !trimmed.toLowerCase().startsWith('this ') &&
       !trimmed.toLowerCase().startsWith('if ') &&
@@ -339,6 +341,18 @@ function parseServiceContent(text: string): ParsedContent {
       !trimmed.toLowerCase().startsWith('let ') &&
       !trimmed.toLowerCase().startsWith('ask ') &&
       !trimmed.toLowerCase().startsWith('drop-in') &&
+      !trimmed.toLowerCase().startsWith('specialist ') &&
+      !trimmed.toLowerCase().startsWith('support for') &&
+      !trimmed.toLowerCase().startsWith('for ') &&
+      !trimmed.toLowerCase().startsWith('24/') &&
+      !trimmed.toLowerCase().startsWith('24 hour') &&
+      !trimmed.toLowerCase().startsWith('expert') &&
+      !trimmed.toLowerCase().startsWith('free ') &&
+      !trimmed.toLowerCase().startsWith('information') &&
+      !trimmed.toLowerCase().startsWith('you can') &&
+      !trimmed.toLowerCase().startsWith('young people') &&
+      !trimmed.toLowerCase().startsWith('once you') &&
+      !trimmed.toLowerCase().startsWith('out of hours') &&
       trimmed.length < 80 &&
       (trimmed.includes('Council') || 
        trimmed.includes('Shelter') || 
