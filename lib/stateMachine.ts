@@ -69,6 +69,11 @@ import {
   handleC3Q11CurrentlyInCare,
   handleC3Q12SocialServices,
 } from './handlers/sectionC';
+import {
+  handleTerminalAdditionalNeeds,
+  handleEscalationLevel1,
+  handleEscalationLevel2,
+} from './handlers/terminal';
 
 // ============================================================
 // TYPES
@@ -1674,68 +1679,21 @@ export function processInput(session: SessionState, input: string): RoutingResul
     // TERMINAL & ADDITIONAL NEEDS
     // ========================================
     case 'TERMINAL_ADDITIONAL_NEEDS':
-      if (choice === 1 && session.needCount < 3) {
-        // Another need
-        return {
-          ...phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter),
-          stateUpdates: { currentGate: 'B5_MAIN_SUPPORT_NEED' }
-        };
-      } else {
-        // Done
-        const goodbye = getPhrase('TERMINAL_GOODBYE', session.isSupporter);
-        return {
-          text: goodbye?.text || 'Take care.',
-          stateUpdates: { currentGate: 'SESSION_END', timestampEnd: new Date().toISOString() },
-          sessionEnded: true
-        };
-      }
+      return handleTerminalAdditionalNeeds(session, choice);
     
     // ========================================
     // ESCALATION
     // ========================================
     case 'ESCALATION_LEVEL_1':
-      switch (choice) {
-        case 1: // Explain differently -> retry current
-          return phrase(session.currentGate, session.isSupporter);
-        case 2: // Skip
-          // Would need to track "next gate" - for now go to terminal
-          const servicesEsc1 = buildTerminalServices(session);
-          const additionalNeedsEsc1 = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-          return {
-            text: servicesEsc1 + '\n' + additionalNeedsEsc1?.text,
-            options: additionalNeedsEsc1?.options,
-            stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', skipCount: session.skipCount + 1 },
-            sessionEnded: false
-          };
-        case 3: // Restart
-          return getFirstMessage(createSession(session.sessionId));
-        default:
-          return phrase('ESCALATION_LEVEL_1', session.isSupporter);
-      }
+      return handleEscalationLevel1(
+        session,
+        choice,
+        buildTerminalServices,
+        () => getFirstMessage(createSession(session.sessionId))
+      );
     
     case 'ESCALATION_LEVEL_2':
-      switch (choice) {
-        case 1: // Services with what we have
-          const services2 = buildTerminalServices(session);
-          const additionalNeeds2 = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-          return {
-            text: services2 + '\n' + additionalNeeds2?.text,
-            options: additionalNeeds2?.options,
-            stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS' },
-            sessionEnded: false
-          };
-        case 2: // Phone number
-          const exit = getPhrase('ESCALATION_LEVEL_3_EXIT', session.isSupporter);
-          return {
-            text: exit?.text || '',
-            stateUpdates: { currentGate: 'SESSION_END', escalationLevel: 3, timestampEnd: new Date().toISOString() },
-            sessionEnded: true
-          };
-        case 3: // Continue
-          return phrase(session.currentGate, session.isSupporter);
-        default:
-          return phrase('ESCALATION_LEVEL_2', session.isSupporter);
-      }
+      return handleEscalationLevel2(session, choice, buildTerminalServices);
     
     default:
       // Fallback
