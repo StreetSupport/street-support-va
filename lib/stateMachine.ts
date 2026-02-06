@@ -27,6 +27,13 @@ import {
   handleDVChildrenAsk,
   handleSAGenderAsk,
 } from './handlers/crisis';
+import {
+  handleLocationConsent,
+  handleLocationPostcode,
+  handleLocationResult,
+  handleLocationConfirm,
+  handleLocationOutsideWMCA,
+} from './handlers/location';
 
 // ============================================================
 // TYPES
@@ -1288,106 +1295,22 @@ export function processInput(session: SessionState, input: string): RoutingResul
       };
     
     // ========================================
-    // LOCATION DETECTION
+    // LOCATION DETECTION (handlers in lib/handlers/location.ts)
     // ========================================
     case 'LOCATION_CONSENT':
-      // Choice 1: Share location (widget will handle geolocation)
-      // Choice 2: Enter postcode
-      // Choice 3: Don't want to share
-      if (choice === 1) {
-        // Widget will request geolocation and send back result
-        // This is handled by the widget, not here
-        // The widget will call processInput with location data
-        return {
-          text: '',
-          stateUpdates: { currentGate: 'LOCATION_RESULT' },
-          responseType: 'request_geolocation'
-        };
-      } else if (choice === 2) {
-        return {
-          ...phrase('LOCATION_POSTCODE_REQUEST', session.isSupporter),
-          stateUpdates: { currentGate: 'LOCATION_POSTCODE' },
-          responseType: 'postcode_input'
-        };
-      } else {
-        // User doesn't want to share - fall back to manual selection
-        return {
-          ...phrase('B1_LOCAL_AUTHORITY', session.isSupporter),
-          stateUpdates: { currentGate: 'B1_LOCAL_AUTHORITY', locationMethod: 'MANUAL' }
-        };
-      }
-    
+      return handleLocationConsent(session, choice);
+
     case 'LOCATION_POSTCODE':
-      // This is handled specially - widget sends postcode to /api/location
-      // and then calls processInput with the result
-      // If we get here with a choice, it's the postcode retry/fallback menu
-      if (choice === 1) {
-        // Try again
-        return {
-          ...phrase('LOCATION_POSTCODE_REQUEST', session.isSupporter),
-          stateUpdates: { currentGate: 'LOCATION_POSTCODE' },
-          responseType: 'postcode_input'
-        };
-      } else {
-        // Select from list
-        return {
-          ...phrase('B1_LOCAL_AUTHORITY', session.isSupporter),
-          stateUpdates: { currentGate: 'B1_LOCAL_AUTHORITY', locationMethod: 'MANUAL' }
-        };
-      }
-    
+      return handleLocationPostcode(session, choice);
+
     case 'LOCATION_RESULT':
-      // Widget sends location data here after geo/postcode lookup
-      // This case should be handled by processLocationInput, not processInput
-      // Fallback to manual selection
-      return {
-        ...phrase('B1_LOCAL_AUTHORITY', session.isSupporter),
-        stateUpdates: { currentGate: 'B1_LOCAL_AUTHORITY', locationMethod: 'MANUAL' }
-      };
-    
+      return handleLocationResult(session, choice);
+
     case 'LOCATION_CONFIRM':
-      // User confirms detected LA or wants to select different area
-      if (choice === 1) {
-        // Confirmed - proceed to B2_WHO_FOR
-        return {
-          ...phrase('B2_WHO_FOR', session.isSupporter),
-          stateUpdates: { currentGate: 'B2_WHO_FOR' }
-        };
-      } else {
-        // Want different area - show manual selection, clear location data
-        return {
-          ...phrase('B1_LOCAL_AUTHORITY', session.isSupporter),
-          stateUpdates: { 
-            currentGate: 'B1_LOCAL_AUTHORITY', 
-            locationMethod: 'MANUAL',
-            localAuthority: null,
-            latitude: null,
-            longitude: null
-          }
-        };
-      }
-    
+      return handleLocationConfirm(session, choice);
+
     case 'LOCATION_OUTSIDE_WMCA':
-      // User is outside WMCA area - they chose whether to continue or select different area
-      if (choice === 1) {
-        // Continue anyway with detected LA
-        return {
-          ...phrase('B2_WHO_FOR', session.isSupporter),
-          stateUpdates: { currentGate: 'B2_WHO_FOR' }
-        };
-      } else {
-        // Let them select different area - clear location data
-        return {
-          ...phrase('B1_LOCAL_AUTHORITY', session.isSupporter),
-          stateUpdates: { 
-            currentGate: 'B1_LOCAL_AUTHORITY', 
-            locationMethod: 'MANUAL',
-            localAuthority: null,
-            latitude: null,
-            longitude: null
-          }
-        };
-      }
+      return handleLocationOutsideWMCA(session, choice);
     
     // ========================================
     // SECTION B: CORE PROFILING
