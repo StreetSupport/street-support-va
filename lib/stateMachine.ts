@@ -43,6 +43,14 @@ import {
   handleB7D4PreventionSafeguardingSignals,
   handleB7D4APreventionSafeguardingFollowUp,
 } from './handlers/prevention';
+import {
+  handleB8Duration,
+  handleB9Reason,
+  handleB10Income,
+  handleB11PriorUse,
+  handleB12AlreadySupported,
+  handleB12AWhichOrg,
+} from './handlers/homeless';
 
 // ============================================================
 // TYPES
@@ -1576,101 +1584,22 @@ export function processInput(session: SessionState, input: string): RoutingResul
     // HOMELESS CONTINUATION (B8-B12)
     // ========================================
     case 'B8_DURATION':
-      const durationOptions = ['Less than a week', '1-4 weeks', '1-6 months', '6-12 months', 'Over a year'];
-      const duration = choice ? durationOptions[choice - 1] : null;
-      
-      return {
-        ...phrase('B9_REASON', session.isSupporter),
-        stateUpdates: { currentGate: 'B9_REASON', duration }
-      };
+      return handleB8Duration(session, choice);
     
     case 'B9_REASON':
-      const b9Options = ['Relationship breakdown', 'Domestic abuse', 'Lost job', 'Asked to leave', 'End of tenancy', 'Prison/hospital', 'Mental health', 'Substance use', 'Other'];
-      const b9Reason = choice ? b9Options[choice - 1] : null;
-      
-      // Domestic abuse -> DV routing
-      if (choice === 2) {
-        return phrase('DV_GENDER_ASK', session.isSupporter);
-      }
-      
-      // Mental health acknowledgment
-      let nextGate: GateType = 'B10_INCOME';
-      let extraText = '';
-      if (choice === 7) {
-        const ack = getPhrase('B9C_MENTAL_HEALTH_ACKNOWLEDGMENT', session.isSupporter);
-        extraText = (ack?.text || '') + '\n\n';
-      }
-      
-      const b10 = getPhrase('B10_INCOME', session.isSupporter);
-      return {
-        text: extraText + b10?.text,
-        options: b10?.options,
-        stateUpdates: { currentGate: 'B10_INCOME', reason: b9Reason },
-        sessionEnded: false
-      };
+      return handleB9Reason(session, choice);
     
     case 'B10_INCOME':
-      const incomeOptions = ['Employment', 'Benefits', 'Family/friends', 'No income', 'Prefer not to say'];
-      const income = choice ? incomeOptions[choice - 1] : null;
-      
-      return {
-        ...phrase('B11_PRIOR_USE', session.isSupporter),
-        stateUpdates: { currentGate: 'B11_PRIOR_USE', income }
-      };
+      return handleB10Income(session, choice);
     
     case 'B11_PRIOR_USE':
-      const priorUseOptions = ['Yes', 'No', 'Not sure'];
-      const priorUse = choice ? priorUseOptions[choice - 1] : null;
-      
-      return {
-        ...phrase('B12_ALREADY_SUPPORTED', session.isSupporter),
-        stateUpdates: { currentGate: 'B12_ALREADY_SUPPORTED', priorUse }
-      };
+      return handleB11PriorUse(session, choice);
     
     case 'B12_ALREADY_SUPPORTED':
-      const alreadySupported = choice === 1;
-      
-      if (alreadySupported) {
-        return {
-          ...phrase('B12A_WHICH_ORG', session.isSupporter),
-          stateUpdates: { currentGate: 'B12A_WHICH_ORG', alreadySupported: true }
-        };
-      }
-      
-      // Go to Section C or terminal
-      if (session.routeType === 'FULL') {
-        return {
-          ...phrase('C2_CONSENT_GATE', session.isSupporter),
-          stateUpdates: { currentGate: 'C2_CONSENT_GATE', alreadySupported: false }
-        };
-      } else {
-        const servicesB12 = buildTerminalServices(session);
-        const additionalNeedsB12 = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-        return {
-          text: servicesB12 + '\n' + additionalNeedsB12?.text,
-          options: additionalNeedsB12?.options,
-          stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', alreadySupported: false },
-          sessionEnded: false
-        };
-      }
+      return handleB12AlreadySupported(session, choice, buildTerminalServices);
     
     case 'B12A_WHICH_ORG':
-      // Free text input - store and continue
-      if (session.routeType === 'FULL') {
-        return {
-          ...phrase('C2_CONSENT_GATE', session.isSupporter),
-          stateUpdates: { currentGate: 'C2_CONSENT_GATE', currentSupportingOrg: input }
-        };
-      } else {
-        const servicesB12A = buildTerminalServices(session);
-        const additionalNeedsB12A = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-        return {
-          text: servicesB12A + '\n' + additionalNeedsB12A?.text,
-          options: additionalNeedsB12A?.options,
-          stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', currentSupportingOrg: input },
-          sessionEnded: false
-        };
-      }
+      return handleB12AWhichOrg(session, input, buildTerminalServices);
     
     // ========================================
     // SECTION C: DETAILED PROFILING
