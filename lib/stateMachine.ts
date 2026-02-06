@@ -6,10 +6,10 @@
 // - Trauma-informed language, Shelter as safety net
 
 import { getPhrase, PhraseEntry } from './phrasebank';
-import { 
-  getCouncilOrg, 
-  getLocalSupportOrgs, 
-  getSpecialistOrgs, 
+import {
+  getCouncilOrg,
+  getLocalSupportOrgs,
+  getSpecialistOrgs,
   getYouthOrgs,
   getShelterInfo,
   getStreetLinkInfo,
@@ -19,6 +19,14 @@ import {
   UserProfile,
   MatchedService
 } from './serviceMatcher';
+import {
+  handleCrisisDanger,
+  handleCrisisUnder16Location,
+  handleCrisisFireFloodLocation,
+  handleDVGenderAsk,
+  handleDVChildrenAsk,
+  handleSAGenderAsk,
+} from './handlers/crisis';
 
 // ============================================================
 // TYPES
@@ -1176,83 +1184,31 @@ export function processInput(session: SessionState, input: string): RoutingResul
   switch (gate) {
     
     // ========================================
-    // GATE 0: CRISIS
+    // GATE 0: CRISIS (handlers in lib/handlers/crisis.ts)
     // ========================================
     case 'GATE0_CRISIS_DANGER':
-      switch (choice) {
-        case 1: // Immediate danger
-          return safeguardingExit('IMMEDIATE_PHYSICAL_DANGER_EXIT', session.isSupporter, 'IMMEDIATE_DANGER');
-        case 2: // Domestic abuse -> ask gender
-          return phrase('DV_GENDER_ASK', session.isSupporter);
-        case 3: // Sexual violence -> ask gender
-          return phrase('SA_GENDER_ASK', session.isSupporter);
-        case 4: // Self-harm
-          return buildSelfHarmExit(session);
-        case 5: // Under 16 -> ask location first
-          return {
-            ...phrase('CRISIS_UNDER16_LOCATION', session.isSupporter),
-            stateUpdates: { currentGate: 'CRISIS_UNDER16_LOCATION' }
-          };
-        case 6: // Fire/flood -> ask location first
-          return {
-            ...phrase('CRISIS_FIRE_FLOOD_LOCATION', session.isSupporter),
-            stateUpdates: { currentGate: 'CRISIS_FIRE_FLOOD_LOCATION' }
-          };
-        case 7: // None apply
-          return phrase('GATE1_INTENT', session.isSupporter);
-        default:
-          return phrase('GATE0_CRISIS_DANGER', session.isSupporter);
-      }
-    
-    // ========================================
-    // CRISIS LOCATION GATES
-    // ========================================
+      return handleCrisisDanger(session, choice);
+
     case 'CRISIS_UNDER16_LOCATION':
-      // Options: 1=Wolverhampton, 2=Birmingham, 3=Coventry, 4=Dudley, 5=Sandwell, 6=Solihull, 7=Walsall, 8=Somewhere else, 9=Prefer not to say
-      const under16LAs = ['Wolverhampton', 'Birmingham', 'Coventry', 'Dudley', 'Sandwell', 'Solihull', 'Walsall'];
-      if (choice && choice >= 1 && choice <= 7) {
-        const la = under16LAs[choice - 1];
-        return buildUnder16Exit({ ...session, localAuthority: la });
-      } else {
-        // Somewhere else or prefer not to say - show generic
-        return buildUnder16Exit(session);
-      }
-    
+      return handleCrisisUnder16Location(session, choice);
+
     case 'CRISIS_FIRE_FLOOD_LOCATION':
-      // Same options as above
-      const fireFloodLAs = ['Wolverhampton', 'Birmingham', 'Coventry', 'Dudley', 'Sandwell', 'Solihull', 'Walsall'];
-      if (choice && choice >= 1 && choice <= 7) {
-        const la = fireFloodLAs[choice - 1];
-        return buildFireFloodExit({ ...session, localAuthority: la });
-      } else {
-        // Somewhere else or prefer not to say - show generic
-        return buildFireFloodExit(session);
-      }
-    
+      return handleCrisisFireFloodLocation(session, choice);
+
     // ========================================
-    // DV ROUTING
+    // DV ROUTING (handlers in lib/handlers/crisis.ts)
     // ========================================
     case 'DV_GENDER_ASK':
-      const dvGenders = ['Female', 'Male', 'Non-binary or other', 'Prefer not to say'];
-      const dvGender = choice ? dvGenders[choice - 1] : null;
-      return {
-        ...phrase('DV_CHILDREN_ASK', session.isSupporter),
-        stateUpdates: { currentGate: 'DV_CHILDREN_ASK', dvGender }
-      };
-    
+      return handleDVGenderAsk(session, choice);
+
     case 'DV_CHILDREN_ASK':
-      const dvChildren = choice === 1;
-      const dvExitKey = getDVExitKey(session.dvGender, dvChildren);
-      return safeguardingExit(dvExitKey, session.isSupporter, 'DOMESTIC_ABUSE');
-    
+      return handleDVChildrenAsk(session, choice);
+
     // ========================================
-    // SA ROUTING
+    // SA ROUTING (handlers in lib/handlers/crisis.ts)
     // ========================================
     case 'SA_GENDER_ASK':
-      const saGenders = ['Female', 'Male', 'Non-binary or other', 'Prefer not to say'];
-      const saGender = choice ? saGenders[choice - 1] : null;
-      const saExitKey = getSAExitKey(saGender);
-      return safeguardingExit(saExitKey, session.isSupporter, 'SEXUAL_VIOLENCE');
+      return handleSAGenderAsk(session, choice);
     
     // ========================================
     // GATE 1: INTENT
