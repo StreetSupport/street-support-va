@@ -51,6 +51,24 @@ import {
   handleB12AlreadySupported,
   handleB12AWhichOrg,
 } from './handlers/homeless';
+import {
+  handleC2ConsentGate,
+  handleC3Q1ImmigrationStatus,
+  handleC3Q1AEussFollowup,
+  handleC3Q1BPublicFundsFollowup,
+  handleC3Q2DependentChildren,
+  handleC3Q3Age,
+  handleC3Q4Gender,
+  handleC3Q5Pregnancy,
+  handleC3Q6Ethnicity,
+  handleC3Q7PhysicalHealth,
+  handleC3Q8MentalHealth,
+  handleC3Q9CriminalConvictions,
+  handleC3Q10Lgbtq,
+  handleC3Q10ALgbtqServicePreference,
+  handleC3Q11CurrentlyInCare,
+  handleC3Q12SocialServices,
+} from './handlers/sectionC';
 
 // ============================================================
 // TYPES
@@ -1605,239 +1623,52 @@ export function processInput(session: SessionState, input: string): RoutingResul
     // SECTION C: DETAILED PROFILING
     // ========================================
     case 'C2_CONSENT_GATE':
-      if (choice === 1) {
-        const ack = getPhrase('C2A_CONSENT_ACKNOWLEDGED', session.isSupporter);
-        const imm = getPhrase('C3Q1_IMMIGRATION_STATUS', session.isSupporter);
-        return {
-          text: (ack?.text || '') + '\n\n' + (imm?.text || ''),
-          options: imm?.options,
-          stateUpdates: { currentGate: 'C3Q1_IMMIGRATION_STATUS', consentGiven: true },
-          sessionEnded: false
-        };
-      } else {
-        // No consent -> skip to terminal
-        const servicesC2 = buildTerminalServices(session);
-        const additionalNeedsC2 = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-        return {
-          text: servicesC2 + '\n' + additionalNeedsC2?.text,
-          options: additionalNeedsC2?.options,
-          stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', consentGiven: false },
-          sessionEnded: false
-        };
-      }
+      return handleC2ConsentGate(session, choice, buildTerminalServices);
     
     case 'C3Q1_IMMIGRATION_STATUS':
-      const immOptions = ['British', 'EUSS', 'Refugee', 'Leave to remain', 'Asylum seeker', 'No status', 'Prefer not to say'];
-      const imm = choice ? immOptions[choice - 1] : null;
-      
-      // EUSS -> follow up
-      if (choice === 2) {
-        return {
-          ...phrase('C3Q1A_EUSS_FOLLOWUP', session.isSupporter),
-          stateUpdates: { currentGate: 'C3Q1A_EUSS_FOLLOWUP', immigrationStatus: imm }
-        };
-      }
-      
-      // No status -> acknowledgment + public funds
-      if (choice === 6) {
-        const ack = getPhrase('C3Q1C_NRPF_ACKNOWLEDGMENT', session.isSupporter);
-        const pf = getPhrase('C3Q1B_PUBLIC_FUNDS_FOLLOWUP', session.isSupporter);
-        return {
-          text: (ack?.text || '') + '\n\n' + (pf?.text || ''),
-          options: pf?.options,
-          stateUpdates: { currentGate: 'C3Q1B_PUBLIC_FUNDS_FOLLOWUP', immigrationStatus: imm },
-          sessionEnded: false
-        };
-      }
-      
-      // Continue to children
-      return {
-        ...phrase('C3Q2_DEPENDENT_CHILDREN', session.isSupporter),
-        stateUpdates: { currentGate: 'C3Q2_DEPENDENT_CHILDREN', immigrationStatus: imm }
-      };
+      return handleC3Q1ImmigrationStatus(session, choice);
     
     case 'C3Q1A_EUSS_FOLLOWUP':
-      const eussOptions = ['Settled', 'Pre-settled', 'Unsure'];
-      const euss = choice ? eussOptions[choice - 1] : null;
-      
-      // Pre-settled -> public funds question
-      if (choice === 2) {
-        return {
-          ...phrase('C3Q1B_PUBLIC_FUNDS_FOLLOWUP', session.isSupporter),
-          stateUpdates: { currentGate: 'C3Q1B_PUBLIC_FUNDS_FOLLOWUP', eussStatus: euss }
-        };
-      }
-      
-      return {
-        ...phrase('C3Q2_DEPENDENT_CHILDREN', session.isSupporter),
-        stateUpdates: { currentGate: 'C3Q2_DEPENDENT_CHILDREN', eussStatus: euss }
-      };
+      return handleC3Q1AEussFollowup(session, choice);
     
     case 'C3Q1B_PUBLIC_FUNDS_FOLLOWUP':
-      const pfOptions = ['Yes', 'No', 'Not sure'];
-      const pf = choice ? pfOptions[choice - 1] : null;
-      
-      return {
-        ...phrase('C3Q2_DEPENDENT_CHILDREN', session.isSupporter),
-        stateUpdates: { currentGate: 'C3Q2_DEPENDENT_CHILDREN', publicFunds: pf }
-      };
+      return handleC3Q1BPublicFundsFollowup(session, choice);
     
     case 'C3Q2_DEPENDENT_CHILDREN':
-      const hasChildrenC = choice === 1;
-      
-      return {
-        ...phrase('C3Q3_AGE', session.isSupporter),
-        stateUpdates: { currentGate: 'C3Q3_AGE', hasChildren: hasChildrenC }
-      };
+      return handleC3Q2DependentChildren(session, choice);
     
     case 'C3Q3_AGE':
-      const detailedAgeOptions = ['Under 16', '16-17', '18-20', '21-24', '25+'];
-      const detailedAge = choice ? detailedAgeOptions[choice - 1] : null;
-      
-      // Under 16 safeguarding
-      if (choice === 1) {
-        return buildUnder16Exit(session);
-      }
-      
-      return {
-        ...phrase('C3Q4_GENDER', session.isSupporter),
-        stateUpdates: { currentGate: 'C3Q4_GENDER', detailedAge }
-      };
+      return handleC3Q3Age(session, choice);
     
     case 'C3Q4_GENDER':
-      const detailedGenderOptions = ['Male', 'Female', 'Trans Female', 'Trans Male'];
-      const detailedGender = choice ? detailedGenderOptions[choice - 1] : null;
-      
-      // Pregnancy question only for female/trans female
-      if (choice === 2 || choice === 3) {
-        return {
-          ...phrase('C3Q5_PREGNANCY', session.isSupporter),
-          stateUpdates: { currentGate: 'C3Q5_PREGNANCY', detailedGender }
-        };
-      }
-      
-      return {
-        ...phrase('C3Q6_ETHNICITY', session.isSupporter),
-        stateUpdates: { currentGate: 'C3Q6_ETHNICITY', detailedGender }
-      };
+      return handleC3Q4Gender(session, choice);
     
     case 'C3Q5_PREGNANCY':
-      const pregnant = choice === 1;
-      
-      return {
-        ...phrase('C3Q6_ETHNICITY', session.isSupporter),
-        stateUpdates: { currentGate: 'C3Q6_ETHNICITY', pregnant }
-      };
+      return handleC3Q5Pregnancy(session, choice);
     
     case 'C3Q6_ETHNICITY':
-      const ethOptions = ['White British', 'White Other', 'Black African', 'Black Caribbean', 'Asian', 'Mixed'];
-      const eth = choice ? ethOptions[choice - 1] : null;
-      
-      return {
-        ...phrase('C3Q7_PHYSICAL_HEALTH', session.isSupporter),
-        stateUpdates: { currentGate: 'C3Q7_PHYSICAL_HEALTH', ethnicity: eth }
-      };
+      return handleC3Q6Ethnicity(session, choice);
     
     case 'C3Q7_PHYSICAL_HEALTH':
-      const phOptions = ['None', 'Mobility', 'Visual', 'Hearing', 'Verbal', 'Neurological'];
-      const ph = choice ? phOptions[choice - 1] : null;
-      
-      return {
-        ...phrase('C3Q8_MENTAL_HEALTH', session.isSupporter),
-        stateUpdates: { currentGate: 'C3Q8_MENTAL_HEALTH', physicalHealth: ph }
-      };
+      return handleC3Q7PhysicalHealth(session, choice);
     
     case 'C3Q8_MENTAL_HEALTH':
-      const mhOptions = ['None', 'Depression', 'Anxiety', 'PTSD', 'Bipolar', 'Schizophrenia', 'Neurodivergence', 'Learning difficulties', 'Prefer not to say'];
-      const mh = choice ? mhOptions[choice - 1] : null;
-      
-      return {
-        ...phrase('C3Q9_CRIMINAL_CONVICTIONS', session.isSupporter),
-        stateUpdates: { currentGate: 'C3Q9_CRIMINAL_CONVICTIONS', mentalHealth: mh }
-      };
+      return handleC3Q8MentalHealth(session, choice);
     
     case 'C3Q9_CRIMINAL_CONVICTIONS':
-      const ccOptions = ['None', 'Arson', 'Sexual', 'Violent', 'Prefer not to say'];
-      const cc = choice ? ccOptions[choice - 1] : null;
-      
-      return {
-        ...phrase('C3Q10_LGBTQ', session.isSupporter),
-        stateUpdates: { currentGate: 'C3Q10_LGBTQ', criminalConvictions: cc }
-      };
+      return handleC3Q9CriminalConvictions(session, choice);
     
     case 'C3Q10_LGBTQ':
-      const lgbtq = choice === 1;
-      
-      if (lgbtq) {
-        return {
-          ...phrase('C3Q10A_LGBTQ_SERVICE_PREFERENCE', session.isSupporter),
-          stateUpdates: { currentGate: 'C3Q10A_LGBTQ_SERVICE_PREFERENCE', lgbtq: true }
-        };
-      }
-      
-      // UPDATED v7.1: Only ask social services questions for 16-17 and 18-20
-      const updatedSession1 = { ...session, lgbtq: false };
-      if (shouldAskSocialServicesQuestions(updatedSession1)) {
-        return {
-          ...phrase('C3Q11_CURRENTLY_IN_CARE', session.isSupporter),
-          stateUpdates: { currentGate: 'C3Q11_CURRENTLY_IN_CARE', lgbtq: false }
-        };
-      } else {
-        // Skip to terminal for 21-24 and 25+
-        const servicesC10 = buildTerminalServices(updatedSession1);
-        const additionalNeedsC10 = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-        return {
-          text: servicesC10 + '\n' + additionalNeedsC10?.text,
-          options: additionalNeedsC10?.options,
-          stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', lgbtq: false },
-          sessionEnded: false
-        };
-      }
+      return handleC3Q10Lgbtq(session, choice, buildTerminalServices);
     
     case 'C3Q10A_LGBTQ_SERVICE_PREFERENCE':
-      const lgbtqPrefOptions = ['Specialist first', 'Local only', 'Show both'];
-      const lgbtqPref = choice ? lgbtqPrefOptions[choice - 1] : null;
-      
-      // UPDATED v7.1: Only ask social services questions for 16-17 and 18-20
-      const updatedSession2 = { ...session, lgbtqServicePreference: lgbtqPref };
-      if (shouldAskSocialServicesQuestions(updatedSession2)) {
-        return {
-          ...phrase('C3Q11_CURRENTLY_IN_CARE', session.isSupporter),
-          stateUpdates: { currentGate: 'C3Q11_CURRENTLY_IN_CARE', lgbtqServicePreference: lgbtqPref }
-        };
-      } else {
-        // Skip to terminal for 21-24 and 25+
-        const servicesC10A = buildTerminalServices(updatedSession2);
-        const additionalNeedsC10A = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-        return {
-          text: servicesC10A + '\n' + additionalNeedsC10A?.text,
-          options: additionalNeedsC10A?.options,
-          stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', lgbtqServicePreference: lgbtqPref },
-          sessionEnded: false
-        };
-      }
+      return handleC3Q10ALgbtqServicePreference(session, choice, buildTerminalServices);
     
     case 'C3Q11_CURRENTLY_IN_CARE':
-      const inCare = choice === 1;
-      
-      return {
-        ...phrase('C3Q12_SOCIAL_SERVICES', session.isSupporter),
-        stateUpdates: { currentGate: 'C3Q12_SOCIAL_SERVICES', inCare }
-      };
+      return handleC3Q11CurrentlyInCare(session, choice);
     
     case 'C3Q12_SOCIAL_SERVICES':
-      const ssOptions = ['Yes', 'No', 'Prefer not to say'];
-      const ss = choice ? ssOptions[choice - 1] : null;
-      
-      // Terminal with full profile
-      const servicesC12 = buildTerminalServices({ ...session, socialServices: ss });
-      const additionalNeedsC12 = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-      return {
-        text: servicesC12 + '\n' + additionalNeedsC12?.text,
-        options: additionalNeedsC12?.options,
-        stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', socialServices: ss },
-        sessionEnded: false
-      };
+      return handleC3Q12SocialServices(session, choice, buildTerminalServices);
     
     // ========================================
     // TERMINAL & ADDITIONAL NEEDS
