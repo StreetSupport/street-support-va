@@ -38,6 +38,7 @@
  */
 
 import { createSession, getFirstMessage, processInput, GateType, SessionState } from '../lib/stateMachine';
+import { getPhrase } from '../lib/phrasebank';
 
 // Helper: create session at specific gate with profile data
 function sessionAt(gate: GateType, profile: Partial<SessionState> = {}): SessionState {
@@ -69,6 +70,12 @@ describe('Crisis Gate', () => {
     const session = createSession('test');
     const result = getFirstMessage(session);
     expect(result.options).toHaveLength(7);
+  });
+
+  test('option 5 contains "under 16" (routing depends on array index)', () => {
+    const session = createSession('test');
+    const result = getFirstMessage(session);
+    expect(result.options?.[4]?.toLowerCase()).toContain('under 16');
   });
 
   test('option 1 (immediate danger) contains 999', () => {
@@ -103,6 +110,11 @@ describe('Crisis Gate', () => {
 // =============================================================================
 
 describe('Under 16', () => {
+
+  test('B3_AGE_CATEGORY option 1 is "Under 16" (routing depends on array index)', () => {
+    const phrase = getPhrase('B3_AGE_CATEGORY', false);
+    expect(phrase?.options?.[0]).toBe('Under 16');
+  });
 
   test('routes to child safeguarding exit, not B4_GENDER', () => {
     const session = sessionAt('B3_AGE_CATEGORY');
