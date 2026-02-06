@@ -34,6 +34,15 @@ import {
   handleLocationConfirm,
   handleLocationOutsideWMCA,
 } from './handlers/location';
+import {
+  handleB7BPreventionReason,
+  handleB7CPreventionUrgency,
+  handleB7D1PreventionChildrenDependents,
+  handleB7D2PreventionEmploymentIncome,
+  handleB7D3PreventionPriorSupport,
+  handleB7D4PreventionSafeguardingSignals,
+  handleB7D4APreventionSafeguardingFollowUp,
+} from './handlers/prevention';
 
 // ============================================================
 // TYPES
@@ -1540,124 +1549,28 @@ export function processInput(session: SessionState, input: string): RoutingResul
       }
     
     // ========================================
-    // PREVENTION PATHWAY (B7B-B7E)
+    // PREVENTION PATHWAY (handlers in lib/handlers/prevention.ts)
     // ========================================
     case 'B7B_PREVENTION_REASON':
-      const reasonOptions = ['Rent arrears', 'Eviction notice', 'Mortgage arrears', 'Family/friends notice', 'Financial difficulties', 'Prefer not to say'];
-      const prevReason = choice ? reasonOptions[choice - 1] : null;
-      
-      return {
-        ...phrase('B7C_PREVENTION_URGENCY', session.isSupporter),
-        stateUpdates: { currentGate: 'B7C_PREVENTION_URGENCY', preventionReason: prevReason }
-      };
-    
+      return handleB7BPreventionReason(session, choice);
+
     case 'B7C_PREVENTION_URGENCY':
-      const urgencyOptions = ['Now/soon', 'Months away', 'Not sure'];
-      const urgency = choice ? urgencyOptions[choice - 1] : null;
-      
-      return {
-        ...phrase('B7D_1_PREVENTION_CHILDREN_DEPENDENTS', session.isSupporter),
-        stateUpdates: { currentGate: 'B7D_1_PREVENTION_CHILDREN_DEPENDENTS', preventionUrgency: urgency }
-      };
-    
+      return handleB7CPreventionUrgency(session, choice);
+
     case 'B7D_1_PREVENTION_CHILDREN_DEPENDENTS':
-      const prevChildrenOptions = ['Yes', 'No', 'Prefer not to say'];
-      const prevChildren = choice ? prevChildrenOptions[choice - 1] : null;
-      
-      return {
-        ...phrase('B7D_2_PREVENTION_EMPLOYMENT_INCOME', session.isSupporter),
-        stateUpdates: { currentGate: 'B7D_2_PREVENTION_EMPLOYMENT_INCOME', preventionChildren: prevChildren }
-      };
-    
+      return handleB7D1PreventionChildrenDependents(session, choice);
+
     case 'B7D_2_PREVENTION_EMPLOYMENT_INCOME':
-      const empOptions = ['Employed', 'Unemployed', 'Benefits', 'Self-employed', 'Not working', 'Prefer not to say'];
-      const emp = choice ? empOptions[choice - 1] : null;
-      
-      return {
-        ...phrase('B7D_3_PREVENTION_PRIOR_SUPPORT', session.isSupporter),
-        stateUpdates: { currentGate: 'B7D_3_PREVENTION_PRIOR_SUPPORT', preventionEmployment: emp }
-      };
-    
+      return handleB7D2PreventionEmploymentIncome(session, choice);
+
     case 'B7D_3_PREVENTION_PRIOR_SUPPORT':
-      const priorOptions = ['Yes spoken to someone', 'No not yet', 'Not sure who'];
-      const prior = choice ? priorOptions[choice - 1] : null;
-      
-      return {
-        ...phrase('B7D_4_PREVENTION_SAFEGUARDING_SIGNALS', session.isSupporter),
-        stateUpdates: { currentGate: 'B7D_4_PREVENTION_SAFEGUARDING_SIGNALS', preventionPriorSupport: prior }
-      };
-    
+      return handleB7D3PreventionPriorSupport(session, choice);
+
     case 'B7D_4_PREVENTION_SAFEGUARDING_SIGNALS':
-      const sigOptions = ['Yes something else', 'No just housing', 'Prefer not to say'];
-      const sig = choice ? sigOptions[choice - 1] : null;
-      
-      if (choice === 1) {
-        // Something else -> follow up
-        return {
-          ...phrase('B7D_4A_PREVENTION_SAFEGUARDING_FOLLOW_UP', session.isSupporter),
-          stateUpdates: { currentGate: 'B7D_4A_PREVENTION_SAFEGUARDING_FOLLOW_UP', preventionSafeguardingSignals: sig }
-        };
-      }
-      
-      // Check escalation triggers
-      const isUrgent = session.preventionUrgency === 'Now/soon';
-      const hasChildren = session.preventionChildren === 'Yes';
-      const isEviction = session.preventionReason?.includes('Eviction');
-      
-      if (isUrgent && isEviction) {
-        const legal = getPhrase('ESCALATION_LEVEL_2_LEGAL_EMERGENCY', session.isSupporter);
-        return {
-          text: legal?.text || '',
-          stateUpdates: { currentGate: 'SESSION_END', escalationLevel: 2, timestampEnd: new Date().toISOString() },
-          sessionEnded: true
-        };
-      }
-      
-      if (isUrgent && hasChildren) {
-        const childRisk = getPhrase('ESCALATION_LEVEL_2_CHILDREN_RISK', session.isSupporter);
-        return {
-          text: childRisk?.text || '',
-          stateUpdates: { currentGate: 'SESSION_END', escalationLevel: 2, timestampEnd: new Date().toISOString() },
-          sessionEnded: true
-        };
-      }
-      
-      // Normal terminal
-      const servicesB7D4 = buildTerminalServices(session);
-      const additionalNeedsB7D4 = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-      return {
-        text: servicesB7D4 + '\n' + additionalNeedsB7D4?.text,
-        options: additionalNeedsB7D4?.options,
-        stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', preventionSafeguardingSignals: sig },
-        sessionEnded: false
-      };
-    
+      return handleB7D4PreventionSafeguardingSignals(session, choice, buildTerminalServices);
+
     case 'B7D_4A_PREVENTION_SAFEGUARDING_FOLLOW_UP':
-      const followupOptions = ['Domestic abuse', 'Health crisis', 'Substance use', 'Child safety', 'Something else', 'Prefer not to say'];
-      const followup = choice ? followupOptions[choice - 1] : null;
-      
-      switch (choice) {
-        case 1: // Domestic abuse -> DV routing
-          return phrase('DV_GENDER_ASK', session.isSupporter);
-        case 2: // Health crisis
-          const health = getPhrase('ESCALATION_LEVEL_2_HEALTH_CRISIS', session.isSupporter);
-          return {
-            text: health?.text || '',
-            stateUpdates: { currentGate: 'SESSION_END', safeguardingType: 'HEALTH_CRISIS', timestampEnd: new Date().toISOString() },
-            sessionEnded: true
-          };
-        case 4: // Child safety
-          return safeguardingExit('CHILD_AT_RISK_EXIT', session.isSupporter, 'CHILD_AT_RISK');
-        default: // Continue to terminal
-          const services2 = buildTerminalServices(session);
-          const additionalNeeds2 = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-          return {
-            text: services2 + '\n' + additionalNeeds2?.text,
-            options: additionalNeeds2?.options,
-            stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS' },
-            sessionEnded: false
-          };
-      }
+      return handleB7D4APreventionSafeguardingFollowUp(session, choice, buildTerminalServices);
     
     // ========================================
     // HOMELESS CONTINUATION (B8-B12)
