@@ -11,23 +11,8 @@
  * These handlers manage geolocation, postcode lookup, and LA confirmation.
  */
 
-import { getPhrase } from '../phrasebank';
-import type { SessionState, RoutingResult, GateType } from '../stateMachine';
-
-// ============================================================================
-// Helper functions (copied from stateMachine.ts - will be shared later)
-// ============================================================================
-
-function phrase(key: string, isSupporter: boolean): RoutingResult {
-  const p = getPhrase(key, isSupporter);
-  return {
-    text: p?.text || `[Missing phrase: ${key}]`,
-    options: p?.options,
-    stateUpdates: { currentGate: key as GateType },
-    sessionEnded: false,
-    responseType: p?.responseType,
-  };
-}
+import type { SessionState, RoutingResult } from '../stateMachine';
+import { phrase } from './shared';
 
 // ============================================================================
 // Gate handlers
