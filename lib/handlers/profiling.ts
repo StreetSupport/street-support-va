@@ -6,11 +6,8 @@
  * - B2_WHO_FOR
  * - B3_AGE_CATEGORY
  * - B4_GENDER
- * - B5_MAIN_SUPPORT_NEED
  * - B6_HOMELESSNESS_STATUS
  * - B7_HOUSED_SITUATION
- * - B7_HOMELESS_SLEEPING_SITUATION
- * - B7A_PREVENTION_GATE
  *
  * These handlers collect user profile information for service matching.
  * B3_AGE_CATEGORY includes safeguarding routing for under-16s.
