@@ -7,6 +7,7 @@
 
 import servicesData from './data/wmca_services_v7.json';
 import orgsData from './data/wmca_organizations_v7.json';
+import type { MatchedService, DefaultOrg, UserProfile } from './types';
 
 // ============================================================
 // TYPES
@@ -45,43 +46,6 @@ interface Organization {
     quality: string;
   };
   areas_served: string[];
-}
-
-export interface MatchedService {
-  name: string;
-  description: string;
-  phone: string | null;
-  website: string | null;
-  category: string;
-  appointmentOnly: boolean;
-  matchScore: number;
-  organizationId: string;
-  isDropIn?: boolean;
-}
-
-export interface DefaultOrg {
-  name: string;
-  phone: string | null;
-  website: string | null;
-  description: string;
-  isCouncil?: boolean;
-  isDropIn?: boolean;
-}
-
-export interface UserProfile {
-  localAuthority: string | null;
-  supportNeed: string | null;
-  gender: string | null;
-  ageCategory: string | null;
-  lgbtq: boolean | null;
-  criminalConvictions: string | null;
-  hasChildren: boolean | null;
-  sleepingSituation: string | null;
-  mentalHealth: string | null;
-  physicalHealth: string | null;
-  immigrationStatus?: string | null;
-  publicFunds?: string | null;
-  lgbtqServicePreference?: string | null;
 }
 
 // ============================================================

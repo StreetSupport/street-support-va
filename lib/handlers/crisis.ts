@@ -12,8 +12,9 @@
  * Changes require safeguarding test coverage.
  */
 
-import type { SessionState, RoutingResult } from '../stateMachine';
+import type { SessionState, RoutingResult } from '../types';
 import { phrase, safeguardingExit, buildUnder16Exit } from './shared';
+import { getPronouns } from '../utils/pronouns';
 
 // Council Housing Options contact info by Local Authority
 const councilHousingData: Record<string, { name: string; phone: string; outOfHours?: string; website: string }> = {
@@ -64,10 +65,7 @@ function buildFireFloodExit(session: SessionState): RoutingResult {
   const la = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
   const councilHousing = councilHousingData[la];
 
-  const they = isSupporter ? 'they' : 'you';
-  const their = isSupporter ? 'their' : 'your';
-  const them = isSupporter ? 'them' : 'you';
-  const theyre = isSupporter ? "they're" : "you're";
+  const { they, their, them, theyre } = getPronouns(isSupporter);
 
   let text = '';
 
@@ -114,10 +112,7 @@ function buildFireFloodExit(session: SessionState): RoutingResult {
 
 function buildSelfHarmExit(session: SessionState): RoutingResult {
   const isSupporter = session.isSupporter;
-  const they = isSupporter ? 'they' : 'you';
-  const their = isSupporter ? 'their' : 'your';
-  const them = isSupporter ? 'them' : 'you';
-  const theyre = isSupporter ? "they're" : "you're";
+  const { they, their, them, theyre } = getPronouns(isSupporter);
 
   let text = '';
 

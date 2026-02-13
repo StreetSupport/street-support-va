@@ -37,7 +37,8 @@
  * =============================================================================
  */
 
-import { createSession, getFirstMessage, processInput, GateType, SessionState } from '../lib/stateMachine';
+import type { GateType, SessionState } from '../lib/types';
+import { createSession, getFirstMessage, processInput } from '../lib/stateMachine';
 import { getPhrase } from '../lib/phrasebank';
 
 // Helper: create session at specific gate with profile data

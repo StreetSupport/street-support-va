@@ -11,7 +11,7 @@
  * These handlers manage geolocation, postcode lookup, and LA confirmation.
  */
 
-import type { SessionState, RoutingResult } from '../stateMachine';
+import type { SessionState, RoutingResult } from '../types';
 import { phrase } from './shared';
 
 // ============================================================================

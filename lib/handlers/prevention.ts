@@ -15,7 +15,7 @@
  */
 
 import { getPhrase } from '../phrasebank';
-import type { SessionState, RoutingResult } from '../stateMachine';
+import type { SessionState, RoutingResult } from '../types';
 import { phrase, safeguardingExit } from './shared';
 
 // ============================================================================

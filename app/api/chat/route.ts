@@ -3,11 +3,11 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
-import { 
-  SessionState, 
-  createSession, 
-  processInput, 
-  getFirstMessage, 
+import type { SessionState } from '@/lib/types';
+import {
+  createSession,
+  processInput,
+  getFirstMessage,
   parseUserInput,
   processLocationInput
 } from '@/lib/stateMachine';
