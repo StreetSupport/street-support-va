@@ -280,17 +280,6 @@ function normalizeLA(la: string | null): string {
   return la.toLowerCase().replace(/\s+/g, '').replace('cityof', '');
 }
 
-function formatPhone(phone: string): string {
-  const cleaned = phone.replace(/\D/g, '');
-  if (cleaned.length === 11 && cleaned.startsWith('0')) {
-    if (cleaned.startsWith('08')) {
-      return `${cleaned.slice(0, 4)} ${cleaned.slice(4, 7)} ${cleaned.slice(7)}`;
-    }
-    return `${cleaned.slice(0, 5)} ${cleaned.slice(5, 8)} ${cleaned.slice(8)}`;
-  }
-  return phone;
-}
-
 function getOrgContact(orgId: string): Organization['contact'] | null {
   const orgs = (orgsData as any).organizations as Organization[];
   const org = orgs.find(o => o.organization_id === orgId);
@@ -653,7 +642,3 @@ export function getStreetLinkInfo(): DefaultOrg {
   };
 }
 
-export function formatPhoneNumber(phone: string | null): string {
-  if (!phone) return '';
-  return formatPhone(phone);
-}

@@ -1775,25 +1775,3 @@ export function processLocationInput(session: SessionState, locationData: Locati
   };
 }
 
-// Handle LOCATION_OUTSIDE_WMCA response
-export function processOutsideWMCAResponse(session: SessionState, choice: number): RoutingResult {
-  if (choice === 1) {
-    // Continue anyway
-    return {
-      ...phrase('B2_WHO_FOR', session.isSupporter),
-      stateUpdates: { currentGate: 'B2_WHO_FOR' }
-    };
-  } else {
-    // Let them select different area
-    return {
-      ...phrase('B1_LOCAL_AUTHORITY', session.isSupporter),
-      stateUpdates: { 
-        currentGate: 'B1_LOCAL_AUTHORITY', 
-        locationMethod: 'MANUAL',
-        localAuthority: null,
-        latitude: null,
-        longitude: null
-      }
-    };
-  }
-}
