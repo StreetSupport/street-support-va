@@ -27,31 +27,37 @@ const councilHousingData: Record<string, { name: string; phone: string; outOfHou
   birmingham: {
     name: "Birmingham Council Housing Options",
     phone: "0121 303 7410",
+    outOfHours: "0121 303 2296",
     website: "https://www.birmingham.gov.uk/info/20169/homelessness"
   },
   coventry: {
     name: "Coventry Council Housing Options",
-    phone: "024 7683 3333",
+    phone: "024 7683 4025",
+    outOfHours: "024 7683 2222",
     website: "https://www.coventry.gov.uk/housing-options"
   },
   dudley: {
     name: "Dudley Council Housing Options",
-    phone: "0300 555 8283",
+    phone: "0300 555 2345",
+    outOfHours: "0300 555 2345",
     website: "https://www.dudley.gov.uk/resident/housing/"
   },
   sandwell: {
     name: "Sandwell Council Housing Options",
     phone: "0121 368 1166",
+    outOfHours: "01323 690856",
     website: "https://www.sandwell.gov.uk/housing"
   },
   solihull: {
     name: "Solihull Council Housing Options",
-    phone: "0121 704 8000",
+    phone: "0121 717 1515",
+    outOfHours: "0121 717 1515",
     website: "https://www.solihull.gov.uk/housing"
   },
   walsall: {
     name: "Walsall Council Housing Options",
-    phone: "0300 555 8085",
+    phone: "01922 652250",
+    outOfHours: "01922 650000",
     website: "https://go.walsall.gov.uk/housing"
   }
 };
@@ -116,14 +122,14 @@ function buildSelfHarmExit(session: SessionState): RoutingResult {
 
   let text = '';
 
-  text += `I'm really glad ${they} reached out. ${isSupporter ? "It's clear you" : "You"} care about getting support, and that matters.\n\n`;
-  text += `${isSupporter ? 'Their' : 'Your'} feelings are valid, and there are people who want to listen without judgement.\n\n`;
+  text += `I'm really glad ${they} reached out. It's clear ${they} care about getting support, and that matters.\n\n`;
+  text += `${their.charAt(0).toUpperCase() + their.slice(1)} feelings are valid, and there are people who want to listen without judgement.\n\n`;
 
   text += `SOMEONE TO TALK TO\n`;
   text += `Samaritans\n`;
   text += `116 123 (free, 24/7)\n`;
   text += `https://www.samaritans.org\n`;
-  text += `${isSupporter ? 'They can call or email jo@samaritans.org any time' : 'You can call or email jo@samaritans.org any time'}\n\n`;
+  text += `${they.charAt(0).toUpperCase() + they.slice(1)} can call or email jo@samaritans.org any time\n\n`;
 
   text += `NHS MENTAL HEALTH SUPPORT\n`;
   text += `NHS 111\n`;
