@@ -9,7 +9,7 @@
  */
 
 import { getPhrase } from '../phrasebank';
-import type { SessionState, RoutingResult, GateType } from '../stateMachine';
+import type { SessionState, RoutingResult, GateType } from '../types';
 
 export function phrase(key: string, isSupporter: boolean): RoutingResult {
   const p = getPhrase(key, isSupporter);

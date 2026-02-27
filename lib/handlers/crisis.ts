@@ -12,8 +12,9 @@
  * Changes require safeguarding test coverage.
  */
 
-import type { SessionState, RoutingResult } from '../stateMachine';
+import type { SessionState, RoutingResult } from '../types';
 import { phrase, safeguardingExit, buildUnder16Exit } from './shared';
+import { getPronouns } from '../utils/pronouns';
 
 // Council Housing Options contact info by Local Authority
 const councilHousingData: Record<string, { name: string; phone: string; outOfHours?: string; website: string }> = {
@@ -26,31 +27,37 @@ const councilHousingData: Record<string, { name: string; phone: string; outOfHou
   birmingham: {
     name: "Birmingham Council Housing Options",
     phone: "0121 303 7410",
+    outOfHours: "0121 303 2296",
     website: "https://www.birmingham.gov.uk/info/20169/homelessness"
   },
   coventry: {
     name: "Coventry Council Housing Options",
-    phone: "024 7683 3333",
+    phone: "024 7683 4025",
+    outOfHours: "024 7683 2222",
     website: "https://www.coventry.gov.uk/housing-options"
   },
   dudley: {
     name: "Dudley Council Housing Options",
-    phone: "0300 555 8283",
+    phone: "0300 555 2345",
+    outOfHours: "0300 555 2345",
     website: "https://www.dudley.gov.uk/resident/housing/"
   },
   sandwell: {
     name: "Sandwell Council Housing Options",
     phone: "0121 368 1166",
+    outOfHours: "01323 690856",
     website: "https://www.sandwell.gov.uk/housing"
   },
   solihull: {
     name: "Solihull Council Housing Options",
-    phone: "0121 704 8000",
+    phone: "0121 717 1515",
+    outOfHours: "0121 717 1515",
     website: "https://www.solihull.gov.uk/housing"
   },
   walsall: {
     name: "Walsall Council Housing Options",
-    phone: "0300 555 8085",
+    phone: "01922 652250",
+    outOfHours: "01922 650000",
     website: "https://go.walsall.gov.uk/housing"
   }
 };
@@ -64,10 +71,7 @@ function buildFireFloodExit(session: SessionState): RoutingResult {
   const la = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
   const councilHousing = councilHousingData[la];
 
-  const they = isSupporter ? 'they' : 'you';
-  const their = isSupporter ? 'their' : 'your';
-  const them = isSupporter ? 'them' : 'you';
-  const theyre = isSupporter ? "they're" : "you're";
+  const { they, their, them, theyre } = getPronouns(isSupporter);
 
   let text = '';
 
@@ -114,21 +118,18 @@ function buildFireFloodExit(session: SessionState): RoutingResult {
 
 function buildSelfHarmExit(session: SessionState): RoutingResult {
   const isSupporter = session.isSupporter;
-  const they = isSupporter ? 'they' : 'you';
-  const their = isSupporter ? 'their' : 'your';
-  const them = isSupporter ? 'them' : 'you';
-  const theyre = isSupporter ? "they're" : "you're";
+  const { they, their, them, theyre } = getPronouns(isSupporter);
 
   let text = '';
 
-  text += `I'm really glad ${they} reached out. ${isSupporter ? "It's clear you" : "You"} care about getting support, and that matters.\n\n`;
-  text += `${isSupporter ? 'Their' : 'Your'} feelings are valid, and there are people who want to listen without judgement.\n\n`;
+  text += `I'm really glad ${they} reached out. ${they.charAt(0).toUpperCase() + they.slice(1)} deserve support with this, and ${theyre} not alone.\n\n`;
+  text += `${their.charAt(0).toUpperCase() + their.slice(1)} feelings are valid, and there are people who want to listen without judgement.\n\n`;
 
   text += `SOMEONE TO TALK TO\n`;
   text += `Samaritans\n`;
   text += `116 123 (free, 24/7)\n`;
   text += `https://www.samaritans.org\n`;
-  text += `${isSupporter ? 'They can call or email jo@samaritans.org any time' : 'You can call or email jo@samaritans.org any time'}\n\n`;
+  text += `${they.charAt(0).toUpperCase() + they.slice(1)} can call or email jo@samaritans.org any time\n\n`;
 
   text += `NHS MENTAL HEALTH SUPPORT\n`;
   text += `NHS 111\n`;
@@ -138,12 +139,13 @@ function buildSelfHarmExit(session: SessionState): RoutingResult {
 
   text += `MIND INFOLINE\n`;
   text += `Mind\n`;
-  text += `0300 123 3393\n`;
+  text += `0300 123 3393 (Mon-Fri 9am-6pm)\n`;
   text += `https://www.mind.org.uk/information-support/helplines/\n`;
   text += `Information and support for mental health\n\n`;
 
   text += `---\n`;
-  text += `Please take care. I'll be here if ${they} need help finding other services later.`;
+  text += `Please take care. I'll be here if ${they} need help finding other services later.\n\n`;
+  text += `If ${theyre} in immediate danger, call 999 or go to A&E.`;
 
   return {
     text,

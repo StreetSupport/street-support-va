@@ -24,7 +24,7 @@
  */
 
 import { getPhrase } from '../phrasebank';
-import type { SessionState, RoutingResult } from '../stateMachine';
+import type { SessionState, RoutingResult } from '../types';
 import { phrase, buildUnder16Exit } from './shared';
 
 // Check if social services questions should be asked

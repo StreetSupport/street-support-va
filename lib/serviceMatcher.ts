@@ -7,6 +7,7 @@
 
 import servicesData from './data/wmca_services_v7.json';
 import orgsData from './data/wmca_organizations_v7.json';
+import type { MatchedService, DefaultOrg, UserProfile } from './types';
 
 // ============================================================
 // TYPES
@@ -45,43 +46,6 @@ interface Organization {
     quality: string;
   };
   areas_served: string[];
-}
-
-export interface MatchedService {
-  name: string;
-  description: string;
-  phone: string | null;
-  website: string | null;
-  category: string;
-  appointmentOnly: boolean;
-  matchScore: number;
-  organizationId: string;
-  isDropIn?: boolean;
-}
-
-export interface DefaultOrg {
-  name: string;
-  phone: string | null;
-  website: string | null;
-  description: string;
-  isCouncil?: boolean;
-  isDropIn?: boolean;
-}
-
-export interface UserProfile {
-  localAuthority: string | null;
-  supportNeed: string | null;
-  gender: string | null;
-  ageCategory: string | null;
-  lgbtq: boolean | null;
-  criminalConvictions: string | null;
-  hasChildren: boolean | null;
-  sleepingSituation: string | null;
-  mentalHealth: string | null;
-  physicalHealth: string | null;
-  immigrationStatus?: string | null;
-  publicFunds?: string | null;
-  lgbtqServicePreference?: string | null;
 }
 
 // ============================================================
@@ -278,17 +242,6 @@ const youthOrgs: DefaultOrg[] = [
 function normalizeLA(la: string | null): string {
   if (!la) return '';
   return la.toLowerCase().replace(/\s+/g, '').replace('cityof', '');
-}
-
-function formatPhone(phone: string): string {
-  const cleaned = phone.replace(/\D/g, '');
-  if (cleaned.length === 11 && cleaned.startsWith('0')) {
-    if (cleaned.startsWith('08')) {
-      return `${cleaned.slice(0, 4)} ${cleaned.slice(4, 7)} ${cleaned.slice(7)}`;
-    }
-    return `${cleaned.slice(0, 5)} ${cleaned.slice(5, 8)} ${cleaned.slice(8)}`;
-  }
-  return phone;
 }
 
 function getOrgContact(orgId: string): Organization['contact'] | null {
@@ -653,7 +606,3 @@ export function getStreetLinkInfo(): DefaultOrg {
   };
 }
 
-export function formatPhoneNumber(phone: string | null): string {
-  if (!phone) return '';
-  return formatPhone(phone);
-}

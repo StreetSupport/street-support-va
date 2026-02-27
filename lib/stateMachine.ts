@@ -6,6 +6,10 @@
 // - Trauma-informed language, Shelter as safety net
 
 import { getPhrase, PhraseEntry } from './phrasebank';
+import { getPronouns } from './utils/pronouns';
+import type { GateType, SessionState, RoutingResult, UserProfile } from './types';
+import { toUserProfile } from './types';
+export type { GateType, SessionState, RoutingResult };
 import {
   getCouncilOrg,
   getLocalSupportOrgs,
@@ -15,9 +19,6 @@ import {
   getStreetLinkInfo,
   getServicesForNeed,
   isProfileRelevantNeed,
-  DefaultOrg,
-  UserProfile,
-  MatchedService
 } from './serviceMatcher';
 import {
   handleCrisisDanger,
@@ -27,6 +28,7 @@ import {
   handleDVChildrenAsk,
   handleSAGenderAsk,
 } from './handlers/crisis';
+import { buildUnder16Exit } from './handlers/shared';
 import {
   handleLocationConsent,
   handleLocationPostcode,
@@ -74,180 +76,6 @@ import {
   handleEscalationLevel1,
   handleEscalationLevel2,
 } from './handlers/terminal';
-
-// ============================================================
-// TYPES
-// ============================================================
-
-export type GateType = 
-  // Init & Gates
-  | 'INIT'
-  | 'GATE0_CRISIS_DANGER'
-  | 'GATE1_INTENT'
-  | 'GATE2_ROUTE_SELECTION'
-  // Location Detection
-  | 'LOCATION_CONSENT'
-  | 'LOCATION_POSTCODE'
-  | 'LOCATION_RESULT'
-  | 'LOCATION_CONFIRM'
-  | 'LOCATION_OUTSIDE_WMCA'
-  // Advice Mode
-  | 'B4_ADVICE_TOPIC_SELECTION'
-  | 'ADVICE_BRIDGE'
-  // Core Profiling
-  | 'B1_LOCAL_AUTHORITY'
-  | 'B2_WHO_FOR'
-  | 'B3_AGE_CATEGORY'
-  | 'B4_GENDER'
-  | 'B5_MAIN_SUPPORT_NEED'
-  | 'B5_PROFILE_AGE'
-  | 'B5_PROFILE_GENDER'
-  | 'B5_PROFILE_LGBTQ'
-  | 'B5_PROFILE_CONVICTIONS'
-  | 'B5_PROFILE_NRPF'
-  | 'B5_PROFILE_CHILDREN'
-  | 'B5A_ADDITIONAL_NEED_SELECTION'
-  | 'B6_HOMELESSNESS_STATUS'
-  | 'B7_HOUSED_SITUATION'
-  | 'B7_HOMELESS_SLEEPING_SITUATION'
-  | 'B7A_PREVENTION_GATE'
-  // Prevention Pathway
-  | 'B7B_PREVENTION_REASON'
-  | 'B7C_PREVENTION_URGENCY'
-  | 'B7D_1_PREVENTION_CHILDREN_DEPENDENTS'
-  | 'B7D_2_PREVENTION_EMPLOYMENT_INCOME'
-  | 'B7D_3_PREVENTION_PRIOR_SUPPORT'
-  | 'B7D_4_PREVENTION_SAFEGUARDING_SIGNALS'
-  | 'B7D_4A_PREVENTION_SAFEGUARDING_FOLLOW_UP'
-  // Homeless Continuation
-  | 'B8_DURATION'
-  | 'B9_REASON'
-  | 'B10_INCOME'
-  | 'B11_PRIOR_USE'
-  | 'B12_ALREADY_SUPPORTED'
-  | 'B12A_WHICH_ORG'
-  // Section C Profiling
-  | 'C2_CONSENT_GATE'
-  | 'C3Q1_IMMIGRATION_STATUS'
-  | 'C3Q1A_EUSS_FOLLOWUP'
-  | 'C3Q1B_PUBLIC_FUNDS_FOLLOWUP'
-  | 'C3Q2_DEPENDENT_CHILDREN'
-  | 'C3Q3_AGE'
-  | 'C3Q4_GENDER'
-  | 'C3Q5_PREGNANCY'
-  | 'C3Q6_ETHNICITY'
-  | 'C3Q7_PHYSICAL_HEALTH'
-  | 'C3Q8_MENTAL_HEALTH'
-  | 'C3Q9_CRIMINAL_CONVICTIONS'
-  | 'C3Q10_LGBTQ'
-  | 'C3Q10A_LGBTQ_SERVICE_PREFERENCE'
-  | 'C3Q11_CURRENTLY_IN_CARE'
-  | 'C3Q12_SOCIAL_SERVICES'
-  // Safeguarding Routing
-  | 'DV_GENDER_ASK'
-  | 'DV_CHILDREN_ASK'
-  | 'SA_GENDER_ASK'
-  // Crisis Location Gates
-  | 'CRISIS_UNDER16_LOCATION'
-  | 'CRISIS_FIRE_FLOOD_LOCATION'
-  // Terminal
-  | 'TERMINAL_SERVICES'
-  | 'TERMINAL_ADDITIONAL_NEEDS'
-  | 'SESSION_END'
-  // Escalation
-  | 'ESCALATION_LEVEL_1'
-  | 'ESCALATION_LEVEL_2'
-  | 'ESCALATION_LEVEL_3';
-
-export interface SessionState {
-  sessionId: string;
-  currentGate: GateType;
-  
-  // Route tracking
-  routeType: 'FULL' | 'QUICK' | null;
-  intentType: 'ADVICE' | 'SERVICES' | 'ORGANISATION' | null;
-  
-  // Core profile
-  localAuthority: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  locationMethod: 'GEOLOCATION' | 'POSTCODE' | 'MANUAL' | null;
-  jurisdiction: 'ENGLAND' | 'SCOTLAND';
-  userType: 'SELF' | 'SUPPORTER' | 'PROFESSIONAL' | null;
-  ageCategory: string | null;
-  gender: string | null;
-  supportNeed: string | null;
-  additionalNeeds: string[];
-  needCount: number;
-  
-  // Homelessness
-  homeless: boolean | null;
-  sleepingSituation: string | null;
-  housedSituation: string | null;
-  
-  // Homeless continuation (B8-B12)
-  duration: string | null;
-  reason: string | null;
-  income: string | null;
-  priorUse: string | null;
-  alreadySupported: boolean | null;
-  currentSupportingOrg: string | null;
-  
-  // Prevention pathway
-  preventionNeed: boolean | null;
-  preventionReason: string | null;
-  preventionUrgency: string | null;
-  preventionChildren: string | null;
-  preventionEmployment: string | null;
-  preventionPriorSupport: string | null;
-  preventionSafeguardingSignals: string | null;
-  
-  // Section C profiling
-  consentGiven: boolean | null;
-  immigrationStatus: string | null;
-  eussStatus: string | null;
-  publicFunds: string | null;
-  hasChildren: boolean | null;
-  detailedAge: string | null;
-  detailedGender: string | null;
-  pregnant: boolean | null;
-  ethnicity: string | null;
-  physicalHealth: string | null;
-  mentalHealth: string | null;
-  criminalConvictions: string | null;
-  lgbtq: boolean | null;
-  lgbtqServicePreference: string | null;
-  inCare: boolean | null;
-  socialServices: string | null;
-  
-  // Flags
-  isSupporter: boolean;
-  youthServicesFlag: boolean;
-  
-  // Safeguarding
-  safeguardingTriggered: boolean;
-  safeguardingType: string | null;
-  dvGender: string | null;
-  dvChildren: boolean | null;
-  saGender: string | null;
-  
-  // Escalation
-  unclearCount: number;
-  skipCount: number;
-  escalationLevel: number;
-  
-  // Timestamps
-  timestampStart: string;
-  timestampEnd: string | null;
-}
-
-export interface RoutingResult {
-  text: string;
-  options?: string[];
-  stateUpdates: Partial<SessionState>;
-  sessionEnded?: boolean;
-  responseType?: string; // For special handling in widget (e.g., 'request_geolocation', 'postcode_input')
-}
 
 // ============================================================
 // SESSION CREATION
@@ -391,233 +219,6 @@ const childrenServicesData: Record<string, { name: string; phone: string; outOfH
     website: "https://go.walsall.gov.uk/children-and-young-people"
   }
 };
-
-// Build Under 16 exit with local Children's Services info
-function buildUnder16Exit(session: SessionState): RoutingResult {
-  const isSupporter = session.isSupporter;
-  const la = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
-  const childServices = childrenServicesData[la];
-  
-  let text = '';
-  
-  if (isSupporter) {
-    text += `Thank you for reaching out. Because they are under 16, there are specialist services that can help keep them safe. It's really good that you're looking for support for them.\n\n`;
-  } else {
-    text += `Thank you for reaching out. Because you are under 16, there are specialist services that can help keep you safe. It takes courage to ask for help, and you've done the right thing.\n\n`;
-  }
-  
-  // Local Children's Services (if we have LA info)
-  if (childServices) {
-    text += `CHILDREN'S SERVICES\n`;
-    text += `${childServices.name}\n`;
-    // Combine phone numbers on one line if there's an out of hours number
-    if (childServices.outOfHours) {
-      text += `${childServices.phone} (out of hours: ${childServices.outOfHours})\n`;
-    } else {
-      text += `${childServices.phone}\n`;
-    }
-    text += `${childServices.website}\n`;
-    text += `They can talk through what's happening and help work out the best support\n\n`;
-  } else {
-    text += `CHILDREN'S SERVICES\n`;
-    text += `Local council Children's Services\n`;
-    text += `https://www.gov.uk/find-local-council\n`;
-    text += `They can talk through what's happening and help work out the best support\n\n`;
-  }
-  
-  // Childline
-  text += `SPECIALIST HELPLINE\n`;
-  text += `Childline\n`;
-  text += `0800 1111 (free, confidential, 24/7)\n`;
-  text += `https://www.childline.org.uk\n`;
-  text += `${isSupporter ? 'A free helpline for young people to call or chat online about anything' : 'A free helpline where you can call or chat online about anything'}\n\n`;
-  
-  if (isSupporter) {
-    text += `SPECIALIST HELPLINE\n`;
-    text += `NSPCC Helpline (for adults)\n`;
-    text += `0808 800 5000 (free, 24/7)\n`;
-    text += `https://www.nspcc.org.uk/keeping-children-safe/reporting-abuse/\n`;
-    text += `For adults who are worried about a child\n\n`;
-  }
-  
-  // Warm sign-off with separator
-  text += `---\n`;
-  text += `Please reach out when you feel ready. I'll be here if you need help finding other services later.\n\n`;
-  text += `If ${isSupporter ? 'they are' : 'you are'} in immediate danger, call 999.`;
-  
-  return {
-    text,
-    stateUpdates: {
-      currentGate: 'SESSION_END',
-      safeguardingTriggered: true,
-      safeguardingType: 'UNDER_16',
-      timestampEnd: new Date().toISOString(),
-    },
-    sessionEnded: true,
-  };
-}
-
-function getDVExitKey(gender: string | null, hasChildren: boolean | null): string {
-  const g = gender?.toLowerCase() || 'other';
-  const c = hasChildren ? 'YES' : 'NO';
-  
-  if (g === 'female') return `DV_FEMALE_CHILDREN_${c}`;
-  if (g === 'male') return `DV_MALE_CHILDREN_${c}`;
-  return `DV_LGBTQ_CHILDREN_${c}`;
-}
-
-function getSAExitKey(gender: string | null): string {
-  const g = gender?.toLowerCase() || 'other';
-  
-  if (g === 'female') return 'SA_FEMALE_16PLUS';
-  if (g === 'male') return 'SA_MALE_16PLUS';
-  return 'SA_LGBTQ_OR_NONBINARY';
-}
-
-// Local council Housing Options contact info by Local Authority
-const councilHousingData: Record<string, { name: string; phone: string; outOfHours?: string; website: string }> = {
-  wolverhampton: {
-    name: "Wolverhampton Council Housing Options",
-    phone: "01902 556789",
-    outOfHours: "01902 552999",
-    website: "https://www.wolverhampton.gov.uk/housing/homeless"
-  },
-  birmingham: {
-    name: "Birmingham City Council Housing Options",
-    phone: "0121 303 7410",
-    outOfHours: "0121 675 4806",
-    website: "https://www.birmingham.gov.uk/info/20017/housing_options_and_homelessness"
-  },
-  coventry: {
-    name: "Coventry City Council Housing",
-    phone: "024 7683 3552",
-    outOfHours: "024 7683 2222",
-    website: "https://www.coventry.gov.uk/homelessness"
-  },
-  dudley: {
-    name: "Dudley Council Housing Options",
-    phone: "0300 555 8283",
-    outOfHours: "0300 555 8574",
-    website: "https://www.dudley.gov.uk/residents/housing/homelessness/"
-  },
-  sandwell: {
-    name: "Sandwell Council Housing Solutions",
-    phone: "0121 368 1166",
-    outOfHours: "0121 569 2355",
-    website: "https://www.sandwell.gov.uk/housing"
-  },
-  solihull: {
-    name: "Solihull Council Housing Options",
-    phone: "0121 704 6000",
-    outOfHours: "0121 605 6060",
-    website: "https://www.solihull.gov.uk/Housing/Homelessness-and-housing-advice"
-  },
-  walsall: {
-    name: "Walsall Council Housing Options",
-    phone: "0300 555 8565",
-    outOfHours: "0300 555 2922",
-    website: "https://go.walsall.gov.uk/housing/homelessness_and_housing_advice"
-  }
-};
-
-// Build Fire/Flood exit with local council info
-function buildFireFloodExit(session: SessionState): RoutingResult {
-  const isSupporter = session.isSupporter;
-  const la = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
-  const council = councilHousingData[la];
-  
-  let text = '';
-  
-  text += `Losing ${isSupporter ? 'their' : 'your'} home due to fire, flood, or another emergency is frightening. ${isSupporter ? 'They deserve' : 'You deserve'} support, and help is available.\n\n`;
-  
-  // Local council (if we have LA info)
-  if (council) {
-    text += `LOCAL COUNCIL\n`;
-    text += `${council.name}\n`;
-    // Combine phone numbers on one line if there's an out of hours number
-    if (council.outOfHours) {
-      text += `${council.phone} (out of hours: ${council.outOfHours})\n`;
-    } else {
-      text += `${council.phone}\n`;
-    }
-    text += `${council.website}\n`;
-    text += `Contact them as soon as ${isSupporter ? 'they' : 'you'} can - they assess emergency situations urgently\n\n`;
-  } else {
-    text += `LOCAL COUNCIL\n`;
-    text += `Local council housing team\n`;
-    text += `https://www.gov.uk/find-local-council\n`;
-    text += `Contact them as soon as ${isSupporter ? 'they' : 'you'} can - they assess emergency situations urgently\n\n`;
-  }
-  
-  // Shelter - priority need page (fire/flood is automatic priority need)
-  text += `HOUSING ADVICE\n`;
-  text += `Shelter\n`;
-  text += `0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)\n`;
-  text += `https://england.shelter.org.uk/housing_advice/homelessness/rules/priority_need\n`;
-  text += `People made homeless by fire or flood have priority need for housing - Shelter can explain ${isSupporter ? 'their' : 'your'} rights\n\n`;
-  
-  // Warm sign-off with separator
-  text += `---\n`;
-  text += `Please reach out when ${isSupporter ? 'they' : 'you'} can. I'll be here if you need help finding other services later.`;
-  
-  return {
-    text,
-    stateUpdates: {
-      currentGate: 'SESSION_END',
-      safeguardingTriggered: true,
-      safeguardingType: 'FIRE_FLOOD',
-      timestampEnd: new Date().toISOString(),
-    },
-    sessionEnded: true,
-  };
-}
-
-// Build Self-Harm exit with proper framing
-function buildSelfHarmExit(session: SessionState): RoutingResult {
-  const isSupporter = session.isSupporter;
-  
-  let text = '';
-  
-  text += `${isSupporter ? 'They deserve' : 'You deserve'} support with this, and ${isSupporter ? 'they don\'t' : 'you don\'t'} have to go through it alone.\n\n`;
-  
-  // Samaritans
-  text += `MENTAL HEALTH SUPPORT\n`;
-  text += `Samaritans\n`;
-  text += `116 123 (24 hours, free)\n`;
-  text += `https://www.samaritans.org\n`;
-  text += `They're there to listen, any time of day or night - no judgement, no pressure\n\n`;
-  
-  // NHS
-  text += `MENTAL HEALTH SUPPORT\n`;
-  text += `NHS Mental Health Helpline\n`;
-  text += `Call 111, choose option 2\n`;
-  text += `https://www.nhs.uk/mental-health/\n`;
-  text += `24/7 mental health crisis support\n\n`;
-  
-  // Mind
-  text += `MENTAL HEALTH SUPPORT\n`;
-  text += `Mind\n`;
-  text += `0300 123 3393 (Mon-Fri 9am-6pm)\n`;
-  text += `https://www.mind.org.uk/information-support/helplines/\n`;
-  text += `Information and support for mental health\n\n`;
-  
-  // Warm sign-off with separator
-  text += `---\n`;
-  text += `Please reach out when ${isSupporter ? 'they feel' : 'you feel'} able to. I'll be here if you need help finding other services later. `;
-  text += `${isSupporter ? '' : 'Take care of yourself.'}\n\n`;
-  text += `If ${isSupporter ? 'they are' : 'you are'} in immediate danger, call 999 or go to A&E.`;
-  
-  return {
-    text,
-    stateUpdates: {
-      currentGate: 'SESSION_END',
-      safeguardingTriggered: true,
-      safeguardingType: 'SELF_HARM',
-      timestampEnd: new Date().toISOString(),
-    },
-    sessionEnded: true,
-  };
-}
 
 // ============================================================
 // CHECK IF SOCIAL SERVICES QUESTIONS SHOULD BE ASKED
@@ -869,21 +470,8 @@ function buildNonHousingTerminal(session: SessionState): string {
   const categoryKey = needToCategoryMap[need] || '';
   
   // Build profile for service matching
-  const profile: UserProfile = {
-    localAuthority: session.localAuthority,
-    supportNeed: session.supportNeed,
-    gender: session.gender,
-    ageCategory: session.ageCategory,
-    lgbtq: session.lgbtq,
-    criminalConvictions: session.criminalConvictions,
-    hasChildren: session.hasChildren,
-    sleepingSituation: session.sleepingSituation,
-    mentalHealth: session.mentalHealth,
-    physicalHealth: session.physicalHealth,
-    immigrationStatus: session.immigrationStatus,
-    publicFunds: session.publicFunds
-  };
-  
+  const profile = toUserProfile(session);
+
   // Get matched local services
   const localServices = getServicesForNeed(need, profile);
   const fallbacks = nationalFallbacks[need] || [];
@@ -976,29 +564,11 @@ function buildTerminalServices(session: SessionState): string {
   
   const la = session.localAuthority || 'your local council';
   const isSupporter = session.isSupporter;
-  const pronoun = isSupporter ? 'them' : 'you';
-  const possessive = isSupporter ? 'their' : 'your';
-  const they = isSupporter ? 'they' : 'you';
-  const theyve = isSupporter ? "they've" : "you've";
-  const theyre = isSupporter ? "they're" : "you're";
+  const { they, their: possessive, them: pronoun, theyre, theyve } = getPronouns(isSupporter);
   
   // Build user profile for service matching
-  const profile: UserProfile = {
-    localAuthority: session.localAuthority,
-    supportNeed: session.supportNeed,
-    gender: session.detailedGender || session.gender,
-    ageCategory: session.detailedAge || session.ageCategory,
-    lgbtq: session.lgbtq,
-    criminalConvictions: session.criminalConvictions,
-    hasChildren: session.hasChildren,
-    sleepingSituation: session.sleepingSituation,
-    mentalHealth: session.mentalHealth,
-    physicalHealth: session.physicalHealth,
-    immigrationStatus: session.immigrationStatus,
-    publicFunds: session.publicFunds,
-    lgbtqServicePreference: session.lgbtqServicePreference,
-  };
-  
+  const profile = toUserProfile(session);
+
   // Get services
   const councilOrg = getCouncilOrg(session.localAuthority);
   const localSupportOrgs = getLocalSupportOrgs(session.localAuthority);
@@ -1775,25 +1345,3 @@ export function processLocationInput(session: SessionState, locationData: Locati
   };
 }
 
-// Handle LOCATION_OUTSIDE_WMCA response
-export function processOutsideWMCAResponse(session: SessionState, choice: number): RoutingResult {
-  if (choice === 1) {
-    // Continue anyway
-    return {
-      ...phrase('B2_WHO_FOR', session.isSupporter),
-      stateUpdates: { currentGate: 'B2_WHO_FOR' }
-    };
-  } else {
-    // Let them select different area
-    return {
-      ...phrase('B1_LOCAL_AUTHORITY', session.isSupporter),
-      stateUpdates: { 
-        currentGate: 'B1_LOCAL_AUTHORITY', 
-        locationMethod: 'MANUAL',
-        localAuthority: null,
-        latitude: null,
-        longitude: null
-      }
-    };
-  }
-}

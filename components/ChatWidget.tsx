@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import type { ServiceCard } from '@/lib/types';
 
 // ============================================================
 // SSN BRAND COLORS (Official)
@@ -32,76 +33,9 @@ interface Message {
   quickReplies?: QuickReply[];
 }
 
-interface ServiceCard {
-  name: string;
-  phone?: string;
-  website?: string;
-  description?: string;
-  category: string;
-  isVerified?: boolean;
-  isDropIn?: boolean;
-}
-
 interface ChatWidgetProps {
   isOpen: boolean;
   onClose: () => void;
-}
-
-// ============================================================
-// LAUNCHER - Solid teal rectangle like website
-// ============================================================
-
-interface LauncherBubbleProps {
-  onClick: () => void;
-}
-
-export function LauncherBubble({ onClick }: LauncherBubbleProps) {
-  const [isVisible, setIsVisible] = useState(false);
-  const [showMessage, setShowMessage] = useState(true);
-  
-  useEffect(() => {
-    setTimeout(() => setIsVisible(true), 100);
-  }, []);
-
-  return (
-    <div className="fixed bottom-4 right-4 flex flex-col items-end gap-3 z-40">
-      {/* Teal message box - matches website */}
-      {showMessage && (
-        <div 
-          className="relative rounded-lg px-5 py-4 shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 max-w-[280px]"
-          style={{
-            backgroundColor: SSN_COLORS.primary,
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible ? 'translateY(0)' : 'translateY(10px)',
-          }}
-          onClick={onClick}
-        >
-          <p className="text-white text-base font-medium leading-snug pr-12">
-            I'm Street Support's Virtual Assistant. How can I help?
-          </p>
-          {/* Close button */}
-          <button 
-            className="absolute top-2 right-2 text-white/80 hover:text-white text-xs flex items-center gap-1 px-2 py-1"
-            onClick={(e) => { e.stopPropagation(); setShowMessage(false); }}
-          >
-            × Close
-          </button>
-        </div>
-      )}
-      
-      {/* Chat icon button */}
-      <button
-        onClick={onClick}
-        className="w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
-        style={{ backgroundColor: SSN_COLORS.primary }}
-        title="Chat with Street Support Assistant"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-        </svg>
-      </button>
-    </div>
-  );
 }
 
 // ============================================================
@@ -183,6 +117,39 @@ function stripInstructionsAndOptions(text: string): string {
 }
 
 // ============================================================
+// SECTION HEADER CONFIG (single source of truth)
+// ============================================================
+
+const SECTION_HEADERS: Record<string, string> = {
+  'YOUR FIRST STEP': 'Your First Step',
+  'OUTREACH SUPPORT': 'Outreach Support',
+  'LOCAL SUPPORT': 'Local Support',
+  'SPECIALIST SUPPORT': 'Specialist Support',
+  "YOUNG PEOPLE'S SUPPORT": "Young People's Support",
+  'IMPORTANT FOR YOUNG PEOPLE': "Young People's Support",
+  'IF YOU NEED MORE HELP': 'Additional Support',
+  'LOCAL SERVICES': 'Local Services',
+  'NATIONAL RESOURCES': 'National Resources',
+  'FIND MORE SERVICES': 'More Services',
+  // Crisis exit headers
+  'CRISIS SUPPORT': 'Crisis Support',
+  'SPECIALIST HELPLINE': 'Specialist Helpline',
+  'LOCAL COUNCIL': 'Local Council',
+  'HOUSING ADVICE': 'Housing Advice',
+  'MENTAL HEALTH SUPPORT': 'Mental Health Support',
+  "CHILDREN'S SERVICES": "Children's Services",
+  'EMERGENCY HOUSING': 'Emergency Housing',
+  'ADDITIONAL SUPPORT': 'Additional Support',
+  'SOMEONE TO TALK TO': 'Someone To Talk To',
+  'NHS MENTAL HEALTH SUPPORT': 'NHS Mental Health',
+  'MIND INFOLINE': 'Mind Infoline',
+  'DOMESTIC ABUSE SUPPORT': 'Domestic Abuse Support',
+  'SEXUAL VIOLENCE SUPPORT': 'Sexual Violence Support',
+};
+
+const sectionHeaderKeys = Object.keys(SECTION_HEADERS);
+
+// ============================================================
 // SERVICE CARD PARSER
 // ============================================================
 
@@ -194,18 +161,9 @@ interface ParsedContent {
 }
 
 function parseServiceContent(text: string): ParsedContent {
-  const isServiceResponse = 
-    text.includes('YOUR FIRST STEP') || 
-    text.includes('LOCAL SUPPORT') ||
+  const isServiceResponse =
     text.includes('found some services') ||
-    text.includes('IF YOU NEED MORE HELP') ||
-    // Crisis exit triggers
-    text.includes('CRISIS SUPPORT') ||
-    text.includes('SPECIALIST HELPLINE') ||
-    text.includes('LOCAL COUNCIL') ||
-    text.includes('HOUSING ADVICE') ||
-    text.includes('MENTAL HEALTH SUPPORT') ||
-    text.includes("CHILDREN'S SERVICES");
+    sectionHeaderKeys.some(h => text.includes(h));
     
   if (!isServiceResponse) {
     return { intro: text, services: [], outro: '', isServiceResponse: false };
@@ -221,27 +179,10 @@ function parseServiceContent(text: string): ParsedContent {
   let reachedFirstSection = false;
   let collectingOutro = false;
   
-  const sectionHeaders = [
-    'YOUR FIRST STEP',
-    'OUTREACH SUPPORT', 
-    'LOCAL SUPPORT',
-    'SPECIALIST SUPPORT',
-    "YOUNG PEOPLE'S SUPPORT",
-    'IMPORTANT FOR YOUNG PEOPLE',
-    'IF YOU NEED MORE HELP',
-    // Crisis exit headers
-    'CRISIS SUPPORT',
-    'SPECIALIST HELPLINE',
-    'LOCAL COUNCIL',
-    'HOUSING ADVICE',
-    'MENTAL HEALTH SUPPORT',
-    "CHILDREN'S SERVICES"
-  ];
-  
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const trimmed = line.trim();
-    
+
     // Check for outro separator FIRST (before skipping generic dash lines)
     if (trimmed === '---') {
       if (currentService?.name) {
@@ -251,11 +192,11 @@ function parseServiceContent(text: string): ParsedContent {
       collectingOutro = true;
       continue;
     }
-    
+
     // Skip other dash-only lines (visual separators)
     if (/^-+$/.test(trimmed)) continue;
-    
-    const isHeader = sectionHeaders.some(h => trimmed === h);
+
+    const isHeader = trimmed in SECTION_HEADERS;
     
     if (isHeader) {
       if (currentService?.name) {
@@ -413,24 +354,6 @@ function parseServiceContent(text: string): ParsedContent {
 // ============================================================
 
 function ServiceCardComponent({ service }: { service: ServiceCard }) {
-  // Category badge label mapping
-  const categoryLabel: Record<string, string> = {
-    'YOUR FIRST STEP': 'Your First Step',
-    'OUTREACH SUPPORT': 'Outreach Support',
-    'LOCAL SUPPORT': 'Local Support',
-    'SPECIALIST SUPPORT': 'Specialist Support',
-    "YOUNG PEOPLE'S SUPPORT": "Young People's Support",
-    'IMPORTANT FOR YOUNG PEOPLE': "Young People's Support",
-    'IF YOU NEED MORE HELP': 'Additional Support',
-    // Crisis exit labels
-    'CRISIS SUPPORT': 'Crisis Support',
-    'SPECIALIST HELPLINE': 'Specialist Helpline',
-    'LOCAL COUNCIL': 'Local Council',
-    'HOUSING ADVICE': 'Housing Advice',
-    'MENTAL HEALTH SUPPORT': 'Mental Health Support',
-    "CHILDREN'S SERVICES": "Children's Services",
-  };
-
   return (
     <div 
       className="rounded-lg p-4 mb-3 bg-white"
@@ -474,7 +397,7 @@ function ServiceCardComponent({ service }: { service: ServiceCard }) {
           className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold text-white"
           style={{ backgroundColor: SSN_COLORS.purple }}
         >
-          {categoryLabel[service.category] || service.category}
+          {SECTION_HEADERS[service.category] || service.category}
         </span>
       </div>
       
