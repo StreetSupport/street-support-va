@@ -122,7 +122,7 @@ function buildSelfHarmExit(session: SessionState): RoutingResult {
 
   let text = '';
 
-  text += `I'm really glad ${they} reached out. It's clear ${they} care about getting support, and that matters.\n\n`;
+  text += `I'm really glad ${they} reached out. ${they.charAt(0).toUpperCase() + they.slice(1)} deserve support with this, and ${theyre} not alone.\n\n`;
   text += `${their.charAt(0).toUpperCase() + their.slice(1)} feelings are valid, and there are people who want to listen without judgement.\n\n`;
 
   text += `SOMEONE TO TALK TO\n`;
@@ -139,12 +139,13 @@ function buildSelfHarmExit(session: SessionState): RoutingResult {
 
   text += `MIND INFOLINE\n`;
   text += `Mind\n`;
-  text += `0300 123 3393\n`;
+  text += `0300 123 3393 (Mon-Fri 9am-6pm)\n`;
   text += `https://www.mind.org.uk/information-support/helplines/\n`;
   text += `Information and support for mental health\n\n`;
 
   text += `---\n`;
-  text += `Please take care. I'll be here if ${they} need help finding other services later.`;
+  text += `Please take care. I'll be here if ${they} need help finding other services later.\n\n`;
+  text += `If ${theyre} in immediate danger, call 999 or go to A&E.`;
 
   return {
     text,

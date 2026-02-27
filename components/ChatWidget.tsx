@@ -143,6 +143,8 @@ const SECTION_HEADERS: Record<string, string> = {
   'SOMEONE TO TALK TO': 'Someone To Talk To',
   'NHS MENTAL HEALTH SUPPORT': 'NHS Mental Health',
   'MIND INFOLINE': 'Mind Infoline',
+  'DOMESTIC ABUSE SUPPORT': 'Domestic Abuse Support',
+  'SEXUAL VIOLENCE SUPPORT': 'Sexual Violence Support',
 };
 
 const sectionHeaderKeys = Object.keys(SECTION_HEADERS);

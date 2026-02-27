@@ -38,6 +38,7 @@
  */
 
 import type { GateType, SessionState } from '../lib/types';
+import { toUserProfile } from '../lib/types';
 import { createSession, getFirstMessage, processInput } from '../lib/stateMachine';
 import { getPhrase } from '../lib/phrasebank';
 
@@ -322,6 +323,130 @@ describe('Critical Content Exists', () => {
     });
     const result = select(session, 1);
     expect(result.text.length).toBeGreaterThan(50);
+  });
+
+});
+
+// =============================================================================
+// SUPPORTER MODE - Pronouns render correctly in crisis exits
+// =============================================================================
+
+describe('Supporter Mode Exits', () => {
+
+  test('self-harm exit uses third-person pronouns for supporter', () => {
+    const session = sessionAt('GATE0_CRISIS_DANGER', { isSupporter: true });
+    const result = select(session, 4); // Self-harm
+    expect(result.text).toContain('they');
+    expect(result.text).toContain('Their feelings');
+    expect(result.text).not.toContain('Your feelings');
+  });
+
+  test('fire/flood exit uses third-person pronouns for supporter', () => {
+    const session = sessionAt('CRISIS_FIRE_FLOOD_LOCATION', { isSupporter: true });
+    const result = select(session, 1); // Wolverhampton
+    expect(result.text).toContain('their');
+    expect(result.text).not.toContain('your home');
+  });
+
+});
+
+// =============================================================================
+// FIRE/FLOOD - Council phone numbers for specific LAs
+// =============================================================================
+
+describe('Fire/Flood Council Numbers', () => {
+
+  test('Wolverhampton shows correct council phone number', () => {
+    const session = sessionAt('CRISIS_FIRE_FLOOD_LOCATION');
+    const result = select(session, 1); // Wolverhampton
+    expect(result.text).toContain('01902 556789');
+  });
+
+  test('Birmingham shows correct council phone number', () => {
+    const session = sessionAt('CRISIS_FIRE_FLOOD_LOCATION');
+    const result = select(session, 2); // Birmingham
+    expect(result.text).toContain('0121 303 7410');
+  });
+
+});
+
+// =============================================================================
+// NON-HOUSING TERMINAL - Food/Health needs produce appropriate output
+// =============================================================================
+
+describe('Non-Housing Terminal Path', () => {
+
+  test('Food need produces food support output, not housing', () => {
+    const session = sessionAt('B5_PROFILE_CHILDREN', {
+      supportNeed: 'Food',
+      ageCategory: '25+',
+      gender: 'Male',
+      lgbtq: false,
+      criminalConvictions: 'No',
+      publicFunds: true,
+    });
+    const result = select(session, 2); // No children -> completes profile -> terminal
+    expect(result.text.toLowerCase()).toContain('food');
+    expect(result.text).toContain('trusselltrust.org');
+    expect(result.text.toLowerCase()).not.toContain('council housing');
+  });
+
+  test('Health need produces health support output', () => {
+    const session = sessionAt('B5_PROFILE_CHILDREN', {
+      supportNeed: 'Health',
+      ageCategory: '25+',
+      gender: 'Female',
+      lgbtq: false,
+      criminalConvictions: 'No',
+      publicFunds: true,
+    });
+    const result = select(session, 2); // No children -> completes profile -> terminal
+    expect(result.text.toLowerCase()).toContain('health');
+    expect(result.text).toContain('nhs.uk');
+  });
+
+});
+
+// =============================================================================
+// DETAILED AGE/GENDER PRIORITY - detailedAge/detailedGender override basics
+// =============================================================================
+
+describe('Detailed Age/Gender Fallback', () => {
+
+  test('detailedGender takes priority over gender in user profile', () => {
+    const session = sessionAt('GATE0_CRISIS_DANGER', {
+      gender: 'Male',
+      detailedGender: 'Female',
+    });
+    const profile = toUserProfile(session);
+    expect(profile.gender).toBe('Female');
+  });
+
+  test('detailedAge takes priority over ageCategory in user profile', () => {
+    const session = sessionAt('GATE0_CRISIS_DANGER', {
+      ageCategory: '25+',
+      detailedAge: '18-20',
+    });
+    const profile = toUserProfile(session);
+    expect(profile.ageCategory).toBe('18-20');
+  });
+
+  test('falls back to basic gender when detailedGender is null', () => {
+    const session = sessionAt('GATE0_CRISIS_DANGER', {
+      gender: 'Male',
+      detailedGender: null,
+    });
+    const profile = toUserProfile(session);
+    expect(profile.gender).toBe('Male');
+  });
+
+  test('falls back to basic ageCategory when detailedAge is null', () => {
+    const session = sessionAt('GATE0_CRISIS_DANGER', {
+      ageCategory: '25+',
+      detailedAge: null,
+    });
+    const profile = toUserProfile(session);
+    expect(profile.ageCategory).toBe('25+');
   });
 
 });

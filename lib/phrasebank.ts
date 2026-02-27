@@ -1330,10 +1330,12 @@ Once they are safe, I can help you find support services for them.`
   DV_FEMALE_CHILDREN_YES: {
     text: `I'm really sorry this is happening. You deserve support, and these services are here to help. They can talk through your options, help with safety planning, and connect you with emergency housing if needed. Everything is confidential.
 
+DOMESTIC ABUSE SUPPORT
 National Domestic Violence Helpline
 0808 2000 247 (24/7, free, confidential)
 https://nationaldahelpline.org.uk
 
+HOUSING ADVICE
 Shelter - Domestic Violence Advice
 https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
@@ -1341,10 +1343,12 @@ https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk
   DV_FEMALE_CHILDREN_YES__SUPPORTER: {
     text: `I'm really sorry this is happening to them. They deserve support, and these services are here to help. They can talk through options, help with safety planning, and connect them with emergency housing if needed. Everything is confidential.
 
+DOMESTIC ABUSE SUPPORT
 National Domestic Violence Helpline
 0808 2000 247 (24/7, free, confidential)
 https://nationaldahelpline.org.uk
 
+HOUSING ADVICE
 Shelter - Domestic Violence Advice
 https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
@@ -1352,10 +1356,12 @@ https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk
   DV_FEMALE_CHILDREN_NO: {
     text: `I'm really sorry this is happening. You deserve support, and these services are here to help. They can talk through your options, help with safety planning, and connect you with emergency housing if needed. Everything is confidential.
 
+DOMESTIC ABUSE SUPPORT
 National Domestic Violence Helpline
 0808 2000 247 (24/7, free, confidential)
 https://nationaldahelpline.org.uk
 
+HOUSING ADVICE
 Shelter - Domestic Violence Advice
 https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
@@ -1363,10 +1369,12 @@ https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk
   DV_FEMALE_CHILDREN_NO__SUPPORTER: {
     text: `I'm really sorry this is happening to them. They deserve support, and these services are here to help. They can talk through options, help with safety planning, and connect them with emergency housing if needed. Everything is confidential.
 
+DOMESTIC ABUSE SUPPORT
 National Domestic Violence Helpline
 0808 2000 247 (24/7, free, confidential)
 https://nationaldahelpline.org.uk
 
+HOUSING ADVICE
 Shelter - Domestic Violence Advice
 https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
@@ -1374,6 +1382,7 @@ https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk
   DV_MALE_CHILDREN_YES: {
     text: `I'm really sorry this is happening. You deserve support, and these services are here to help. They can talk through your options, help with safety planning, and connect you with emergency housing if needed. Everything is confidential.
 
+DOMESTIC ABUSE SUPPORT
 ManKind Initiative
 0808 800 1170
 https://mankind.org.uk
@@ -1383,6 +1392,7 @@ Confidential support for men affected by domestic violence`
   DV_MALE_CHILDREN_YES__SUPPORTER: {
     text: `I'm really sorry this is happening to them. They deserve support, and these services are here to help. They can talk through options, help with safety planning, and connect them with emergency housing if needed. Everything is confidential.
 
+DOMESTIC ABUSE SUPPORT
 ManKind Initiative
 0808 800 1170
 https://mankind.org.uk
@@ -1392,6 +1402,7 @@ Confidential support for men affected by domestic violence`
   DV_MALE_CHILDREN_NO: {
     text: `I'm really sorry this is happening. You need support from people who can help right now.
 
+DOMESTIC ABUSE SUPPORT
 ManKind Initiative
 0808 800 1170
 https://mankind.org.uk`
@@ -1400,6 +1411,7 @@ https://mankind.org.uk`
   DV_MALE_CHILDREN_NO__SUPPORTER: {
     text: `I'm really sorry this is happening to them. They need support from people who can help right now.
 
+DOMESTIC ABUSE SUPPORT
 ManKind Initiative
 0808 800 1170
 https://mankind.org.uk`
@@ -1408,6 +1420,7 @@ https://mankind.org.uk`
   DV_LGBTQ_CHILDREN_YES: {
     text: `I'm really sorry this is happening. You need support from people who can help right now.
 
+DOMESTIC ABUSE SUPPORT
 Galop
 0800 999 5428
 https://galop.org.uk
@@ -1417,6 +1430,7 @@ National helpline for LGBTQ+ people affected by abuse or violence`
   DV_LGBTQ_CHILDREN_YES__SUPPORTER: {
     text: `I'm really sorry this is happening to them. They need support from people who can help right now.
 
+DOMESTIC ABUSE SUPPORT
 Galop
 0800 999 5428
 https://galop.org.uk
@@ -1426,6 +1440,7 @@ National helpline for LGBTQ+ people affected by abuse or violence`
   DV_LGBTQ_CHILDREN_NO: {
     text: `I'm really sorry this is happening. You need support from people who can help right now.
 
+DOMESTIC ABUSE SUPPORT
 Galop
 0800 999 5428
 https://galop.org.uk`
@@ -1434,6 +1449,7 @@ https://galop.org.uk`
   DV_LGBTQ_CHILDREN_NO__SUPPORTER: {
     text: `I'm really sorry this is happening to them. They need support from people who can help right now.
 
+DOMESTIC ABUSE SUPPORT
 Galop
 0800 999 5428
 https://galop.org.uk`
@@ -1442,6 +1458,7 @@ https://galop.org.uk`
   SA_FEMALE_16PLUS: {
     text: `I'm really sorry this has happened. You need support from people who can help right now.
 
+SEXUAL VIOLENCE SUPPORT
 Rape Crisis England & Wales
 0808 500 2222 (Free, confidential, 24/7)
 https://rapecrisis.org.uk`
@@ -1450,6 +1467,7 @@ https://rapecrisis.org.uk`
   SA_FEMALE_16PLUS__SUPPORTER: {
     text: `I'm really sorry this has happened to them. They need support from people who can help right now.
 
+SEXUAL VIOLENCE SUPPORT
 Rape Crisis England & Wales
 0808 500 2222 (Free, confidential, 24/7)
 https://rapecrisis.org.uk`
@@ -1458,6 +1476,7 @@ https://rapecrisis.org.uk`
   SA_MALE_16PLUS: {
     text: `I'm really sorry this has happened. You need support from people who can help right now.
 
+SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
 020 3598 3898
 https://survivorsuk.org
@@ -1467,6 +1486,7 @@ Specialist, confidential support for men and boys aged 16 and over`
   SA_MALE_16PLUS__SUPPORTER: {
     text: `I'm really sorry this has happened to them. They need support from people who can help right now.
 
+SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
 020 3598 3898
 https://survivorsuk.org
@@ -1476,10 +1496,12 @@ Specialist, confidential support for men and boys aged 16 and over`
   SA_LGBTQ_OR_NONBINARY: {
     text: `I'm really sorry this has happened. You need support from people who can help right now.
 
+SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
 020 3598 3898
 https://survivorsuk.org
 
+SEXUAL VIOLENCE SUPPORT
 Galop
 0800 999 5428
 https://galop.org.uk`
@@ -1488,10 +1510,12 @@ https://galop.org.uk`
   SA_LGBTQ_OR_NONBINARY__SUPPORTER: {
     text: `I'm really sorry this has happened to them. They need support from people who can help right now.
 
+SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
 020 3598 3898
 https://survivorsuk.org
 
+SEXUAL VIOLENCE SUPPORT
 Galop
 0800 999 5428
 https://galop.org.uk`
