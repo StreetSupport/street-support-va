@@ -222,6 +222,7 @@ export interface UserProfile {
   immigrationStatus?: string | null;
   publicFunds?: string | null;
   lgbtqServicePreference?: string | null;
+  dv?: boolean;
 }
 
 export interface ServiceCard {
