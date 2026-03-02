@@ -157,6 +157,7 @@ export interface SessionState {
   // Safeguarding
   safeguardingTriggered: boolean;
   safeguardingType: string | null;
+  dvDisclosed: boolean | null;
   dvGender: string | null;
   dvChildren: boolean | null;
   saGender: string | null;
@@ -259,5 +260,6 @@ export function toUserProfile(session: SessionState): UserProfile {
     immigrationStatus: session.immigrationStatus,
     publicFunds: session.publicFunds,
     lgbtqServicePreference: session.lgbtqServicePreference,
+    dv: session.safeguardingType === 'DOMESTIC_ABUSE' || session.dvDisclosed === true,
   };
 }
