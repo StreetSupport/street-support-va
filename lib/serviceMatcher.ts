@@ -492,27 +492,11 @@ export function getCouncilOrg(localAuthority: string | null): DefaultOrg | null 
 
 export function getLocalSupportOrgs(localAuthority: string | null): DefaultOrg[] {
   const orgs = getDefaultOrgs(localAuthority);
-  const result = orgs.filter(o => !o.isCouncil);
-
-  const endpoint = getEndpointData(localAuthority);
-  if (endpoint?.navigatorOrgs) {
-    for (const nav of endpoint.navigatorOrgs) {
-      result.push({
-        name: nav.name,
-        phone: nav.phone || null,
-        website: nav.website || null,
-        description: nav.description,
-        isDropIn: true,
-      });
-    }
-  }
-
-  return result;
+  return orgs.filter(o => !o.isCouncil);
 }
 
 export function getSpecialistOrgs(profile: UserProfile): DefaultOrg[] {
   const orgs: DefaultOrg[] = [];
-  const endpoint = getEndpointData(profile.localAuthority);
 
   if (profile.lgbtq) {
     const pref = profile.lgbtqServicePreference;
@@ -525,29 +509,6 @@ export function getSpecialistOrgs(profile: UserProfile): DefaultOrg[] {
       profile.immigrationStatus === 'Asylum seeker' ||
       profile.publicFunds === 'No') {
     orgs.push(...immigrationOrgs);
-    if (endpoint?.immigrationOrgs) {
-      for (const org of endpoint.immigrationOrgs) {
-        orgs.push({
-          name: org.name,
-          phone: org.phone || null,
-          website: org.website || null,
-          description: org.description,
-        });
-      }
-    }
-  }
-
-  if (profile.dv && endpoint?.dvOrgs) {
-    for (const org of Object.values(endpoint.dvOrgs as Record<string, any>)) {
-      if (org && typeof org === 'object' && org.name) {
-        orgs.push({
-          name: org.name,
-          phone: org.phone || null,
-          website: org.website || null,
-          description: org.description || `Local domestic abuse support${org.hours ? ` (${org.hours})` : ''}`,
-        });
-      }
-    }
   }
 
   return orgs;
@@ -604,5 +565,49 @@ export function getStreetLinkInfo(): DefaultOrg {
     website: "https://streetlink.org.uk",
     description: "Alert local outreach teams to help someone sleeping rough"
   };
+}
+
+// ============================================================
+// HOUSING PATHWAY ENDPOINT LOOKUPS
+// ============================================================
+
+export function getNavigatorOrgs(localAuthority: string | null): DefaultOrg[] {
+  const endpoint = getEndpointData(localAuthority);
+  if (!endpoint?.navigatorOrgs) return [];
+  return endpoint.navigatorOrgs.map((nav: any) => ({
+    name: nav.name,
+    phone: nav.phone || null,
+    website: nav.website || null,
+    description: nav.description,
+    isDropIn: true,
+  }));
+}
+
+export function getDVOrgs(localAuthority: string | null): DefaultOrg[] {
+  const endpoint = getEndpointData(localAuthority);
+  if (!endpoint?.dvOrgs) return [];
+  const orgs: DefaultOrg[] = [];
+  for (const org of Object.values(endpoint.dvOrgs as Record<string, any>)) {
+    if (org && typeof org === 'object' && org.name) {
+      orgs.push({
+        name: org.name,
+        phone: org.phone || org.phone_24hr || null,
+        website: org.website ? (org.website.startsWith('http') ? org.website : `https://${org.website}`) : null,
+        description: org.description || `Local domestic abuse support${org.hours ? ` (${org.hours})` : ''}`,
+      });
+    }
+  }
+  return orgs;
+}
+
+export function getImmigrationOrgs(localAuthority: string | null): DefaultOrg[] {
+  const endpoint = getEndpointData(localAuthority);
+  if (!endpoint?.immigrationOrgs) return [];
+  return endpoint.immigrationOrgs.map((org: any) => ({
+    name: org.name,
+    phone: org.phone || null,
+    website: org.website ? (org.website.startsWith('http') ? org.website : `https://${org.website}`) : null,
+    description: org.description,
+  }));
 }
 
