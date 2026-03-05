@@ -137,7 +137,6 @@ export function createSession(sessionId: string): SessionState {
     youthServicesFlag: false,
     safeguardingTriggered: false,
     safeguardingType: null,
-    dvDisclosed: null,
     dvGender: null,
     dvChildren: null,
     saGender: null,

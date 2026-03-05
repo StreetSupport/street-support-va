@@ -50,6 +50,63 @@ interface Organization {
   areas_served: string[];
 }
 
+interface NavigatorOrg {
+  name: string;
+  description: string;
+  ageMin: number | null;
+  ageMax: number | null;
+  phone?: string;
+  website?: string;
+  email?: string;
+  availabilityNote?: string;
+  _canonicalNote?: string;
+}
+
+interface DVOrg {
+  name: string;
+  description?: string;
+  phone?: string;
+  phone_24hr?: string;
+  phone_office?: string;
+  hours?: string;
+  oohNote?: string;
+  website?: string;
+  text_whatsapp?: string;
+}
+
+interface ImmigrationOrg {
+  name: string;
+  description: string;
+  phone: string;
+  hours?: string;
+  email?: string;
+  website: string;
+}
+
+interface HousingContact {
+  name: string;
+  phone: string;
+  phoneOOH?: string;
+  phoneOOHNote?: string;
+  phoneHours?: string;
+  phoneOption?: string;
+  website: string;
+}
+
+interface LAEndpointData {
+  name: string;
+  housingOptions: HousingContact;
+  childrenServices: HousingContact;
+  navigatorOrgs: NavigatorOrg[];
+  dvOrgs: Record<string, DVOrg>;
+  immigrationOrgs: ImmigrationOrg[];
+  _navigatorGap?: string;
+  _immigrationGap?: string;
+}
+
+interface WMCAServicesData { services: Service[]; }
+interface WMCAOrganizationsData { organizations: Organization[]; }
+
 // ============================================================
 // CATEGORY MAPPINGS
 // ============================================================
@@ -174,10 +231,10 @@ function normalizeLA(la: string | null): string {
   return la.toLowerCase().replace(/\s+/g, '').replace('cityof', '');
 }
 
-function getEndpointData(localAuthority: string | null): any {
+function getEndpointData(localAuthority: string | null): LAEndpointData | null {
   if (!localAuthority) return null;
   const la = normalizeLA(localAuthority);
-  return (endpointsData as any)[la] || null;
+  return (endpointsData as unknown as Record<string, LAEndpointData>)[la] || null;
 }
 
 function ageCategoryToNumber(ageCategory: string | null): number | null {
@@ -187,13 +244,13 @@ function ageCategoryToNumber(ageCategory: string | null): number | null {
 }
 
 function getOrgContact(orgId: string): Organization['contact'] | null {
-  const orgs = (orgsData as any).organizations as Organization[];
+  const orgs = (orgsData as WMCAOrganizationsData).organizations;
   const org = orgs.find(o => o.organization_id === orgId);
   return org?.contact || null;
 }
 
 function getOrgName(orgId: string): string | null {
-  const orgs = (orgsData as any).organizations as Organization[];
+  const orgs = (orgsData as WMCAOrganizationsData).organizations;
   const org = orgs.find(o => o.organization_id === orgId);
   return org?.name || null;
 }
@@ -360,7 +417,7 @@ export function getServicesByCategory(
   if (!localAuthority || categories.length === 0) return [];
   
   const la = normalizeLA(localAuthority);
-  const services = (servicesData as any).services as Service[];
+  const services = (servicesData as WMCAServicesData).services;
   
   return services.filter(s => {
     const serviceLA = normalizeLA(s.local_authority);
@@ -574,7 +631,7 @@ export function getStreetLinkInfo(): DefaultOrg {
 export function getNavigatorOrgs(localAuthority: string | null): DefaultOrg[] {
   const endpoint = getEndpointData(localAuthority);
   if (!endpoint?.navigatorOrgs) return [];
-  return endpoint.navigatorOrgs.map((nav: any) => ({
+  return endpoint.navigatorOrgs.map((nav: NavigatorOrg) => ({
     name: nav.name,
     phone: nav.phone || null,
     website: nav.website || null,
@@ -587,7 +644,7 @@ export function getDVOrgs(localAuthority: string | null): DefaultOrg[] {
   const endpoint = getEndpointData(localAuthority);
   if (!endpoint?.dvOrgs) return [];
   const orgs: DefaultOrg[] = [];
-  for (const org of Object.values(endpoint.dvOrgs as Record<string, any>)) {
+  for (const org of Object.values(endpoint.dvOrgs as Record<string, DVOrg>)) {
     if (org && typeof org === 'object' && org.name) {
       orgs.push({
         name: org.name,
@@ -603,7 +660,7 @@ export function getDVOrgs(localAuthority: string | null): DefaultOrg[] {
 export function getImmigrationOrgs(localAuthority: string | null): DefaultOrg[] {
   const endpoint = getEndpointData(localAuthority);
   if (!endpoint?.immigrationOrgs) return [];
-  return endpoint.immigrationOrgs.map((org: any) => ({
+  return endpoint.immigrationOrgs.map((org: ImmigrationOrg) => ({
     name: org.name,
     phone: org.phone || null,
     website: org.website ? (org.website.startsWith('http') ? org.website : `https://${org.website}`) : null,

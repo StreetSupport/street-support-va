@@ -89,6 +89,7 @@
     "navigatorOrgs": [
       {
         "name": "P3 Coventry",
+        "_canonicalNote": "Phone verified from p3charity.org (primary source) and Google Maps. Navigator org numbers are sourced from organisations directly — la-contacts.json covers council services only.",
         "description": "Housing support for individuals and families experiencing or at risk of homelessness.",
         "ageMin": 25,
         "ageMax": null,

@@ -40,7 +40,7 @@
       "_status": "NEEDS VERIFICATION",
       "_note": "Blue Sky Centre (George Eliot Hospital, Nuneaton) also serves Coventry and Warwickshire. Primarily Warwickshire. Horizon SARC is the primary route for Coventry. Do not surface until phone number is confirmed from primary source.",
       "name": "Blue Sky Centre",
-      "phone": "VERIFY BEFORE USE",
+      "phone": null,
       "availability": "24/7",
       "url": "VERIFY BEFORE USE",
       "covers": ["coventry"],
