@@ -33,13 +33,13 @@ Are you in crisis or danger right now?
 
 Please reply with the number that fits best:
 1. Immediate physical danger
-2. Domestic abuse
-3. Sexual violence
-4. Thoughts of harming myself
-5. Under 16 and need protection
+2. Under 16 and need protection
+3. Thoughts of harming myself
+4. Domestic abuse
+5. Sexual violence
 6. Lost home due to fire, flood, or emergency
 7. None of these apply`,
-    options: ["Immediate physical danger", "Domestic abuse", "Sexual violence", "Thoughts of harming myself", "Under 16 and need protection", "Lost home due to fire, flood, or emergency", "None of these apply"]
+    options: ["Immediate physical danger", "Under 16 and need protection", "Thoughts of harming myself", "Domestic abuse", "Sexual violence", "Lost home due to fire, flood, or emergency", "None of these apply"]
   },
 
   GATE0_CRISIS_DANGER__SUPPORTER: {
@@ -48,13 +48,13 @@ Please reply with the number that fits best:
 Which of these fits their situation best?
 
 1. Immediate physical danger
-2. Domestic abuse
-3. Sexual violence
-4. Thoughts of harming themselves
-5. Under 16 and need protection
+2. Under 16 and need protection
+3. Thoughts of harming themselves
+4. Domestic abuse
+5. Sexual violence
 6. Lost home due to fire, flood, or emergency
 7. None of these apply`,
-    options: ["Immediate physical danger", "Domestic abuse", "Sexual violence", "Thoughts of harming themselves", "Under 16 and need protection", "Lost home due to fire, flood, or emergency", "None of these apply"]
+    options: ["Immediate physical danger", "Under 16 and need protection", "Thoughts of harming themselves", "Domestic abuse", "Sexual violence", "Lost home due to fire, flood, or emergency", "None of these apply"]
   },
 
   // ============================================================

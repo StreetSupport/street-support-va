@@ -74,10 +74,10 @@ describe('Crisis Gate', () => {
     expect(result.options).toHaveLength(7);
   });
 
-  test('option 5 contains "under 16" (routing depends on array index)', () => {
+  test('option 2 contains "under 16" (routing depends on array index)', () => {
     const session = createSession('test');
     const result = getFirstMessage(session);
-    expect(result.options?.[4]?.toLowerCase()).toContain('under 16');
+    expect(result.options?.[1]?.toLowerCase()).toContain('under 16');
   });
 
   test('option 1 (immediate danger) contains 999', () => {
@@ -86,9 +86,9 @@ describe('Crisis Gate', () => {
     expect(result.text).toContain('999');
   });
 
-  test('option 4 (self-harm) contains Samaritans number', () => {
+  test('option 3 (self-harm) contains Samaritans number', () => {
     const session = sessionAt('GATE0_CRISIS_DANGER');
-    const result = select(session, 4);
+    const result = select(session, 3);
     expect(result.text).toContain('116 123');
   });
 
@@ -203,19 +203,19 @@ describe('Self-Harm Pathway', () => {
 
   test('contains Samaritans', () => {
     const session = sessionAt('GATE0_CRISIS_DANGER');
-    const result = select(session, 4); // Self-harm is option 4
+    const result = select(session, 3); // Self-harm is option 3
     expect(result.text).toContain('Samaritans');
   });
 
   test('contains NHS mental health option', () => {
     const session = sessionAt('GATE0_CRISIS_DANGER');
-    const result = select(session, 4);
+    const result = select(session, 3);
     expect(result.text).toContain('111');
   });
 
   test('ends session with safeguarding exit', () => {
     const session = sessionAt('GATE0_CRISIS_DANGER');
-    const result = select(session, 4);
+    const result = select(session, 3);
     expect(result.sessionEnded).toBe(true);
   });
 
@@ -313,7 +313,7 @@ describe('Critical Content Exists', () => {
 
   test('self-harm exit produces non-empty response', () => {
     const session = sessionAt('GATE0_CRISIS_DANGER');
-    const result = select(session, 4); // Self-harm is option 4
+    const result = select(session, 3); // Self-harm is option 3
     expect(result.text.length).toBeGreaterThan(50);
   });
 
@@ -335,7 +335,7 @@ describe('Supporter Mode Exits', () => {
 
   test('self-harm exit uses third-person pronouns for supporter', () => {
     const session = sessionAt('GATE0_CRISIS_DANGER', { isSupporter: true });
-    const result = select(session, 4); // Self-harm
+    const result = select(session, 3); // Self-harm
     expect(result.text).toContain('they');
     expect(result.text).toContain('Their feelings');
     expect(result.text).not.toContain('Your feelings');

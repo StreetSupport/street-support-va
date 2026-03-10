@@ -198,17 +198,17 @@ export function handleCrisisDanger(session: SessionState, choice: number | null)
   switch (choice) {
     case 1: // Immediate danger
       return safeguardingExit('IMMEDIATE_PHYSICAL_DANGER_EXIT', session.isSupporter, 'IMMEDIATE_DANGER');
-    case 2: // Domestic abuse -> ask gender
-      return phrase('DV_GENDER_ASK', session.isSupporter);
-    case 3: // Sexual violence -> ask gender
-      return phrase('SA_GENDER_ASK', session.isSupporter);
-    case 4: // Self-harm
-      return buildSelfHarmExit(session);
-    case 5: // Under 16 -> ask location first
+    case 2: // Under 16 -> ask location first
       return {
         ...phrase('CRISIS_UNDER16_LOCATION', session.isSupporter),
         stateUpdates: { currentGate: 'CRISIS_UNDER16_LOCATION' }
       };
+    case 3: // Self-harm
+      return buildSelfHarmExit(session);
+    case 4: // Domestic abuse -> ask gender
+      return phrase('DV_GENDER_ASK', session.isSupporter);
+    case 5: // Sexual violence -> ask gender
+      return phrase('SA_GENDER_ASK', session.isSupporter);
     case 6: // Fire/flood -> ask location first
       return {
         ...phrase('CRISIS_FIRE_FLOOD_LOCATION', session.isSupporter),
