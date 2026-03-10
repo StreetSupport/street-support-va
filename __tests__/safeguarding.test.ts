@@ -163,6 +163,68 @@ describe('16-17 Year Olds', () => {
     expect(result.stateUpdates.ageCategory).toBe('16-17');
   });
 
+  test('Birmingham 16-17 sees St Basil\'s but not SIFA Fireside in terminal', () => {
+    const session = sessionAt('B7_HOMELESS_SLEEPING_SITUATION', {
+      ageCategory: '16-17',
+      gender: 'Male',
+      localAuthority: 'Birmingham',
+      supportNeed: 'Emergency Housing',
+      homeless: true,
+      routeType: 'QUICK',
+    });
+    const result = select(session, 3); // Sofa surfing -> terminal
+    expect(result.text).toContain('St Basil');
+    expect(result.text).not.toContain('SIFA Fireside');
+  });
+
+  test('Birmingham 16-17 + socialServices Yes: Children\'s Services duty team framing, St Basil\'s, no SIFA', () => {
+    const session = sessionAt('B7_HOMELESS_SLEEPING_SITUATION', {
+      ageCategory: '16-17',
+      gender: 'Male',
+      localAuthority: 'Birmingham',
+      supportNeed: 'Emergency Housing',
+      homeless: true,
+      routeType: 'QUICK',
+      socialServices: 'Yes',
+    });
+    const result = select(session, 3); // Sofa surfing -> terminal
+    expect(result.text).toContain('Children\'s Services or a social worker');
+    expect(result.text).toContain('duty team');
+    expect(result.text).toContain('St Basil');
+    expect(result.text).not.toContain('SIFA Fireside');
+  });
+
+  test('Sandwell 16-17 + socialServices Yes: Children\'s Services framing, Childline, no navigator orgs', () => {
+    const session = sessionAt('B7_HOMELESS_SLEEPING_SITUATION', {
+      ageCategory: '16-17',
+      gender: 'Male',
+      localAuthority: 'Sandwell',
+      supportNeed: 'Emergency Housing',
+      homeless: true,
+      routeType: 'QUICK',
+      socialServices: 'Yes',
+    });
+    const result = select(session, 3); // Sofa surfing -> terminal
+    expect(result.text).toContain('Children\'s Services or a social worker');
+    expect(result.text).toContain('duty team');
+    expect(result.text).toContain('0800 1111');
+    expect(result.text).not.toContain('LOCAL SUPPORT');
+  });
+
+  test('16-17 + socialServices No: IMPORTANT FOR YOUNG PEOPLE section appears', () => {
+    const session = sessionAt('B7_HOMELESS_SLEEPING_SITUATION', {
+      ageCategory: '16-17',
+      gender: 'Male',
+      localAuthority: 'Birmingham',
+      supportNeed: 'Emergency Housing',
+      homeless: true,
+      routeType: 'QUICK',
+      socialServices: 'No',
+    });
+    const result = select(session, 3); // Sofa surfing -> terminal
+    expect(result.text).toContain('IMPORTANT FOR YOUNG PEOPLE');
+  });
+
 });
 
 // =============================================================================

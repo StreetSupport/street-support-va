@@ -162,14 +162,7 @@ const defaultOrgsByLA: Record<string, DefaultOrg[]> = Object.fromEntries(
           website: data.housingOptions.website,
           description: "Council duty to help if homeless or at risk",
           isCouncil: true
-        },
-        ...(data.navigatorOrgs || []).map((org: NavigatorOrg) => ({
-          name: org.name,
-          phone: org.phone || null,
-          website: org.website || null,
-          description: org.description,
-          isDropIn: org.isDropIn
-        }))
+        }
       ];
       return [la, orgs];
     })
@@ -630,16 +623,24 @@ export function getStreetLinkInfo(): DefaultOrg {
 // HOUSING PATHWAY ENDPOINT LOOKUPS
 // ============================================================
 
-export function getNavigatorOrgs(localAuthority: string | null): DefaultOrg[] {
+export function getNavigatorOrgs(localAuthority: string | null, ageCategory?: string | null): DefaultOrg[] {
   const endpoint = getEndpointData(localAuthority);
   if (!endpoint?.navigatorOrgs) return [];
-  return endpoint.navigatorOrgs.map((nav: NavigatorOrg) => ({
-    name: nav.name,
-    phone: nav.phone || null,
-    website: nav.website || null,
-    description: nav.description,
-    isDropIn: nav.isDropIn,
-  }));
+  const userAge = ageCategoryToNumber(ageCategory ?? null);
+  return endpoint.navigatorOrgs
+    .filter((nav: NavigatorOrg) => {
+      if (userAge === null) return true;
+      if (nav.ageMin !== null && nav.ageMin !== undefined && userAge < nav.ageMin) return false;
+      if (nav.ageMax !== null && nav.ageMax !== undefined && userAge > nav.ageMax) return false;
+      return true;
+    })
+    .map((nav: NavigatorOrg) => ({
+      name: nav.name,
+      phone: nav.phone || null,
+      website: nav.website || null,
+      description: nav.description,
+      isDropIn: nav.isDropIn,
+    }));
 }
 
 export function getDVOrgs(localAuthority: string | null): DefaultOrg[] {

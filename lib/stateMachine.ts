@@ -31,7 +31,7 @@ import {
   handleDVChildrenAsk,
   handleSAGenderAsk,
 } from './handlers/crisis';
-import { buildUnder16Exit } from './handlers/shared';
+import { buildUnder16Exit, childrenServicesData } from './handlers/shared';
 import {
   handleLocationConsent,
   handleLocationPostcode,
@@ -176,52 +176,6 @@ function safeguardingExit(key: string, isSupporter: boolean, type: string): Rout
     sessionEnded: true,
   };
 }
-
-// Children's Services contact info by Local Authority
-const childrenServicesData: Record<string, { name: string; phone: string; outOfHours?: string; website: string }> = {
-  wolverhampton: {
-    name: "Wolverhampton Children's Services",
-    phone: "01902 555392",
-    outOfHours: "01902 552999",
-    website: "https://www.wolverhampton.gov.uk/children-and-young-people"
-  },
-  birmingham: {
-    name: "Birmingham Children's Trust",
-    phone: "0121 303 1888",
-    outOfHours: "0121 675 4806",
-    website: "https://www.birminghamchildrenstrust.co.uk"
-  },
-  coventry: {
-    name: "Coventry Children's Services",
-    phone: "024 7678 8555",
-    outOfHours: "024 7683 2222",
-    website: "https://www.coventry.gov.uk/childrens-services"
-  },
-  dudley: {
-    name: "Dudley Children's Services",
-    phone: "0300 555 0050",
-    outOfHours: "0300 555 8574",
-    website: "https://www.dudley.gov.uk/resident/care-health/children-and-family-care/"
-  },
-  sandwell: {
-    name: "Sandwell Children's Trust",
-    phone: "0121 569 3100",
-    outOfHours: "0121 569 2355",
-    website: "https://www.sandwellchildrenstrust.org"
-  },
-  solihull: {
-    name: "Solihull Children's Services",
-    phone: "0121 788 4300",
-    outOfHours: "0121 605 6060",
-    website: "https://www.solihull.gov.uk/children-and-family-support"
-  },
-  walsall: {
-    name: "Walsall Children's Services",
-    phone: "0300 555 2866",
-    outOfHours: "0300 555 2922",
-    website: "https://go.walsall.gov.uk/children-and-young-people"
-  }
-};
 
 // ============================================================
 // CHECK IF SOCIAL SERVICES QUESTIONS SHOULD BE ASKED
@@ -575,7 +529,7 @@ function buildTerminalServices(session: SessionState): string {
   // Get services
   const councilOrg = getCouncilOrg(session.localAuthority);
   const localSupportOrgs = getLocalSupportOrgs(session.localAuthority);
-  const navigatorOrgs = getNavigatorOrgs(session.localAuthority);
+  const navigatorOrgs = getNavigatorOrgs(session.localAuthority, session.detailedAge || session.ageCategory);
   const specialistOrgs = getSpecialistOrgs(profile);
   const dvOrgs = getDVOrgs(session.localAuthority);
   const localImmigrationOrgs = getImmigrationOrgs(session.localAuthority);
@@ -584,12 +538,86 @@ function buildTerminalServices(session: SessionState): string {
   const streetLink = getStreetLinkInfo();
   
   let text = '';
-  
+
+  // ----------------------------------------
+  // 16-17 WITH SOCIAL SERVICES — special layout
+  // ----------------------------------------
+  const effectiveAge = session.detailedAge || session.ageCategory;
+  const is16_17 = effectiveAge === '16-17';
+  const hasSocialServices = session.socialServices === 'Yes';
+
+  if (is16_17 && hasSocialServices) {
+    text += `I've found some services that can help with ${possessive} situation.\n\n`;
+
+    // Children's Services as primary route
+    const csPhrase = getPhrase('TERMINAL_YOUTH_16_17_CHILDRENS_SERVICES', isSupporter);
+    text += `YOUR FIRST STEP\n`;
+    text += `---------------\n`;
+    text += `${csPhrase?.text}\n\n`;
+
+    const la = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
+    const childServices = childrenServicesData[la];
+    if (childServices) {
+      text += `${childServices.name}\n`;
+      text += `${childServices.phone}`;
+      if (childServices.phoneOOH) {
+        text += ` (out of hours: ${childServices.phoneOOH})`;
+      }
+      text += `\n`;
+      text += `${childServices.website}\n\n`;
+    }
+
+    // Age-filtered navigator orgs as secondary
+    if (navigatorOrgs.length > 0) {
+      const navIntro = getPhrase('TERMINAL_YOUTH_16_17_NAVIGATOR_INTRO', isSupporter);
+      text += `LOCAL SUPPORT\n`;
+      text += `-------------\n`;
+      text += `${navIntro?.text}\n\n`;
+
+      for (const org of navigatorOrgs) {
+        text += `${org.name}\n`;
+        if (org.phone) text += `${org.phone}\n`;
+        if (org.website) text += `${org.website}\n`;
+        if (org.description) text += `${org.description}\n`;
+        text += `\n`;
+      }
+    } else {
+      // No navigator orgs — reinforce statutory route + Childline
+      const reinforcement = getPhrase('TERMINAL_YOUTH_16_17_NO_NAVIGATOR_REINFORCEMENT', isSupporter);
+      text += `${reinforcement?.text}\n\n`;
+    }
+
+    // Housing Options as additional resource
+    if (councilOrg) {
+      text += `HOUSING OPTIONS\n`;
+      text += `---------------\n`;
+      text += `${councilOrg.name}\n`;
+      if (councilOrg.phone) text += `${councilOrg.phone}\n`;
+      if (councilOrg.website) text += `${councilOrg.website}\n`;
+      text += `\n`;
+    }
+
+    // Shelter safety net
+    text += `IF YOU NEED MORE HELP\n`;
+    text += `---------------------\n`;
+    text += `If ${theyre} finding it hard to get through to services, or ${they}'d like to talk through ${possessive} options with someone, Shelter's helpline is there for ${pronoun}:\n\n`;
+    text += `${shelter.name}\n`;
+    text += `${shelter.phone} (free, 8am-8pm weekdays, 9am-5pm weekends)\n`;
+    text += `${shelter.website}\n\n`;
+    text += `They can explain ${possessive} rights, help ${pronoun} prepare for conversations with the council, and support ${pronoun} if things aren't going well.\n\n`;
+
+    // Warm close
+    text += `---\n\n`;
+    text += `${theyve.charAt(0).toUpperCase() + theyve.slice(1)} taken an important step by reaching out today.`;
+
+    return text;
+  }
+
   // ----------------------------------------
   // OPENING - Acknowledge their situation
   // ----------------------------------------
   text += `I've found some services that can help with ${possessive} situation.\n\n`;
-  
+
   // ----------------------------------------
   // YOUR FIRST STEP - Council Housing Options
   // ----------------------------------------

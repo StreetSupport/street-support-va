@@ -1692,6 +1692,30 @@ You can contact your local council and ask for the Children's Services or Leavin
 Find your local council: https://www.gov.uk/find-local-council`
   },
 
+  TERMINAL_YOUTH_16_17_CHILDRENS_SERVICES: {
+    text: `For people aged 16 or 17, housing support is usually arranged through Children's Services or a social worker. If you're already working with them but still need help, you may be able to contact the duty team or ask to speak to someone urgently.`
+  },
+
+  TERMINAL_YOUTH_16_17_CHILDRENS_SERVICES__SUPPORTER: {
+    text: `For people aged 16 or 17, housing support is usually arranged through Children's Services or a social worker. If they're already working with them but still need help, they may be able to contact the duty team or ask to speak to someone urgently.`
+  },
+
+  TERMINAL_YOUTH_16_17_NAVIGATOR_INTRO: {
+    text: `These organisations may also be able to help you understand your options.`
+  },
+
+  TERMINAL_YOUTH_16_17_NAVIGATOR_INTRO__SUPPORTER: {
+    text: `These organisations may also be able to help them understand their options.`
+  },
+
+  TERMINAL_YOUTH_16_17_NO_NAVIGATOR_REINFORCEMENT: {
+    text: `If you're not sure what to do next, Childline can talk it through with you — call 0800 1111 (free, 24/7).`
+  },
+
+  TERMINAL_YOUTH_16_17_NO_NAVIGATOR_REINFORCEMENT__SUPPORTER: {
+    text: `If they're not sure what to do next, Childline can talk it through with them — call 0800 1111 (free, 24/7).`
+  },
+
   // ============================================================
   // SCOPE & FALLBACKS
   // ============================================================
