@@ -13,6 +13,9 @@ export type { GateType, SessionState, RoutingResult };
 import {
   getCouncilOrg,
   getLocalSupportOrgs,
+  getNavigatorOrgs,
+  getDVOrgs,
+  getImmigrationOrgs,
   getSpecialistOrgs,
   getYouthOrgs,
   getShelterInfo,
@@ -572,7 +575,10 @@ function buildTerminalServices(session: SessionState): string {
   // Get services
   const councilOrg = getCouncilOrg(session.localAuthority);
   const localSupportOrgs = getLocalSupportOrgs(session.localAuthority);
+  const navigatorOrgs = getNavigatorOrgs(session.localAuthority);
   const specialistOrgs = getSpecialistOrgs(profile);
+  const dvOrgs = getDVOrgs(session.localAuthority);
+  const localImmigrationOrgs = getImmigrationOrgs(session.localAuthority);
   const youthOrgs = getYouthOrgs(profile);
   const shelter = getShelterInfo(session.jurisdiction);
   const streetLink = getStreetLinkInfo();
@@ -636,13 +642,14 @@ function buildTerminalServices(session: SessionState): string {
   }
   
   // ----------------------------------------
-  // LOCAL SUPPORT - P3 and other drop-in services
+  // LOCAL SUPPORT - Drop-in services and navigator orgs
   // ----------------------------------------
-  if (localSupportOrgs.length > 0) {
+  const allLocalOrgs = [...localSupportOrgs, ...navigatorOrgs];
+  if (allLocalOrgs.length > 0) {
     text += `LOCAL SUPPORT\n`;
     text += `-------------\n`;
-    
-    for (const org of localSupportOrgs) {
+
+    for (const org of allLocalOrgs) {
       text += `${org.name}\n`;
       if (org.phone) {
         text += `${org.phone}\n`;
@@ -660,11 +667,40 @@ function buildTerminalServices(session: SessionState): string {
   // ----------------------------------------
   // SPECIALIST SUPPORT - LGBTQ+, Immigration, etc
   // ----------------------------------------
-  if (specialistOrgs.length > 0) {
+  const isNRPF = profile.immigrationStatus === 'No status' ||
+                 profile.immigrationStatus === 'Asylum seeker' ||
+                 profile.publicFunds === 'No';
+  const allSpecialistOrgs = [...specialistOrgs, ...(isNRPF ? localImmigrationOrgs : [])];
+  if (allSpecialistOrgs.length > 0) {
     text += `SPECIALIST SUPPORT\n`;
     text += `------------------\n`;
-    
-    for (const org of specialistOrgs) {
+
+    for (const org of allSpecialistOrgs) {
+      text += `${org.name}\n`;
+      if (org.phone) {
+        text += `${org.phone}\n`;
+      }
+      if (org.website) {
+        text += `${org.website}\n`;
+      }
+      if (org.description) {
+        text += `${org.description}\n`;
+      }
+      text += `\n`;
+    }
+  }
+
+  // ----------------------------------------
+  // DOMESTIC ABUSE SUPPORT - Local DV orgs alongside national floor
+  // ----------------------------------------
+  if (profile.dv && dvOrgs.length > 0) {
+    text += `DOMESTIC ABUSE SUPPORT\n`;
+    text += `----------------------\n`;
+    text += `National Domestic Abuse Helpline\n`;
+    text += `0808 2000 247 (free, 24/7)\n`;
+    text += `nationaldahelpline.org.uk\n\n`;
+
+    for (const org of dvOrgs) {
       text += `${org.name}\n`;
       if (org.phone) {
         text += `${org.phone}\n`;

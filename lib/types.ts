@@ -222,6 +222,7 @@ export interface UserProfile {
   immigrationStatus?: string | null;
   publicFunds?: string | null;
   lgbtqServicePreference?: string | null;
+  dv?: boolean;
 }
 
 export interface ServiceCard {
@@ -258,5 +259,6 @@ export function toUserProfile(session: SessionState): UserProfile {
     immigrationStatus: session.immigrationStatus,
     publicFunds: session.publicFunds,
     lgbtqServicePreference: session.lgbtqServicePreference,
+    dv: session.safeguardingType === 'DOMESTIC_ABUSE',
   };
 }

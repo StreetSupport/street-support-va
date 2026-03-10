@@ -1,0 +1,339 @@
+{
+  "_metadata": {
+    "version": "1.0",
+    "description": "LA-specific housing pathway endpoint data for the Street Support Network Virtual Assistant. Contains hardcoded local organisations for housing-related pathways. This file is the authoritative source — do not duplicate in TypeScript files.",
+    "governed_by": "Housing Pathway Endpoints Contract v1.0",
+    "verified": "February 2026 — council websites, org websites, enrichment pipeline data",
+    "authority": "Managing Director",
+    "change_control": "Operational changes (contact detail updates): MD authority, documented in CHANGELOG.md. Changes affecting routing logic: governance review required.",
+    "notes": {
+      "national_hardcoded": "National orgs (Shelter, Project 17, Migrant Help, AKT, Stonewall Housing, ManKind Initiative, Galop, National DV Helpline) are hardcoded in the VA codebase and do NOT appear in this file.",
+      "migrant_advice_portal": "Migrant Advice Portal (migrantadvice.org/interact) is a self-service signposting tool, not a referral service. Shown for all LAs on NRPF pathway as a supplement to local orgs.",
+      "dynamic_layer": "DV specialists and LGBTQ+ specialists from the SSN catalogue (AUTO_VERIFY enrichment data) are surfaced separately via service matching. This file covers hardcoded local orgs only."
+    }
+  },
+  "birmingham": {
+    "name": "Birmingham",
+    "housingOptions": {
+      "name": "Birmingham City Council Housing Options",
+      "phone": "0121 303 7410",
+      "phoneOOH": "0121 303 2296",
+      "phoneOOHNote": "18+ only. Under 18: 0121 675 4806",
+      "website": "https://www.birmingham.gov.uk/info/20169/homelessness"
+    },
+    "childrenServices": {
+      "name": "Birmingham Children's Trust",
+      "phone": "0121 303 1888",
+      "phoneOOH": "0121 675 4806",
+      "website": "https://www.birminghamchildrenstrust.co.uk"
+    },
+    "navigatorOrgs": [
+      {
+        "name": "SIFA Fireside",
+        "description": "Drop-in housing advice and support for single adults experiencing homelessness. Broad knowledge of local housing pathways.",
+        "ageMin": 18,
+        "ageMax": null,
+        "phone": "0121 766 1700",
+        "website": "https://www.sifafireside.co.uk",
+        "isDropIn": true
+      },
+      {
+        "name": "St Basil's Birmingham",
+        "description": "Specialist housing support for young people. Help to find and keep a home.",
+        "ageMin": 16,
+        "ageMax": 25,
+        "phone": "0300 303 0099",
+        "website": "https://www.stbasils.org.uk",
+        "isDropIn": true
+      }
+    ],
+    "dvOrgs": {
+      "womensAid": {
+        "name": "Birmingham and Solihull Women's Aid",
+        "phone": "0808 800 0028",
+        "hours": "Mon-Fri 9:30am-5pm",
+        "oohNote": "National DV Helpline (0808 2000 247) covers out of hours",
+        "website": "https://bswaid.org"
+      }
+    },
+    "immigrationOrgs": [
+      {
+        "name": "Refugee and Migrant Centre (RMC)",
+        "description": "Advice and support on immigration, housing and related matters.",
+        "phone": "01902 572 680",
+        "website": "https://www.rmc-uk.org"
+      },
+      {
+        "name": "Brushstrokes Community Project",
+        "description": "Support for migrants and refugees including housing and immigration advice. Based in Smethwick, serving Birmingham and Sandwell.",
+        "phone": "0121 565 2234",
+        "hours": "Mon-Fri 9am-3pm",
+        "email": "info@brushstrokessandwell.org.uk",
+        "website": "https://www.brushstrokessandwell.org.uk"
+      }
+    ]
+  },
+  "coventry": {
+    "name": "Coventry",
+    "housingOptions": {
+      "name": "Coventry City Council Housing Options",
+      "phone": "024 7683 4025",
+      "phoneHours": "Mon-Fri 9am-3:30pm",
+      "phoneOOH": "024 7683 2222",
+      "website": "https://www.coventry.gov.uk/housing-options"
+    },
+    "childrenServices": {
+      "name": "Coventry Children's Services",
+      "phone": "024 7678 8555",
+      "phoneOOH": "024 7683 2222",
+      "website": "https://www.coventry.gov.uk/childrens-services"
+    },
+    "navigatorOrgs": [
+      {
+        "name": "P3 Coventry",
+        "_canonicalNote": "Phone verified from p3charity.org (primary source) and Google Maps. Navigator org numbers are sourced from organisations directly — la-contacts.json covers council services only.",
+        "description": "Housing support for individuals and families experiencing or at risk of homelessness.",
+        "ageMin": 25,
+        "ageMax": null,
+        "phone": "0808 196 2660",
+        "website": "https://p3charity.org",
+        "isDropIn": true
+      },
+      {
+        "name": "St Basil's Coventry Youth Hub",
+        "description": "Specialist housing support for young people. Help to find and keep a home.",
+        "ageMin": 16,
+        "ageMax": 24,
+        "phone": "0121 269 1940",
+        "website": "https://www.stbasils.org.uk",
+        "isDropIn": true
+      }
+    ],
+    "dvOrgs": {
+      "womensAid": {
+        "name": "Coventry Haven Women's Aid",
+        "phone": "0800 111 4998",
+        "hours": "Mon-Fri 8:30am-5:30pm, Sat-Sun 10am-1pm",
+        "website": "https://www.coventryhaven.co.uk"
+      },
+      "allGenders": {
+        "name": "Valley House",
+        "description": "Domestic abuse accommodation and support. Open to all genders.",
+        "phone": "0800 328 9084",
+        "hours": "24/7",
+        "website": "https://valleyhouse.org.uk"
+      }
+    },
+    "immigrationOrgs": [
+      {
+        "name": "Coventry Refugee and Migrant Centre",
+        "description": "Advice and support for refugees and migrants including housing and immigration matters.",
+        "phone": "024 7622 7254",
+        "website": "https://covrefugee.org"
+      }
+    ]
+  },
+  "dudley": {
+    "name": "Dudley",
+    "housingOptions": {
+      "name": "Dudley Council Housing Options",
+      "phone": "0300 555 2345",
+      "phoneHours": "Mon-Fri 8:30am-5pm",
+      "phoneOOH": "0300 555 8283",
+      "website": "https://www.dudley.gov.uk/resident/housing"
+    },
+    "childrenServices": {
+      "name": "Dudley Children's Services",
+      "phone": "0300 555 0050",
+      "phoneHours": "Mon-Fri 9am-5pm",
+      "phoneOOH": "0300 555 8574",
+      "website": "https://www.dudley.gov.uk/resident/care-health/children-and-family-care"
+    },
+    "navigatorOrgs": [
+      {
+        "name": "Lighthouse Community Hub",
+        "description": "Drop-in housing and homelessness support.",
+        "ageMin": null,
+        "ageMax": null,
+        "availabilityNote": "Monday evenings only — limited availability. Documented system gap.",
+        "website": "https://www.dudley.gov.uk",
+        "isDropIn": false
+      }
+    ],
+    "dvOrgs": {
+      "womensAid": {
+        "name": "Black Country Women's Aid",
+        "phone": "0121 552 6448",
+        "hours": "24/7",
+        "website": "https://blackcountrywomensaid.co.uk"
+      }
+    },
+    "immigrationOrgs": [
+      {
+        "name": "Refugee and Migrant Centre (RMC)",
+        "description": "Advice and support on immigration, housing and related matters.",
+        "phone": "01902 572 680",
+        "website": "https://www.rmc-uk.org"
+      }
+    ]
+  },
+  "sandwell": {
+    "name": "Sandwell",
+    "housingOptions": {
+      "name": "Sandwell Council Housing Solutions",
+      "phone": "0121 368 1166",
+      "phoneOption": "option 2",
+      "phoneHours": "Mon-Fri office hours",
+      "phoneOOH": "01323 690856",
+      "website": "https://www.sandwell.gov.uk/housing"
+    },
+    "childrenServices": {
+      "name": "Sandwell Children's Trust",
+      "phone": "0121 569 3100",
+      "phoneOOH": "0121 569 2355",
+      "website": "https://www.sandwellchildrenstrust.org"
+    },
+    "navigatorOrgs": [],
+    "_navigatorGap": "No housing navigator organisation identified for Sandwell. Documented as a system gap — shared with local partnership.",
+    "dvOrgs": {
+      "womensAid": {
+        "name": "Black Country Women's Aid",
+        "phone": "0121 552 6448",
+        "hours": "24/7",
+        "website": "https://blackcountrywomensaid.co.uk"
+      }
+    },
+    "immigrationOrgs": [
+      {
+        "name": "Brushstrokes Community Project",
+        "description": "Support for migrants and refugees including housing and immigration advice.",
+        "phone": "0121 565 2234",
+        "hours": "Mon-Fri 9am-3pm",
+        "email": "info@brushstrokessandwell.org.uk",
+        "website": "https://www.brushstrokessandwell.org.uk"
+      }
+    ]
+  },
+  "solihull": {
+    "name": "Solihull",
+    "housingOptions": {
+      "name": "Solihull Community Housing",
+      "phone": "0121 717 1515",
+      "phoneNote": "Automatically transfers to out-of-hours service",
+      "website": "https://www.solihullcommunityhousing.org.uk"
+    },
+    "childrenServices": {
+      "name": "Solihull Children's Services",
+      "phone": "0121 788 4300",
+      "website": "https://www.solihull.gov.uk/children-and-family-support"
+    },
+    "navigatorOrgs": [
+      {
+        "name": "St Basil's Solihull Youth Hub",
+        "description": "Specialist housing support for young people, commissioned by Solihull Housing Options.",
+        "ageMin": 16,
+        "ageMax": 25,
+        "phone": "0330 332 7978",
+        "email": "SolihullYouthHub@stbasils.org.uk",
+        "website": "https://www.stbasils.org.uk",
+        "isDropIn": true
+      }
+    ],
+    "dvOrgs": {
+      "womensAid": {
+        "name": "Birmingham and Solihull Women's Aid",
+        "phone": "0808 800 0028",
+        "hours": "Mon-Fri 9:30am-5pm",
+        "oohNote": "National DV Helpline (0808 2000 247) covers out of hours",
+        "website": "https://bswaid.org"
+      }
+    },
+    "immigrationOrgs": [],
+    "_immigrationGap": "No general immigration support organisation identified for Solihull. Migrant Advice Portal (migrantadvice.org/interact) is the fallback. Specialist orgs in SSN data (Micro Rainbow, Panahghar) are not suitable for general NRPF routing — they serve specific populations the VA does not profile for."
+  },
+  "walsall": {
+    "name": "Walsall",
+    "housingOptions": {
+      "name": "Walsall Housing Options",
+      "phone": "01922 652250",
+      "phoneHours": "Mon-Thu 8:45am-5:15pm, Fri 8:45am-4:45pm",
+      "phoneOOH": "01922 650000",
+      "website": "https://www.walsall.gov.uk/housing-options"
+    },
+    "childrenServices": {
+      "name": "Walsall Children's Services",
+      "phone": "0300 555 2866",
+      "phoneOption": "option 2",
+      "website": "https://www.walsall.gov.uk/children-and-families"
+    },
+    "navigatorOrgs": [
+      {
+        "name": "Glebe Centre / YMCA Black Country",
+        "description": "Housing advice and support for people experiencing homelessness.",
+        "ageMin": null,
+        "ageMax": null,
+        "website": "https://www.ymcablackcountry.org.uk",
+        "isDropIn": true
+      }
+    ],
+    "dvOrgs": {
+      "womensAid": {
+        "name": "Black Country Women's Aid",
+        "phone": "0121 552 6448",
+        "hours": "24/7",
+        "website": "https://blackcountrywomensaid.co.uk"
+      }
+    },
+    "immigrationOrgs": [
+      {
+        "name": "Refugee and Migrant Centre (RMC)",
+        "description": "Advice and support on immigration, housing and related matters.",
+        "phone": "01902 572 680",
+        "website": "https://www.rmc-uk.org"
+      }
+    ]
+  },
+  "wolverhampton": {
+    "name": "Wolverhampton",
+    "housingOptions": {
+      "name": "City of Wolverhampton Council Housing Options",
+      "phone": "01902 556789",
+      "phoneOption": "option 2",
+      "phoneHours": "Mon-Fri 9am-5pm",
+      "phoneOOH": "01902 552999",
+      "website": "https://www.wolverhampton.gov.uk/housing/homeless"
+    },
+    "childrenServices": {
+      "name": "Wolverhampton Children's Services",
+      "phone": "01902 555392",
+      "phoneOOH": "01902 552999",
+      "website": "https://www.wolverhampton.gov.uk/children-and-young-people"
+    },
+    "navigatorOrgs": [
+      {
+        "name": "P3 Wolverhampton",
+        "description": "Commissioned housing navigator service. Drop-in support for people experiencing homelessness.",
+        "ageMin": null,
+        "ageMax": null,
+        "website": "https://www.p3charity.org",
+        "isDropIn": true
+      }
+    ],
+    "dvOrgs": {
+      "womensAid": {
+        "name": "The Haven Wolverhampton",
+        "phone": "08000 194 400",
+        "hours": "24/7",
+        "website": "https://www.havenrefuge.org.uk"
+      }
+    },
+    "immigrationOrgs": [
+      {
+        "name": "Refugee and Migrant Centre (RMC)",
+        "description": "Advice and support on immigration, housing and related matters. Main office in Wolverhampton.",
+        "phone": "01902 572 680",
+        "website": "https://www.rmc-uk.org"
+      }
+    ]
+  }
+}

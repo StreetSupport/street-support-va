@@ -1,0 +1,154 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "last_verified": "2026-02-28",
+    "governed_by": "Safeguarding Contract",
+    "authority": "Managing Director",
+    "verification_method": "Primary sources: NHS website, individual organisation websites, LA council pages",
+    "review_trigger": "Annual minimum, or immediately on notification of number change",
+    "note": "This file holds LA-specific data for safeguarding exits only. National floors (Rape Crisis E&W, National DV Helpline, Childline) are hardcoded in safeguarding handlers and are not duplicated here. This file provides the local layer on top of those national floors."
+  },
+
+  "sarc": {
+    "_note": "One SARC service covers all 7 WMCA LAs. No per-LA variation required. Both adult and under-18 lines share the same number.",
+    "adult": {
+      "name": "Horizon SARC",
+      "phone": "0330 223 0099",
+      "availability": "24/7, 365 days",
+      "url": "horizonsarc.org.uk",
+      "email": "horizon.sarc@nhs.net",
+      "appointment_required": true,
+      "self_referral": true,
+      "covers": ["birmingham", "solihull", "sandwell", "dudley", "walsall", "wolverhampton", "coventry"],
+      "age_range": "18+, and 16-17 if clinically appropriate",
+      "referral_note": "Appointments only — call before attending. Self-referral available for 18+ without police involvement. Police and professional referrals also via same number.",
+      "verified_source": "horizonsarc.org.uk + NHS service directory (December 2025)"
+    },
+    "under_18": {
+      "name": "West Midlands Regional Children and Young People Sexual Assault Service (CYPSAS)",
+      "phone": "0330 223 0099",
+      "availability": "24/7, 365 days",
+      "url": "westmidsregionalcypsas.co.uk",
+      "appointment_required": true,
+      "self_referral": true,
+      "covers": ["birmingham", "solihull", "sandwell", "dudley", "walsall", "wolverhampton", "coventry"],
+      "age_range": "Birth to 17, and 18-25 with complex needs",
+      "referral_note": "Under 13 must be referred by police or social care. Age 13+ can self-refer. Call before attending.",
+      "verified_source": "westmidsregionalcypsas.co.uk"
+    },
+    "coventry_secondary": {
+      "_status": "NEEDS VERIFICATION",
+      "_note": "Blue Sky Centre (George Eliot Hospital, Nuneaton) also serves Coventry and Warwickshire. Primarily Warwickshire. Horizon SARC is the primary route for Coventry. Do not surface until phone number is confirmed from primary source.",
+      "name": "Blue Sky Centre",
+      "phone": null,
+      "availability": "24/7",
+      "url": "VERIFY BEFORE USE",
+      "covers": ["coventry"],
+      "age_range": "All ages"
+    }
+  },
+
+  "dv_local": {
+    "_note": "Local DV crisis lines per LA. Supplement national floors hardcoded in handlers: National DV Helpline 0808 2000 247, ManKind Initiative 0808 800 1170, Galop 0800 999 5428.",
+
+    "birmingham": {
+      "name": "Birmingham & Solihull Women's Aid",
+      "phone": "0808 800 0028",
+      "availability": "Mon-Fri 9:30am-5pm",
+      "url": "bswaid.org",
+      "target": "Women and children",
+      "is_24hr": false,
+      "ooh_fallback": "National DV Helpline 0808 2000 247 covers outside hours",
+      "verified_source": "bswaid.org/i-need-help/helpline/"
+    },
+
+    "solihull": {
+      "name": "Birmingham & Solihull Women's Aid",
+      "phone": "0808 800 0028",
+      "availability": "Mon-Fri 9:30am-5pm",
+      "url": "bswaid.org",
+      "target": "Women and children",
+      "is_24hr": false,
+      "ooh_fallback": "National DV Helpline 0808 2000 247 covers outside hours",
+      "verified_source": "bswaid.org/i-need-help/helpline/"
+    },
+
+    "coventry": [
+      {
+        "name": "Valley House",
+        "phone": "0800 328 9084",
+        "availability": "24/7",
+        "url": "valleyhouse.org.uk",
+        "target": "All genders, age 16+",
+        "is_24hr": true,
+        "note": "All genders — primary route for male and LGBTQ+ users in Coventry. Accommodation referrals and community support.",
+        "verified_source": "valleyhouse.org.uk"
+      },
+      {
+        "name": "Coventry Haven — Safe to Talk Helpline",
+        "phone": "0800 111 4998",
+        "availability": "Mon-Fri 8:30am-5:30pm, Sat-Sun 10am-1pm",
+        "url": "coventryhaven.co.uk",
+        "target": "Women",
+        "is_24hr": false,
+        "ooh_fallback": "Valley House 0800 328 9084 (24/7, all genders) covers outside hours",
+        "verified_source": "coventryhaven.co.uk + Coventry City Council DV page"
+      }
+    ],
+
+    "sandwell": {
+      "name": "Black Country Women's Aid",
+      "phone_24hr": "0121 552 6448",
+      "phone_office": "0121 553 0090",
+      "availability": "24hr line: always. Office: Mon-Fri 9am-5pm",
+      "url": "blackcountrywomensaid.co.uk",
+      "target": "Women and children (primary). Men: call office for referral.",
+      "is_24hr": true,
+      "text_whatsapp": "07384 466181, Mon-Fri 9am-9pm",
+      "verified_source": "blackcountrywomensaid.co.uk/contact/ + Walsall Council directory"
+    },
+
+    "dudley": {
+      "name": "Black Country Women's Aid",
+      "phone_24hr": "0121 552 6448",
+      "phone_office": "0121 553 0090",
+      "availability": "24hr line: always. Office: Mon-Fri 9am-5pm",
+      "url": "blackcountrywomensaid.co.uk",
+      "target": "Women and children (primary). Men: call office for referral.",
+      "is_24hr": true,
+      "text_whatsapp": "07384 466181, Mon-Fri 9am-9pm",
+      "verified_source": "blackcountrywomensaid.co.uk/contact/"
+    },
+
+    "walsall": {
+      "name": "Black Country Women's Aid",
+      "phone_24hr": "0121 552 6448",
+      "phone_office": "0121 553 0090",
+      "availability": "24hr line: always. Office: Mon-Fri 9am-5pm",
+      "url": "blackcountrywomensaid.co.uk",
+      "target": "Women and children (primary). Men: call office for referral.",
+      "is_24hr": true,
+      "text_whatsapp": "07384 466181, Mon-Fri 9am-9pm",
+      "verified_source": "Walsall Council directory + blackcountrywomensaid.co.uk"
+    },
+
+    "wolverhampton": {
+      "name": "The Haven Wolverhampton",
+      "phone": "08000 194 400",
+      "availability": "24/7, freephone",
+      "url": "havenrefuge.org.uk",
+      "target": "Women and children aged 16+. LGBTQ+ explicitly included.",
+      "is_24hr": true,
+      "note": "Primary DV service for Wolverhampton. For men: ManKind Initiative (hardcoded national) covers gap.",
+      "verified_source": "havenrefuge.org.uk + Wolverhampton Homes directory"
+    }
+  },
+
+  "routing_notes": {
+    "sarc_all_las": "Horizon SARC (0330 223 0099) is the verified local SARC for all 7 LAs. Surface alongside Rape Crisis E&W national floor (0808 500 2222). For users under 18: CYPSAS (same number, different service name and URL).",
+    "dv_female": "Surface LA-specific local line from dv_local. Where is_24hr is false, note that National DV Helpline covers outside hours.",
+    "dv_male": "ManKind Initiative (hardcoded) is primary male route. BCWA office line accepts male referrals in Sandwell/Dudley/Walsall. Valley House Coventry and The Haven Wolverhampton explicitly include all genders.",
+    "dv_lgbtq": "Galop (hardcoded) is primary LGBTQ+ route. Valley House Coventry and The Haven Wolverhampton explicitly include LGBTQ+ users.",
+    "coventry_sarc": "Blue Sky Centre entry is marked NEEDS VERIFICATION. Do not surface until confirmed. Horizon SARC covers Coventry and is safe default."
+  }
+}

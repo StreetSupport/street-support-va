@@ -15,52 +15,13 @@
 import type { SessionState, RoutingResult } from '../types';
 import { phrase, safeguardingExit, buildUnder16Exit } from './shared';
 import { getPronouns } from '../utils/pronouns';
+import laContacts from '../data/la-contacts.json';
+import safeguardingEndpoints from '../data/safeguarding-endpoints.json';
 
 // Council Housing Options contact info by Local Authority
-const councilHousingData: Record<string, { name: string; phone: string; outOfHours?: string; website: string }> = {
-  wolverhampton: {
-    name: "Wolverhampton Council Housing Options",
-    phone: "01902 556789",
-    outOfHours: "01902 552999",
-    website: "https://www.wolverhampton.gov.uk/housing/homeless"
-  },
-  birmingham: {
-    name: "Birmingham Council Housing Options",
-    phone: "0121 303 7410",
-    outOfHours: "0121 303 2296",
-    website: "https://www.birmingham.gov.uk/info/20169/homelessness"
-  },
-  coventry: {
-    name: "Coventry Council Housing Options",
-    phone: "024 7683 4025",
-    outOfHours: "024 7683 2222",
-    website: "https://www.coventry.gov.uk/housing-options"
-  },
-  dudley: {
-    name: "Dudley Council Housing Options",
-    phone: "0300 555 2345",
-    outOfHours: "0300 555 2345",
-    website: "https://www.dudley.gov.uk/resident/housing/"
-  },
-  sandwell: {
-    name: "Sandwell Council Housing Options",
-    phone: "0121 368 1166",
-    outOfHours: "01323 690856",
-    website: "https://www.sandwell.gov.uk/housing"
-  },
-  solihull: {
-    name: "Solihull Council Housing Options",
-    phone: "0121 717 1515",
-    outOfHours: "0121 717 1515",
-    website: "https://www.solihull.gov.uk/housing"
-  },
-  walsall: {
-    name: "Walsall Council Housing Options",
-    phone: "01922 652250",
-    outOfHours: "01922 650000",
-    website: "https://go.walsall.gov.uk/housing"
-  }
-};
+const councilHousingData = Object.fromEntries(
+  Object.entries(laContacts).map(([la, data]) => [la, data.councilHousing])
+) as Record<string, { name: string; phone: string; outOfHours?: string; website: string }>;
 
 // ============================================================================
 // Exit builders (local to crisis)
@@ -181,6 +142,55 @@ function getSAExitKey(gender: string | null): string {
 }
 
 // ============================================================================
+// Local safeguarding info builders
+// ============================================================================
+
+function buildSARCInfo(session: SessionState): string {
+  const age = session.ageCategory;
+  const isYoung = age === 'Under 16' || age === '16-17';
+  const sarc = isYoung
+    ? safeguardingEndpoints.sarc.under_18
+    : safeguardingEndpoints.sarc.adult;
+
+  let text = '\n\nLOCAL SEXUAL ASSAULT REFERRAL CENTRE\n';
+  text += `${sarc.name}\n`;
+  text += `${sarc.phone} (${sarc.availability})\n`;
+  text += `${sarc.url}\n`;
+  text += sarc.referral_note;
+  return text;
+}
+
+function buildLocalDVInfo(session: SessionState): string {
+  const la = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
+  if (!la) return '';
+
+  const dvLocal = (safeguardingEndpoints.dv_local as Record<string, any>)[la];
+  if (!dvLocal) return '';
+
+  const orgs = Array.isArray(dvLocal) ? dvLocal : [dvLocal];
+  let text = '\n\nLOCAL DOMESTIC ABUSE SUPPORT\n';
+
+  for (let i = 0; i < orgs.length; i++) {
+    if (i > 0) text += '\n';
+    const org = orgs[i];
+    text += `${org.name}\n`;
+    if (org.phone_24hr) {
+      text += `${org.phone_24hr} (24hr crisis line)`;
+      if (org.phone_office) text += ` / ${org.phone_office} (office hours)`;
+    } else if (org.phone) {
+      text += `${org.phone}`;
+    }
+    text += ` — ${org.availability}\n`;
+    text += `${org.url}\n`;
+    if (org.ooh_fallback) {
+      text += `${org.ooh_fallback}\n`;
+    }
+  }
+
+  return text;
+}
+
+// ============================================================================
 // Gate handlers
 // ============================================================================
 
@@ -247,12 +257,16 @@ export function handleDVGenderAsk(session: SessionState, choice: number | null):
 export function handleDVChildrenAsk(session: SessionState, choice: number | null): RoutingResult {
   const dvChildren = choice === 1;
   const dvExitKey = getDVExitKey(session.dvGender, dvChildren);
-  return safeguardingExit(dvExitKey, session.isSupporter, 'DOMESTIC_ABUSE');
+  const result = safeguardingExit(dvExitKey, session.isSupporter, 'DOMESTIC_ABUSE');
+  const localDV = buildLocalDVInfo(session);
+  return { ...result, text: result.text + localDV };
 }
 
 export function handleSAGenderAsk(session: SessionState, choice: number | null): RoutingResult {
   const saGenders = ['Female', 'Male', 'Non-binary or other', 'Prefer not to say'];
   const saGender = choice ? saGenders[choice - 1] : null;
   const saExitKey = getSAExitKey(saGender);
-  return safeguardingExit(saExitKey, session.isSupporter, 'SEXUAL_VIOLENCE');
+  const result = safeguardingExit(saExitKey, session.isSupporter, 'SEXUAL_VIOLENCE');
+  const sarcInfo = buildSARCInfo(session);
+  return { ...result, text: result.text + sarcInfo };
 }

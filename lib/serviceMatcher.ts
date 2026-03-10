@@ -7,6 +7,8 @@
 
 import servicesData from './data/wmca_services_v7.json';
 import orgsData from './data/wmca_organizations_v7.json';
+import laContacts from './data/la-contacts.json';
+import endpointsData from './data/housing-pathway-endpoints.json';
 import type { MatchedService, DefaultOrg, UserProfile } from './types';
 
 // ============================================================
@@ -47,6 +49,64 @@ interface Organization {
   };
   areas_served: string[];
 }
+
+interface NavigatorOrg {
+  name: string;
+  description: string;
+  ageMin: number | null;
+  ageMax: number | null;
+  phone?: string;
+  website?: string;
+  email?: string;
+  availabilityNote?: string;
+  _canonicalNote?: string;
+  isDropIn?: boolean;
+}
+
+interface DVOrg {
+  name: string;
+  description?: string;
+  phone?: string;
+  phone_24hr?: string;
+  phone_office?: string;
+  hours?: string;
+  oohNote?: string;
+  website?: string;
+  text_whatsapp?: string;
+}
+
+interface ImmigrationOrg {
+  name: string;
+  description: string;
+  phone: string;
+  hours?: string;
+  email?: string;
+  website: string;
+}
+
+interface HousingContact {
+  name: string;
+  phone: string;
+  phoneOOH?: string;
+  phoneOOHNote?: string;
+  phoneHours?: string;
+  phoneOption?: string;
+  website: string;
+}
+
+interface LAEndpointData {
+  name: string;
+  housingOptions: HousingContact;
+  childrenServices: HousingContact;
+  navigatorOrgs: NavigatorOrg[];
+  dvOrgs: Record<string, DVOrg>;
+  immigrationOrgs: ImmigrationOrg[];
+  _navigatorGap?: string;
+  _immigrationGap?: string;
+}
+
+interface WMCAServicesData { services: Service[]; }
+interface WMCAOrganizationsData { organizations: Organization[]; }
 
 // ============================================================
 // CATEGORY MAPPINGS
@@ -89,102 +149,30 @@ const clientGroupKeywords = {
 };
 
 // ============================================================
-// HARDCODED DEFAULT ORGANIZATIONS BY LOCAL AUTHORITY
+// DEFAULT ORGANIZATIONS BY LOCAL AUTHORITY (from la-contacts.json)
 // ============================================================
 
-const defaultOrgsByLA: Record<string, DefaultOrg[]> = {
-  wolverhampton: [
-    {
-      name: "Wolverhampton Council Housing Options",
-      phone: "01902 556789",
-      website: "https://www.wolverhampton.gov.uk/housing/homeless-and-at-risk",
-      description: "Council duty to help if homeless or at risk",
-      isCouncil: true
-    },
-    {
-      name: "P3 Navigator Wolverhampton",
-      phone: "01902 572190",
-      website: "https://www.p3charity.org/services/wolverhampton-navigator",
-      description: "Drop-in housing advice. No appointment needed. Help with housing, benefits, debt and more.",
-      isDropIn: true
-    }
-  ],
-  birmingham: [
-    {
-      name: "Birmingham Council Housing Options",
-      phone: "0121 303 7410",
-      website: "https://www.birmingham.gov.uk/info/20010/housing",
-      description: "Council duty to help if homeless or at risk",
-      isCouncil: true
-    },
-    {
-      name: "SIFA Fireside",
-      phone: "0121 766 1700",
-      website: "https://www.sifafireside.co.uk",
-      description: "Drop-in support for people who are homeless or vulnerably housed",
-      isDropIn: true
-    }
-  ],
-  coventry: [
-    {
-      name: "Coventry Council Homelessness Prevention",
-      phone: "024 7683 1800",
-      website: "https://www.coventry.gov.uk/housing-advice-options",
-      description: "Council duty to help if homeless or at risk",
-      isCouncil: true
-    },
-    {
-      name: "P3 Coventry",
-      phone: "024 7622 0099",
-      website: "https://www.p3charity.org/services/coventry",
-      description: "Drop-in housing advice. No appointment needed. Help with housing, benefits, debt and more.",
-      isDropIn: true
-    }
-  ],
-  dudley: [
-    {
-      name: "Dudley Council Housing Options",
-      phone: "0300 555 2345",
-      website: "https://www.dudley.gov.uk/residents/housing/",
-      description: "Council duty to help if homeless or at risk",
-      isCouncil: true
-    }
-  ],
-  sandwell: [
-    {
-      name: "Sandwell Council Housing Support",
-      phone: "0121 368 1166",
-      website: "https://www.sandwell.gov.uk/housing",
-      description: "Council duty to help if homeless or at risk",
-      isCouncil: true
-    },
-    {
-      name: "P3 Sandwell",
-      phone: "0121 500 5540",
-      website: "https://www.p3charity.org/services/sandwell",
-      description: "Drop-in housing advice. No appointment needed. Help with housing, benefits, debt and more.",
-      isDropIn: true
-    }
-  ],
-  solihull: [
-    {
-      name: "Solihull Council Housing Options",
-      phone: "0121 704 8000",
-      website: "https://www.solihull.gov.uk/housing",
-      description: "Council duty to help if homeless or at risk",
-      isCouncil: true
-    }
-  ],
-  walsall: [
-    {
-      name: "Walsall Council Housing Options",
-      phone: "01922 652529",
-      website: "https://www.walsall.gov.uk/housing",
-      description: "Council duty to help if homeless or at risk",
-      isCouncil: true
-    }
-  ]
-};
+const defaultOrgsByLA: Record<string, DefaultOrg[]> = Object.fromEntries(
+  Object.entries(laContacts).map(([la, data]) => {
+    const orgs: DefaultOrg[] = [
+      {
+        name: data.councilHousing.name,
+        phone: data.councilHousing.phone,
+        website: data.councilHousing.website,
+        description: "Council duty to help if homeless or at risk",
+        isCouncil: true
+      },
+      ...data.supportOrgs.map(org => ({
+        name: org.name,
+        phone: org.phone,
+        website: org.website,
+        description: org.description,
+        isDropIn: org.isDropIn
+      }))
+    ];
+    return [la, orgs];
+  })
+);
 
 // ============================================================
 // SPECIALIST ORGANISATIONS
@@ -244,14 +232,26 @@ function normalizeLA(la: string | null): string {
   return la.toLowerCase().replace(/\s+/g, '').replace('cityof', '');
 }
 
+function getEndpointData(localAuthority: string | null): LAEndpointData | null {
+  if (!localAuthority) return null;
+  const la = normalizeLA(localAuthority);
+  return (endpointsData as unknown as Record<string, LAEndpointData>)[la] || null;
+}
+
+function ageCategoryToNumber(ageCategory: string | null): number | null {
+  if (!ageCategory) return null;
+  const match = ageCategory.match(/^(\d+)/);
+  return match ? parseInt(match[1], 10) : null;
+}
+
 function getOrgContact(orgId: string): Organization['contact'] | null {
-  const orgs = (orgsData as any).organizations as Organization[];
+  const orgs = (orgsData as WMCAOrganizationsData).organizations;
   const org = orgs.find(o => o.organization_id === orgId);
   return org?.contact || null;
 }
 
 function getOrgName(orgId: string): string | null {
-  const orgs = (orgsData as any).organizations as Organization[];
+  const orgs = (orgsData as WMCAOrganizationsData).organizations;
   const org = orgs.find(o => o.organization_id === orgId);
   return org?.name || null;
 }
@@ -418,7 +418,7 @@ export function getServicesByCategory(
   if (!localAuthority || categories.length === 0) return [];
   
   const la = normalizeLA(localAuthority);
-  const services = (servicesData as any).services as Service[];
+  const services = (servicesData as WMCAServicesData).services;
   
   return services.filter(s => {
     const serviceLA = normalizeLA(s.local_authority);
@@ -555,29 +555,48 @@ export function getLocalSupportOrgs(localAuthority: string | null): DefaultOrg[]
 
 export function getSpecialistOrgs(profile: UserProfile): DefaultOrg[] {
   const orgs: DefaultOrg[] = [];
-  
+
   if (profile.lgbtq) {
     const pref = profile.lgbtqServicePreference;
     if (pref !== 'Local only') {
       orgs.push(...lgbtqOrgs);
     }
   }
-  
-  if (profile.immigrationStatus === 'No status' || 
+
+  if (profile.immigrationStatus === 'No status' ||
       profile.immigrationStatus === 'Asylum seeker' ||
       profile.publicFunds === 'No') {
     orgs.push(...immigrationOrgs);
   }
-  
+
   return orgs;
 }
 
 export function getYouthOrgs(profile: UserProfile): DefaultOrg[] {
   const age = profile.ageCategory;
+  const orgs: DefaultOrg[] = [];
+
   if (age === '16-17' || age === '18-24' || age === '18-20' || age === '21-24') {
-    return youthOrgs;
+    orgs.push(...youthOrgs);
   }
-  return [];
+
+  const endpoint = getEndpointData(profile.localAuthority);
+  const userAge = ageCategoryToNumber(age);
+  if (endpoint?.navigatorOrgs && userAge !== null) {
+    for (const nav of endpoint.navigatorOrgs) {
+      if (nav.ageMax !== null && nav.ageMax !== undefined &&
+          nav.ageMin != null && nav.ageMin <= userAge && nav.ageMax >= userAge) {
+        orgs.push({
+          name: nav.name,
+          phone: nav.phone || null,
+          website: nav.website || null,
+          description: nav.description,
+        });
+      }
+    }
+  }
+
+  return orgs;
 }
 
 export function getShelterInfo(jurisdiction: 'ENGLAND' | 'SCOTLAND' = 'ENGLAND'): DefaultOrg {
@@ -604,5 +623,49 @@ export function getStreetLinkInfo(): DefaultOrg {
     website: "https://streetlink.org.uk",
     description: "Alert local outreach teams to help someone sleeping rough"
   };
+}
+
+// ============================================================
+// HOUSING PATHWAY ENDPOINT LOOKUPS
+// ============================================================
+
+export function getNavigatorOrgs(localAuthority: string | null): DefaultOrg[] {
+  const endpoint = getEndpointData(localAuthority);
+  if (!endpoint?.navigatorOrgs) return [];
+  return endpoint.navigatorOrgs.map((nav: NavigatorOrg) => ({
+    name: nav.name,
+    phone: nav.phone || null,
+    website: nav.website || null,
+    description: nav.description,
+    isDropIn: nav.isDropIn,
+  }));
+}
+
+export function getDVOrgs(localAuthority: string | null): DefaultOrg[] {
+  const endpoint = getEndpointData(localAuthority);
+  if (!endpoint?.dvOrgs) return [];
+  const orgs: DefaultOrg[] = [];
+  for (const org of Object.values(endpoint.dvOrgs as Record<string, DVOrg>)) {
+    if (org && typeof org === 'object' && org.name) {
+      orgs.push({
+        name: org.name,
+        phone: org.phone || org.phone_24hr || null,
+        website: org.website ? (org.website.startsWith('http') ? org.website : `https://${org.website}`) : null,
+        description: org.description || `Local domestic abuse support${org.hours ? ` (${org.hours})` : ''}`,
+      });
+    }
+  }
+  return orgs;
+}
+
+export function getImmigrationOrgs(localAuthority: string | null): DefaultOrg[] {
+  const endpoint = getEndpointData(localAuthority);
+  if (!endpoint?.immigrationOrgs) return [];
+  return endpoint.immigrationOrgs.map((org: ImmigrationOrg) => ({
+    name: org.name,
+    phone: org.phone || null,
+    website: org.website ? (org.website.startsWith('http') ? org.website : `https://${org.website}`) : null,
+    description: org.description,
+  }));
 }
 

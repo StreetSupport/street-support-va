@@ -383,7 +383,7 @@ describe('Non-Housing Terminal Path', () => {
       gender: 'Male',
       lgbtq: false,
       criminalConvictions: 'No',
-      publicFunds: true,
+      publicFunds: 'Yes',
     });
     const result = select(session, 2); // No children -> completes profile -> terminal
     expect(result.text.toLowerCase()).toContain('food');
@@ -398,7 +398,7 @@ describe('Non-Housing Terminal Path', () => {
       gender: 'Female',
       lgbtq: false,
       criminalConvictions: 'No',
-      publicFunds: true,
+      publicFunds: 'Yes',
     });
     const result = select(session, 2); // No children -> completes profile -> terminal
     expect(result.text.toLowerCase()).toContain('health');
