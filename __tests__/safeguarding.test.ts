@@ -193,6 +193,24 @@ describe('Domestic Abuse Disclosure', () => {
     expect(result.text).toContain('0808 800 1170');
   });
 
+  test('female DV exit includes Shelter housing advice link', () => {
+    const session = sessionAt('DV_CHILDREN_ASK', { dvGender: 'Female' });
+    const result = select(session, 1);
+    expect(result.text).toContain('england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse');
+  });
+
+  test('male DV exit includes Shelter housing advice link', () => {
+    const session = sessionAt('DV_CHILDREN_ASK', { dvGender: 'Male' });
+    const result = select(session, 1);
+    expect(result.text).toContain('england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse');
+  });
+
+  test('LGBTQ DV exit includes Shelter housing advice link', () => {
+    const session = sessionAt('DV_CHILDREN_ASK', { dvGender: 'Non-binary or other' });
+    const result = select(session, 1);
+    expect(result.text).toContain('england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse');
+  });
+
 });
 
 // =============================================================================

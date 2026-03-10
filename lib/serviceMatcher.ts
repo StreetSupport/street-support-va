@@ -7,7 +7,6 @@
 
 import servicesData from './data/wmca_services_v7.json';
 import orgsData from './data/wmca_organizations_v7.json';
-import laContacts from './data/la-contacts.json';
 import endpointsData from './data/housing-pathway-endpoints.json';
 import type { MatchedService, DefaultOrg, UserProfile } from './types';
 
@@ -149,29 +148,31 @@ const clientGroupKeywords = {
 };
 
 // ============================================================
-// DEFAULT ORGANIZATIONS BY LOCAL AUTHORITY (from la-contacts.json)
+// DEFAULT ORGANIZATIONS BY LOCAL AUTHORITY (from housing-pathway-endpoints.json)
 // ============================================================
 
 const defaultOrgsByLA: Record<string, DefaultOrg[]> = Object.fromEntries(
-  Object.entries(laContacts).map(([la, data]) => {
-    const orgs: DefaultOrg[] = [
-      {
-        name: data.councilHousing.name,
-        phone: data.councilHousing.phone,
-        website: data.councilHousing.website,
-        description: "Council duty to help if homeless or at risk",
-        isCouncil: true
-      },
-      ...data.supportOrgs.map(org => ({
-        name: org.name,
-        phone: org.phone,
-        website: org.website,
-        description: org.description,
-        isDropIn: org.isDropIn
-      }))
-    ];
-    return [la, orgs];
-  })
+  Object.entries(endpointsData)
+    .filter(([key]) => key !== '_metadata')
+    .map(([la, data]: [string, any]) => {
+      const orgs: DefaultOrg[] = [
+        {
+          name: data.housingOptions.name,
+          phone: data.housingOptions.phone,
+          website: data.housingOptions.website,
+          description: "Council duty to help if homeless or at risk",
+          isCouncil: true
+        },
+        ...(data.navigatorOrgs || []).map((org: NavigatorOrg) => ({
+          name: org.name,
+          phone: org.phone || null,
+          website: org.website || null,
+          description: org.description,
+          isDropIn: org.isDropIn
+        }))
+      ];
+      return [la, orgs];
+    })
 );
 
 // ============================================================

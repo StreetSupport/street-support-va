@@ -1386,7 +1386,11 @@ DOMESTIC ABUSE SUPPORT
 ManKind Initiative
 0808 800 1170
 https://mankind.org.uk
-Confidential support for men affected by domestic violence`
+Confidential support for men affected by domestic violence
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   DV_MALE_CHILDREN_YES__SUPPORTER: {
@@ -1396,7 +1400,11 @@ DOMESTIC ABUSE SUPPORT
 ManKind Initiative
 0808 800 1170
 https://mankind.org.uk
-Confidential support for men affected by domestic violence`
+Confidential support for men affected by domestic violence
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   DV_MALE_CHILDREN_NO: {
@@ -1405,7 +1413,11 @@ Confidential support for men affected by domestic violence`
 DOMESTIC ABUSE SUPPORT
 ManKind Initiative
 0808 800 1170
-https://mankind.org.uk`
+https://mankind.org.uk
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   DV_MALE_CHILDREN_NO__SUPPORTER: {
@@ -1414,7 +1426,11 @@ https://mankind.org.uk`
 DOMESTIC ABUSE SUPPORT
 ManKind Initiative
 0808 800 1170
-https://mankind.org.uk`
+https://mankind.org.uk
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   DV_LGBTQ_CHILDREN_YES: {
@@ -1424,7 +1440,11 @@ DOMESTIC ABUSE SUPPORT
 Galop
 0800 999 5428
 https://galop.org.uk
-National helpline for LGBTQ+ people affected by abuse or violence`
+National helpline for LGBTQ+ people affected by abuse or violence
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   DV_LGBTQ_CHILDREN_YES__SUPPORTER: {
@@ -1434,7 +1454,11 @@ DOMESTIC ABUSE SUPPORT
 Galop
 0800 999 5428
 https://galop.org.uk
-National helpline for LGBTQ+ people affected by abuse or violence`
+National helpline for LGBTQ+ people affected by abuse or violence
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   DV_LGBTQ_CHILDREN_NO: {
@@ -1443,7 +1467,11 @@ National helpline for LGBTQ+ people affected by abuse or violence`
 DOMESTIC ABUSE SUPPORT
 Galop
 0800 999 5428
-https://galop.org.uk`
+https://galop.org.uk
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   DV_LGBTQ_CHILDREN_NO__SUPPORTER: {
@@ -1452,7 +1480,11 @@ https://galop.org.uk`
 DOMESTIC ABUSE SUPPORT
 Galop
 0800 999 5428
-https://galop.org.uk`
+https://galop.org.uk
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   SA_FEMALE_16PLUS: {

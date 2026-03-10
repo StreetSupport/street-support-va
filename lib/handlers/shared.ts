@@ -10,7 +10,7 @@
 
 import { getPhrase } from '../phrasebank';
 import type { SessionState, RoutingResult, GateType } from '../types';
-import laContacts from '../data/la-contacts.json';
+import endpointsData from '../data/housing-pathway-endpoints.json';
 
 export function phrase(key: string, isSupporter: boolean): RoutingResult {
   const p = getPhrase(key, isSupporter);
@@ -39,8 +39,10 @@ export function safeguardingExit(key: string, isSupporter: boolean, type: string
 
 // Children's Services contact info by Local Authority
 export const childrenServicesData = Object.fromEntries(
-  Object.entries(laContacts).map(([la, data]) => [la, data.childrenServices])
-) as Record<string, { name: string; phone: string; outOfHours?: string; website: string }>;
+  Object.entries(endpointsData)
+    .filter(([key]) => key !== '_metadata')
+    .map(([la, data]: [string, any]) => [la, data.childrenServices])
+) as Record<string, { name: string; phone: string; phoneOOH?: string; website: string }>;
 
 export function buildUnder16Exit(session: SessionState): RoutingResult {
   const isSupporter = session.isSupporter;
@@ -59,8 +61,8 @@ export function buildUnder16Exit(session: SessionState): RoutingResult {
   if (childServices) {
     text += `CHILDREN'S SERVICES\n`;
     text += `${childServices.name}\n`;
-    if (childServices.outOfHours) {
-      text += `${childServices.phone} (out of hours: ${childServices.outOfHours})\n`;
+    if (childServices.phoneOOH) {
+      text += `${childServices.phone} (out of hours: ${childServices.phoneOOH})\n`;
     } else {
       text += `${childServices.phone}\n`;
     }

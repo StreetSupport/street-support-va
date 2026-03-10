@@ -15,13 +15,15 @@
 import type { SessionState, RoutingResult } from '../types';
 import { phrase, safeguardingExit, buildUnder16Exit } from './shared';
 import { getPronouns } from '../utils/pronouns';
-import laContacts from '../data/la-contacts.json';
+import endpointsData from '../data/housing-pathway-endpoints.json';
 import safeguardingEndpoints from '../data/safeguarding-endpoints.json';
 
 // Council Housing Options contact info by Local Authority
 const councilHousingData = Object.fromEntries(
-  Object.entries(laContacts).map(([la, data]) => [la, data.councilHousing])
-) as Record<string, { name: string; phone: string; outOfHours?: string; website: string }>;
+  Object.entries(endpointsData)
+    .filter(([key]) => key !== '_metadata')
+    .map(([la, data]: [string, any]) => [la, data.housingOptions])
+) as Record<string, { name: string; phone: string; phoneOOH?: string; website: string }>;
 
 // ============================================================================
 // Exit builders (local to crisis)
@@ -43,8 +45,8 @@ function buildFireFloodExit(session: SessionState): RoutingResult {
     text += `EMERGENCY HOUSING\n`;
     text += `${councilHousing.name}\n`;
     text += `${councilHousing.phone}`;
-    if (councilHousing.outOfHours) {
-      text += ` (out of hours: ${councilHousing.outOfHours})`;
+    if (councilHousing.phoneOOH) {
+      text += ` (out of hours: ${councilHousing.phoneOOH})`;
     }
     text += `\n`;
     text += `${councilHousing.website}\n\n`;
