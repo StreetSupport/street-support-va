@@ -368,13 +368,7 @@ function routeToNextProfileQuestion(session: SessionState): RoutingResult {
 
 // National fallback services for each need type
 const nationalFallbacks: Record<string, Array<{name: string; phone?: string; website: string; description: string}>> = {
-  'Food': [
-    {
-      name: 'Find a Food Bank',
-      website: 'https://www.trusselltrust.org/get-help/find-a-foodbank/',
-      description: 'Search for your nearest Trussell Trust food bank'
-    }
-  ],
+  'Food': [],
   'Health': [
     {
       name: 'NHS 111',
@@ -390,15 +384,14 @@ const nationalFallbacks: Record<string, Array<{name: string; phone?: string; web
   ],
   'Financial': [
     {
-      name: 'Citizens Advice',
-      phone: '0800 144 8848',
-      website: 'https://www.citizensadvice.org.uk/debt-and-money/',
-      description: 'Free advice on benefits, debt and money problems'
+      name: 'Turn2us Benefits Calculator',
+      website: 'https://www.turn2us.org.uk/get-support',
+      description: 'Check what benefits you could be entitled to'
     },
     {
-      name: 'Turn2us',
-      website: 'https://www.turn2us.org.uk',
-      description: 'Benefits calculator and grants search'
+      name: 'Turn2us Grants Search',
+      website: 'https://grants-search.turn2us.org.uk',
+      description: 'Search for charitable grants you may be eligible for'
     }
   ],
   'Work': [
@@ -406,12 +399,6 @@ const nationalFallbacks: Record<string, Array<{name: string; phone?: string; web
       name: 'Jobcentre Plus',
       website: 'https://www.gov.uk/contact-jobcentre-plus',
       description: 'Help with job searching, benefits and training'
-    },
-    {
-      name: 'National Careers Service',
-      phone: '0800 100 900',
-      website: 'https://nationalcareers.service.gov.uk',
-      description: 'Free careers advice and support'
     }
   ],
   'Training': [

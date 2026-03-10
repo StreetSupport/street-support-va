@@ -467,7 +467,7 @@ describe('Non-Housing Terminal Path', () => {
     });
     const result = select(session, 2); // No children -> completes profile -> terminal
     expect(result.text.toLowerCase()).toContain('food');
-    expect(result.text).toContain('trusselltrust.org');
+    // No national fallback for Food — only local services
     expect(result.text.toLowerCase()).not.toContain('council housing');
   });
 
