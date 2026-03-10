@@ -531,6 +531,16 @@ function buildNonHousingTerminal(session: SessionState): TerminalResult {
     text += buildNationalFallbacksBlock(fallbacks);
   }
 
+  // LGBT Foundation for LGBTQ+ users on Health need
+  if (session.lgbtq === true && need === 'Health') {
+    const lgbtPhrase = getPhrase('TERMINAL_LGBT_FOUNDATION_HEALTH', session.isSupporter);
+    if (!fallbacks.length) text += `---\n\n`;
+    text += `LGBT Foundation\n`;
+    text += `0345 3 30 30 30\n`;
+    text += `https://lgbt.foundation\n`;
+    text += (lgbtPhrase?.text || '') + '\n\n';
+  }
+
   // Search link for more options
   if (categoryKey && la !== 'your area') {
     text += `---\n\n`;
