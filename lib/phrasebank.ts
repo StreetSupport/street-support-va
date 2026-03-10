@@ -335,6 +335,36 @@ Support with Benefits and Grants | Turn2us - https://www.turn2us.org.uk/`
   },
 
   // ============================================================
+  // ADVICE TYPE SELECTION
+  // ============================================================
+
+  B5A_ADVICE_TYPE: {
+    text: `What kind of advice are you looking for?
+
+1. Benefit advice
+2. Debt or financial problems
+3. Employment advice
+4. Immigration or asylum advice
+5. Health service advice
+6. Legal advice
+7. General support`,
+    options: ["Benefit advice", "Debt or financial problems", "Employment advice", "Immigration or asylum advice", "Health service advice", "Legal advice", "General support"]
+  },
+
+  B5A_ADVICE_TYPE__SUPPORTER: {
+    text: `What kind of advice are they looking for?
+
+1. Benefit advice
+2. Debt or financial problems
+3. Employment advice
+4. Immigration or asylum advice
+5. Health service advice
+6. Legal advice
+7. General support`,
+    options: ["Benefit advice", "Debt or financial problems", "Employment advice", "Immigration or asylum advice", "Health service advice", "Legal advice", "General support"]
+  },
+
+  // ============================================================
   // CATEGORY-SPECIFIC PROFILING GATES
   // Asked based on which support need was selected
   // ============================================================

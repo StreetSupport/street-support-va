@@ -127,6 +127,17 @@ const needToCategoryMap: Record<string, string[]> = {
   'Activities': ['activities']
 };
 
+// Map advice subcategories to database category.sub values
+const adviceSubcategoryMap: Record<string, string[]> = {
+  'Advice:Benefits': ['benefits'],
+  'Advice:Debt': ['debt-financial-problems', 'money-management'],
+  'Advice:Employment': ['employment'],
+  'Advice:Immigration': ['immigration', 'asylum', 'refugees'],
+  'Advice:Health': ['health', 'mental-health'],
+  'Advice:Legal': ['legal'],
+  'Advice:General': ['general'],
+};
+
 // Needs where profile (gender, age, LGBTQ+, etc.) should affect filtering
 const profileRelevantNeeds = ['Health', 'Work', 'Financial', 'Training', 'Activities', 'Drop In'];
 
@@ -406,19 +417,21 @@ function calculateMatchScore(service: Service, profile: UserProfile): number {
  * Get services by category and location
  */
 export function getServicesByCategory(
-  localAuthority: string | null, 
-  categories: string[]
+  localAuthority: string | null,
+  categories: string[],
+  subcategories?: string[]
 ): Service[] {
   if (!localAuthority || categories.length === 0) return [];
-  
+
   const la = normalizeLA(localAuthority);
   const services = (servicesData as WMCAServicesData).services;
-  
+
   return services.filter(s => {
     const serviceLA = normalizeLA(s.local_authority);
     const matchesLA = serviceLA === la;
     const matchesCategory = categories.includes(s.category.parent);
-    return matchesLA && matchesCategory;
+    const matchesSub = !subcategories || subcategories.length === 0 || subcategories.includes(s.category.sub);
+    return matchesLA && matchesCategory && matchesSub;
   });
 }
 
@@ -500,8 +513,9 @@ export function getServicesForNeed(need: string, profile: UserProfile): MatchedS
   const categories = needToCategoryMap[need] || [];
   if (categories.length === 0) return [];
   
-  // Get services matching category and location
-  let services = getServicesByCategory(profile.localAuthority, categories);
+  // Get services matching category and location, with optional subcategory filtering
+  const subcategories = profile.adviceSubcategory ? adviceSubcategoryMap[profile.adviceSubcategory] : undefined;
+  let services = getServicesByCategory(profile.localAuthority, categories, subcategories);
   
   // Apply profile filtering if relevant for this need
   if (profileRelevantNeeds.includes(need)) {

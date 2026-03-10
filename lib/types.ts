@@ -26,6 +26,7 @@ export type GateType =
   | 'B3_AGE_CATEGORY'
   | 'B4_GENDER'
   | 'B5_MAIN_SUPPORT_NEED'
+  | 'B5A_ADVICE_TYPE'
   | 'B5_PROFILE_AGE'
   | 'B5_PROFILE_GENDER'
   | 'B5_PROFILE_LGBTQ'
@@ -107,6 +108,7 @@ export interface SessionState {
   ageCategory: string | null;
   gender: string | null;
   supportNeed: string | null;
+  adviceSubcategory: string | null;
   additionalNeeds: string[];
   needCount: number;
 
@@ -223,6 +225,7 @@ export interface UserProfile {
   publicFunds?: string | null;
   lgbtqServicePreference?: string | null;
   dv?: boolean;
+  adviceSubcategory?: string | null;
 }
 
 export interface ServiceCard {
@@ -260,5 +263,6 @@ export function toUserProfile(session: SessionState): UserProfile {
     publicFunds: session.publicFunds,
     lgbtqServicePreference: session.lgbtqServicePreference,
     dv: session.safeguardingType === 'DOMESTIC_ABUSE',
+    adviceSubcategory: session.adviceSubcategory,
   };
 }

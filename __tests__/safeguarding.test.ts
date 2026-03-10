@@ -488,6 +488,24 @@ describe('Non-Housing Terminal Path', () => {
 });
 
 // =============================================================================
+// ADVICE SUBCATEGORY ROUTING - Advice bypasses housing profiling
+// =============================================================================
+
+describe('Advice Subcategory Routing', () => {
+
+  test('selecting Advice at B5 routes to B5A_ADVICE_TYPE, not housing profiling', () => {
+    const session = sessionAt('B5_MAIN_SUPPORT_NEED', {
+      routeType: 'FULL',
+      localAuthority: 'Birmingham',
+    });
+    const result = select(session, 5); // Advice is option 5
+    expect(result.stateUpdates.currentGate).toBe('B5A_ADVICE_TYPE');
+    expect(result.options).toHaveLength(7);
+  });
+
+});
+
+// =============================================================================
 // DETAILED AGE/GENDER PRIORITY - detailedAge/detailedGender override basics
 // =============================================================================
 

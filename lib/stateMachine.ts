@@ -99,6 +99,7 @@ export function createSession(sessionId: string): SessionState {
     ageCategory: null,
     gender: null,
     supportNeed: null,
+    adviceSubcategory: null,
     additionalNeeds: [],
     needCount: 0,
     homeless: null,
@@ -247,6 +248,9 @@ const needProfileRequirements: Record<string, string[]> = {
   // Drop In: Age (youth drop-ins), Gender (some gender-specific)
   'Drop In': ['age', 'gender'],
   
+  // Advice: subcategory selection provides targeting, no further profiling
+  'Advice': [],
+
   // Location-only needs - no profiling required
   'Food': [],
   'Items': [],
@@ -417,6 +421,14 @@ const nationalFallbacks: Record<string, Array<{name: string; phone?: string; web
       website: 'https://nationalcareers.service.gov.uk',
       description: 'Free careers advice, skills assessment and training information'
     }
+  ],
+  'Advice': [
+    {
+      name: 'Citizens Advice',
+      phone: '0800 144 8848',
+      website: 'https://www.citizensadvice.org.uk',
+      description: 'Free, confidential advice on benefits, debt, housing, legal and other issues'
+    }
   ]
 };
 
@@ -514,7 +526,7 @@ function buildNonHousingTerminal(session: SessionState): string {
 
 function buildTerminalServices(session: SessionState): string {
   // Check if this is a non-housing need
-  const housingRelatedNeeds = ['Emergency Housing', 'Advice'];
+  const housingRelatedNeeds = ['Emergency Housing'];
   if (session.supportNeed && !housingRelatedNeeds.includes(session.supportNeed)) {
     return buildNonHousingTerminal(session);
   }
@@ -1060,11 +1072,19 @@ export function processInput(session: SessionState, input: string): RoutingResul
     case 'B5_MAIN_SUPPORT_NEED':
       const needOptions = ['Emergency Housing', 'Food', 'Work', 'Health', 'Advice', 'Drop In', 'Financial', 'Items', 'Services', 'Comms', 'Training', 'Activities'];
       const need = choice ? needOptions[choice - 1] : null;
-      
-      // Housing-related needs require full profiling (age, gender, homelessness status, etc.)
-      const housingRelatedNeeds = ['Emergency Housing', 'Advice'];
+
+      // Advice routes to subcategory selection
+      if (need === 'Advice') {
+        return {
+          ...phrase('B5A_ADVICE_TYPE', session.isSupporter),
+          stateUpdates: { currentGate: 'B5A_ADVICE_TYPE', supportNeed: need, needCount: session.needCount + 1 }
+        };
+      }
+
+      // Housing needs require full profiling
+      const housingRelatedNeeds = ['Emergency Housing'];
       const needsFullProfiling = housingRelatedNeeds.includes(need || '');
-      
+
       if (needsFullProfiling) {
         // Continue to homelessness status question
         return {
@@ -1076,7 +1096,13 @@ export function processInput(session: SessionState, input: string): RoutingResul
         const updatedSession = { ...session, supportNeed: need, needCount: session.needCount + 1 };
         return routeToNextProfileQuestion(updatedSession);
       }
-    
+
+    case 'B5A_ADVICE_TYPE':
+      const adviceOptions = ['Advice:Benefits', 'Advice:Debt', 'Advice:Employment', 'Advice:Immigration', 'Advice:Health', 'Advice:Legal', 'Advice:General'];
+      const adviceSub = choice ? adviceOptions[choice - 1] : null;
+      const adviceSession = { ...session, adviceSubcategory: adviceSub };
+      return routeToNextProfileQuestion(adviceSession);
+
     // ============================================================
     // CATEGORY-SPECIFIC PROFILING GATES
     // ============================================================
