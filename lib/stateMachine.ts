@@ -7,7 +7,7 @@
 
 import { getPhrase, PhraseEntry } from './phrasebank';
 import { getPronouns } from './utils/pronouns';
-import type { GateType, SessionState, RoutingResult, UserProfile } from './types';
+import type { GateType, SessionState, RoutingResult, UserProfile, TerminalResult } from './types';
 import { toUserProfile } from './types';
 export type { GateType, SessionState, RoutingResult };
 import {
@@ -144,6 +144,7 @@ export function createSession(sessionId: string): SessionState {
     unclearCount: 0,
     skipCount: 0,
     escalationLevel: 0,
+    terminalOutcome: null,
     timestampStart: new Date().toISOString(),
     timestampEnd: null,
   };
@@ -348,12 +349,15 @@ function routeToNextProfileQuestion(session: SessionState): RoutingResult {
   }
   
   // All required fields collected - go to terminal
-  const services = buildTerminalServices(session);
+  const result = buildTerminalServices(session);
   const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
   return {
-    text: services + '\n' + additionalNeeds?.text,
+    text: result.text + '\n' + additionalNeeds?.text,
     options: additionalNeeds?.options,
-    stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS' },
+    stateUpdates: {
+      currentGate: 'TERMINAL_ADDITIONAL_NEEDS' as const,
+      ...(result.terminalOutcome ? { terminalOutcome: result.terminalOutcome } : {})
+    },
     sessionEnded: false
   };
 }
@@ -419,12 +423,64 @@ const nationalFallbacks: Record<string, Array<{name: string; phone?: string; web
   ]
 };
 
-function buildNonHousingTerminal(session: SessionState): string {
+function buildSSNBrowseLink(displayName: string, la: string, categoryKey: string): string {
+  const slug = la.toLowerCase().replace(/\s+/g, '-');
+  return `https://streetsupport.net/${slug}/find-help/category/?category=${categoryKey}`;
+}
+
+function buildNationalFallbacksBlock(fallbacks: Array<{name: string; phone?: string; website: string; description: string}>): string {
+  let text = `NATIONAL RESOURCES\n`;
+  text += `------------------\n\n`;
+  for (const svc of fallbacks) {
+    text += `${svc.name}\n`;
+    if (svc.phone) {
+      text += `${svc.phone}\n`;
+    }
+    text += `${svc.website}\n`;
+    text += `${svc.description}\n\n`;
+  }
+  return text;
+}
+
+function buildZeroMatchTerminal(
+  need: string,
+  la: string,
+  fallbacks: Array<{name: string; phone?: string; website: string; description: string}>,
+  categoryKey: string,
+  displayName: string,
+  isSupporter: boolean
+): { text: string; terminalOutcome: string } {
+  const hasFallbacks = fallbacks.length > 0;
+  let text = '';
+
+  if (hasFallbacks) {
+    // Type B/C: national floor exists
+    text += `I haven't found specific ${displayName} in ${la} yet, but these national services can help.\n\n`;
+    text += buildNationalFallbacksBlock(fallbacks);
+  } else {
+    // Type A: no national fallback — honest acknowledgement
+    const phraseText = getPhrase('TERMINAL_ZERO_MATCH_NO_FALLBACK', isSupporter)?.text || '';
+    text += phraseText
+      .replace('{category}', displayName)
+      .replace('{la}', la) + '\n\n';
+  }
+
+  // SSN browse link
+  if (categoryKey && la !== 'your area') {
+    text += `---\n\n`;
+    text += `Browse ${displayName} in ${la}:\n`;
+    text += buildSSNBrowseLink(displayName, la, categoryKey) + '\n';
+  }
+
+  return { text: text.trim(), terminalOutcome: 'NO_SUITABLE_PATHWAY' };
+}
+
+function buildNonHousingTerminal(session: SessionState): TerminalResult {
   const need = session.supportNeed || 'support';
   const la = session.localAuthority || 'your area';
   const displayName = needDisplayNames[need] || need.toLowerCase();
   const categoryKey = needToCategoryMap[need] || '';
-  
+
   // Build profile for service matching
   const profile = toUserProfile(session);
 
@@ -432,78 +488,57 @@ function buildNonHousingTerminal(session: SessionState): string {
   const localServices = getServicesForNeed(need, profile);
   const fallbacks = nationalFallbacks[need] || [];
   const hasLocalServices = localServices.length > 0;
-  const hasFallbacks = fallbacks.length > 0;
-  
+
+  // Zero-match path
+  if (!hasLocalServices) {
+    return buildZeroMatchTerminal(need, la, fallbacks, categoryKey, displayName, session.isSupporter);
+  }
+
   let text = '';
-  
+
   // Opening line - personalised if profile was used
-  if (isProfileRelevantNeed(need) && hasLocalServices) {
+  if (isProfileRelevantNeed(need)) {
     text += `Based on what you have told me, here are some ${displayName} in ${la} that may be able to help.\n\n`;
-  } else if (hasLocalServices) {
-    text += `Here are some ${displayName} in ${la}.\n\n`;
   } else {
-    text += `Here is some information about ${displayName}.\n\n`;
+    text += `Here are some ${displayName} in ${la}.\n\n`;
   }
-  
+
   // Local services section
-  if (hasLocalServices) {
-    text += `LOCAL SERVICES\n`;
-    text += `--------------\n\n`;
-    
-    for (const svc of localServices) {
-      text += `${svc.name}\n`;
-      if (svc.phone) {
-        text += `${svc.phone}\n`;
-      }
-      if (svc.website) {
-        text += `${svc.website}\n`;
-      }
-      // Description with access note
-      let desc = svc.description;
-      if (svc.isDropIn) {
-        desc += ` No appointment needed.`;
-      } else if (svc.appointmentOnly) {
-        desc += ` Appointment required.`;
-      }
-      text += `${desc}\n\n`;
+  text += `LOCAL SERVICES\n`;
+  text += `--------------\n\n`;
+
+  for (const svc of localServices) {
+    text += `${svc.name}\n`;
+    if (svc.phone) {
+      text += `${svc.phone}\n`;
     }
-  }
-  
-  // National fallbacks section
-  if (hasFallbacks) {
-    if (hasLocalServices) {
-      text += `---\n\n`;
-    }
-    text += `NATIONAL RESOURCES\n`;
-    text += `------------------\n\n`;
-    
-    for (const svc of fallbacks) {
-      text += `${svc.name}\n`;
-      if (svc.phone) {
-        text += `${svc.phone}\n`;
-      }
+    if (svc.website) {
       text += `${svc.website}\n`;
-      text += `${svc.description}\n\n`;
     }
+    // Description with access note
+    let desc = svc.description;
+    if (svc.isDropIn) {
+      desc += ` No appointment needed.`;
+    } else if (svc.appointmentOnly) {
+      desc += ` Appointment required.`;
+    }
+    text += `${desc}\n\n`;
   }
-  
-  // If no local services found, add search link
-  if (!hasLocalServices && categoryKey && la !== 'your area') {
+
+  // National fallbacks section
+  if (fallbacks.length > 0) {
     text += `---\n\n`;
-    text += `FIND MORE SERVICES\n`;
-    text += `------------------\n\n`;
-    text += `Search for ${displayName} in ${la}:\n`;
-    text += `https://streetsupport.net/${la.toLowerCase().replace(/\s+/g, '-')}/find-help/category/?category=${categoryKey}\n`;
+    text += buildNationalFallbacksBlock(fallbacks);
   }
-  
-  // Always add search link at the end if we have local services (for more options)
-  if (hasLocalServices && categoryKey && la !== 'your area') {
+
+  // Search link for more options
+  if (categoryKey && la !== 'your area') {
     text += `---\n\n`;
     text += `Find more ${displayName} in ${la}:\n`;
-    text += `https://streetsupport.net/${la.toLowerCase().replace(/\s+/g, '-')}/find-help/category/?category=${categoryKey}\n`;
+    text += buildSSNBrowseLink(displayName, la, categoryKey) + '\n';
   }
-  
-  return text.trim();
+
+  return { text: text.trim() };
 }
 
 // ============================================================
@@ -511,7 +546,7 @@ function buildNonHousingTerminal(session: SessionState): string {
 // Clear hierarchy: First Step -> Outreach -> Local Support -> Specialist -> Youth -> Safety Net
 // ============================================================
 
-function buildTerminalServices(session: SessionState): string {
+function buildTerminalServices(session: SessionState): TerminalResult {
   // Check if this is a non-housing need
   const housingRelatedNeeds = ['Emergency Housing'];
   if (session.supportNeed && !housingRelatedNeeds.includes(session.supportNeed)) {
@@ -609,7 +644,7 @@ function buildTerminalServices(session: SessionState): string {
     text += `---\n\n`;
     text += `${theyve.charAt(0).toUpperCase() + theyve.slice(1)} taken an important step by reaching out today.`;
 
-    return text;
+    return { text };
   }
 
   // ----------------------------------------
@@ -803,8 +838,8 @@ function buildTerminalServices(session: SessionState): string {
   // ----------------------------------------
   text += `---\n\n`;
   text += `${theyve.charAt(0).toUpperCase() + theyve.slice(1)} taken an important step by reaching out today.`;
-  
-  return text;
+
+  return { text };
 }
 
 // ============================================================
@@ -1183,12 +1218,12 @@ export function processInput(session: SessionState, input: string): RoutingResul
             stateUpdates: { currentGate: 'B7B_PREVENTION_REASON', preventionNeed: true }
           };
         case 2: // Just info -> terminal
-          const servicesB7A = buildTerminalServices(session);
+          const resultB7A = buildTerminalServices(session);
           const additionalNeedsB7A = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
           return {
-            text: servicesB7A + '\n' + additionalNeedsB7A?.text,
+            text: resultB7A.text + '\n' + additionalNeedsB7A?.text,
             options: additionalNeedsB7A?.options,
-            stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', preventionNeed: false },
+            stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', preventionNeed: false, ...(resultB7A.terminalOutcome ? { terminalOutcome: resultB7A.terminalOutcome } : {}) },
             sessionEnded: false
           };
         case 3: // Change answer -> back to B6
@@ -1203,20 +1238,20 @@ export function processInput(session: SessionState, input: string): RoutingResul
       
       // Quick route goes to terminal, Full route continues to B8
       if (session.routeType === 'QUICK') {
-        const servicesB7 = buildTerminalServices({ ...session, sleepingSituation: sleeping });
+        const resultB7 = buildTerminalServices({ ...session, sleepingSituation: sleeping });
         const additionalNeedsB7 = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-        
+
         // Add StreetLink for rough sleeping
-        let text = servicesB7;
+        let text = resultB7.text;
         if (choice === 1) {
           const streetlink = getPhrase('STREETLINK_SIGNPOST', session.isSupporter);
-          text = (streetlink?.text || '') + '\n\n' + servicesB7;
+          text = (streetlink?.text || '') + '\n\n' + resultB7.text;
         }
-        
+
         return {
           text: text + '\n' + additionalNeedsB7?.text,
           options: additionalNeedsB7?.options,
-          stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', sleepingSituation: sleeping },
+          stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', sleepingSituation: sleeping, ...(resultB7.terminalOutcome ? { terminalOutcome: resultB7.terminalOutcome } : {}) },
           sessionEnded: false
         };
       } else {

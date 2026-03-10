@@ -11,7 +11,7 @@
  */
 
 import { getPhrase } from '../phrasebank';
-import type { SessionState, RoutingResult } from '../types';
+import type { SessionState, RoutingResult, TerminalResult } from '../types';
 import { phrase } from './shared';
 
 // ============================================================================
@@ -39,7 +39,7 @@ export function handleTerminalAdditionalNeeds(session: SessionState, choice: num
 export function handleEscalationLevel1(
   session: SessionState,
   choice: number | null,
-  buildTerminalServices: (session: SessionState) => string,
+  buildTerminalServices: (session: SessionState) => TerminalResult,
   restartSession: () => RoutingResult
 ): RoutingResult {
   switch (choice) {
@@ -47,12 +47,12 @@ export function handleEscalationLevel1(
       return phrase(session.currentGate, session.isSupporter);
     case 2: // Skip
       // Would need to track "next gate" - for now go to terminal
-      const services = buildTerminalServices(session);
+      const result = buildTerminalServices(session);
       const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
       return {
-        text: services + '\n' + additionalNeeds?.text,
+        text: result.text + '\n' + additionalNeeds?.text,
         options: additionalNeeds?.options,
-        stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', skipCount: session.skipCount + 1 },
+        stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', skipCount: session.skipCount + 1, ...(result.terminalOutcome ? { terminalOutcome: result.terminalOutcome } : {}) },
         sessionEnded: false
       };
     case 3: // Restart
@@ -65,16 +65,16 @@ export function handleEscalationLevel1(
 export function handleEscalationLevel2(
   session: SessionState,
   choice: number | null,
-  buildTerminalServices: (session: SessionState) => string
+  buildTerminalServices: (session: SessionState) => TerminalResult
 ): RoutingResult {
   switch (choice) {
     case 1: // Services with what we have
-      const services = buildTerminalServices(session);
+      const result2 = buildTerminalServices(session);
       const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
       return {
-        text: services + '\n' + additionalNeeds?.text,
+        text: result2.text + '\n' + additionalNeeds?.text,
         options: additionalNeeds?.options,
-        stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS' },
+        stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', ...(result2.terminalOutcome ? { terminalOutcome: result2.terminalOutcome } : {}) },
         sessionEnded: false
       };
     case 2: // Phone number

@@ -168,6 +168,9 @@ export interface SessionState {
   skipCount: number;
   escalationLevel: number;
 
+  // Terminal outcome
+  terminalOutcome: string | null;
+
   // Timestamps
   timestampStart: string;
   timestampEnd: string | null;
@@ -183,6 +186,11 @@ export interface RoutingResult {
   stateUpdates: Partial<SessionState>;
   sessionEnded?: boolean;
   responseType?: string;
+}
+
+export interface TerminalResult {
+  text: string;
+  terminalOutcome?: string;
 }
 
 // ============================================================

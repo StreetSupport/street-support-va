@@ -485,6 +485,20 @@ describe('Non-Housing Terminal Path', () => {
     expect(result.text).toContain('nhs.uk');
   });
 
+  test('zero-match scenario emits NO_SUITABLE_PATHWAY in session state', () => {
+    const session = sessionAt('B5_PROFILE_CHILDREN', {
+      supportNeed: 'Food',
+      localAuthority: 'NowhereTestLA',
+      ageCategory: '25+',
+      gender: 'Male',
+      lgbtq: false,
+      criminalConvictions: 'No',
+      publicFunds: 'Yes',
+    });
+    const result = select(session, 2); // No children -> terminal
+    expect(result.stateUpdates.terminalOutcome).toBe('NO_SUITABLE_PATHWAY');
+  });
+
 });
 
 // =============================================================================

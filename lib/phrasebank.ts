@@ -1714,6 +1714,14 @@ In the meantime, keep chatting with me. I can help you look for more support now
     text: `Take care. You can come back anytime if they need more help.`
   },
 
+  TERMINAL_ZERO_MATCH_NO_FALLBACK: {
+    text: `We're not finding {category} support showing up in {la} right now. That's something we want to know about — if you're able to, you can let us know via the link below and we'll try to fill the gap. In the meantime, you can browse everything available in your area on Street Support.`
+  },
+
+  TERMINAL_ZERO_MATCH_NO_FALLBACK__SUPPORTER: {
+    text: `We're not finding {category} support showing up in {la} right now. That's something we want to know about — if you're able to, you can let us know via the link below and we'll try to fill the gap. In the meantime, you can browse everything available in their area on Street Support.`
+  },
+
   TERMINAL_SOCIAL_SERVICES_GUIDANCE: {
     text: `Based on your situation, you may be entitled to support from social services. They have a duty to help young people and care leavers with housing.
 
