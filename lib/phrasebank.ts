@@ -1722,6 +1722,14 @@ In the meantime, keep chatting with me. I can help you look for more support now
     text: `We're not finding {category} support showing up in {la} right now. That's something we want to know about — if you're able to, you can let us know via the link below and we'll try to fill the gap. In the meantime, you can browse everything available in their area on Street Support.`
   },
 
+  TERMINAL_NRPF_FAMILY_SUPPORT: {
+    text: `Children's Services may be able to support you and your family regardless of immigration status — contact them to explore your options.`
+  },
+
+  TERMINAL_NRPF_FAMILY_SUPPORT__SUPPORTER: {
+    text: `Children's Services may be able to support them and their family regardless of immigration status — contact them to explore their options.`
+  },
+
   TERMINAL_SOCIAL_SERVICES_GUIDANCE: {
     text: `Based on your situation, you may be entitled to support from social services. They have a duty to help young people and care leavers with housing.
 

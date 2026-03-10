@@ -753,6 +753,43 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   }
 
   // ----------------------------------------
+  // NRPF FAMILY SUPPORT - for NRPF/uncertain + dependents (children or pregnant)
+  // ----------------------------------------
+  const isNRPFUncertain = profile.publicFunds === 'No' || profile.publicFunds === 'Not sure';
+  const hasDependents = profile.hasChildren === true; // already includes pregnant via toUserProfile
+  if (isNRPFUncertain && hasDependents) {
+    const nrpfFamilyPhrase = getPhrase('TERMINAL_NRPF_FAMILY_SUPPORT', isSupporter);
+    text += `FAMILY & IMMIGRATION SUPPORT\n`;
+    text += `----------------------------\n`;
+
+    // LA-specific Children's Services
+    const laKey = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
+    const childServices = childrenServicesData[laKey];
+    if (childServices) {
+      text += `${childServices.name}\n`;
+      text += `${childServices.phone}\n`;
+      if (childServices.website) {
+        text += `${childServices.website}\n`;
+      }
+    }
+    text += (nrpfFamilyPhrase?.text || '') + '\n\n';
+
+    // Project 17
+    text += `Project 17\n`;
+    text += `https://project17.org.uk\n`;
+    text += `Specialist support for families with no recourse to public funds\n\n`;
+
+    // Migrant Help — only if not already shown in specialist section
+    const migrantHelpInSpecialist = allSpecialistOrgs.some(o => o.name === 'Migrant Help');
+    if (!migrantHelpInSpecialist) {
+      text += `Migrant Help\n`;
+      text += `0808 8010 503\n`;
+      text += `https://www.migranthelpuk.org\n`;
+      text += `Support for asylum seekers and refugees\n\n`;
+    }
+  }
+
+  // ----------------------------------------
   // DOMESTIC ABUSE SUPPORT - Local DV orgs alongside national floor
   // ----------------------------------------
   if (profile.dv && dvOrgs.length > 0) {
