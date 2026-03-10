@@ -34,7 +34,8 @@
         "ageMin": 18,
         "ageMax": null,
         "phone": "0121 766 1700",
-        "website": "https://www.sifafireside.co.uk"
+        "website": "https://www.sifafireside.co.uk",
+        "isDropIn": true
       },
       {
         "name": "St Basil's Birmingham",
@@ -42,7 +43,8 @@
         "ageMin": 16,
         "ageMax": 25,
         "phone": "0300 303 0099",
-        "website": "https://www.stbasils.org.uk"
+        "website": "https://www.stbasils.org.uk",
+        "isDropIn": true
       }
     ],
     "dvOrgs": {
@@ -94,7 +96,8 @@
         "ageMin": 25,
         "ageMax": null,
         "phone": "0808 196 2660",
-        "website": "https://p3charity.org"
+        "website": "https://p3charity.org",
+        "isDropIn": true
       },
       {
         "name": "St Basil's Coventry Youth Hub",
@@ -102,7 +105,8 @@
         "ageMin": 16,
         "ageMax": 24,
         "phone": "0121 269 1940",
-        "website": "https://www.stbasils.org.uk"
+        "website": "https://www.stbasils.org.uk",
+        "isDropIn": true
       }
     ],
     "dvOrgs": {
@@ -152,7 +156,8 @@
         "ageMin": null,
         "ageMax": null,
         "availabilityNote": "Monday evenings only — limited availability. Documented system gap.",
-        "website": "https://www.dudley.gov.uk"
+        "website": "https://www.dudley.gov.uk",
+        "isDropIn": false
       }
     ],
     "dvOrgs": {
@@ -230,7 +235,8 @@
         "ageMax": 25,
         "phone": "0330 332 7978",
         "email": "SolihullYouthHub@stbasils.org.uk",
-        "website": "https://www.stbasils.org.uk"
+        "website": "https://www.stbasils.org.uk",
+        "isDropIn": true
       }
     ],
     "dvOrgs": {
@@ -266,7 +272,8 @@
         "description": "Housing advice and support for people experiencing homelessness.",
         "ageMin": null,
         "ageMax": null,
-        "website": "https://www.ymcablackcountry.org.uk"
+        "website": "https://www.ymcablackcountry.org.uk",
+        "isDropIn": true
       }
     ],
     "dvOrgs": {
@@ -308,7 +315,8 @@
         "description": "Commissioned housing navigator service. Drop-in support for people experiencing homelessness.",
         "ageMin": null,
         "ageMax": null,
-        "website": "https://www.p3charity.org"
+        "website": "https://www.p3charity.org",
+        "isDropIn": true
       }
     ],
     "dvOrgs": {

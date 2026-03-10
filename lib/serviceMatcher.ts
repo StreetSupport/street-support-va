@@ -60,6 +60,7 @@ interface NavigatorOrg {
   email?: string;
   availabilityNote?: string;
   _canonicalNote?: string;
+  isDropIn?: boolean;
 }
 
 interface DVOrg {
@@ -636,7 +637,7 @@ export function getNavigatorOrgs(localAuthority: string | null): DefaultOrg[] {
     phone: nav.phone || null,
     website: nav.website || null,
     description: nav.description,
-    isDropIn: true,
+    isDropIn: nav.isDropIn,
   }));
 }
 
