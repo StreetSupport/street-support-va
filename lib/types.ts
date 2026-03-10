@@ -263,7 +263,7 @@ export function toUserProfile(session: SessionState): UserProfile {
     ageCategory: session.detailedAge || session.ageCategory,
     lgbtq: session.lgbtq,
     criminalConvictions: session.criminalConvictions,
-    hasChildren: session.hasChildren,
+    hasChildren: (session.hasChildren === true || session.pregnant === true) ? true : session.hasChildren,
     sleepingSituation: session.sleepingSituation,
     mentalHealth: session.mentalHealth,
     physicalHealth: session.physicalHealth,

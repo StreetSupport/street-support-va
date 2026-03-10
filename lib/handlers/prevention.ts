@@ -95,7 +95,7 @@ export function handleB7D4PreventionSafeguardingSignals(
 
   // Check escalation triggers
   const isUrgent = session.preventionUrgency === 'Now/soon';
-  const hasChildren = session.preventionChildren === 'Yes';
+  const hasChildren = session.preventionChildren === 'Yes' || session.pregnant === true;
   const isEviction = session.preventionReason?.includes('Eviction');
 
   if (isUrgent && isEviction) {
