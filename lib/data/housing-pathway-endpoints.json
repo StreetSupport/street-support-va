@@ -315,6 +315,9 @@
         "description": "Commissioned housing navigator service. Drop-in support for people experiencing homelessness.",
         "ageMin": null,
         "ageMax": null,
+        "phone": "01902 296451",
+        "phoneHours": "Mon-Fri 9am-5pm",
+        "phoneOOH": "0800 107 6753",
         "website": "https://www.p3charity.org",
         "isDropIn": true
       }
