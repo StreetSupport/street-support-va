@@ -1290,7 +1290,7 @@ What is their gender?
   },
 
   DV_CHILDREN_ASK: {
-    text: `Do you have dependent children?
+    text: `Do you have dependent children, or are you currently pregnant?
 
 1. Yes
 2. No`,
@@ -1298,7 +1298,7 @@ What is their gender?
   },
 
   DV_CHILDREN_ASK__SUPPORTER: {
-    text: `Do they have dependent children?
+    text: `Do they have dependent children, or are they currently pregnant?
 
 1. Yes
 2. No`,
@@ -1715,11 +1715,11 @@ In the meantime, keep chatting with me. I can help you look for more support now
   },
 
   TERMINAL_ZERO_MATCH_NO_FALLBACK: {
-    text: `We're not finding {category} support showing up in {la} right now. That's something we want to know about — if you're able to, you can let us know via the link below and we'll try to fill the gap. In the meantime, you can browse everything available in your area on Street Support.`
+    text: `We're not finding {category} support listed in {la} right now. That doesn't necessarily mean it isn't available locally. You can browse everything currently listed on Street Support for your area using the link below.`
   },
 
   TERMINAL_ZERO_MATCH_NO_FALLBACK__SUPPORTER: {
-    text: `We're not finding {category} support showing up in {la} right now. That's something we want to know about — if you're able to, you can let us know via the link below and we'll try to fill the gap. In the meantime, you can browse everything available in their area on Street Support.`
+    text: `We're not finding {category} support listed in {la} right now. That doesn't necessarily mean it isn't available locally. You can browse everything currently listed on Street Support for their area using the link below.`
   },
 
   TERMINAL_LGBT_FOUNDATION_HEALTH: {
@@ -1731,11 +1731,11 @@ In the meantime, keep chatting with me. I can help you look for more support now
   },
 
   TERMINAL_NRPF_FAMILY_SUPPORT: {
-    text: `Children's Services may be able to support you and your family regardless of immigration status — contact them to explore your options.`
+    text: `Children's Services have a duty to assess what support may be available for your family, including if you have no recourse to public funds.`
   },
 
   TERMINAL_NRPF_FAMILY_SUPPORT__SUPPORTER: {
-    text: `Children's Services may be able to support them and their family regardless of immigration status — contact them to explore their options.`
+    text: `Children's Services have a duty to assess what support may be available for their family, including if they have no recourse to public funds.`
   },
 
   TERMINAL_SOCIAL_SERVICES_GUIDANCE: {
@@ -1747,11 +1747,11 @@ Find your local council: https://www.gov.uk/find-local-council`
   },
 
   TERMINAL_YOUTH_16_17_CHILDRENS_SERVICES: {
-    text: `For people aged 16 or 17, housing support is usually arranged through Children's Services or a social worker. If you're already working with them but still need help, you may be able to contact the duty team or ask to speak to someone urgently.`
+    text: `For people aged 16 or 17, housing support is usually arranged through Children's Services or a social worker. You can call their duty team directly, or ask someone you trust to help you make contact.`
   },
 
   TERMINAL_YOUTH_16_17_CHILDRENS_SERVICES__SUPPORTER: {
-    text: `For people aged 16 or 17, housing support is usually arranged through Children's Services or a social worker. If they're already working with them but still need help, they may be able to contact the duty team or ask to speak to someone urgently.`
+    text: `For people aged 16 or 17, housing support is usually arranged through Children's Services or a social worker. They can call their duty team directly, or ask someone they trust to help them make contact.`
   },
 
   TERMINAL_YOUTH_16_17_NAVIGATOR_INTRO: {

@@ -257,7 +257,7 @@ export function handleDVGenderAsk(session: SessionState, choice: number | null):
 }
 
 export function handleDVChildrenAsk(session: SessionState, choice: number | null): RoutingResult {
-  const dvChildren = choice === 1 || session.pregnant === true;
+  const dvChildren = choice === 1;
   const dvExitKey = getDVExitKey(session.dvGender, dvChildren);
   const result = safeguardingExit(dvExitKey, session.isSupporter, 'DOMESTIC_ABUSE');
   const localDV = buildLocalDVInfo(session);

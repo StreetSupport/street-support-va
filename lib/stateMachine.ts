@@ -304,7 +304,7 @@ function routeToNextProfileQuestion(session: SessionState): RoutingResult {
     }
     
     // LGBTQ
-    if (field === 'lgbtq' && session.lgbtq === undefined) {
+    if (field === 'lgbtq' && session.lgbtq == null) {
       return {
         ...phrase('B5_PROFILE_LGBTQ', session.isSupporter),
         stateUpdates: { 
@@ -326,7 +326,7 @@ function routeToNextProfileQuestion(session: SessionState): RoutingResult {
     }
     
     // NRPF / Public funds access
-    if (field === 'nrpf' && session.publicFunds === undefined) {
+    if (field === 'nrpf' && session.publicFunds == null) {
       return {
         ...phrase('B5_PROFILE_NRPF', session.isSupporter),
         stateUpdates: { 
@@ -337,7 +337,7 @@ function routeToNextProfileQuestion(session: SessionState): RoutingResult {
     }
     
     // Children/dependents
-    if (field === 'children' && session.hasChildren === undefined) {
+    if (field === 'children' && session.hasChildren == null) {
       return {
         ...phrase('B5_PROFILE_CHILDREN', session.isSupporter),
         stateUpdates: { 
