@@ -99,6 +99,18 @@ describe('Crisis Gate', () => {
     expect(result.text.toLowerCase()).toContain('emergency');
   });
 
+  test('option 4 contains "Domestic abuse" (routing depends on array index)', () => {
+    const session = createSession('test');
+    const result = getFirstMessage(session);
+    expect(result.options?.[3]).toContain('Domestic abuse');
+  });
+
+  test('option 5 contains "Sexual violence" (routing depends on array index)', () => {
+    const session = createSession('test');
+    const result = getFirstMessage(session);
+    expect(result.options?.[4]).toContain('Sexual violence');
+  });
+
   test('option 7 (none) proceeds to GATE1_INTENT', () => {
     const session = sessionAt('GATE0_CRISIS_DANGER');
     const result = select(session, 7);
@@ -497,6 +509,51 @@ describe('Non-Housing Terminal Path', () => {
     });
     const result = select(session, 2); // No children -> terminal
     expect(result.stateUpdates.terminalOutcome).toBe('NO_SUITABLE_PATHWAY');
+  });
+
+});
+
+// =============================================================================
+// DV PREGNANCY PATH - Pregnancy wording in DV children question
+// =============================================================================
+
+describe('DV Pregnancy Path', () => {
+
+  test('DV children question includes pregnancy wording', () => {
+    const phrase = getPhrase('DV_CHILDREN_ASK', false);
+    expect(phrase?.text?.toLowerCase()).toContain('pregnant');
+  });
+
+  test('answering yes to DV children question routes to children-specific exit', () => {
+    const session = sessionAt('DV_CHILDREN_ASK', { dvGender: 'Female' });
+    const result = select(session, 1); // Yes (children or pregnant)
+    // Children-specific exit contains the helpline and housing advice
+    expect(result.text).toContain('0808 2000 247');
+    expect(result.text).toContain('Shelter');
+  });
+
+});
+
+// =============================================================================
+// NRPF FAMILY SUPPORT - Section 17 framing for NRPF users with children
+// =============================================================================
+
+describe('NRPF Family Support', () => {
+
+  test('NRPF user with children reaches Section 17 framing in terminal', () => {
+    const session = sessionAt('B5_PROFILE_CHILDREN', {
+      supportNeed: 'Emergency Housing',
+      localAuthority: 'Birmingham',
+      ageCategory: '25+',
+      gender: 'Female',
+      lgbtq: false,
+      criminalConvictions: 'No',
+      publicFunds: 'No',
+      homeless: true,
+    });
+    const result = select(session, 1); // Yes, has children
+    expect(result.text).toContain('Children\'s Services');
+    expect(result.text).toContain('FAMILY & IMMIGRATION SUPPORT');
   });
 
 });
