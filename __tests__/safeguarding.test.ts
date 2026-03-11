@@ -74,10 +74,10 @@ describe('Crisis Gate', () => {
     expect(result.options).toHaveLength(7);
   });
 
-  test('option 5 contains "under 16" (routing depends on array index)', () => {
+  test('option 2 contains "under 16" (routing depends on array index)', () => {
     const session = createSession('test');
     const result = getFirstMessage(session);
-    expect(result.options?.[4]?.toLowerCase()).toContain('under 16');
+    expect(result.options?.[1]?.toLowerCase()).toContain('under 16');
   });
 
   test('option 1 (immediate danger) contains 999', () => {
@@ -86,9 +86,9 @@ describe('Crisis Gate', () => {
     expect(result.text).toContain('999');
   });
 
-  test('option 4 (self-harm) contains Samaritans number', () => {
+  test('option 3 (self-harm) contains Samaritans number', () => {
     const session = sessionAt('GATE0_CRISIS_DANGER');
-    const result = select(session, 4);
+    const result = select(session, 3);
     expect(result.text).toContain('116 123');
   });
 
@@ -97,6 +97,18 @@ describe('Crisis Gate', () => {
     const session = sessionAt('CRISIS_FIRE_FLOOD_LOCATION');
     const result = select(session, 1); // Select Wolverhampton
     expect(result.text.toLowerCase()).toContain('emergency');
+  });
+
+  test('option 4 contains "Domestic abuse" (routing depends on array index)', () => {
+    const session = createSession('test');
+    const result = getFirstMessage(session);
+    expect(result.options?.[3]).toContain('Domestic abuse');
+  });
+
+  test('option 5 contains "Sexual violence" (routing depends on array index)', () => {
+    const session = createSession('test');
+    const result = getFirstMessage(session);
+    expect(result.options?.[4]).toContain('Sexual violence');
   });
 
   test('option 7 (none) proceeds to GATE1_INTENT', () => {
@@ -163,6 +175,68 @@ describe('16-17 Year Olds', () => {
     expect(result.stateUpdates.ageCategory).toBe('16-17');
   });
 
+  test('Birmingham 16-17 sees St Basil\'s but not SIFA Fireside in terminal', () => {
+    const session = sessionAt('B7_HOMELESS_SLEEPING_SITUATION', {
+      ageCategory: '16-17',
+      gender: 'Male',
+      localAuthority: 'Birmingham',
+      supportNeed: 'Emergency Housing',
+      homeless: true,
+      routeType: 'QUICK',
+    });
+    const result = select(session, 3); // Sofa surfing -> terminal
+    expect(result.text).toContain('St Basil');
+    expect(result.text).not.toContain('SIFA Fireside');
+  });
+
+  test('Birmingham 16-17 + socialServices Yes: Children\'s Services duty team framing, St Basil\'s, no SIFA', () => {
+    const session = sessionAt('B7_HOMELESS_SLEEPING_SITUATION', {
+      ageCategory: '16-17',
+      gender: 'Male',
+      localAuthority: 'Birmingham',
+      supportNeed: 'Emergency Housing',
+      homeless: true,
+      routeType: 'QUICK',
+      socialServices: 'Yes',
+    });
+    const result = select(session, 3); // Sofa surfing -> terminal
+    expect(result.text).toContain('Children\'s Services or a social worker');
+    expect(result.text).toContain('duty team');
+    expect(result.text).toContain('St Basil');
+    expect(result.text).not.toContain('SIFA Fireside');
+  });
+
+  test('Sandwell 16-17 + socialServices Yes: Children\'s Services framing, Childline, no navigator orgs', () => {
+    const session = sessionAt('B7_HOMELESS_SLEEPING_SITUATION', {
+      ageCategory: '16-17',
+      gender: 'Male',
+      localAuthority: 'Sandwell',
+      supportNeed: 'Emergency Housing',
+      homeless: true,
+      routeType: 'QUICK',
+      socialServices: 'Yes',
+    });
+    const result = select(session, 3); // Sofa surfing -> terminal
+    expect(result.text).toContain('Children\'s Services or a social worker');
+    expect(result.text).toContain('duty team');
+    expect(result.text).toContain('0800 1111');
+    expect(result.text).not.toContain('LOCAL SUPPORT');
+  });
+
+  test('16-17 + socialServices No: IMPORTANT FOR YOUNG PEOPLE section appears', () => {
+    const session = sessionAt('B7_HOMELESS_SLEEPING_SITUATION', {
+      ageCategory: '16-17',
+      gender: 'Male',
+      localAuthority: 'Birmingham',
+      supportNeed: 'Emergency Housing',
+      homeless: true,
+      routeType: 'QUICK',
+      socialServices: 'No',
+    });
+    const result = select(session, 3); // Sofa surfing -> terminal
+    expect(result.text).toContain('IMPORTANT FOR YOUNG PEOPLE');
+  });
+
 });
 
 // =============================================================================
@@ -193,6 +267,24 @@ describe('Domestic Abuse Disclosure', () => {
     expect(result.text).toContain('0808 800 1170');
   });
 
+  test('female DV exit includes Shelter housing advice link', () => {
+    const session = sessionAt('DV_CHILDREN_ASK', { dvGender: 'Female' });
+    const result = select(session, 1);
+    expect(result.text).toContain('england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse');
+  });
+
+  test('male DV exit includes Shelter housing advice link', () => {
+    const session = sessionAt('DV_CHILDREN_ASK', { dvGender: 'Male' });
+    const result = select(session, 1);
+    expect(result.text).toContain('england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse');
+  });
+
+  test('LGBTQ DV exit includes Shelter housing advice link', () => {
+    const session = sessionAt('DV_CHILDREN_ASK', { dvGender: 'Non-binary or other' });
+    const result = select(session, 1);
+    expect(result.text).toContain('england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse');
+  });
+
 });
 
 // =============================================================================
@@ -203,19 +295,19 @@ describe('Self-Harm Pathway', () => {
 
   test('contains Samaritans', () => {
     const session = sessionAt('GATE0_CRISIS_DANGER');
-    const result = select(session, 4); // Self-harm is option 4
+    const result = select(session, 3); // Self-harm is option 3
     expect(result.text).toContain('Samaritans');
   });
 
   test('contains NHS mental health option', () => {
     const session = sessionAt('GATE0_CRISIS_DANGER');
-    const result = select(session, 4);
+    const result = select(session, 3);
     expect(result.text).toContain('111');
   });
 
   test('ends session with safeguarding exit', () => {
     const session = sessionAt('GATE0_CRISIS_DANGER');
-    const result = select(session, 4);
+    const result = select(session, 3);
     expect(result.sessionEnded).toBe(true);
   });
 
@@ -313,7 +405,7 @@ describe('Critical Content Exists', () => {
 
   test('self-harm exit produces non-empty response', () => {
     const session = sessionAt('GATE0_CRISIS_DANGER');
-    const result = select(session, 4); // Self-harm is option 4
+    const result = select(session, 3); // Self-harm is option 3
     expect(result.text.length).toBeGreaterThan(50);
   });
 
@@ -335,7 +427,7 @@ describe('Supporter Mode Exits', () => {
 
   test('self-harm exit uses third-person pronouns for supporter', () => {
     const session = sessionAt('GATE0_CRISIS_DANGER', { isSupporter: true });
-    const result = select(session, 4); // Self-harm
+    const result = select(session, 3); // Self-harm
     expect(result.text).toContain('they');
     expect(result.text).toContain('Their feelings');
     expect(result.text).not.toContain('Your feelings');
@@ -387,7 +479,7 @@ describe('Non-Housing Terminal Path', () => {
     });
     const result = select(session, 2); // No children -> completes profile -> terminal
     expect(result.text.toLowerCase()).toContain('food');
-    expect(result.text).toContain('trusselltrust.org');
+    // No national fallback for Food — only local services
     expect(result.text.toLowerCase()).not.toContain('council housing');
   });
 
@@ -403,6 +495,83 @@ describe('Non-Housing Terminal Path', () => {
     const result = select(session, 2); // No children -> completes profile -> terminal
     expect(result.text.toLowerCase()).toContain('health');
     expect(result.text).toContain('nhs.uk');
+  });
+
+  test('zero-match scenario emits NO_SUITABLE_PATHWAY in session state', () => {
+    const session = sessionAt('B5_PROFILE_CHILDREN', {
+      supportNeed: 'Food',
+      localAuthority: 'NowhereTestLA',
+      ageCategory: '25+',
+      gender: 'Male',
+      lgbtq: false,
+      criminalConvictions: 'No',
+      publicFunds: 'Yes',
+    });
+    const result = select(session, 2); // No children -> terminal
+    expect(result.stateUpdates.terminalOutcome).toBe('NO_SUITABLE_PATHWAY');
+  });
+
+});
+
+// =============================================================================
+// DV PREGNANCY PATH - Pregnancy wording in DV children question
+// =============================================================================
+
+describe('DV Pregnancy Path', () => {
+
+  test('DV children question includes pregnancy wording', () => {
+    const phrase = getPhrase('DV_CHILDREN_ASK', false);
+    expect(phrase?.text?.toLowerCase()).toContain('pregnant');
+  });
+
+  test('answering yes to DV children question routes to children-specific exit', () => {
+    const session = sessionAt('DV_CHILDREN_ASK', { dvGender: 'Female' });
+    const result = select(session, 1); // Yes (children or pregnant)
+    // Children-specific exit contains the helpline and housing advice
+    expect(result.text).toContain('0808 2000 247');
+    expect(result.text).toContain('Shelter');
+  });
+
+});
+
+// =============================================================================
+// NRPF FAMILY SUPPORT - Section 17 framing for NRPF users with children
+// =============================================================================
+
+describe('NRPF Family Support', () => {
+
+  test('NRPF user with children reaches Section 17 framing in terminal', () => {
+    const session = sessionAt('B5_PROFILE_CHILDREN', {
+      supportNeed: 'Emergency Housing',
+      localAuthority: 'Birmingham',
+      ageCategory: '25+',
+      gender: 'Female',
+      lgbtq: false,
+      criminalConvictions: 'No',
+      publicFunds: 'No',
+      homeless: true,
+    });
+    const result = select(session, 1); // Yes, has children
+    expect(result.text).toContain('Children\'s Services');
+    expect(result.text).toContain('FAMILY & IMMIGRATION SUPPORT');
+  });
+
+});
+
+// =============================================================================
+// ADVICE SUBCATEGORY ROUTING - Advice bypasses housing profiling
+// =============================================================================
+
+describe('Advice Subcategory Routing', () => {
+
+  test('selecting Advice at B5 routes to B5A_ADVICE_TYPE, not housing profiling', () => {
+    const session = sessionAt('B5_MAIN_SUPPORT_NEED', {
+      routeType: 'FULL',
+      localAuthority: 'Birmingham',
+    });
+    const result = select(session, 5); // Advice is option 5
+    expect(result.stateUpdates.currentGate).toBe('B5A_ADVICE_TYPE');
+    expect(result.options).toHaveLength(7);
   });
 
 });

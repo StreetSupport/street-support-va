@@ -26,6 +26,7 @@ export type GateType =
   | 'B3_AGE_CATEGORY'
   | 'B4_GENDER'
   | 'B5_MAIN_SUPPORT_NEED'
+  | 'B5A_ADVICE_TYPE'
   | 'B5_PROFILE_AGE'
   | 'B5_PROFILE_GENDER'
   | 'B5_PROFILE_LGBTQ'
@@ -107,6 +108,7 @@ export interface SessionState {
   ageCategory: string | null;
   gender: string | null;
   supportNeed: string | null;
+  adviceSubcategory: string | null;
   additionalNeeds: string[];
   needCount: number;
 
@@ -166,6 +168,9 @@ export interface SessionState {
   skipCount: number;
   escalationLevel: number;
 
+  // Terminal outcome
+  terminalOutcome: string | null;
+
   // Timestamps
   timestampStart: string;
   timestampEnd: string | null;
@@ -181,6 +186,11 @@ export interface RoutingResult {
   stateUpdates: Partial<SessionState>;
   sessionEnded?: boolean;
   responseType?: string;
+}
+
+export interface TerminalResult {
+  text: string;
+  terminalOutcome?: string;
 }
 
 // ============================================================
@@ -223,6 +233,7 @@ export interface UserProfile {
   publicFunds?: string | null;
   lgbtqServicePreference?: string | null;
   dv?: boolean;
+  adviceSubcategory?: string | null;
 }
 
 export interface ServiceCard {
@@ -252,7 +263,7 @@ export function toUserProfile(session: SessionState): UserProfile {
     ageCategory: session.detailedAge || session.ageCategory,
     lgbtq: session.lgbtq,
     criminalConvictions: session.criminalConvictions,
-    hasChildren: session.hasChildren,
+    hasChildren: (session.hasChildren === true || session.pregnant === true) ? true : session.hasChildren,
     sleepingSituation: session.sleepingSituation,
     mentalHealth: session.mentalHealth,
     physicalHealth: session.physicalHealth,
@@ -260,5 +271,6 @@ export function toUserProfile(session: SessionState): UserProfile {
     publicFunds: session.publicFunds,
     lgbtqServicePreference: session.lgbtqServicePreference,
     dv: session.safeguardingType === 'DOMESTIC_ABUSE',
+    adviceSubcategory: session.adviceSubcategory,
   };
 }

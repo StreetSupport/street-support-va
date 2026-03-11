@@ -7,7 +7,6 @@
 
 import servicesData from './data/wmca_services_v7.json';
 import orgsData from './data/wmca_organizations_v7.json';
-import laContacts from './data/la-contacts.json';
 import endpointsData from './data/housing-pathway-endpoints.json';
 import type { MatchedService, DefaultOrg, UserProfile } from './types';
 
@@ -128,6 +127,17 @@ const needToCategoryMap: Record<string, string[]> = {
   'Activities': ['activities']
 };
 
+// Map advice subcategories to database category.sub values
+const adviceSubcategoryMap: Record<string, string[]> = {
+  'Advice:Benefits': ['benefits'],
+  'Advice:Debt': ['debt-financial-problems', 'money-management'],
+  'Advice:Employment': ['employment'],
+  'Advice:Immigration': ['immigration', 'asylum', 'refugees'],
+  'Advice:Health': ['health', 'mental-health'],
+  'Advice:Legal': ['legal'],
+  'Advice:General': ['general'],
+};
+
 // Needs where profile (gender, age, LGBTQ+, etc.) should affect filtering
 const profileRelevantNeeds = ['Health', 'Work', 'Financial', 'Training', 'Activities', 'Drop In'];
 
@@ -149,29 +159,24 @@ const clientGroupKeywords = {
 };
 
 // ============================================================
-// DEFAULT ORGANIZATIONS BY LOCAL AUTHORITY (from la-contacts.json)
+// DEFAULT ORGANIZATIONS BY LOCAL AUTHORITY (from housing-pathway-endpoints.json)
 // ============================================================
 
 const defaultOrgsByLA: Record<string, DefaultOrg[]> = Object.fromEntries(
-  Object.entries(laContacts).map(([la, data]) => {
-    const orgs: DefaultOrg[] = [
-      {
-        name: data.councilHousing.name,
-        phone: data.councilHousing.phone,
-        website: data.councilHousing.website,
-        description: "Council duty to help if homeless or at risk",
-        isCouncil: true
-      },
-      ...data.supportOrgs.map(org => ({
-        name: org.name,
-        phone: org.phone,
-        website: org.website,
-        description: org.description,
-        isDropIn: org.isDropIn
-      }))
-    ];
-    return [la, orgs];
-  })
+  Object.entries(endpointsData)
+    .filter(([key]) => key !== '_metadata')
+    .map(([la, data]: [string, any]) => {
+      const orgs: DefaultOrg[] = [
+        {
+          name: data.housingOptions.name,
+          phone: data.housingOptions.phone,
+          website: data.housingOptions.website,
+          description: "Council duty to help if homeless or at risk",
+          isCouncil: true
+        }
+      ];
+      return [la, orgs];
+    })
 );
 
 // ============================================================
@@ -412,19 +417,21 @@ function calculateMatchScore(service: Service, profile: UserProfile): number {
  * Get services by category and location
  */
 export function getServicesByCategory(
-  localAuthority: string | null, 
-  categories: string[]
+  localAuthority: string | null,
+  categories: string[],
+  subcategories?: string[]
 ): Service[] {
   if (!localAuthority || categories.length === 0) return [];
-  
+
   const la = normalizeLA(localAuthority);
   const services = (servicesData as WMCAServicesData).services;
-  
+
   return services.filter(s => {
     const serviceLA = normalizeLA(s.local_authority);
     const matchesLA = serviceLA === la;
     const matchesCategory = categories.includes(s.category.parent);
-    return matchesLA && matchesCategory;
+    const matchesSub = !subcategories || subcategories.length === 0 || subcategories.includes(s.category.sub);
+    return matchesLA && matchesCategory && matchesSub;
   });
 }
 
@@ -506,8 +513,9 @@ export function getServicesForNeed(need: string, profile: UserProfile): MatchedS
   const categories = needToCategoryMap[need] || [];
   if (categories.length === 0) return [];
   
-  // Get services matching category and location
-  let services = getServicesByCategory(profile.localAuthority, categories);
+  // Get services matching category and location, with optional subcategory filtering
+  const subcategories = profile.adviceSubcategory ? adviceSubcategoryMap[profile.adviceSubcategory] : undefined;
+  let services = getServicesByCategory(profile.localAuthority, categories, subcategories);
   
   // Apply profile filtering if relevant for this need
   if (profileRelevantNeeds.includes(need)) {
@@ -629,16 +637,24 @@ export function getStreetLinkInfo(): DefaultOrg {
 // HOUSING PATHWAY ENDPOINT LOOKUPS
 // ============================================================
 
-export function getNavigatorOrgs(localAuthority: string | null): DefaultOrg[] {
+export function getNavigatorOrgs(localAuthority: string | null, ageCategory?: string | null): DefaultOrg[] {
   const endpoint = getEndpointData(localAuthority);
   if (!endpoint?.navigatorOrgs) return [];
-  return endpoint.navigatorOrgs.map((nav: NavigatorOrg) => ({
-    name: nav.name,
-    phone: nav.phone || null,
-    website: nav.website || null,
-    description: nav.description,
-    isDropIn: nav.isDropIn,
-  }));
+  const userAge = ageCategoryToNumber(ageCategory ?? null);
+  return endpoint.navigatorOrgs
+    .filter((nav: NavigatorOrg) => {
+      if (userAge === null) return true;
+      if (nav.ageMin !== null && nav.ageMin !== undefined && userAge < nav.ageMin) return false;
+      if (nav.ageMax !== null && nav.ageMax !== undefined && userAge > nav.ageMax) return false;
+      return true;
+    })
+    .map((nav: NavigatorOrg) => ({
+      name: nav.name,
+      phone: nav.phone || null,
+      website: nav.website || null,
+      description: nav.description,
+      isDropIn: nav.isDropIn,
+    }));
 }
 
 export function getDVOrgs(localAuthority: string | null): DefaultOrg[] {

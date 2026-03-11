@@ -15,7 +15,7 @@
  */
 
 import { getPhrase } from '../phrasebank';
-import type { SessionState, RoutingResult } from '../types';
+import type { SessionState, RoutingResult, TerminalResult } from '../types';
 import { phrase, safeguardingExit } from './shared';
 
 // ============================================================================
@@ -80,7 +80,7 @@ export function handleB7D3PreventionPriorSupport(session: SessionState, choice: 
 export function handleB7D4PreventionSafeguardingSignals(
   session: SessionState,
   choice: number | null,
-  buildTerminalServices: (session: SessionState) => string
+  buildTerminalServices: (session: SessionState) => TerminalResult
 ): RoutingResult {
   const sigOptions = ['Yes something else', 'No just housing', 'Prefer not to say'];
   const sig = choice ? sigOptions[choice - 1] : null;
@@ -95,7 +95,7 @@ export function handleB7D4PreventionSafeguardingSignals(
 
   // Check escalation triggers
   const isUrgent = session.preventionUrgency === 'Now/soon';
-  const hasChildren = session.preventionChildren === 'Yes';
+  const hasChildren = session.preventionChildren === 'Yes' || session.pregnant === true;
   const isEviction = session.preventionReason?.includes('Eviction');
 
   if (isUrgent && isEviction) {
@@ -117,12 +117,12 @@ export function handleB7D4PreventionSafeguardingSignals(
   }
 
   // Normal terminal
-  const services = buildTerminalServices(session);
+  const result = buildTerminalServices(session);
   const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
   return {
-    text: services + '\n' + additionalNeeds?.text,
+    text: result.text + '\n' + additionalNeeds?.text,
     options: additionalNeeds?.options,
-    stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', preventionSafeguardingSignals: sig },
+    stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', preventionSafeguardingSignals: sig, ...(result.terminalOutcome ? { terminalOutcome: result.terminalOutcome } : {}) },
     sessionEnded: false
   };
 }
@@ -130,7 +130,7 @@ export function handleB7D4PreventionSafeguardingSignals(
 export function handleB7D4APreventionSafeguardingFollowUp(
   session: SessionState,
   choice: number | null,
-  buildTerminalServices: (session: SessionState) => string
+  buildTerminalServices: (session: SessionState) => TerminalResult
 ): RoutingResult {
   const followupOptions = ['Domestic abuse', 'Health crisis', 'Substance use', 'Child safety', 'Something else', 'Prefer not to say'];
   const followup = choice ? followupOptions[choice - 1] : null;
@@ -148,12 +148,12 @@ export function handleB7D4APreventionSafeguardingFollowUp(
     case 4: // Child safety
       return safeguardingExit('CHILD_AT_RISK_EXIT', session.isSupporter, 'CHILD_AT_RISK');
     default: // Continue to terminal
-      const services = buildTerminalServices(session);
+      const result2 = buildTerminalServices(session);
       const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
       return {
-        text: services + '\n' + additionalNeeds?.text,
+        text: result2.text + '\n' + additionalNeeds?.text,
         options: additionalNeeds?.options,
-        stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS' },
+        stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', ...(result2.terminalOutcome ? { terminalOutcome: result2.terminalOutcome } : {}) },
         sessionEnded: false
       };
   }

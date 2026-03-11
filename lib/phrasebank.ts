@@ -33,13 +33,13 @@ Are you in crisis or danger right now?
 
 Please reply with the number that fits best:
 1. Immediate physical danger
-2. Domestic abuse
-3. Sexual violence
-4. Thoughts of harming myself
-5. Under 16 and need protection
+2. Under 16 and need protection
+3. Thoughts of harming myself
+4. Domestic abuse
+5. Sexual violence
 6. Lost home due to fire, flood, or emergency
 7. None of these apply`,
-    options: ["Immediate physical danger", "Domestic abuse", "Sexual violence", "Thoughts of harming myself", "Under 16 and need protection", "Lost home due to fire, flood, or emergency", "None of these apply"]
+    options: ["Immediate physical danger", "Under 16 and need protection", "Thoughts of harming myself", "Domestic abuse", "Sexual violence", "Lost home due to fire, flood, or emergency", "None of these apply"]
   },
 
   GATE0_CRISIS_DANGER__SUPPORTER: {
@@ -48,13 +48,13 @@ Please reply with the number that fits best:
 Which of these fits their situation best?
 
 1. Immediate physical danger
-2. Domestic abuse
-3. Sexual violence
-4. Thoughts of harming themselves
-5. Under 16 and need protection
+2. Under 16 and need protection
+3. Thoughts of harming themselves
+4. Domestic abuse
+5. Sexual violence
 6. Lost home due to fire, flood, or emergency
 7. None of these apply`,
-    options: ["Immediate physical danger", "Domestic abuse", "Sexual violence", "Thoughts of harming themselves", "Under 16 and need protection", "Lost home due to fire, flood, or emergency", "None of these apply"]
+    options: ["Immediate physical danger", "Under 16 and need protection", "Thoughts of harming themselves", "Domestic abuse", "Sexual violence", "Lost home due to fire, flood, or emergency", "None of these apply"]
   },
 
   // ============================================================
@@ -332,6 +332,36 @@ Support with Benefits and Grants | Turn2us - https://www.turn2us.org.uk/`
 11. Training
 12. Activities`,
     options: ["Emergency Housing or Other Accommodation", "Food", "Work", "Health Services", "Advice Services", "Drop In", "Financial Help", "Personal Items", "Personal Services", "Communications", "Training", "Activities"]
+  },
+
+  // ============================================================
+  // ADVICE TYPE SELECTION
+  // ============================================================
+
+  B5A_ADVICE_TYPE: {
+    text: `What kind of advice are you looking for?
+
+1. Benefit advice
+2. Debt or financial problems
+3. Employment advice
+4. Immigration or asylum advice
+5. Health service advice
+6. Legal advice
+7. General support`,
+    options: ["Benefit advice", "Debt or financial problems", "Employment advice", "Immigration or asylum advice", "Health service advice", "Legal advice", "General support"]
+  },
+
+  B5A_ADVICE_TYPE__SUPPORTER: {
+    text: `What kind of advice are they looking for?
+
+1. Benefit advice
+2. Debt or financial problems
+3. Employment advice
+4. Immigration or asylum advice
+5. Health service advice
+6. Legal advice
+7. General support`,
+    options: ["Benefit advice", "Debt or financial problems", "Employment advice", "Immigration or asylum advice", "Health service advice", "Legal advice", "General support"]
   },
 
   // ============================================================
@@ -1260,7 +1290,7 @@ What is their gender?
   },
 
   DV_CHILDREN_ASK: {
-    text: `Do you have dependent children?
+    text: `Do you have dependent children, or are you currently pregnant?
 
 1. Yes
 2. No`,
@@ -1268,7 +1298,7 @@ What is their gender?
   },
 
   DV_CHILDREN_ASK__SUPPORTER: {
-    text: `Do they have dependent children?
+    text: `Do they have dependent children, or are they currently pregnant?
 
 1. Yes
 2. No`,
@@ -1386,7 +1416,11 @@ DOMESTIC ABUSE SUPPORT
 ManKind Initiative
 0808 800 1170
 https://mankind.org.uk
-Confidential support for men affected by domestic violence`
+Confidential support for men affected by domestic violence
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   DV_MALE_CHILDREN_YES__SUPPORTER: {
@@ -1396,7 +1430,11 @@ DOMESTIC ABUSE SUPPORT
 ManKind Initiative
 0808 800 1170
 https://mankind.org.uk
-Confidential support for men affected by domestic violence`
+Confidential support for men affected by domestic violence
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   DV_MALE_CHILDREN_NO: {
@@ -1405,7 +1443,11 @@ Confidential support for men affected by domestic violence`
 DOMESTIC ABUSE SUPPORT
 ManKind Initiative
 0808 800 1170
-https://mankind.org.uk`
+https://mankind.org.uk
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   DV_MALE_CHILDREN_NO__SUPPORTER: {
@@ -1414,7 +1456,11 @@ https://mankind.org.uk`
 DOMESTIC ABUSE SUPPORT
 ManKind Initiative
 0808 800 1170
-https://mankind.org.uk`
+https://mankind.org.uk
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   DV_LGBTQ_CHILDREN_YES: {
@@ -1424,7 +1470,11 @@ DOMESTIC ABUSE SUPPORT
 Galop
 0800 999 5428
 https://galop.org.uk
-National helpline for LGBTQ+ people affected by abuse or violence`
+National helpline for LGBTQ+ people affected by abuse or violence
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   DV_LGBTQ_CHILDREN_YES__SUPPORTER: {
@@ -1434,7 +1484,11 @@ DOMESTIC ABUSE SUPPORT
 Galop
 0800 999 5428
 https://galop.org.uk
-National helpline for LGBTQ+ people affected by abuse or violence`
+National helpline for LGBTQ+ people affected by abuse or violence
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   DV_LGBTQ_CHILDREN_NO: {
@@ -1443,7 +1497,11 @@ National helpline for LGBTQ+ people affected by abuse or violence`
 DOMESTIC ABUSE SUPPORT
 Galop
 0800 999 5428
-https://galop.org.uk`
+https://galop.org.uk
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   DV_LGBTQ_CHILDREN_NO__SUPPORTER: {
@@ -1452,7 +1510,11 @@ https://galop.org.uk`
 DOMESTIC ABUSE SUPPORT
 Galop
 0800 999 5428
-https://galop.org.uk`
+https://galop.org.uk
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
   },
 
   SA_FEMALE_16PLUS: {
@@ -1652,12 +1714,60 @@ In the meantime, keep chatting with me. I can help you look for more support now
     text: `Take care. You can come back anytime if they need more help.`
   },
 
+  TERMINAL_ZERO_MATCH_NO_FALLBACK: {
+    text: `We're not finding {category} support listed in {la} right now. That doesn't necessarily mean it isn't available locally. You can browse everything currently listed on Street Support for your area using the link below.`
+  },
+
+  TERMINAL_ZERO_MATCH_NO_FALLBACK__SUPPORTER: {
+    text: `We're not finding {category} support listed in {la} right now. That doesn't necessarily mean it isn't available locally. You can browse everything currently listed on Street Support for their area using the link below.`
+  },
+
+  TERMINAL_LGBT_FOUNDATION_HEALTH: {
+    text: `The LGBT Foundation can provide specialist health advice and support.`
+  },
+
+  TERMINAL_LGBT_FOUNDATION_HEALTH__SUPPORTER: {
+    text: `The LGBT Foundation can provide specialist health advice and support for them.`
+  },
+
+  TERMINAL_NRPF_FAMILY_SUPPORT: {
+    text: `Children's Services have a duty to assess what support may be available for your family, including if you have no recourse to public funds.`
+  },
+
+  TERMINAL_NRPF_FAMILY_SUPPORT__SUPPORTER: {
+    text: `Children's Services have a duty to assess what support may be available for their family, including if they have no recourse to public funds.`
+  },
+
   TERMINAL_SOCIAL_SERVICES_GUIDANCE: {
     text: `Based on your situation, you may be entitled to support from social services. They have a duty to help young people and care leavers with housing.
 
 You can contact your local council and ask for the Children's Services or Leaving Care team.
 
 Find your local council: https://www.gov.uk/find-local-council`
+  },
+
+  TERMINAL_YOUTH_16_17_CHILDRENS_SERVICES: {
+    text: `For people aged 16 or 17, housing support is usually arranged through Children's Services or a social worker. You can call their duty team directly, or ask someone you trust to help you make contact.`
+  },
+
+  TERMINAL_YOUTH_16_17_CHILDRENS_SERVICES__SUPPORTER: {
+    text: `For people aged 16 or 17, housing support is usually arranged through Children's Services or a social worker. They can call their duty team directly, or ask someone they trust to help them make contact.`
+  },
+
+  TERMINAL_YOUTH_16_17_NAVIGATOR_INTRO: {
+    text: `These organisations may also be able to help you understand your options.`
+  },
+
+  TERMINAL_YOUTH_16_17_NAVIGATOR_INTRO__SUPPORTER: {
+    text: `These organisations may also be able to help them understand their options.`
+  },
+
+  TERMINAL_YOUTH_16_17_NO_NAVIGATOR_REINFORCEMENT: {
+    text: `If you're not sure what to do next, Childline can talk it through with you — call 0800 1111 (free, 24/7).`
+  },
+
+  TERMINAL_YOUTH_16_17_NO_NAVIGATOR_REINFORCEMENT__SUPPORTER: {
+    text: `If they're not sure what to do next, Childline can talk it through with them — call 0800 1111 (free, 24/7).`
   },
 
   // ============================================================

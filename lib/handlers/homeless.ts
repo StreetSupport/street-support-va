@@ -14,7 +14,7 @@
  */
 
 import { getPhrase } from '../phrasebank';
-import type { SessionState, RoutingResult } from '../types';
+import type { SessionState, RoutingResult, TerminalResult } from '../types';
 import { phrase } from './shared';
 
 // ============================================================================
@@ -79,7 +79,7 @@ export function handleB11PriorUse(session: SessionState, choice: number | null):
 export function handleB12AlreadySupported(
   session: SessionState,
   choice: number | null,
-  buildTerminalServices: (session: SessionState) => string
+  buildTerminalServices: (session: SessionState) => TerminalResult
 ): RoutingResult {
   const alreadySupported = choice === 1;
 
@@ -97,12 +97,12 @@ export function handleB12AlreadySupported(
       stateUpdates: { currentGate: 'C2_CONSENT_GATE', alreadySupported: false }
     };
   } else {
-    const services = buildTerminalServices(session);
+    const result = buildTerminalServices(session);
     const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
     return {
-      text: services + '\n' + additionalNeeds?.text,
+      text: result.text + '\n' + additionalNeeds?.text,
       options: additionalNeeds?.options,
-      stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', alreadySupported: false },
+      stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', alreadySupported: false, ...(result.terminalOutcome ? { terminalOutcome: result.terminalOutcome } : {}) },
       sessionEnded: false
     };
   }
@@ -111,7 +111,7 @@ export function handleB12AlreadySupported(
 export function handleB12AWhichOrg(
   session: SessionState,
   input: string,
-  buildTerminalServices: (session: SessionState) => string
+  buildTerminalServices: (session: SessionState) => TerminalResult
 ): RoutingResult {
   // Free text input - store and continue
   if (session.routeType === 'FULL') {
@@ -120,12 +120,12 @@ export function handleB12AWhichOrg(
       stateUpdates: { currentGate: 'C2_CONSENT_GATE', currentSupportingOrg: input }
     };
   } else {
-    const services = buildTerminalServices(session);
+    const result = buildTerminalServices(session);
     const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
     return {
-      text: services + '\n' + additionalNeeds?.text,
+      text: result.text + '\n' + additionalNeeds?.text,
       options: additionalNeeds?.options,
-      stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', currentSupportingOrg: input },
+      stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', currentSupportingOrg: input, ...(result.terminalOutcome ? { terminalOutcome: result.terminalOutcome } : {}) },
       sessionEnded: false
     };
   }

@@ -24,7 +24,7 @@
  */
 
 import { getPhrase } from '../phrasebank';
-import type { SessionState, RoutingResult } from '../types';
+import type { SessionState, RoutingResult, TerminalResult } from '../types';
 import { phrase, buildUnder16Exit } from './shared';
 
 // Check if social services questions should be asked
@@ -41,7 +41,7 @@ function shouldAskSocialServicesQuestions(session: SessionState): boolean {
 export function handleC2ConsentGate(
   session: SessionState,
   choice: number | null,
-  buildTerminalServices: (session: SessionState) => string
+  buildTerminalServices: (session: SessionState) => TerminalResult
 ): RoutingResult {
   if (choice === 1) {
     const ack = getPhrase('C2A_CONSENT_ACKNOWLEDGED', session.isSupporter);
@@ -54,12 +54,12 @@ export function handleC2ConsentGate(
     };
   } else {
     // No consent -> skip to terminal
-    const services = buildTerminalServices(session);
+    const result = buildTerminalServices(session);
     const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
     return {
-      text: services + '\n' + additionalNeeds?.text,
+      text: result.text + '\n' + additionalNeeds?.text,
       options: additionalNeeds?.options,
-      stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', consentGiven: false },
+      stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', consentGiven: false, ...(result.terminalOutcome ? { terminalOutcome: result.terminalOutcome } : {}) },
       sessionEnded: false
     };
   }
@@ -218,7 +218,7 @@ export function handleC3Q9CriminalConvictions(session: SessionState, choice: num
 export function handleC3Q10Lgbtq(
   session: SessionState,
   choice: number | null,
-  buildTerminalServices: (session: SessionState) => string
+  buildTerminalServices: (session: SessionState) => TerminalResult
 ): RoutingResult {
   const lgbtq = choice === 1;
 
@@ -238,12 +238,12 @@ export function handleC3Q10Lgbtq(
     };
   } else {
     // Skip to terminal for 21-24 and 25+
-    const services = buildTerminalServices(updatedSession);
+    const result = buildTerminalServices(updatedSession);
     const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
     return {
-      text: services + '\n' + additionalNeeds?.text,
+      text: result.text + '\n' + additionalNeeds?.text,
       options: additionalNeeds?.options,
-      stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', lgbtq: false },
+      stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', lgbtq: false, ...(result.terminalOutcome ? { terminalOutcome: result.terminalOutcome } : {}) },
       sessionEnded: false
     };
   }
@@ -252,7 +252,7 @@ export function handleC3Q10Lgbtq(
 export function handleC3Q10ALgbtqServicePreference(
   session: SessionState,
   choice: number | null,
-  buildTerminalServices: (session: SessionState) => string
+  buildTerminalServices: (session: SessionState) => TerminalResult
 ): RoutingResult {
   const lgbtqPrefOptions = ['Specialist first', 'Local only', 'Show both'];
   const lgbtqPref = choice ? lgbtqPrefOptions[choice - 1] : null;
@@ -266,12 +266,12 @@ export function handleC3Q10ALgbtqServicePreference(
     };
   } else {
     // Skip to terminal for 21-24 and 25+
-    const services = buildTerminalServices(updatedSession);
+    const result = buildTerminalServices(updatedSession);
     const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
     return {
-      text: services + '\n' + additionalNeeds?.text,
+      text: result.text + '\n' + additionalNeeds?.text,
       options: additionalNeeds?.options,
-      stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', lgbtqServicePreference: lgbtqPref },
+      stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', lgbtqServicePreference: lgbtqPref, ...(result.terminalOutcome ? { terminalOutcome: result.terminalOutcome } : {}) },
       sessionEnded: false
     };
   }
@@ -289,18 +289,18 @@ export function handleC3Q11CurrentlyInCare(session: SessionState, choice: number
 export function handleC3Q12SocialServices(
   session: SessionState,
   choice: number | null,
-  buildTerminalServices: (session: SessionState) => string
+  buildTerminalServices: (session: SessionState) => TerminalResult
 ): RoutingResult {
   const ssOptions = ['Yes', 'No', 'Prefer not to say'];
   const ss = choice ? ssOptions[choice - 1] : null;
 
   // Terminal with full profile
-  const services = buildTerminalServices({ ...session, socialServices: ss });
+  const result = buildTerminalServices({ ...session, socialServices: ss });
   const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
   return {
-    text: services + '\n' + additionalNeeds?.text,
+    text: result.text + '\n' + additionalNeeds?.text,
     options: additionalNeeds?.options,
-    stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', socialServices: ss },
+    stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', socialServices: ss, ...(result.terminalOutcome ? { terminalOutcome: result.terminalOutcome } : {}) },
     sessionEnded: false
   };
 }
