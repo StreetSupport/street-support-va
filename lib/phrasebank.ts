@@ -457,6 +457,65 @@ Would they like to answer these questions?
     options: ["Yes, they're happy to answer", "No, skip these questions"]
   },
 
+  // IMMIGRATION STATUS - Replaces direct publicFunds question
+  IMMIGRATION_STATUS_ASK: {
+    text: `What is your immigration status?
+
+This helps us understand what support you can access. Your answer is confidential.
+
+1. British or Irish citizen
+2. Refugee or humanitarian protection
+3. Indefinite leave to remain (ILR)
+4. Leave to remain with access to public funds
+5. Leave to remain with no recourse to public funds (NRPF)
+6. EU Settlement Scheme — settled status
+7. EU Settlement Scheme — pre-settled status
+8. Asylum seeker (awaiting decision)
+9. Undocumented / no current immigration status
+10. Prefer not to say`,
+    options: [
+      "British or Irish citizen",
+      "Refugee or humanitarian protection",
+      "Indefinite leave to remain (ILR)",
+      "Leave to remain with access to public funds",
+      "Leave to remain with no recourse to public funds (NRPF)",
+      "EU Settlement Scheme — settled status",
+      "EU Settlement Scheme — pre-settled status",
+      "Asylum seeker (awaiting decision)",
+      "Undocumented / no current immigration status",
+      "Prefer not to say"
+    ]
+  },
+
+  IMMIGRATION_STATUS_ASK__SUPPORTER: {
+    text: `What is their immigration status?
+
+This helps us understand what support they can access. Their answer is confidential.
+
+1. British or Irish citizen
+2. Refugee or humanitarian protection
+3. Indefinite leave to remain (ILR)
+4. Leave to remain with access to public funds
+5. Leave to remain with no recourse to public funds (NRPF)
+6. EU Settlement Scheme — settled status
+7. EU Settlement Scheme — pre-settled status
+8. Asylum seeker (awaiting decision)
+9. Undocumented / no current immigration status
+10. Prefer not to say`,
+    options: [
+      "British or Irish citizen",
+      "Refugee or humanitarian protection",
+      "Indefinite leave to remain (ILR)",
+      "Leave to remain with access to public funds",
+      "Leave to remain with no recourse to public funds (NRPF)",
+      "EU Settlement Scheme — settled status",
+      "EU Settlement Scheme — pre-settled status",
+      "Asylum seeker (awaiting decision)",
+      "Undocumented / no current immigration status",
+      "Prefer not to say"
+    ]
+  },
+
   // CRIMINAL CONVICTIONS - Asked for: Work (ex-offender employment programs)
   B5_PROFILE_CONVICTIONS: {
     text: `Do you have any criminal convictions?

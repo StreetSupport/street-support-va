@@ -337,13 +337,13 @@ function routeToNextProfileQuestion(session: SessionState): RoutingResult {
       };
     }
     
-    // NRPF / Public funds access
-    if (field === 'nrpf' && session.publicFunds == null) {
+    // Immigration status (derives publicFunds)
+    if (field === 'nrpf' && session.immigrationStatus == null) {
       return {
-        ...phrase('B5_PROFILE_NRPF', session.isSupporter),
-        stateUpdates: { 
-          currentGate: 'B5_PROFILE_NRPF',
-          criminalConvictions: session.criminalConvictions 
+        ...phrase('IMMIGRATION_STATUS_ASK', session.isSupporter),
+        stateUpdates: {
+          currentGate: 'IMMIGRATION_STATUS_ASK',
+          criminalConvictions: session.criminalConvictions
         }
       };
     }
@@ -1235,13 +1235,27 @@ export function processInput(session: SessionState, input: string): RoutingResul
       const sessionWithConvictions = { ...session, criminalConvictions: convictions };
       return routeToNextProfileQuestion(sessionWithConvictions);
     
-    case 'B5_PROFILE_NRPF':
-      // 1 = Yes (has access), 2 = No (NRPF), 3 = Not sure, 4 = Prefer not to say
-      const nrpfOptions = ['Yes', 'No', 'Not sure', 'Prefer not to say'];
-      const nrpfValue = choice ? nrpfOptions[choice - 1] : null;
-      
-      const sessionWithNrpf = { ...session, publicFunds: nrpfValue };
-      return routeToNextProfileQuestion(sessionWithNrpf);
+    case 'IMMIGRATION_STATUS_ASK': {
+      const immigrationMap: Record<number, { status: string; funds: string | null }> = {
+        1: { status: 'british_irish', funds: 'Yes' },
+        2: { status: 'refugee', funds: 'Yes' },
+        3: { status: 'ilr', funds: 'Yes' },
+        4: { status: 'ltr_with_pf', funds: 'Yes' },
+        5: { status: 'ltr_no_pf', funds: 'No' },
+        6: { status: 'eu_settled', funds: 'Yes' },
+        7: { status: 'eu_pre_settled', funds: 'Not sure' },
+        8: { status: 'asylum_seeker', funds: 'No' },
+        9: { status: 'undocumented', funds: 'No' },
+        10: { status: 'prefer_not_to_say', funds: null },
+      };
+      const mapped = choice ? immigrationMap[choice] : null;
+      const sessionWithImmigration = {
+        ...session,
+        immigrationStatus: mapped?.status || null,
+        publicFunds: mapped?.funds ?? null,
+      };
+      return routeToNextProfileQuestion(sessionWithImmigration);
+    }
     
     case 'B5_PROFILE_CHILDREN':
       // 1 = Yes, 2 = No, 3 = Prefer not to say

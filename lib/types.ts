@@ -19,6 +19,7 @@ export type GateType =
   | 'LOCATION_OUTSIDE_WMCA'
   // Consent & Profiling
   | 'SPECIAL_CATEGORY_CONSENT'
+  | 'IMMIGRATION_STATUS_ASK'
   // Advice Mode
   | 'B4_ADVICE_TOPIC_SELECTION'
   | 'ADVICE_BRIDGE'
