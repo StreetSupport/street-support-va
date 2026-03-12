@@ -134,6 +134,7 @@ export function createSession(sessionId: string): SessionState {
     lgbtqServicePreference: null,
     inCare: null,
     socialServices: null,
+    specialCategoryConsent: null,
     isSupporter: false,
     youthServicesFlag: false,
     safeguardingTriggered: false,
@@ -303,15 +304,26 @@ function routeToNextProfileQuestion(session: SessionState): RoutingResult {
       };
     }
     
-    // LGBTQ
+    // LGBTQ (with special category consent gate)
     if (field === 'lgbtq' && session.lgbtq == null) {
-      return {
-        ...phrase('B5_PROFILE_LGBTQ', session.isSupporter),
-        stateUpdates: { 
-          currentGate: 'B5_PROFILE_LGBTQ',
-          gender: session.gender 
-        }
-      };
+      // Ask for consent before special category questions
+      if (session.specialCategoryConsent == null) {
+        return {
+          ...phrase('SPECIAL_CATEGORY_CONSENT', session.isSupporter),
+          stateUpdates: { currentGate: 'SPECIAL_CATEGORY_CONSENT' }
+        };
+      }
+      // Consent given — ask the question
+      if (session.specialCategoryConsent === true) {
+        return {
+          ...phrase('B5_PROFILE_LGBTQ', session.isSupporter),
+          stateUpdates: {
+            currentGate: 'B5_PROFILE_LGBTQ',
+            gender: session.gender
+          }
+        };
+      }
+      // Consent declined — lgbtq already set to false by handler, so this won't fire
     }
     
     // Criminal convictions
@@ -1195,10 +1207,24 @@ export function processInput(session: SessionState, input: string): RoutingResul
       const sessionWithGender = { ...session, gender: profGender };
       return routeToNextProfileQuestion(sessionWithGender);
     
+    case 'SPECIAL_CATEGORY_CONSENT': {
+      if (choice === 1) {
+        const consentedSession = { ...session, specialCategoryConsent: true };
+        return routeToNextProfileQuestion(consentedSession);
+      } else {
+        const declinedSession = {
+          ...session, specialCategoryConsent: false,
+          lgbtq: false, ethnicity: 'declined_consent',
+          physicalHealth: 'declined_consent', mentalHealth: 'declined_consent'
+        };
+        return routeToNextProfileQuestion(declinedSession);
+      }
+    }
+
     case 'B5_PROFILE_LGBTQ':
       // 1 = Yes, 2 = No, 3 = Prefer not to say
       const lgbtqValue = choice === 1 ? true : (choice === 2 ? false : null);
-      
+
       const sessionWithLgbtq = { ...session, lgbtq: lgbtqValue };
       return routeToNextProfileQuestion(sessionWithLgbtq);
     

@@ -17,6 +17,8 @@ export type GateType =
   | 'LOCATION_RESULT'
   | 'LOCATION_CONFIRM'
   | 'LOCATION_OUTSIDE_WMCA'
+  // Consent & Profiling
+  | 'SPECIAL_CATEGORY_CONSENT'
   // Advice Mode
   | 'B4_ADVICE_TOPIC_SELECTION'
   | 'ADVICE_BRIDGE'
@@ -151,6 +153,9 @@ export interface SessionState {
   lgbtqServicePreference: string | null;
   inCare: boolean | null;
   socialServices: string | null;
+
+  // Consent & profiling
+  specialCategoryConsent: boolean | null;
 
   // Flags
   isSupporter: boolean;
