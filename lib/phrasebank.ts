@@ -476,80 +476,29 @@ Some health services specialise in supporting LGBTQ+ people, so this helps us sh
     options: ["Yes", "No", "Prefer not to say"]
   },
 
-  // LGBTQ SPECIALIST - Follow-up when user identifies as LGBTQ+
-  LGBTQ_SPECIALIST_ASK: {
-    text: `Would you prefer to be referred to an LGBTQ+ specialist service where one is available?
+  // SPECIAL CATEGORY CONSENT - Article 9 consent before LGBTQ/health/ethnicity
+  SPECIAL_CATEGORY_CONSENT: {
+    text: `The next few questions ask about things like sexual orientation, health, and ethnicity. These are classed as special category data under data protection law.
 
-1. Yes, I'd prefer an LGBTQ+ specialist service
-2. No, that's not needed`,
-    options: ["Yes, I'd prefer an LGBTQ+ specialist service", "No, that's not needed"]
+You don't have to answer — but if you do, it helps us show you the most relevant services.
+
+Would you like to answer these questions?
+
+1. Yes, I'm happy to answer
+2. No, skip these questions`,
+    options: ["Yes, I'm happy to answer", "No, skip these questions"]
   },
 
-  LGBTQ_SPECIALIST_ASK__SUPPORTER: {
-    text: `Would they prefer to be referred to an LGBTQ+ specialist service where one is available?
+  SPECIAL_CATEGORY_CONSENT__SUPPORTER: {
+    text: `The next few questions ask about things like sexual orientation, health, and ethnicity. These are classed as special category data under data protection law.
 
-1. Yes, they'd prefer an LGBTQ+ specialist service
-2. No, that's not needed`,
-    options: ["Yes, they'd prefer an LGBTQ+ specialist service", "No, that's not needed"]
-  },
+They don't have to answer — but if they do, it helps us show the most relevant services.
 
-  // IMMIGRATION STATUS - Replaces direct publicFunds question
-  IMMIGRATION_STATUS_ASK: {
-    text: `What is your immigration status?
+Would they like to answer these questions?
 
-This helps us understand what support you can access. Your answer is confidential.
-
-1. British or Irish citizen
-2. Refugee or humanitarian protection
-3. Indefinite leave to remain (ILR)
-4. Leave to remain with access to public funds
-5. Leave to remain with no recourse to public funds (NRPF)
-6. EU Settlement Scheme — settled status
-7. EU Settlement Scheme — pre-settled status
-8. Asylum seeker (awaiting decision)
-9. Undocumented / no current immigration status
-10. Prefer not to say`,
-    options: [
-      "British or Irish citizen",
-      "Refugee or humanitarian protection",
-      "Indefinite leave to remain (ILR)",
-      "Leave to remain with access to public funds",
-      "Leave to remain with no recourse to public funds (NRPF)",
-      "EU Settlement Scheme — settled status",
-      "EU Settlement Scheme — pre-settled status",
-      "Asylum seeker (awaiting decision)",
-      "Undocumented / no current immigration status",
-      "Prefer not to say"
-    ]
-  },
-
-  IMMIGRATION_STATUS_ASK__SUPPORTER: {
-    text: `What is their immigration status?
-
-This helps us understand what support they can access. Their answer is confidential.
-
-1. British or Irish citizen
-2. Refugee or humanitarian protection
-3. Indefinite leave to remain (ILR)
-4. Leave to remain with access to public funds
-5. Leave to remain with no recourse to public funds (NRPF)
-6. EU Settlement Scheme — settled status
-7. EU Settlement Scheme — pre-settled status
-8. Asylum seeker (awaiting decision)
-9. Undocumented / no current immigration status
-10. Prefer not to say`,
-    options: [
-      "British or Irish citizen",
-      "Refugee or humanitarian protection",
-      "Indefinite leave to remain (ILR)",
-      "Leave to remain with access to public funds",
-      "Leave to remain with no recourse to public funds (NRPF)",
-      "EU Settlement Scheme — settled status",
-      "EU Settlement Scheme — pre-settled status",
-      "Asylum seeker (awaiting decision)",
-      "Undocumented / no current immigration status",
-      "Prefer not to say"
-    ]
+1. Yes, they're happy to answer
+2. No, skip these questions`,
+    options: ["Yes, they're happy to answer", "No, skip these questions"]
   },
 
   // CRIMINAL CONVICTIONS - Asked for: Work (ex-offender employment programs)

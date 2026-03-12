@@ -17,14 +17,8 @@ export type GateType =
   | 'LOCATION_RESULT'
   | 'LOCATION_CONFIRM'
   | 'LOCATION_OUTSIDE_WMCA'
-  // Early Flow
-  | 'PREFERRED_NAME_ASK'
-  | 'ACCESS_LOCATION_ASK'
-  | 'RETURN_USER_ASK'
-  | 'RETURN_USER_FOLLOWUP'
-  // Profiling
-  | 'IMMIGRATION_STATUS_ASK'
-  | 'LGBTQ_SPECIALIST_ASK'
+  // Consent & Profiling
+  | 'SPECIAL_CATEGORY_CONSENT'
   // Advice Mode
   | 'B4_ADVICE_TOPIC_SELECTION'
   | 'ADVICE_BRIDGE'
@@ -166,6 +160,9 @@ export interface SessionState {
   lgbtqServicePreference: string | null;
   inCare: boolean | null;
   socialServices: string | null;
+
+  // Consent & profiling
+  specialCategoryConsent: boolean | null;
 
   // Flags
   isSupporter: boolean;
