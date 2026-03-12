@@ -1277,34 +1277,24 @@ export function processInput(session: SessionState, input: string): RoutingResul
     
     case 'IMMIGRATION_STATUS_ASK': {
       const immigrationMap: Record<number, { status: string; funds: string | null }> = {
-        1: { status: 'British', funds: 'Yes' },
-        2: { status: 'Refugee', funds: 'Yes' },
-        3: { status: 'Indefinite leave to remain', funds: 'Yes' },
-        4: { status: 'Leave to remain', funds: 'Yes' },
-        5: { status: 'Leave to remain', funds: 'No' },
-        6: { status: 'EUSS', funds: 'Yes' },
-        7: { status: 'EUSS', funds: 'Not sure' },
-        8: { status: 'Asylum seeker', funds: 'No' },
-        9: { status: 'No status', funds: 'No' },
-        10: { status: 'Prefer not to say', funds: null },
+        1: { status: 'british_irish', funds: 'Yes' },
+        2: { status: 'refugee', funds: 'Yes' },
+        3: { status: 'ilr', funds: 'Yes' },
+        4: { status: 'ltr_with_pf', funds: 'Yes' },
+        5: { status: 'ltr_no_pf', funds: 'No' },
+        6: { status: 'eu_settled', funds: 'Yes' },
+        7: { status: 'eu_pre_settled', funds: 'Not sure' },
+        8: { status: 'asylum_seeker', funds: 'No' },
+        9: { status: 'undocumented', funds: 'No' },
+        10: { status: 'prefer_not_to_say', funds: null },
       };
       const mapped = choice ? immigrationMap[choice] : null;
-      const immigrationStatus = mapped?.status || null;
-      const publicFunds = mapped?.funds ?? null;
       const sessionWithImmigration = {
         ...session,
-        immigrationStatus,
-        publicFunds,
+        immigrationStatus: mapped?.status || null,
+        publicFunds: mapped?.funds ?? null,
       };
-      const result = routeToNextProfileQuestion(sessionWithImmigration);
-      return {
-        ...result,
-        stateUpdates: {
-          ...result.stateUpdates,
-          immigrationStatus,
-          publicFunds,
-        },
-      };
+      return routeToNextProfileQuestion(sessionWithImmigration);
     }
     
     case 'B5_PROFILE_CHILDREN':
