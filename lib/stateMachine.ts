@@ -135,7 +135,6 @@ export function createSession(sessionId: string): SessionState {
     inCare: null,
     socialServices: null,
     specialCategoryConsent: null,
-    lgbtqSpecialist: null,
     isSupporter: false,
     youthServicesFlag: false,
     safeguardingTriggered: false,
@@ -1224,7 +1223,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
 
     case 'B5_PROFILE_LGBTQ': {
       // 1 = Yes, 2 = No, 3 = Prefer not to say
-      const lgbtqValue = choice === 1 ? true : (choice === 2 ? false : null);
+      const lgbtqValue = choice === 1 ? true : false;
       if (lgbtqValue === true) {
         return {
           ...phrase('LGBTQ_SPECIALIST_ASK', session.isSupporter),
@@ -1236,8 +1235,8 @@ export function processInput(session: SessionState, input: string): RoutingResul
     }
 
     case 'LGBTQ_SPECIALIST_ASK': {
-      const lgbtqSpec = choice === 1;
-      const sessionWithSpec = { ...session, lgbtqSpecialist: lgbtqSpec };
+      const lgbtqPref = choice === 1 ? 'Specialist first' : 'Show both';
+      const sessionWithSpec = { ...session, lgbtqServicePreference: lgbtqPref };
       return routeToNextProfileQuestion(sessionWithSpec);
     }
 

@@ -474,14 +474,6 @@ Would they like to answer these questions?
     options: ["Yes, they'd prefer an LGBTQ+ specialist service", "No, that's not needed"]
   },
 
-  LGBTQ_SPECIALIST_NO_LOCAL: {
-    text: `We don't currently have an LGBTQ+ specialist service listed in your area, but we'll make sure any services we suggest are inclusive and welcoming.`
-  },
-
-  LGBTQ_SPECIALIST_NO_LOCAL__SUPPORTER: {
-    text: `We don't currently have an LGBTQ+ specialist service listed in their area, but we'll make sure any services we suggest are inclusive and welcoming.`
-  },
-
   // IMMIGRATION STATUS - Replaces direct publicFunds question
   IMMIGRATION_STATUS_ASK: {
     text: `What is your immigration status?
