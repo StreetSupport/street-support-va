@@ -619,3 +619,183 @@ describe('Detailed Age/Gender Fallback', () => {
   });
 
 });
+
+// =============================================================================
+// IMMIGRATION STATUS DERIVES PUBLIC FUNDS
+// =============================================================================
+
+describe('Immigration Status Derives Public Funds', () => {
+
+  test('British/Irish citizen derives publicFunds = Yes', () => {
+    const session = sessionAt('IMMIGRATION_STATUS_ASK', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Male',
+      lgbtq: false,
+      criminalConvictions: 'No',
+      specialCategoryConsent: false,
+      localAuthority: 'Birmingham',
+      homeless: true,
+    });
+    const result = select(session, 1); // British/Irish
+    // Should proceed past immigration — publicFunds derived as Yes
+    expect(result.stateUpdates.currentGate).not.toBe('IMMIGRATION_STATUS_ASK');
+  });
+
+  test('NRPF leave to remain derives publicFunds = No', () => {
+    const session = sessionAt('IMMIGRATION_STATUS_ASK', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Male',
+      lgbtq: false,
+      criminalConvictions: 'No',
+      specialCategoryConsent: false,
+      localAuthority: 'Birmingham',
+      homeless: true,
+    });
+    const result = select(session, 5); // LTR no public funds
+    expect(result.stateUpdates.currentGate).not.toBe('IMMIGRATION_STATUS_ASK');
+  });
+
+  test('asylum seeker derives publicFunds = No', () => {
+    const session = sessionAt('IMMIGRATION_STATUS_ASK', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Female',
+      lgbtq: false,
+      criminalConvictions: 'No',
+      specialCategoryConsent: false,
+      localAuthority: 'Birmingham',
+      homeless: true,
+    });
+    const result = select(session, 8); // Asylum seeker
+    expect(result.stateUpdates.currentGate).not.toBe('IMMIGRATION_STATUS_ASK');
+  });
+
+  test('pre-settled status derives publicFunds = Not sure', () => {
+    const session = sessionAt('IMMIGRATION_STATUS_ASK', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Male',
+      lgbtq: false,
+      criminalConvictions: 'No',
+      specialCategoryConsent: false,
+      localAuthority: 'Birmingham',
+      homeless: true,
+    });
+    const result = select(session, 7); // EU pre-settled
+    expect(result.stateUpdates.currentGate).not.toBe('IMMIGRATION_STATUS_ASK');
+  });
+
+  test('prefer not to say derives publicFunds = null', () => {
+    const session = sessionAt('IMMIGRATION_STATUS_ASK', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Male',
+      lgbtq: false,
+      criminalConvictions: 'No',
+      specialCategoryConsent: false,
+      localAuthority: 'Birmingham',
+      homeless: true,
+    });
+    const result = select(session, 10); // Prefer not to say
+    expect(result.stateUpdates.currentGate).not.toBe('IMMIGRATION_STATUS_ASK');
+  });
+
+});
+
+// =============================================================================
+// LGBTQ+ SPECIALIST FOLLOW-UP
+// =============================================================================
+
+describe('LGBTQ+ Specialist Follow-up', () => {
+
+  test('answering Yes to LGBTQ routes to LGBTQ_SPECIALIST_ASK, not next profile question', () => {
+    const session = sessionAt('B5_PROFILE_LGBTQ', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Female',
+      specialCategoryConsent: true,
+    });
+    const result = select(session, 1); // Yes, LGBTQ+
+    expect(result.stateUpdates.currentGate).toBe('LGBTQ_SPECIALIST_ASK');
+    expect(result.stateUpdates.lgbtq).toBe(true);
+  });
+
+});
+
+// =============================================================================
+// SPECIAL CATEGORY CONSENT
+// =============================================================================
+
+describe('Special Category Consent', () => {
+
+  test('declining consent skips LGBTQ question', () => {
+    const session = sessionAt('SPECIAL_CATEGORY_CONSENT', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Male',
+      localAuthority: 'Birmingham',
+      homeless: true,
+    });
+    const result = select(session, 2); // Decline consent
+    // Should skip past LGBTQ to next required field (convictions or nrpf)
+    expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_LGBTQ');
+    expect(result.stateUpdates.currentGate).not.toBe('SPECIAL_CATEGORY_CONSENT');
+  });
+
+});
+
+// =============================================================================
+// NULL-CHECK GATE FIX - Fields initialized to null must use == null
+// =============================================================================
+
+describe('Null-Check Gate Fix', () => {
+
+  test('lgbtq: false does not re-trigger LGBTQ question', () => {
+    const session = sessionAt('B5_PROFILE_CONVICTIONS', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Male',
+      lgbtq: false,
+      specialCategoryConsent: true,
+      localAuthority: 'Birmingham',
+      homeless: true,
+    });
+    const result = select(session, 2); // No convictions
+    // Should proceed past convictions, not loop back to LGBTQ
+    expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_LGBTQ');
+    expect(result.stateUpdates.currentGate).not.toBe('SPECIAL_CATEGORY_CONSENT');
+  });
+
+  test('hasChildren: false does not re-trigger children question', () => {
+    const session = sessionAt('IMMIGRATION_STATUS_ASK', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Male',
+      lgbtq: false,
+      criminalConvictions: 'No',
+      hasChildren: false,
+      specialCategoryConsent: false,
+      localAuthority: 'Birmingham',
+      homeless: true,
+    });
+    const result = select(session, 1); // British/Irish
+    // Should go to terminal, not re-ask children
+    expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_CHILDREN');
+  });
+
+  test('consentGiven: false does not re-trigger consent gate', () => {
+    const session = sessionAt('SPECIAL_CATEGORY_CONSENT', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Male',
+      localAuthority: 'Birmingham',
+      homeless: true,
+    });
+    const result = select(session, 2); // Decline
+    // Should NOT go back to SPECIAL_CATEGORY_CONSENT
+    expect(result.stateUpdates.currentGate).not.toBe('SPECIAL_CATEGORY_CONSENT');
+  });
+
+});
