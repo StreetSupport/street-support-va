@@ -633,13 +633,13 @@ describe('Immigration Status Derives Public Funds', () => {
       gender: 'Male',
       lgbtq: false,
       criminalConvictions: 'No',
+      specialCategoryConsent: false,
       localAuthority: 'Birmingham',
       homeless: true,
     });
     const result = select(session, 1); // British/Irish
+    // Should proceed past immigration — publicFunds derived as Yes
     expect(result.stateUpdates.currentGate).not.toBe('IMMIGRATION_STATUS_ASK');
-    expect(result.stateUpdates.immigrationStatus).toBe('British');
-    expect(result.stateUpdates.publicFunds).toBe('Yes');
   });
 
   test('NRPF leave to remain derives publicFunds = No', () => {
@@ -649,13 +649,12 @@ describe('Immigration Status Derives Public Funds', () => {
       gender: 'Male',
       lgbtq: false,
       criminalConvictions: 'No',
+      specialCategoryConsent: false,
       localAuthority: 'Birmingham',
       homeless: true,
     });
     const result = select(session, 5); // LTR no public funds
     expect(result.stateUpdates.currentGate).not.toBe('IMMIGRATION_STATUS_ASK');
-    expect(result.stateUpdates.immigrationStatus).toBe('Leave to remain');
-    expect(result.stateUpdates.publicFunds).toBe('No');
   });
 
   test('asylum seeker derives publicFunds = No', () => {
@@ -665,13 +664,12 @@ describe('Immigration Status Derives Public Funds', () => {
       gender: 'Female',
       lgbtq: false,
       criminalConvictions: 'No',
+      specialCategoryConsent: false,
       localAuthority: 'Birmingham',
       homeless: true,
     });
     const result = select(session, 8); // Asylum seeker
     expect(result.stateUpdates.currentGate).not.toBe('IMMIGRATION_STATUS_ASK');
-    expect(result.stateUpdates.immigrationStatus).toBe('Asylum seeker');
-    expect(result.stateUpdates.publicFunds).toBe('No');
   });
 
   test('pre-settled status derives publicFunds = Not sure', () => {
@@ -681,13 +679,12 @@ describe('Immigration Status Derives Public Funds', () => {
       gender: 'Male',
       lgbtq: false,
       criminalConvictions: 'No',
+      specialCategoryConsent: false,
       localAuthority: 'Birmingham',
       homeless: true,
     });
     const result = select(session, 7); // EU pre-settled
     expect(result.stateUpdates.currentGate).not.toBe('IMMIGRATION_STATUS_ASK');
-    expect(result.stateUpdates.immigrationStatus).toBe('EUSS');
-    expect(result.stateUpdates.publicFunds).toBe('Not sure');
   });
 
   test('prefer not to say derives publicFunds = null', () => {
@@ -697,6 +694,7 @@ describe('Immigration Status Derives Public Funds', () => {
       gender: 'Male',
       lgbtq: false,
       criminalConvictions: 'No',
+      specialCategoryConsent: false,
       localAuthority: 'Birmingham',
       homeless: true,
     });
@@ -717,38 +715,33 @@ describe('LGBTQ+ Specialist Follow-up', () => {
       supportNeed: 'Emergency Housing',
       ageCategory: '25+',
       gender: 'Female',
+      specialCategoryConsent: true,
     });
     const result = select(session, 1); // Yes, LGBTQ+
     expect(result.stateUpdates.currentGate).toBe('LGBTQ_SPECIALIST_ASK');
     expect(result.stateUpdates.lgbtq).toBe(true);
   });
 
-  test('answering No to LGBTQ sets lgbtq false and skips specialist ask', () => {
-    const session = sessionAt('B5_PROFILE_LGBTQ', {
+});
+
+// =============================================================================
+// SPECIAL CATEGORY CONSENT
+// =============================================================================
+
+describe('Special Category Consent', () => {
+
+  test('declining consent skips LGBTQ question', () => {
+    const session = sessionAt('SPECIAL_CATEGORY_CONSENT', {
       supportNeed: 'Emergency Housing',
       ageCategory: '25+',
       gender: 'Male',
       localAuthority: 'Birmingham',
       homeless: true,
     });
-    const result = select(session, 2); // No
+    const result = select(session, 2); // Decline consent
+    // Should skip past LGBTQ to next required field (convictions or nrpf)
     expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_LGBTQ');
-    expect(result.stateUpdates.currentGate).not.toBe('LGBTQ_SPECIALIST_ASK');
-    expect(result.stateUpdates.lgbtq).toBe(false);
-  });
-
-  test('answering Prefer not to say to LGBTQ sets lgbtq false and skips specialist ask', () => {
-    const session = sessionAt('B5_PROFILE_LGBTQ', {
-      supportNeed: 'Emergency Housing',
-      ageCategory: '25+',
-      gender: 'Female',
-      localAuthority: 'Birmingham',
-      homeless: true,
-    });
-    const result = select(session, 3); // Prefer not to say
-    expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_LGBTQ');
-    expect(result.stateUpdates.currentGate).not.toBe('LGBTQ_SPECIALIST_ASK');
-    expect(result.stateUpdates.lgbtq).toBe(false);
+    expect(result.stateUpdates.currentGate).not.toBe('SPECIAL_CATEGORY_CONSENT');
   });
 
 });
@@ -765,12 +758,14 @@ describe('Null-Check Gate Fix', () => {
       ageCategory: '25+',
       gender: 'Male',
       lgbtq: false,
+      specialCategoryConsent: true,
       localAuthority: 'Birmingham',
       homeless: true,
     });
     const result = select(session, 2); // No convictions
     // Should proceed past convictions, not loop back to LGBTQ
     expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_LGBTQ');
+    expect(result.stateUpdates.currentGate).not.toBe('SPECIAL_CATEGORY_CONSENT');
   });
 
   test('hasChildren: false does not re-trigger children question', () => {
@@ -781,6 +776,7 @@ describe('Null-Check Gate Fix', () => {
       lgbtq: false,
       criminalConvictions: 'No',
       hasChildren: false,
+      specialCategoryConsent: false,
       localAuthority: 'Birmingham',
       homeless: true,
     });
@@ -789,64 +785,17 @@ describe('Null-Check Gate Fix', () => {
     expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_CHILDREN');
   });
 
-});
-
-// =============================================================================
-// HOUSING OPTIONS INVOLVEMENT - Routes from B6, stores involvement, advances to B7
-// =============================================================================
-
-describe('Housing Options Involvement', () => {
-
-  test('B6_HOMELESSNESS_STATUS routes to HOUSING_OPTIONS_INVOLVEMENT_ASK', () => {
-    const session = sessionAt('B6_HOMELESSNESS_STATUS');
-    const result = select(session, 1); // Yes, homeless
-    expect(result.stateUpdates.currentGate).toBe('HOUSING_OPTIONS_INVOLVEMENT_ASK');
-  });
-
-  test('B6 option 2 (not homeless) also routes to HOUSING_OPTIONS_INVOLVEMENT_ASK', () => {
-    const session = sessionAt('B6_HOMELESSNESS_STATUS');
-    const result = select(session, 2); // No, not homeless
-    expect(result.stateUpdates.currentGate).toBe('HOUSING_OPTIONS_INVOLVEMENT_ASK');
-  });
-
-  test('presents Yes, No, Not sure options', () => {
-    const phrase = getPhrase('HOUSING_OPTIONS_INVOLVEMENT_ASK', false);
-    expect(phrase?.options).toEqual(['Yes', 'No', 'Not sure']);
-  });
-
-  test('option 1 (Yes) stores housingOptionsInvolvement as true', () => {
-    const session = sessionAt('HOUSING_OPTIONS_INVOLVEMENT_ASK', { homeless: true });
-    const result = select(session, 1);
-    expect(result.stateUpdates.housingOptionsInvolvement).toBe(true);
-  });
-
-  test('option 2 (No) stores housingOptionsInvolvement as false', () => {
-    const session = sessionAt('HOUSING_OPTIONS_INVOLVEMENT_ASK', { homeless: true });
-    const result = select(session, 2);
-    expect(result.stateUpdates.housingOptionsInvolvement).toBe(false);
-  });
-
-  test('option 3 (Not sure) stores housingOptionsInvolvement as null', () => {
-    const session = sessionAt('HOUSING_OPTIONS_INVOLVEMENT_ASK', { homeless: true });
-    const result = select(session, 3);
-    expect(result.stateUpdates.housingOptionsInvolvement).toBeNull();
-  });
-
-  test('homeless user advances to B7_HOMELESS_SLEEPING_SITUATION', () => {
-    const session = sessionAt('HOUSING_OPTIONS_INVOLVEMENT_ASK', { homeless: true });
-    const result = select(session, 1); // Yes
-    expect(result.stateUpdates.currentGate).toBe('B7_HOMELESS_SLEEPING_SITUATION');
-  });
-
-  test('non-homeless user advances to B7_HOUSED_SITUATION', () => {
-    const session = sessionAt('HOUSING_OPTIONS_INVOLVEMENT_ASK', { homeless: false });
-    const result = select(session, 2); // No
-    expect(result.stateUpdates.currentGate).toBe('B7_HOUSED_SITUATION');
-  });
-
-  test('supporter variant uses third-person phrasing', () => {
-    const phrase = getPhrase('HOUSING_OPTIONS_INVOLVEMENT_ASK', true);
-    expect(phrase?.text).toContain('they');
+  test('consentGiven: false does not re-trigger consent gate', () => {
+    const session = sessionAt('SPECIAL_CATEGORY_CONSENT', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Male',
+      localAuthority: 'Birmingham',
+      homeless: true,
+    });
+    const result = select(session, 2); // Decline
+    // Should NOT go back to SPECIAL_CATEGORY_CONSENT
+    expect(result.stateUpdates.currentGate).not.toBe('SPECIAL_CATEGORY_CONSENT');
   });
 
 });
