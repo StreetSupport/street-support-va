@@ -501,6 +501,31 @@ Would they like to answer these questions?
     options: ["Yes, they're happy to answer", "No, skip these questions"]
   },
 
+  // LGBTQ SPECIALIST - Follow-up when user identifies as LGBTQ+
+  LGBTQ_SPECIALIST_ASK: {
+    text: `Would you prefer to be referred to an LGBTQ+ specialist service where one is available?
+
+1. Yes, I'd prefer an LGBTQ+ specialist service
+2. No, that's not needed`,
+    options: ["Yes, I'd prefer an LGBTQ+ specialist service", "No, that's not needed"]
+  },
+
+  LGBTQ_SPECIALIST_ASK__SUPPORTER: {
+    text: `Would they prefer to be referred to an LGBTQ+ specialist service where one is available?
+
+1. Yes, they'd prefer an LGBTQ+ specialist service
+2. No, that's not needed`,
+    options: ["Yes, they'd prefer an LGBTQ+ specialist service", "No, that's not needed"]
+  },
+
+  LGBTQ_SPECIALIST_NO_LOCAL: {
+    text: `We don't currently have an LGBTQ+ specialist service listed in your area, but we'll make sure any services we suggest are inclusive and welcoming.`
+  },
+
+  LGBTQ_SPECIALIST_NO_LOCAL__SUPPORTER: {
+    text: `We don't currently have an LGBTQ+ specialist service listed in their area, but we'll make sure any services we suggest are inclusive and welcoming.`
+  },
+
   // IMMIGRATION STATUS - Replaces direct publicFunds question
   IMMIGRATION_STATUS_ASK: {
     text: `What is your immigration status?

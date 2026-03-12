@@ -20,6 +20,7 @@ export type GateType =
   // Consent & Profiling
   | 'SPECIAL_CATEGORY_CONSENT'
   | 'IMMIGRATION_STATUS_ASK'
+  | 'LGBTQ_SPECIALIST_ASK'
   // Advice Mode
   | 'B4_ADVICE_TOPIC_SELECTION'
   | 'ADVICE_BRIDGE'
@@ -164,6 +165,7 @@ export interface SessionState {
 
   // Consent & profiling
   specialCategoryConsent: boolean | null;
+  lgbtqSpecialist: boolean | null;
 
   // Flags
   isSupporter: boolean;
