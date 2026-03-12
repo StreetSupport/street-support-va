@@ -165,7 +165,6 @@ export interface SessionState {
 
   // Consent & profiling
   specialCategoryConsent: boolean | null;
-  lgbtqSpecialist: boolean | null;
 
   // Flags
   isSupporter: boolean;
