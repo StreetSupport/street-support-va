@@ -729,6 +729,36 @@ describe('LGBTQ+ Specialist Follow-up', () => {
     expect(result.stateUpdates.lgbtq).toBe(true);
   });
 
+  test('answering No to LGBTQ sets lgbtq false and skips specialist ask', () => {
+    const session = sessionAt('B5_PROFILE_LGBTQ', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Male',
+      specialCategoryConsent: true,
+      localAuthority: 'Birmingham',
+      homeless: true,
+    });
+    const result = select(session, 2); // No
+    expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_LGBTQ');
+    expect(result.stateUpdates.currentGate).not.toBe('LGBTQ_SPECIALIST_ASK');
+    expect(result.stateUpdates.lgbtq).toBe(false);
+  });
+
+  test('answering Prefer not to say to LGBTQ sets lgbtq false and skips specialist ask', () => {
+    const session = sessionAt('B5_PROFILE_LGBTQ', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Female',
+      specialCategoryConsent: true,
+      localAuthority: 'Birmingham',
+      homeless: true,
+    });
+    const result = select(session, 3); // Prefer not to say
+    expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_LGBTQ');
+    expect(result.stateUpdates.currentGate).not.toBe('LGBTQ_SPECIALIST_ASK');
+    expect(result.stateUpdates.lgbtq).toBe(false);
+  });
+
 });
 
 // =============================================================================
