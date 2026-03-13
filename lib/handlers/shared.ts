@@ -41,7 +41,7 @@ export function safeguardingExit(key: string, isSupporter: boolean, type: string
 export const childrenServicesData = Object.fromEntries(
   Object.entries(endpointsData)
     .filter(([key]) => key !== '_metadata')
-    .map(([la, data]: [string, any]) => [la, data.childrenServices])
+    .map(([la, data]) => [la, (data as { childrenServices: { name: string; phone: string; phoneOOH?: string; website: string } }).childrenServices])
 ) as Record<string, { name: string; phone: string; phoneOOH?: string; website: string }>;
 
 export function buildUnder16Exit(session: SessionState): RoutingResult {

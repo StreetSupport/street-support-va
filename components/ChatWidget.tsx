@@ -106,7 +106,7 @@ function stripInstructionsAndOptions(text: string): string {
       continue;
     }
     
-    if (/^\d+[\.\)]\s*.+/.test(line.trim())) {
+    if (/^\d+[.)]\s*.+/.test(line.trim())) {
       continue;
     }
     
@@ -467,7 +467,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   const [sessionState, setSessionState] = useState<string | null>(null);
   const [sessionEnded, setSessionEnded] = useState(false);
   const [conversationStarted, setConversationStarted] = useState(false);
-  const [locationMode, setLocationMode] = useState<'none' | 'geolocation' | 'postcode'>('none');
+  const [, setLocationMode] = useState<'none' | 'geolocation' | 'postcode'>('none');
   const [awaitingPostcode, setAwaitingPostcode] = useState(false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<HTMLDivElement>(null);
@@ -728,7 +728,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     setIsLoading(false);
   };
 
-  const handleStarterClick = () => sendMessage('hi', true);
+  const handleStarterClick = () => { void sendMessage('hi', true); };
 
   const handleRestart = () => {
     setMessages([]);
@@ -876,7 +876,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                       {message.quickReplies.map((reply, idx) => (
                         <button
                           key={idx}
-                          onClick={() => handleQuickReply(reply)}
+                          onClick={() => { void handleQuickReply(reply); }}
                           disabled={isLoading}
                           className="px-4 py-2.5 text-sm font-semibold rounded-full bg-white disabled:opacity-50 shadow-sm hover:shadow-md transition-all"
                           style={{ 

@@ -5,9 +5,9 @@
 // - Restructured terminal output with clear hierarchy
 // - Trauma-informed language, Shelter as safety net
 
-import { getPhrase, PhraseEntry } from './phrasebank';
+import { getPhrase } from './phrasebank';
 import { getPronouns } from './utils/pronouns';
-import type { GateType, SessionState, RoutingResult, UserProfile, TerminalResult } from './types';
+import type { GateType, SessionState, RoutingResult, TerminalResult } from './types';
 import { toUserProfile } from './types';
 export type { GateType, SessionState, RoutingResult };
 import {
@@ -165,30 +165,6 @@ function phrase(key: string, isSupporter: boolean): RoutingResult {
   };
 }
 
-function safeguardingExit(key: string, isSupporter: boolean, type: string): RoutingResult {
-  const p = getPhrase(key, isSupporter);
-  return {
-    text: p?.text || `[Missing phrase: ${key}]`,
-    stateUpdates: {
-      currentGate: 'SESSION_END',
-      safeguardingTriggered: true,
-      safeguardingType: type,
-      timestampEnd: new Date().toISOString(),
-    },
-    sessionEnded: true,
-  };
-}
-
-// ============================================================
-// CHECK IF SOCIAL SERVICES QUESTIONS SHOULD BE ASKED
-// Only for 16-17 and 18-20 age groups (priority need assessment)
-// ============================================================
-
-function shouldAskSocialServicesQuestions(session: SessionState): boolean {
-  const age = session.detailedAge || session.ageCategory;
-  return age === '16-17' || age === '18-20';
-}
-
 // ============================================================
 // NEED TO CATEGORY MAPPING
 // Maps user-selected needs to service category parents in wmca_services_v7.json
@@ -257,16 +233,6 @@ const needProfileRequirements: Record<string, string[]> = {
   'Items': [],
   'Services': [],
   'Comms': []
-};
-
-// Map profile fields to their gate names
-const profileFieldToGate: Record<string, GateType> = {
-  'age': 'B5_PROFILE_AGE',
-  'gender': 'B5_PROFILE_GENDER',
-  'lgbtq': 'B5_PROFILE_LGBTQ',
-  'convictions': 'B5_PROFILE_CONVICTIONS',
-  'nrpf': 'B5_PROFILE_NRPF',
-  'children': 'B5_PROFILE_CHILDREN'
 };
 
 /**
@@ -599,8 +565,8 @@ function buildTerminalServices(session: SessionState): TerminalResult {
     text += `---------------\n`;
     text += `${csPhrase?.text}\n\n`;
 
-    const la = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
-    const childServices = childrenServicesData[la];
+    const laKey = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
+    const childServices = childrenServicesData[laKey];
     if (childServices) {
       text += `${childServices.name}\n`;
       text += `${childServices.phone}`;
@@ -893,7 +859,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
 // FIRST MESSAGE
 // ============================================================
 
-export function getFirstMessage(session: SessionState): RoutingResult {
+export function getFirstMessage(_session: SessionState): RoutingResult {
   const opening = getPhrase('OPENING_LINE', false);
   const lang = getPhrase('LANG_HINT_LINE', false);
   const crisis = getPhrase('GATE0_CRISIS_DANGER', false);

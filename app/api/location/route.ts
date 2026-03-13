@@ -10,15 +10,6 @@ import { NextRequest, NextResponse } from 'next/server';
  * - POST with { latitude, longitude } → reverse geocode, return Local Authority
  */
 
-interface PostcodeResult {
-  success: boolean;
-  latitude?: number;
-  longitude?: number;
-  localAuthority?: string;
-  postcode?: string;
-  error?: string;
-}
-
 // WMCA Local Authority names (core names without "City of" prefix)
 const WMCA_NAMES = ['wolverhampton', 'birmingham', 'coventry', 'dudley', 'sandwell', 'solihull', 'walsall'];
 

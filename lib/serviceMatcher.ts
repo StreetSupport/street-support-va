@@ -165,12 +165,13 @@ const clientGroupKeywords = {
 const defaultOrgsByLA: Record<string, DefaultOrg[]> = Object.fromEntries(
   Object.entries(endpointsData)
     .filter(([key]) => key !== '_metadata')
-    .map(([la, data]: [string, any]) => {
+    .map(([la, data]) => {
+      const entry = data as { housingOptions: { name: string; phone: string; website: string } };
       const orgs: DefaultOrg[] = [
         {
-          name: data.housingOptions.name,
-          phone: data.housingOptions.phone,
-          website: data.housingOptions.website,
+          name: entry.housingOptions.name,
+          phone: entry.housingOptions.phone,
+          website: entry.housingOptions.website,
           description: "Council duty to help if homeless or at risk",
           isCouncil: true
         }
