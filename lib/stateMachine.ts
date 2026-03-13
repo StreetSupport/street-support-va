@@ -1250,13 +1250,27 @@ export function processInput(session: SessionState, input: string): RoutingResul
         };
       }
       const sessionWithLgbtq = { ...session, lgbtq: lgbtqValue };
-      return routeToNextProfileQuestion(sessionWithLgbtq);
+      const lgbtqResult = routeToNextProfileQuestion(sessionWithLgbtq);
+      return {
+        ...lgbtqResult,
+        stateUpdates: {
+          ...lgbtqResult.stateUpdates,
+          lgbtq: lgbtqValue,
+        },
+      };
     }
 
     case 'LGBTQ_SPECIALIST_ASK': {
       const lgbtqPref = choice === 1 ? 'Specialist first' : 'Show both';
       const sessionWithSpec = { ...session, lgbtqServicePreference: lgbtqPref };
-      return routeToNextProfileQuestion(sessionWithSpec);
+      const specResult = routeToNextProfileQuestion(sessionWithSpec);
+      return {
+        ...specResult,
+        stateUpdates: {
+          ...specResult.stateUpdates,
+          lgbtqServicePreference: lgbtqPref,
+        },
+      };
     }
 
     case 'B5_PROFILE_CONVICTIONS':
