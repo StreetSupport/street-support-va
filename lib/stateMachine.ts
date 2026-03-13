@@ -241,6 +241,15 @@ const needProfileRequirements: Record<string, string[]> = {
   'Comms': []
 };
 
+// Map profile fields to their gate names
+const profileFieldToGate: Record<string, GateType> = {
+  'age': 'B5_PROFILE_AGE',
+  'gender': 'B5_PROFILE_GENDER',
+  'lgbtq': 'B5_PROFILE_LGBTQ',
+  'convictions': 'B5_PROFILE_CONVICTIONS',
+  'children': 'B5_PROFILE_CHILDREN'
+};
+
 /**
  * Determines the next profile question to ask based on the support need
  * and what profile data has already been collected.
