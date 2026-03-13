@@ -556,31 +556,6 @@ Some employment services specialise in supporting people with convictions. This 
     options: ["Yes", "No", "Prefer not to say"]
   },
 
-  // NRPF / PUBLIC FUNDS - Asked for: Work, Financial (benefits eligibility, right to work)
-  B5_PROFILE_NRPF: {
-    text: `Do you have access to public funds and benefits?
-
-This includes things like Universal Credit, Housing Benefit and other government support. Some people have restrictions on what they can access.
-
-1. Yes, I can access benefits
-2. No, I have no recourse to public funds
-3. Not sure
-4. Prefer not to say`,
-    options: ["Yes, I can access benefits", "No, I have no recourse to public funds", "Not sure", "Prefer not to say"]
-  },
-
-  B5_PROFILE_NRPF__SUPPORTER: {
-    text: `Do they have access to public funds and benefits?
-
-This includes things like Universal Credit, Housing Benefit and other government support. Some people have restrictions on what they can access.
-
-1. Yes, they can access benefits
-2. No, they have no recourse to public funds
-3. Not sure
-4. Prefer not to say`,
-    options: ["Yes, they can access benefits", "No, they have no recourse to public funds", "Not sure", "Prefer not to say"]
-  },
-
   // CHILDREN - Asked for: Financial (family support, child benefit)
   B5_PROFILE_CHILDREN: {
     text: `Do you have any children or dependents?

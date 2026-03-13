@@ -266,7 +266,6 @@ const profileFieldToGate: Record<string, GateType> = {
   'gender': 'B5_PROFILE_GENDER',
   'lgbtq': 'B5_PROFILE_LGBTQ',
   'convictions': 'B5_PROFILE_CONVICTIONS',
-  'nrpf': 'B5_PROFILE_NRPF',
   'children': 'B5_PROFILE_CHILDREN'
 };
 
