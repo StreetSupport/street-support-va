@@ -79,10 +79,10 @@ export function handleLocationResult(session: SessionState, _choice: number | nu
 export function handleLocationConfirm(session: SessionState, choice: number | null): RoutingResult {
   // User confirms detected LA or wants to select different area
   if (choice === 1) {
-    // Confirmed - proceed to B2_WHO_FOR
+    // Confirmed - proceed to early flow questions
     return {
-      ...phrase('B2_WHO_FOR', session.isSupporter),
-      stateUpdates: { currentGate: 'B2_WHO_FOR' }
+      ...phrase('PREFERRED_NAME_ASK', session.isSupporter),
+      stateUpdates: { currentGate: 'PREFERRED_NAME_ASK' }
     };
   } else {
     // Want different area - show manual selection, clear location data
@@ -104,8 +104,8 @@ export function handleLocationOutsideWMCA(session: SessionState, choice: number 
   if (choice === 1) {
     // Continue anyway with detected LA
     return {
-      ...phrase('B2_WHO_FOR', session.isSupporter),
-      stateUpdates: { currentGate: 'B2_WHO_FOR' }
+      ...phrase('PREFERRED_NAME_ASK', session.isSupporter),
+      stateUpdates: { currentGate: 'PREFERRED_NAME_ASK' }
     };
   } else {
     // Let them select different area - clear location data
