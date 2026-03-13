@@ -71,6 +71,50 @@ Which of these fits their situation best?
   },
 
   // ============================================================
+  // EARLY FLOW: NAME, ACCESS LOCATION, RETURN USER
+  // ============================================================
+
+  PREFERRED_NAME_ASK: {
+    text: `Before we get started, what would you like to be called? You can skip this if you prefer.`,
+    options: ["Skip"]
+  },
+
+  PREFERRED_NAME_ASK__SUPPORTER: {
+    text: `Before we get started, what would you like to be called? You can skip this if you prefer.`,
+    options: ["Skip"]
+  },
+
+  ACCESS_LOCATION_ASK: {
+    text: `Where are you accessing this service from?`,
+    options: ["Library", "Community centre", "Council office", "At home", "On my phone", "Other"]
+  },
+
+  ACCESS_LOCATION_ASK__SUPPORTER: {
+    text: `Where are you accessing this service from?`,
+    options: ["Library", "Community centre", "Council office", "At home", "On my phone", "Other"]
+  },
+
+  RETURN_USER_ASK: {
+    text: `Have you used Street Support before?`,
+    options: ["Yes", "No"]
+  },
+
+  RETURN_USER_ASK__SUPPORTER: {
+    text: `Have you used Street Support before?`,
+    options: ["Yes", "No"]
+  },
+
+  RETURN_USER_FOLLOWUP: {
+    text: `Welcome back. Were you able to use any of the support we suggested last time?`,
+    options: ["Yes, it helped", "Some of it", "No, it didn't work out", "Prefer not to say"]
+  },
+
+  RETURN_USER_FOLLOWUP__SUPPORTER: {
+    text: `Welcome back. Were they able to use any of the support we suggested last time?`,
+    options: ["Yes, it helped", "Some of it", "No, it didn't work out", "Prefer not to say"]
+  },
+
+  // ============================================================
   // GATE 2: ROUTE SELECTION
   // ============================================================
 
@@ -572,6 +616,16 @@ That includes if they don't have their own place and they're staying in temporar
 1. Yes
 2. No`,
     options: ["Yes", "No"]
+  },
+
+  HOUSING_OPTIONS_INVOLVEMENT_ASK: {
+    text: `Are you already in contact with your council's Housing Options service?`,
+    options: ["Yes", "No", "Not sure"]
+  },
+
+  HOUSING_OPTIONS_INVOLVEMENT_ASK__SUPPORTER: {
+    text: `Are they already in contact with the council's Housing Options service?`,
+    options: ["Yes", "No", "Not sure"]
   },
 
   B7_HOUSED_SITUATION: {

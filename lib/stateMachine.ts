@@ -90,6 +90,11 @@ export function createSession(sessionId: string): SessionState {
     currentGate: 'INIT',
     routeType: null,
     intentType: null,
+    preferredName: null,
+    accessLocation: null,
+    returnUser: null,
+    returnOutcome: null,
+    housingOptionsInvolvement: null,
     localAuthority: null,
     latitude: null,
     longitude: null,
@@ -1083,10 +1088,58 @@ export function processInput(session: SessionState, input: string): RoutingResul
       }
       
       return {
-        ...phrase('B2_WHO_FOR', session.isSupporter),
-        stateUpdates: { currentGate: 'B2_WHO_FOR', localAuthority: la }
+        ...phrase('PREFERRED_NAME_ASK', session.isSupporter),
+        stateUpdates: { currentGate: 'PREFERRED_NAME_ASK', localAuthority: la }
       };
-    
+
+    // ========================================
+    // EARLY FLOW: NAME, ACCESS LOCATION, RETURN USER
+    // ========================================
+    case 'PREFERRED_NAME_ASK': {
+      const nameInput = input?.trim() || '';
+      const skipped = nameInput === '' || nameInput.toLowerCase() === 'skip' || choice === 1;
+      return {
+        ...phrase('ACCESS_LOCATION_ASK', session.isSupporter),
+        stateUpdates: {
+          currentGate: 'ACCESS_LOCATION_ASK',
+          preferredName: skipped ? null : nameInput
+        }
+      };
+    }
+
+    case 'ACCESS_LOCATION_ASK': {
+      const accessOptions = ['Library', 'Community centre', 'Council office', 'At home', 'On my phone', 'Other'];
+      const accessLoc = choice ? accessOptions[choice - 1] : null;
+      return {
+        ...phrase('RETURN_USER_ASK', session.isSupporter),
+        stateUpdates: { currentGate: 'RETURN_USER_ASK', accessLocation: accessLoc }
+      };
+    }
+
+    case 'RETURN_USER_ASK':
+      if (choice === 1) {
+        // Yes - returning user, ask follow-up
+        return {
+          ...phrase('RETURN_USER_FOLLOWUP', session.isSupporter),
+          stateUpdates: { currentGate: 'RETURN_USER_FOLLOWUP', returnUser: true }
+        };
+      } else {
+        // No - new user, proceed to B2
+        return {
+          ...phrase('B2_WHO_FOR', session.isSupporter),
+          stateUpdates: { currentGate: 'B2_WHO_FOR', returnUser: false }
+        };
+      }
+
+    case 'RETURN_USER_FOLLOWUP': {
+      const outcomeOptions = ['Yes, it helped', 'Some of it', 'No, it didn\'t work out', 'Prefer not to say'];
+      const outcome = choice ? outcomeOptions[choice - 1] : null;
+      return {
+        ...phrase('B2_WHO_FOR', session.isSupporter),
+        stateUpdates: { currentGate: 'B2_WHO_FOR', returnOutcome: outcome }
+      };
+    }
+
     case 'B2_WHO_FOR':
       const userTypes: Record<number, 'SELF' | 'SUPPORTER' | 'PROFESSIONAL'> = {
         1: 'SELF',
@@ -1275,19 +1328,28 @@ export function processInput(session: SessionState, input: string): RoutingResul
     
     case 'B6_HOMELESSNESS_STATUS':
       const homeless = choice === 1;
-      
-      if (homeless) {
+      return {
+        ...phrase('HOUSING_OPTIONS_INVOLVEMENT_ASK', session.isSupporter),
+        stateUpdates: { currentGate: 'HOUSING_OPTIONS_INVOLVEMENT_ASK', homeless }
+      };
+
+    // TODO: Wire housingOptionsInvolvement into buildTerminalServices — when true,
+    // deprioritise Housing Options in terminal output and lead with navigator/specialist orgs instead
+    case 'HOUSING_OPTIONS_INVOLVEMENT_ASK': {
+      const hoInvolvement = choice === 1 ? true : (choice === 2 ? false : null);
+      if (session.homeless) {
         return {
           ...phrase('B7_HOMELESS_SLEEPING_SITUATION', session.isSupporter),
-          stateUpdates: { currentGate: 'B7_HOMELESS_SLEEPING_SITUATION', homeless: true }
+          stateUpdates: { currentGate: 'B7_HOMELESS_SLEEPING_SITUATION', housingOptionsInvolvement: hoInvolvement }
         };
       } else {
         return {
           ...phrase('B7_HOUSED_SITUATION', session.isSupporter),
-          stateUpdates: { currentGate: 'B7_HOUSED_SITUATION', homeless: false }
+          stateUpdates: { currentGate: 'B7_HOUSED_SITUATION', housingOptionsInvolvement: hoInvolvement }
         };
       }
-    
+    }
+
     case 'B7_HOUSED_SITUATION':
       const housedOptions = ['At home', 'Friends/family', 'Council temp', 'Other temp'];
       const housed = choice ? housedOptions[choice - 1] : null;
