@@ -71,50 +71,6 @@ Which of these fits their situation best?
   },
 
   // ============================================================
-  // EARLY FLOW: NAME, ACCESS LOCATION, RETURN USER
-  // ============================================================
-
-  PREFERRED_NAME_ASK: {
-    text: `Before we get started, what would you like to be called? You can skip this if you prefer.`,
-    options: ["Skip"]
-  },
-
-  PREFERRED_NAME_ASK__SUPPORTER: {
-    text: `Before we get started, what would you like to be called? You can skip this if you prefer.`,
-    options: ["Skip"]
-  },
-
-  ACCESS_LOCATION_ASK: {
-    text: `Where are you accessing this service from?`,
-    options: ["Library", "Community centre", "Council office", "At home", "On my phone", "Other"]
-  },
-
-  ACCESS_LOCATION_ASK__SUPPORTER: {
-    text: `Where are you accessing this service from?`,
-    options: ["Library", "Community centre", "Council office", "At home", "On my phone", "Other"]
-  },
-
-  RETURN_USER_ASK: {
-    text: `Have you used Street Support before?`,
-    options: ["Yes", "No"]
-  },
-
-  RETURN_USER_ASK__SUPPORTER: {
-    text: `Have you used Street Support before?`,
-    options: ["Yes", "No"]
-  },
-
-  RETURN_USER_FOLLOWUP: {
-    text: `Welcome back. Were you able to use any of the support we suggested last time?`,
-    options: ["Yes, it helped", "Some of it", "No, it didn't work out", "Prefer not to say"]
-  },
-
-  RETURN_USER_FOLLOWUP__SUPPORTER: {
-    text: `Welcome back. Were they able to use any of the support we suggested last time?`,
-    options: ["Yes, it helped", "Some of it", "No, it didn't work out", "Prefer not to say"]
-  },
-
-  // ============================================================
   // GATE 2: ROUTE SELECTION
   // ============================================================
 
@@ -476,82 +432,6 @@ Some health services specialise in supporting LGBTQ+ people, so this helps us sh
     options: ["Yes", "No", "Prefer not to say"]
   },
 
-  // LGBTQ SPECIALIST - Follow-up when user identifies as LGBTQ+
-  LGBTQ_SPECIALIST_ASK: {
-    text: `Would you prefer to be referred to an LGBTQ+ specialist service where one is available?
-
-1. Yes, I'd prefer an LGBTQ+ specialist service
-2. No, that's not needed`,
-    options: ["Yes, I'd prefer an LGBTQ+ specialist service", "No, that's not needed"]
-  },
-
-  LGBTQ_SPECIALIST_ASK__SUPPORTER: {
-    text: `Would they prefer to be referred to an LGBTQ+ specialist service where one is available?
-
-1. Yes, they'd prefer an LGBTQ+ specialist service
-2. No, that's not needed`,
-    options: ["Yes, they'd prefer an LGBTQ+ specialist service", "No, that's not needed"]
-  },
-
-  // IMMIGRATION STATUS - Replaces direct publicFunds question
-  IMMIGRATION_STATUS_ASK: {
-    text: `What is your immigration status?
-
-This helps us understand what support you can access. Your answer is confidential.
-
-1. British or Irish citizen
-2. Refugee or humanitarian protection
-3. Indefinite leave to remain (ILR)
-4. Leave to remain with access to public funds
-5. Leave to remain with no recourse to public funds (NRPF)
-6. EU Settlement Scheme — settled status
-7. EU Settlement Scheme — pre-settled status
-8. Asylum seeker (awaiting decision)
-9. Undocumented / no current immigration status
-10. Prefer not to say`,
-    options: [
-      "British or Irish citizen",
-      "Refugee or humanitarian protection",
-      "Indefinite leave to remain (ILR)",
-      "Leave to remain with access to public funds",
-      "Leave to remain with no recourse to public funds (NRPF)",
-      "EU Settlement Scheme — settled status",
-      "EU Settlement Scheme — pre-settled status",
-      "Asylum seeker (awaiting decision)",
-      "Undocumented / no current immigration status",
-      "Prefer not to say"
-    ]
-  },
-
-  IMMIGRATION_STATUS_ASK__SUPPORTER: {
-    text: `What is their immigration status?
-
-This helps us understand what support they can access. Their answer is confidential.
-
-1. British or Irish citizen
-2. Refugee or humanitarian protection
-3. Indefinite leave to remain (ILR)
-4. Leave to remain with access to public funds
-5. Leave to remain with no recourse to public funds (NRPF)
-6. EU Settlement Scheme — settled status
-7. EU Settlement Scheme — pre-settled status
-8. Asylum seeker (awaiting decision)
-9. Undocumented / no current immigration status
-10. Prefer not to say`,
-    options: [
-      "British or Irish citizen",
-      "Refugee or humanitarian protection",
-      "Indefinite leave to remain (ILR)",
-      "Leave to remain with access to public funds",
-      "Leave to remain with no recourse to public funds (NRPF)",
-      "EU Settlement Scheme — settled status",
-      "EU Settlement Scheme — pre-settled status",
-      "Asylum seeker (awaiting decision)",
-      "Undocumented / no current immigration status",
-      "Prefer not to say"
-    ]
-  },
-
   // CRIMINAL CONVICTIONS - Asked for: Work (ex-offender employment programs)
   B5_PROFILE_CONVICTIONS: {
     text: `Do you have any criminal convictions?
@@ -573,6 +453,31 @@ Some employment services specialise in supporting people with convictions. This 
 2. No
 3. Prefer not to say`,
     options: ["Yes", "No", "Prefer not to say"]
+  },
+
+  // NRPF / PUBLIC FUNDS - Asked for: Work, Financial (benefits eligibility, right to work)
+  B5_PROFILE_NRPF: {
+    text: `Do you have access to public funds and benefits?
+
+This includes things like Universal Credit, Housing Benefit and other government support. Some people have restrictions on what they can access.
+
+1. Yes, I can access benefits
+2. No, I have no recourse to public funds
+3. Not sure
+4. Prefer not to say`,
+    options: ["Yes, I can access benefits", "No, I have no recourse to public funds", "Not sure", "Prefer not to say"]
+  },
+
+  B5_PROFILE_NRPF__SUPPORTER: {
+    text: `Do they have access to public funds and benefits?
+
+This includes things like Universal Credit, Housing Benefit and other government support. Some people have restrictions on what they can access.
+
+1. Yes, they can access benefits
+2. No, they have no recourse to public funds
+3. Not sure
+4. Prefer not to say`,
+    options: ["Yes, they can access benefits", "No, they have no recourse to public funds", "Not sure", "Prefer not to say"]
   },
 
   // CHILDREN - Asked for: Financial (family support, child benefit)
@@ -616,16 +521,6 @@ That includes if they don't have their own place and they're staying in temporar
 1. Yes
 2. No`,
     options: ["Yes", "No"]
-  },
-
-  HOUSING_OPTIONS_INVOLVEMENT_ASK: {
-    text: `Are you already in contact with your council's Housing Options service?`,
-    options: ["Yes", "No", "Not sure"]
-  },
-
-  HOUSING_OPTIONS_INVOLVEMENT_ASK__SUPPORTER: {
-    text: `Are they already in contact with the council's Housing Options service?`,
-    options: ["Yes", "No", "Not sure"]
   },
 
   B7_HOUSED_SITUATION: {
