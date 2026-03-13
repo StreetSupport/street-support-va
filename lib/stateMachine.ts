@@ -1261,12 +1261,22 @@ export function processInput(session: SessionState, input: string): RoutingResul
         10: { status: 'Prefer not to say', funds: null },
       };
       const mapped = choice ? immigrationMap[choice] : null;
+      const immigrationStatus = mapped?.status || null;
+      const publicFunds = mapped?.funds ?? null;
       const sessionWithImmigration = {
         ...session,
-        immigrationStatus: mapped?.status || null,
-        publicFunds: mapped?.funds ?? null,
+        immigrationStatus,
+        publicFunds,
       };
-      return routeToNextProfileQuestion(sessionWithImmigration);
+      const result = routeToNextProfileQuestion(sessionWithImmigration);
+      return {
+        ...result,
+        stateUpdates: {
+          ...result.stateUpdates,
+          immigrationStatus,
+          publicFunds,
+        },
+      };
     }
     
     case 'B5_PROFILE_CHILDREN':
