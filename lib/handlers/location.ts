@@ -66,7 +66,7 @@ export function handleLocationPostcode(session: SessionState, choice: number | n
   }
 }
 
-export function handleLocationResult(session: SessionState, choice: number | null): RoutingResult {
+export function handleLocationResult(session: SessionState, _choice: number | null): RoutingResult {
   // Widget sends location data here after geo/postcode lookup
   // This case should be handled by processLocationInput, not processInput
   // Fallback to manual selection

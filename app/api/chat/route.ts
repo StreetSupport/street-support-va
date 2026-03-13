@@ -73,7 +73,7 @@ async function detectAdviceQuestion(input: string): Promise<string | null> {
   const lowerInput = input.toLowerCase();
   
   // Quick keyword check first
-  for (const [topic, config] of Object.entries(adviceTopics)) {
+  for (const [, config] of Object.entries(adviceTopics)) {
     if (config.keywords.some(kw => lowerInput.includes(kw))) {
       return config.phraseKey;
     }

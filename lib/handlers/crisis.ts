@@ -18,11 +18,14 @@ import { getPronouns } from '../utils/pronouns';
 import endpointsData from '../data/housing-pathway-endpoints.json';
 import safeguardingEndpoints from '../data/safeguarding-endpoints.json';
 
-// Council Housing Options contact info by Local Authority
+interface EndpointEntry {
+  housingOptions: { name: string; phone: string; phoneOOH?: string; website: string };
+}
+
 const councilHousingData = Object.fromEntries(
   Object.entries(endpointsData)
     .filter(([key]) => key !== '_metadata')
-    .map(([la, data]: [string, any]) => [la, data.housingOptions])
+    .map(([la, data]) => [la, (data as EndpointEntry).housingOptions])
 ) as Record<string, { name: string; phone: string; phoneOOH?: string; website: string }>;
 
 // ============================================================================
@@ -81,7 +84,7 @@ function buildFireFloodExit(session: SessionState): RoutingResult {
 
 function buildSelfHarmExit(session: SessionState): RoutingResult {
   const isSupporter = session.isSupporter;
-  const { they, their, them, theyre } = getPronouns(isSupporter);
+  const { they, their, theyre } = getPronouns(isSupporter);
 
   let text = '';
 
@@ -162,11 +165,21 @@ function buildSARCInfo(session: SessionState): string {
   return text;
 }
 
+interface DVLocalOrg {
+  name: string;
+  phone?: string;
+  phone_24hr?: string;
+  phone_office?: string;
+  availability: string;
+  url: string;
+  ooh_fallback?: string;
+}
+
 function buildLocalDVInfo(session: SessionState): string {
   const la = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
   if (!la) return '';
 
-  const dvLocal = (safeguardingEndpoints.dv_local as Record<string, any>)[la];
+  const dvLocal = (safeguardingEndpoints.dv_local as unknown as Record<string, DVLocalOrg | DVLocalOrg[]>)[la];
   if (!dvLocal) return '';
 
   const orgs = Array.isArray(dvLocal) ? dvLocal : [dvLocal];

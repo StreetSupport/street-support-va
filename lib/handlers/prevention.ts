@@ -132,9 +132,6 @@ export function handleB7D4APreventionSafeguardingFollowUp(
   choice: number | null,
   buildTerminalServices: (session: SessionState) => TerminalResult
 ): RoutingResult {
-  const followupOptions = ['Domestic abuse', 'Health crisis', 'Substance use', 'Child safety', 'Something else', 'Prefer not to say'];
-  const followup = choice ? followupOptions[choice - 1] : null;
-
   switch (choice) {
     case 1: // Domestic abuse -> DV routing
       return phrase('DV_GENDER_ASK', session.isSupporter);
