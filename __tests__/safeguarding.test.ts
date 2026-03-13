@@ -633,7 +633,6 @@ describe('Immigration Status Derives Public Funds', () => {
       gender: 'Male',
       lgbtq: false,
       criminalConvictions: 'No',
-      specialCategoryConsent: false,
       localAuthority: 'Birmingham',
       homeless: true,
     });
@@ -650,7 +649,6 @@ describe('Immigration Status Derives Public Funds', () => {
       gender: 'Male',
       lgbtq: false,
       criminalConvictions: 'No',
-      specialCategoryConsent: false,
       localAuthority: 'Birmingham',
       homeless: true,
     });
@@ -667,7 +665,6 @@ describe('Immigration Status Derives Public Funds', () => {
       gender: 'Female',
       lgbtq: false,
       criminalConvictions: 'No',
-      specialCategoryConsent: false,
       localAuthority: 'Birmingham',
       homeless: true,
     });
@@ -684,7 +681,6 @@ describe('Immigration Status Derives Public Funds', () => {
       gender: 'Male',
       lgbtq: false,
       criminalConvictions: 'No',
-      specialCategoryConsent: false,
       localAuthority: 'Birmingham',
       homeless: true,
     });
@@ -701,7 +697,6 @@ describe('Immigration Status Derives Public Funds', () => {
       gender: 'Male',
       lgbtq: false,
       criminalConvictions: 'No',
-      specialCategoryConsent: false,
       localAuthority: 'Birmingham',
       homeless: true,
     });
@@ -722,7 +717,6 @@ describe('LGBTQ+ Specialist Follow-up', () => {
       supportNeed: 'Emergency Housing',
       ageCategory: '25+',
       gender: 'Female',
-      specialCategoryConsent: true,
     });
     const result = select(session, 1); // Yes, LGBTQ+
     expect(result.stateUpdates.currentGate).toBe('LGBTQ_SPECIALIST_ASK');
@@ -734,7 +728,6 @@ describe('LGBTQ+ Specialist Follow-up', () => {
       supportNeed: 'Emergency Housing',
       ageCategory: '25+',
       gender: 'Male',
-      specialCategoryConsent: true,
       localAuthority: 'Birmingham',
       homeless: true,
     });
@@ -749,7 +742,6 @@ describe('LGBTQ+ Specialist Follow-up', () => {
       supportNeed: 'Emergency Housing',
       ageCategory: '25+',
       gender: 'Female',
-      specialCategoryConsent: true,
       localAuthority: 'Birmingham',
       homeless: true,
     });
@@ -757,28 +749,6 @@ describe('LGBTQ+ Specialist Follow-up', () => {
     expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_LGBTQ');
     expect(result.stateUpdates.currentGate).not.toBe('LGBTQ_SPECIALIST_ASK');
     expect(result.stateUpdates.lgbtq).toBe(false);
-  });
-
-});
-
-// =============================================================================
-// SPECIAL CATEGORY CONSENT
-// =============================================================================
-
-describe('Special Category Consent', () => {
-
-  test('declining consent skips LGBTQ question', () => {
-    const session = sessionAt('SPECIAL_CATEGORY_CONSENT', {
-      supportNeed: 'Emergency Housing',
-      ageCategory: '25+',
-      gender: 'Male',
-      localAuthority: 'Birmingham',
-      homeless: true,
-    });
-    const result = select(session, 2); // Decline consent
-    // Should skip past LGBTQ to next required field (convictions or nrpf)
-    expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_LGBTQ');
-    expect(result.stateUpdates.currentGate).not.toBe('SPECIAL_CATEGORY_CONSENT');
   });
 
 });
@@ -795,14 +765,12 @@ describe('Null-Check Gate Fix', () => {
       ageCategory: '25+',
       gender: 'Male',
       lgbtq: false,
-      specialCategoryConsent: true,
       localAuthority: 'Birmingham',
       homeless: true,
     });
     const result = select(session, 2); // No convictions
     // Should proceed past convictions, not loop back to LGBTQ
     expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_LGBTQ');
-    expect(result.stateUpdates.currentGate).not.toBe('SPECIAL_CATEGORY_CONSENT');
   });
 
   test('hasChildren: false does not re-trigger children question', () => {
@@ -813,26 +781,12 @@ describe('Null-Check Gate Fix', () => {
       lgbtq: false,
       criminalConvictions: 'No',
       hasChildren: false,
-      specialCategoryConsent: false,
       localAuthority: 'Birmingham',
       homeless: true,
     });
     const result = select(session, 1); // British/Irish
     // Should go to terminal, not re-ask children
     expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_CHILDREN');
-  });
-
-  test('consentGiven: false does not re-trigger consent gate', () => {
-    const session = sessionAt('SPECIAL_CATEGORY_CONSENT', {
-      supportNeed: 'Emergency Housing',
-      ageCategory: '25+',
-      gender: 'Male',
-      localAuthority: 'Birmingham',
-      homeless: true,
-    });
-    const result = select(session, 2); // Decline
-    // Should NOT go back to SPECIAL_CATEGORY_CONSENT
-    expect(result.stateUpdates.currentGate).not.toBe('SPECIAL_CATEGORY_CONSENT');
   });
 
 });

@@ -139,7 +139,6 @@ export function createSession(sessionId: string): SessionState {
     lgbtqServicePreference: null,
     inCare: null,
     socialServices: null,
-    specialCategoryConsent: null,
     isSupporter: false,
     youthServicesFlag: false,
     safeguardingTriggered: false,
@@ -242,14 +241,6 @@ const needProfileRequirements: Record<string, string[]> = {
 };
 
 // Map profile fields to their gate names
-const profileFieldToGate: Record<string, GateType> = {
-  'age': 'B5_PROFILE_AGE',
-  'gender': 'B5_PROFILE_GENDER',
-  'lgbtq': 'B5_PROFILE_LGBTQ',
-  'convictions': 'B5_PROFILE_CONVICTIONS',
-  'children': 'B5_PROFILE_CHILDREN'
-};
-
 /**
  * Determines the next profile question to ask based on the support need
  * and what profile data has already been collected.
@@ -284,26 +275,15 @@ function routeToNextProfileQuestion(session: SessionState): RoutingResult {
       };
     }
     
-    // LGBTQ (with special category consent gate)
+    // LGBTQ
     if (field === 'lgbtq' && session.lgbtq == null) {
-      // Ask for consent before special category questions
-      if (session.specialCategoryConsent == null) {
-        return {
-          ...phrase('SPECIAL_CATEGORY_CONSENT', session.isSupporter),
-          stateUpdates: { currentGate: 'SPECIAL_CATEGORY_CONSENT' }
-        };
-      }
-      // Consent given — ask the question
-      if (session.specialCategoryConsent === true) {
-        return {
-          ...phrase('B5_PROFILE_LGBTQ', session.isSupporter),
-          stateUpdates: {
-            currentGate: 'B5_PROFILE_LGBTQ',
-            gender: session.gender
-          }
-        };
-      }
-      // Consent declined — lgbtq already set to false by handler, so this won't fire
+      return {
+        ...phrase('B5_PROFILE_LGBTQ', session.isSupporter),
+        stateUpdates: {
+          currentGate: 'B5_PROFILE_LGBTQ',
+          gender: session.gender
+        }
+      };
     }
     
     // Criminal convictions
@@ -1235,20 +1215,6 @@ export function processInput(session: SessionState, input: string): RoutingResul
       const sessionWithGender = { ...session, gender: profGender };
       return routeToNextProfileQuestion(sessionWithGender);
     
-    case 'SPECIAL_CATEGORY_CONSENT': {
-      if (choice === 1) {
-        const consentedSession = { ...session, specialCategoryConsent: true };
-        return routeToNextProfileQuestion(consentedSession);
-      } else {
-        const declinedSession = {
-          ...session, specialCategoryConsent: false,
-          lgbtq: false, ethnicity: 'declined_consent',
-          physicalHealth: 'declined_consent', mentalHealth: 'declined_consent'
-        };
-        return routeToNextProfileQuestion(declinedSession);
-      }
-    }
-
     case 'B5_PROFILE_LGBTQ': {
       // 1 = Yes, 2 = No, 3 = Prefer not to say
       const lgbtqValue = choice === 1 ? true : false;
