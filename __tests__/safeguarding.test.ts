@@ -619,3 +619,234 @@ describe('Detailed Age/Gender Fallback', () => {
   });
 
 });
+
+// =============================================================================
+// IMMIGRATION STATUS DERIVES PUBLIC FUNDS
+// =============================================================================
+
+describe('Immigration Status Derives Public Funds', () => {
+
+  test('British/Irish citizen derives publicFunds = Yes', () => {
+    const session = sessionAt('IMMIGRATION_STATUS_ASK', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Male',
+      lgbtq: false,
+      criminalConvictions: 'No',
+      localAuthority: 'Birmingham',
+      homeless: true,
+    });
+    const result = select(session, 1); // British/Irish
+    expect(result.stateUpdates.currentGate).not.toBe('IMMIGRATION_STATUS_ASK');
+    expect(result.stateUpdates.immigrationStatus).toBe('British');
+    expect(result.stateUpdates.publicFunds).toBe('Yes');
+  });
+
+  test('NRPF leave to remain derives publicFunds = No', () => {
+    const session = sessionAt('IMMIGRATION_STATUS_ASK', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Male',
+      lgbtq: false,
+      criminalConvictions: 'No',
+      localAuthority: 'Birmingham',
+      homeless: true,
+    });
+    const result = select(session, 5); // LTR no public funds
+    expect(result.stateUpdates.currentGate).not.toBe('IMMIGRATION_STATUS_ASK');
+    expect(result.stateUpdates.immigrationStatus).toBe('Leave to remain');
+    expect(result.stateUpdates.publicFunds).toBe('No');
+  });
+
+  test('asylum seeker derives publicFunds = No', () => {
+    const session = sessionAt('IMMIGRATION_STATUS_ASK', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Female',
+      lgbtq: false,
+      criminalConvictions: 'No',
+      localAuthority: 'Birmingham',
+      homeless: true,
+    });
+    const result = select(session, 8); // Asylum seeker
+    expect(result.stateUpdates.currentGate).not.toBe('IMMIGRATION_STATUS_ASK');
+    expect(result.stateUpdates.immigrationStatus).toBe('Asylum seeker');
+    expect(result.stateUpdates.publicFunds).toBe('No');
+  });
+
+  test('pre-settled status derives publicFunds = Not sure', () => {
+    const session = sessionAt('IMMIGRATION_STATUS_ASK', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Male',
+      lgbtq: false,
+      criminalConvictions: 'No',
+      localAuthority: 'Birmingham',
+      homeless: true,
+    });
+    const result = select(session, 7); // EU pre-settled
+    expect(result.stateUpdates.currentGate).not.toBe('IMMIGRATION_STATUS_ASK');
+    expect(result.stateUpdates.immigrationStatus).toBe('EUSS');
+    expect(result.stateUpdates.publicFunds).toBe('Not sure');
+  });
+
+  test('prefer not to say derives publicFunds = null', () => {
+    const session = sessionAt('IMMIGRATION_STATUS_ASK', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Male',
+      lgbtq: false,
+      criminalConvictions: 'No',
+      localAuthority: 'Birmingham',
+      homeless: true,
+    });
+    const result = select(session, 10); // Prefer not to say
+    expect(result.stateUpdates.currentGate).not.toBe('IMMIGRATION_STATUS_ASK');
+  });
+
+});
+
+// =============================================================================
+// LGBTQ+ SPECIALIST FOLLOW-UP
+// =============================================================================
+
+describe('LGBTQ+ Specialist Follow-up', () => {
+
+  test('answering Yes to LGBTQ routes to LGBTQ_SPECIALIST_ASK, not next profile question', () => {
+    const session = sessionAt('B5_PROFILE_LGBTQ', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Female',
+    });
+    const result = select(session, 1); // Yes, LGBTQ+
+    expect(result.stateUpdates.currentGate).toBe('LGBTQ_SPECIALIST_ASK');
+    expect(result.stateUpdates.lgbtq).toBe(true);
+  });
+
+  test('answering No to LGBTQ sets lgbtq false and skips specialist ask', () => {
+    const session = sessionAt('B5_PROFILE_LGBTQ', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Male',
+      localAuthority: 'Birmingham',
+      homeless: true,
+    });
+    const result = select(session, 2); // No
+    expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_LGBTQ');
+    expect(result.stateUpdates.currentGate).not.toBe('LGBTQ_SPECIALIST_ASK');
+    expect(result.stateUpdates.lgbtq).toBe(false);
+  });
+
+  test('answering Prefer not to say to LGBTQ sets lgbtq false and skips specialist ask', () => {
+    const session = sessionAt('B5_PROFILE_LGBTQ', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Female',
+      localAuthority: 'Birmingham',
+      homeless: true,
+    });
+    const result = select(session, 3); // Prefer not to say
+    expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_LGBTQ');
+    expect(result.stateUpdates.currentGate).not.toBe('LGBTQ_SPECIALIST_ASK');
+    expect(result.stateUpdates.lgbtq).toBe(false);
+  });
+
+});
+
+// =============================================================================
+// NULL-CHECK GATE FIX - Fields initialized to null must use == null
+// =============================================================================
+
+describe('Null-Check Gate Fix', () => {
+
+  test('lgbtq: false does not re-trigger LGBTQ question', () => {
+    const session = sessionAt('B5_PROFILE_CONVICTIONS', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Male',
+      lgbtq: false,
+      localAuthority: 'Birmingham',
+      homeless: true,
+    });
+    const result = select(session, 2); // No convictions
+    // Should proceed past convictions, not loop back to LGBTQ
+    expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_LGBTQ');
+  });
+
+  test('hasChildren: false does not re-trigger children question', () => {
+    const session = sessionAt('IMMIGRATION_STATUS_ASK', {
+      supportNeed: 'Emergency Housing',
+      ageCategory: '25+',
+      gender: 'Male',
+      lgbtq: false,
+      criminalConvictions: 'No',
+      hasChildren: false,
+      localAuthority: 'Birmingham',
+      homeless: true,
+    });
+    const result = select(session, 1); // British/Irish
+    // Should go to terminal, not re-ask children
+    expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_CHILDREN');
+  });
+
+});
+
+// =============================================================================
+// HOUSING OPTIONS INVOLVEMENT - Routes from B6, stores involvement, advances to B7
+// =============================================================================
+
+describe('Housing Options Involvement', () => {
+
+  test('B6_HOMELESSNESS_STATUS routes to HOUSING_OPTIONS_INVOLVEMENT_ASK', () => {
+    const session = sessionAt('B6_HOMELESSNESS_STATUS');
+    const result = select(session, 1); // Yes, homeless
+    expect(result.stateUpdates.currentGate).toBe('HOUSING_OPTIONS_INVOLVEMENT_ASK');
+  });
+
+  test('B6 option 2 (not homeless) also routes to HOUSING_OPTIONS_INVOLVEMENT_ASK', () => {
+    const session = sessionAt('B6_HOMELESSNESS_STATUS');
+    const result = select(session, 2); // No, not homeless
+    expect(result.stateUpdates.currentGate).toBe('HOUSING_OPTIONS_INVOLVEMENT_ASK');
+  });
+
+  test('presents Yes, No, Not sure options', () => {
+    const phrase = getPhrase('HOUSING_OPTIONS_INVOLVEMENT_ASK', false);
+    expect(phrase?.options).toEqual(['Yes', 'No', 'Not sure']);
+  });
+
+  test('option 1 (Yes) stores housingOptionsInvolvement as true', () => {
+    const session = sessionAt('HOUSING_OPTIONS_INVOLVEMENT_ASK', { homeless: true });
+    const result = select(session, 1);
+    expect(result.stateUpdates.housingOptionsInvolvement).toBe(true);
+  });
+
+  test('option 2 (No) stores housingOptionsInvolvement as false', () => {
+    const session = sessionAt('HOUSING_OPTIONS_INVOLVEMENT_ASK', { homeless: true });
+    const result = select(session, 2);
+    expect(result.stateUpdates.housingOptionsInvolvement).toBe(false);
+  });
+
+  test('option 3 (Not sure) stores housingOptionsInvolvement as null', () => {
+    const session = sessionAt('HOUSING_OPTIONS_INVOLVEMENT_ASK', { homeless: true });
+    const result = select(session, 3);
+    expect(result.stateUpdates.housingOptionsInvolvement).toBeNull();
+  });
+
+  test('homeless user advances to B7_HOMELESS_SLEEPING_SITUATION', () => {
+    const session = sessionAt('HOUSING_OPTIONS_INVOLVEMENT_ASK', { homeless: true });
+    const result = select(session, 1); // Yes
+    expect(result.stateUpdates.currentGate).toBe('B7_HOMELESS_SLEEPING_SITUATION');
+  });
+
+  test('non-homeless user advances to B7_HOUSED_SITUATION', () => {
+    const session = sessionAt('HOUSING_OPTIONS_INVOLVEMENT_ASK', { homeless: false });
+    const result = select(session, 2); // No
+    expect(result.stateUpdates.currentGate).toBe('B7_HOUSED_SITUATION');
+  });
+
+  test('supporter variant uses third-person phrasing', () => {
+    const phrase = getPhrase('HOUSING_OPTIONS_INVOLVEMENT_ASK', true);
+    expect(phrase?.text).toContain('they');
+  });
+
+});
