@@ -638,8 +638,9 @@ describe('Immigration Status Derives Public Funds', () => {
       homeless: true,
     });
     const result = select(session, 1); // British/Irish
-    // Should proceed past immigration — publicFunds derived as Yes
     expect(result.stateUpdates.currentGate).not.toBe('IMMIGRATION_STATUS_ASK');
+    expect(result.stateUpdates.immigrationStatus).toBe('British');
+    expect(result.stateUpdates.publicFunds).toBe('Yes');
   });
 
   test('NRPF leave to remain derives publicFunds = No', () => {
@@ -655,6 +656,8 @@ describe('Immigration Status Derives Public Funds', () => {
     });
     const result = select(session, 5); // LTR no public funds
     expect(result.stateUpdates.currentGate).not.toBe('IMMIGRATION_STATUS_ASK');
+    expect(result.stateUpdates.immigrationStatus).toBe('Leave to remain');
+    expect(result.stateUpdates.publicFunds).toBe('No');
   });
 
   test('asylum seeker derives publicFunds = No', () => {
@@ -670,6 +673,8 @@ describe('Immigration Status Derives Public Funds', () => {
     });
     const result = select(session, 8); // Asylum seeker
     expect(result.stateUpdates.currentGate).not.toBe('IMMIGRATION_STATUS_ASK');
+    expect(result.stateUpdates.immigrationStatus).toBe('Asylum seeker');
+    expect(result.stateUpdates.publicFunds).toBe('No');
   });
 
   test('pre-settled status derives publicFunds = Not sure', () => {
@@ -685,6 +690,8 @@ describe('Immigration Status Derives Public Funds', () => {
     });
     const result = select(session, 7); // EU pre-settled
     expect(result.stateUpdates.currentGate).not.toBe('IMMIGRATION_STATUS_ASK');
+    expect(result.stateUpdates.immigrationStatus).toBe('EUSS');
+    expect(result.stateUpdates.publicFunds).toBe('Not sure');
   });
 
   test('prefer not to say derives publicFunds = null', () => {
