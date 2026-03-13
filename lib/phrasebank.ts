@@ -432,31 +432,6 @@ Some health services specialise in supporting LGBTQ+ people, so this helps us sh
     options: ["Yes", "No", "Prefer not to say"]
   },
 
-  // SPECIAL CATEGORY CONSENT - Article 9 consent before LGBTQ/health/ethnicity
-  SPECIAL_CATEGORY_CONSENT: {
-    text: `The next few questions ask about things like sexual orientation, health, and ethnicity. These are classed as special category data under data protection law.
-
-You don't have to answer — but if you do, it helps us show you the most relevant services.
-
-Would you like to answer these questions?
-
-1. Yes, I'm happy to answer
-2. No, skip these questions`,
-    options: ["Yes, I'm happy to answer", "No, skip these questions"]
-  },
-
-  SPECIAL_CATEGORY_CONSENT__SUPPORTER: {
-    text: `The next few questions ask about things like sexual orientation, health, and ethnicity. These are classed as special category data under data protection law.
-
-They don't have to answer — but if they do, it helps us show the most relevant services.
-
-Would they like to answer these questions?
-
-1. Yes, they're happy to answer
-2. No, skip these questions`,
-    options: ["Yes, they're happy to answer", "No, skip these questions"]
-  },
-
   // LGBTQ SPECIALIST - Follow-up when user identifies as LGBTQ+
   LGBTQ_SPECIALIST_ASK: {
     text: `Would you prefer to be referred to an LGBTQ+ specialist service where one is available?
