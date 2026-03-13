@@ -17,14 +17,6 @@ export type GateType =
   | 'LOCATION_RESULT'
   | 'LOCATION_CONFIRM'
   | 'LOCATION_OUTSIDE_WMCA'
-  // Early Flow
-  | 'PREFERRED_NAME_ASK'
-  | 'ACCESS_LOCATION_ASK'
-  | 'RETURN_USER_ASK'
-  | 'RETURN_USER_FOLLOWUP'
-  // Profiling
-  | 'IMMIGRATION_STATUS_ASK'
-  | 'LGBTQ_SPECIALIST_ASK'
   // Advice Mode
   | 'B4_ADVICE_TOPIC_SELECTION'
   | 'ADVICE_BRIDGE'
@@ -39,10 +31,10 @@ export type GateType =
   | 'B5_PROFILE_GENDER'
   | 'B5_PROFILE_LGBTQ'
   | 'B5_PROFILE_CONVICTIONS'
+  | 'B5_PROFILE_NRPF'
   | 'B5_PROFILE_CHILDREN'
   | 'B5A_ADDITIONAL_NEED_SELECTION'
   | 'B6_HOMELESSNESS_STATUS'
-  | 'HOUSING_OPTIONS_INVOLVEMENT_ASK'
   | 'B7_HOUSED_SITUATION'
   | 'B7_HOMELESS_SLEEPING_SITUATION'
   | 'B7A_PREVENTION_GATE'
@@ -105,13 +97,6 @@ export interface SessionState {
   // Route tracking
   routeType: 'FULL' | 'QUICK' | null;
   intentType: 'ADVICE' | 'SERVICES' | 'ORGANISATION' | null;
-
-  // Early flow
-  preferredName: string | null;
-  accessLocation: string | null;
-  returnUser: boolean | null;
-  returnOutcome: string | null;
-  housingOptionsInvolvement: boolean | null;
 
   // Core profile
   localAuthority: string | null;

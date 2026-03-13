@@ -90,11 +90,6 @@ export function createSession(sessionId: string): SessionState {
     currentGate: 'INIT',
     routeType: null,
     intentType: null,
-    preferredName: null,
-    accessLocation: null,
-    returnUser: null,
-    returnOutcome: null,
-    housingOptionsInvolvement: null,
     localAuthority: null,
     latitude: null,
     longitude: null,
@@ -270,6 +265,7 @@ const profileFieldToGate: Record<string, GateType> = {
   'gender': 'B5_PROFILE_GENDER',
   'lgbtq': 'B5_PROFILE_LGBTQ',
   'convictions': 'B5_PROFILE_CONVICTIONS',
+  'nrpf': 'B5_PROFILE_NRPF',
   'children': 'B5_PROFILE_CHILDREN'
 };
 
@@ -311,9 +307,9 @@ function routeToNextProfileQuestion(session: SessionState): RoutingResult {
     if (field === 'lgbtq' && session.lgbtq == null) {
       return {
         ...phrase('B5_PROFILE_LGBTQ', session.isSupporter),
-        stateUpdates: {
+        stateUpdates: { 
           currentGate: 'B5_PROFILE_LGBTQ',
-          gender: session.gender
+          gender: session.gender 
         }
       };
     }
@@ -329,13 +325,13 @@ function routeToNextProfileQuestion(session: SessionState): RoutingResult {
       };
     }
     
-    // Immigration status (derives publicFunds)
-    if (field === 'nrpf' && session.immigrationStatus == null) {
+    // NRPF / Public funds access
+    if (field === 'nrpf' && session.publicFunds == null) {
       return {
-        ...phrase('IMMIGRATION_STATUS_ASK', session.isSupporter),
-        stateUpdates: {
-          currentGate: 'IMMIGRATION_STATUS_ASK',
-          criminalConvictions: session.criminalConvictions
+        ...phrase('B5_PROFILE_NRPF', session.isSupporter),
+        stateUpdates: { 
+          currentGate: 'B5_PROFILE_NRPF',
+          criminalConvictions: session.criminalConvictions 
         }
       };
     }
@@ -1088,58 +1084,10 @@ export function processInput(session: SessionState, input: string): RoutingResul
       }
       
       return {
-        ...phrase('PREFERRED_NAME_ASK', session.isSupporter),
-        stateUpdates: { currentGate: 'PREFERRED_NAME_ASK', localAuthority: la }
-      };
-
-    // ========================================
-    // EARLY FLOW: NAME, ACCESS LOCATION, RETURN USER
-    // ========================================
-    case 'PREFERRED_NAME_ASK': {
-      const nameInput = input?.trim() || '';
-      const skipped = nameInput === '' || nameInput.toLowerCase() === 'skip' || choice === 1;
-      return {
-        ...phrase('ACCESS_LOCATION_ASK', session.isSupporter),
-        stateUpdates: {
-          currentGate: 'ACCESS_LOCATION_ASK',
-          preferredName: skipped ? null : nameInput
-        }
-      };
-    }
-
-    case 'ACCESS_LOCATION_ASK': {
-      const accessOptions = ['Library', 'Community centre', 'Council office', 'At home', 'On my phone', 'Other'];
-      const accessLoc = choice ? accessOptions[choice - 1] : null;
-      return {
-        ...phrase('RETURN_USER_ASK', session.isSupporter),
-        stateUpdates: { currentGate: 'RETURN_USER_ASK', accessLocation: accessLoc }
-      };
-    }
-
-    case 'RETURN_USER_ASK':
-      if (choice === 1) {
-        // Yes - returning user, ask follow-up
-        return {
-          ...phrase('RETURN_USER_FOLLOWUP', session.isSupporter),
-          stateUpdates: { currentGate: 'RETURN_USER_FOLLOWUP', returnUser: true }
-        };
-      } else {
-        // No - new user, proceed to B2
-        return {
-          ...phrase('B2_WHO_FOR', session.isSupporter),
-          stateUpdates: { currentGate: 'B2_WHO_FOR', returnUser: false }
-        };
-      }
-
-    case 'RETURN_USER_FOLLOWUP': {
-      const outcomeOptions = ['Yes, it helped', 'Some of it', 'No, it didn\'t work out', 'Prefer not to say'];
-      const outcome = choice ? outcomeOptions[choice - 1] : null;
-      return {
         ...phrase('B2_WHO_FOR', session.isSupporter),
-        stateUpdates: { currentGate: 'B2_WHO_FOR', returnOutcome: outcome }
+        stateUpdates: { currentGate: 'B2_WHO_FOR', localAuthority: la }
       };
-    }
-
+    
     case 'B2_WHO_FOR':
       const userTypes: Record<number, 'SELF' | 'SUPPORTER' | 'PROFESSIONAL'> = {
         1: 'SELF',
@@ -1247,39 +1195,13 @@ export function processInput(session: SessionState, input: string): RoutingResul
       const sessionWithGender = { ...session, gender: profGender };
       return routeToNextProfileQuestion(sessionWithGender);
     
-    case 'B5_PROFILE_LGBTQ': {
+    case 'B5_PROFILE_LGBTQ':
       // 1 = Yes, 2 = No, 3 = Prefer not to say
-      const lgbtqValue = choice === 1 ? true : false;
-      if (lgbtqValue === true) {
-        return {
-          ...phrase('LGBTQ_SPECIALIST_ASK', session.isSupporter),
-          stateUpdates: { currentGate: 'LGBTQ_SPECIALIST_ASK', lgbtq: true }
-        };
-      }
+      const lgbtqValue = choice === 1 ? true : (choice === 2 ? false : null);
+      
       const sessionWithLgbtq = { ...session, lgbtq: lgbtqValue };
-      const lgbtqResult = routeToNextProfileQuestion(sessionWithLgbtq);
-      return {
-        ...lgbtqResult,
-        stateUpdates: {
-          ...lgbtqResult.stateUpdates,
-          lgbtq: lgbtqValue,
-        },
-      };
-    }
-
-    case 'LGBTQ_SPECIALIST_ASK': {
-      const lgbtqPref = choice === 1 ? 'Specialist first' : 'Show both';
-      const sessionWithSpec = { ...session, lgbtqServicePreference: lgbtqPref };
-      const specResult = routeToNextProfileQuestion(sessionWithSpec);
-      return {
-        ...specResult,
-        stateUpdates: {
-          ...specResult.stateUpdates,
-          lgbtqServicePreference: lgbtqPref,
-        },
-      };
-    }
-
+      return routeToNextProfileQuestion(sessionWithLgbtq);
+    
     case 'B5_PROFILE_CONVICTIONS':
       const convictionOptions = ['Yes', 'No', 'Prefer not to say'];
       const convictions = choice ? convictionOptions[choice - 1] : null;
@@ -1287,37 +1209,13 @@ export function processInput(session: SessionState, input: string): RoutingResul
       const sessionWithConvictions = { ...session, criminalConvictions: convictions };
       return routeToNextProfileQuestion(sessionWithConvictions);
     
-    case 'IMMIGRATION_STATUS_ASK': {
-      const immigrationMap: Record<number, { status: string; funds: string | null }> = {
-        1: { status: 'British', funds: 'Yes' },
-        2: { status: 'Refugee', funds: 'Yes' },
-        3: { status: 'Indefinite leave to remain', funds: 'Yes' },
-        4: { status: 'Leave to remain', funds: 'Yes' },
-        5: { status: 'Leave to remain', funds: 'No' },
-        6: { status: 'EUSS', funds: 'Yes' },
-        7: { status: 'EUSS', funds: 'Not sure' },
-        8: { status: 'Asylum seeker', funds: 'No' },
-        9: { status: 'No status', funds: 'No' },
-        10: { status: 'Prefer not to say', funds: null },
-      };
-      const mapped = choice ? immigrationMap[choice] : null;
-      const immigrationStatus = mapped?.status || null;
-      const publicFunds = mapped?.funds ?? null;
-      const sessionWithImmigration = {
-        ...session,
-        immigrationStatus,
-        publicFunds,
-      };
-      const result = routeToNextProfileQuestion(sessionWithImmigration);
-      return {
-        ...result,
-        stateUpdates: {
-          ...result.stateUpdates,
-          immigrationStatus,
-          publicFunds,
-        },
-      };
-    }
+    case 'B5_PROFILE_NRPF':
+      // 1 = Yes (has access), 2 = No (NRPF), 3 = Not sure, 4 = Prefer not to say
+      const nrpfOptions = ['Yes', 'No', 'Not sure', 'Prefer not to say'];
+      const nrpfValue = choice ? nrpfOptions[choice - 1] : null;
+      
+      const sessionWithNrpf = { ...session, publicFunds: nrpfValue };
+      return routeToNextProfileQuestion(sessionWithNrpf);
     
     case 'B5_PROFILE_CHILDREN':
       // 1 = Yes, 2 = No, 3 = Prefer not to say
@@ -1328,28 +1226,19 @@ export function processInput(session: SessionState, input: string): RoutingResul
     
     case 'B6_HOMELESSNESS_STATUS':
       const homeless = choice === 1;
-      return {
-        ...phrase('HOUSING_OPTIONS_INVOLVEMENT_ASK', session.isSupporter),
-        stateUpdates: { currentGate: 'HOUSING_OPTIONS_INVOLVEMENT_ASK', homeless }
-      };
-
-    // TODO: Wire housingOptionsInvolvement into buildTerminalServices — when true,
-    // deprioritise Housing Options in terminal output and lead with navigator/specialist orgs instead
-    case 'HOUSING_OPTIONS_INVOLVEMENT_ASK': {
-      const hoInvolvement = choice === 1 ? true : (choice === 2 ? false : null);
-      if (session.homeless) {
+      
+      if (homeless) {
         return {
           ...phrase('B7_HOMELESS_SLEEPING_SITUATION', session.isSupporter),
-          stateUpdates: { currentGate: 'B7_HOMELESS_SLEEPING_SITUATION', housingOptionsInvolvement: hoInvolvement }
+          stateUpdates: { currentGate: 'B7_HOMELESS_SLEEPING_SITUATION', homeless: true }
         };
       } else {
         return {
           ...phrase('B7_HOUSED_SITUATION', session.isSupporter),
-          stateUpdates: { currentGate: 'B7_HOUSED_SITUATION', housingOptionsInvolvement: hoInvolvement }
+          stateUpdates: { currentGate: 'B7_HOUSED_SITUATION', homeless: false }
         };
       }
-    }
-
+    
     case 'B7_HOUSED_SITUATION':
       const housedOptions = ['At home', 'Friends/family', 'Council temp', 'Other temp'];
       const housed = choice ? housedOptions[choice - 1] : null;
