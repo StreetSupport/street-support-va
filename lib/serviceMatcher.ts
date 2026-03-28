@@ -115,8 +115,8 @@ interface WMCAOrganizationsData { organizations: Organization[]; }
 const needToCategoryMap: Record<string, string[]> = {
   'Emergency Housing': ['accom'],
   'Food': ['foodbank'],
-  'Work': ['employment'],
-  'Health': ['medical'],
+  'Work': ['employment', 'support'],
+  'Health': ['medical', 'support'],
   'Advice': ['support'],
   'Drop In': ['dropin'],
   'Financial': ['financial', 'support'],
@@ -136,6 +136,14 @@ const adviceSubcategoryMap: Record<string, string[]> = {
   'Advice:Health': ['health', 'mental-health'],
   'Advice:Legal': ['legal'],
   'Advice:General': ['general'],
+};
+
+// Per-parent subcategory constraints for needs that span multiple parents.
+// When a need maps to e.g. ['medical', 'support'], all 'medical' services pass
+// but 'support' services are restricted to the listed subcategories.
+const needSubcategoryConstraints: Record<string, Record<string, string[]>> = {
+  'Health': { 'support': ['mental-health'] },
+  'Work': { 'support': ['employment'] },
 };
 
 // Needs where profile (gender, age, LGBTQ+, etc.) should affect filtering
@@ -420,7 +428,8 @@ function calculateMatchScore(service: Service, profile: UserProfile): number {
 export function getServicesByCategory(
   localAuthority: string | null,
   categories: string[],
-  subcategories?: string[]
+  subcategories?: string[],
+  parentSubConstraints?: Record<string, string[]>
 ): Service[] {
   if (!localAuthority || categories.length === 0) return [];
 
@@ -431,7 +440,18 @@ export function getServicesByCategory(
     const serviceLA = normalizeLA(s.local_authority);
     const matchesLA = serviceLA === la;
     const matchesCategory = categories.includes(s.category.parent);
-    const matchesSub = !subcategories || subcategories.length === 0 || subcategories.includes(s.category.sub);
+
+    // Per-parent subcategory constraints take priority when provided.
+    // If a parent has an entry in the constraints map, the service's sub must be listed.
+    // Parents without an entry pass all subcategories through.
+    let matchesSub: boolean;
+    if (parentSubConstraints) {
+      const allowed = parentSubConstraints[s.category.parent];
+      matchesSub = !allowed || allowed.includes(s.category.sub);
+    } else {
+      matchesSub = !subcategories || subcategories.length === 0 || subcategories.includes(s.category.sub);
+    }
+
     return matchesLA && matchesCategory && matchesSub;
   });
 }
@@ -513,10 +533,25 @@ export function rankServices(services: Service[], profile: UserProfile, limit: n
 export function getServicesForNeed(need: string, profile: UserProfile): MatchedService[] {
   const categories = needToCategoryMap[need] || [];
   if (categories.length === 0) return [];
-  
-  // Get services matching category and location, with optional subcategory filtering
-  const subcategories = profile.adviceSubcategory ? adviceSubcategoryMap[profile.adviceSubcategory] : undefined;
-  let services = getServicesByCategory(profile.localAuthority, categories, subcategories);
+
+  // Build per-parent subcategory constraints
+  let parentSubConstraints: Record<string, string[]> | undefined;
+
+  // Advice subcategory filtering (e.g. Advice:Debt → support>debt-financial-problems)
+  if (profile.adviceSubcategory) {
+    const subs = adviceSubcategoryMap[profile.adviceSubcategory];
+    if (subs) {
+      parentSubConstraints = { 'support': subs };
+    }
+  }
+
+  // Need-specific constraints (e.g. Health → support restricted to mental-health)
+  const needConstraints = needSubcategoryConstraints[need];
+  if (needConstraints) {
+    parentSubConstraints = { ...parentSubConstraints, ...needConstraints };
+  }
+
+  let services = getServicesByCategory(profile.localAuthority, categories, undefined, parentSubConstraints);
   
   // Apply profile filtering if relevant for this need
   if (profileRelevantNeeds.includes(need)) {
@@ -526,6 +561,15 @@ export function getServicesForNeed(need: string, profile: UserProfile): MatchedS
   
   // Rank and return top matches
   return rankServices(services, profile, 5);
+}
+
+/**
+ * Return the primary SSN API category key for a need (first entry in the map).
+ * Used for building SSN browse URLs.
+ */
+export function getPrimaryCategoryKey(need: string): string {
+  const cats = needToCategoryMap[need];
+  return cats ? cats[0] : '';
 }
 
 /**
