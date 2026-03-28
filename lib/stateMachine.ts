@@ -1288,7 +1288,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
     
     case 'B5_PROFILE_CHILDREN':
       // 1 = Yes, 2 = No, 3 = Prefer not to say
-      const childrenValue = choice === 1 ? true : (choice === 2 ? false : null);
+      const childrenValue = choice === 1 ? true : false;
       
       const sessionWithChildren = { ...session, hasChildren: childrenValue };
       return routeToNextProfileQuestion(sessionWithChildren);

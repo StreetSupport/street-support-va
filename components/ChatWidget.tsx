@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import type { ServiceCard } from '@/lib/types';
 
 // ============================================================
@@ -472,6 +472,8 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<Element | null>(null);
 
   useEffect(() => {
     if (lastMessageRef.current && messagesContainerRef.current) {
@@ -481,11 +483,57 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     }
   }, [messages]);
 
-  useEffect(() => {
-    if (isOpen && conversationStarted && inputRef.current) {
-      inputRef.current.focus();
+  // Focus trap: keep Tab cycling within the dialog while open
+  const handleFocusTrap = useCallback((e: KeyboardEvent) => {
+    if (!dialogRef.current) return;
+
+    if (e.key === 'Escape') {
+      onClose();
+      return;
     }
-  }, [isOpen, conversationStarted]);
+
+    if (e.key !== 'Tab') return;
+
+    const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), input:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) return;
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }, [onClose]);
+
+  // Manage focus on open/close and attach focus trap
+  useEffect(() => {
+    if (isOpen) {
+      triggerRef.current = document.activeElement;
+      // Focus the dialog itself initially; input focus follows when conversation starts
+      setTimeout(() => {
+        if (conversationStarted && inputRef.current) {
+          inputRef.current.focus();
+        } else if (dialogRef.current) {
+          dialogRef.current.focus();
+        }
+      }, 0);
+      document.addEventListener('keydown', handleFocusTrap);
+    } else {
+      document.removeEventListener('keydown', handleFocusTrap);
+      // Return focus to the element that opened the widget
+      if (triggerRef.current && triggerRef.current instanceof HTMLElement) {
+        triggerRef.current.focus();
+        triggerRef.current = null;
+      }
+    }
+    return () => document.removeEventListener('keydown', handleFocusTrap);
+  }, [isOpen, conversationStarted, handleFocusTrap]);
 
   // ============================================================
   // LOCATION HANDLING
@@ -774,7 +822,12 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
+      ref={dialogRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Street Support assistant"
+      tabIndex={-1}
       className="fixed bottom-4 right-4 w-full max-w-[480px] h-[640px] max-h-[90vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden z-50"
       style={{ border: `1px solid ${SSN_COLORS.grayBorder}` }}
     >
@@ -807,8 +860,10 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       </div>
 
       {/* Main Content - light gray background for contrast */}
-      <div 
+      <div
         ref={messagesContainerRef}
+        role="log"
+        aria-live="polite"
         className="flex-1 overflow-y-auto p-4"
         style={{ backgroundColor: SSN_COLORS.grayLight }}
       >
@@ -950,10 +1005,11 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
             <button
               type="submit"
               disabled={!inputValue?.trim() || isLoading || sessionEnded}
+              aria-label="Send message"
               className="p-2.5 text-white rounded-lg disabled:bg-gray-300 transition-colors"
               style={{ backgroundColor: SSN_COLORS.primary }}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
               </svg>
             </button>
