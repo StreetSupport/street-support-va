@@ -195,6 +195,7 @@
     },
     "navigatorOrgs": [],
     "_navigatorGap": "No housing navigator organisation identified for Sandwell. Documented as a system gap — shared with local partnership.",
+    "_navigatorNote": "P3 does not operate in Sandwell. P3 Coventry and P3 Wolverhampton serve those areas only. Sandwell navigator gap is confirmed — no commissioned navigator identified as of March 2026.",
     "dvOrgs": {
       "womensAid": {
         "name": "Black Country Women's Aid",
@@ -272,6 +273,8 @@
         "description": "Housing advice and support for people experiencing homelessness.",
         "ageMin": null,
         "ageMax": null,
+        "phone": "01922 625687",
+        "phoneHours": "Mon-Fri 10am-4pm",
         "website": "https://www.ymcablackcountry.org.uk",
         "isDropIn": true
       }
