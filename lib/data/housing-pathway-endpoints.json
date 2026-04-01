@@ -155,9 +155,10 @@
         "description": "Drop-in housing and homelessness support.",
         "ageMin": null,
         "ageMax": null,
-        "availabilityNote": "Monday evenings only — limited availability. Documented system gap.",
-        "website": "https://www.dudley.gov.uk",
-        "isDropIn": false
+        "phone": "01384 239222",
+        "availabilityNote": "Monday evenings from 4pm",
+        "website": "https://www.heavenskitchen.org.uk/",
+        "isDropIn": true
       }
     ],
     "dvOrgs": {
@@ -274,7 +275,7 @@
         "ageMin": null,
         "ageMax": null,
         "phone": "01922 625687",
-        "phoneHours": "Mon-Fri 10am-4pm",
+        "availabilityNote": "Mon-Fri 10am-4pm",
         "website": "https://www.ymcablackcountry.org.uk",
         "isDropIn": true
       }

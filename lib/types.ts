@@ -231,6 +231,7 @@ export interface DefaultOrg {
   description: string;
   isCouncil?: boolean;
   isDropIn?: boolean;
+  availabilityNote?: string;
 }
 
 export interface UserProfile {

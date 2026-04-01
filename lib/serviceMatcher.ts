@@ -699,6 +699,7 @@ export function getNavigatorOrgs(localAuthority: string | null, ageCategory?: st
       website: nav.website || null,
       description: nav.description,
       isDropIn: nav.isDropIn,
+      availabilityNote: nav.availabilityNote,
     }));
 }
 
