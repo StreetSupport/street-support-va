@@ -22,6 +22,7 @@ import {
   getStreetLinkInfo,
   getServicesForNeed,
   isProfileRelevantNeed,
+  getPrimaryCategoryKey,
 } from './serviceMatcher';
 import {
   handleCrisisDanger,
@@ -169,26 +170,6 @@ function phrase(key: string, isSupporter: boolean): RoutingResult {
     responseType: p?.responseType,
   };
 }
-
-// ============================================================
-// NEED TO CATEGORY MAPPING
-// Maps user-selected needs to service category parents in wmca_services_v7.json
-// ============================================================
-
-const needToCategoryMap: Record<string, string> = {
-  'Emergency Housing': 'accom',
-  'Food': 'foodbank',
-  'Work': 'employment',
-  'Health': 'medical',
-  'Advice': 'support',
-  'Drop In': 'dropin',
-  'Financial': 'financial',
-  'Items': 'items',
-  'Services': 'services',
-  'Comms': 'communications',
-  'Training': 'training',
-  'Activities': 'activities'
-};
 
 const needDisplayNames: Record<string, string> = {
   'Emergency Housing': 'emergency housing',
@@ -450,7 +431,7 @@ function buildNonHousingTerminal(session: SessionState): TerminalResult {
   const need = session.supportNeed || 'support';
   const la = session.localAuthority || 'your area';
   const displayName = needDisplayNames[need] || need.toLowerCase();
-  const categoryKey = needToCategoryMap[need] || '';
+  const categoryKey = getPrimaryCategoryKey(need);
 
   // Build profile for service matching
   const profile = toUserProfile(session);
@@ -592,6 +573,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
       for (const org of navigatorOrgs) {
         text += `${org.name}\n`;
         if (org.phone) text += `${org.phone}\n`;
+        if (org.availabilityNote) text += `${org.availabilityNote}\n`;
         if (org.website) text += `${org.website}\n`;
         if (org.description) text += `${org.description}\n`;
         text += `\n`;
@@ -696,6 +678,9 @@ function buildTerminalServices(session: SessionState): TerminalResult {
       text += `${org.name}\n`;
       if (org.phone) {
         text += `${org.phone}\n`;
+      }
+      if (org.availabilityNote) {
+        text += `${org.availabilityNote}\n`;
       }
       if (org.website) {
         text += `${org.website}\n`;
