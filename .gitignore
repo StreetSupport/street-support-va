@@ -41,3 +41,13 @@ next-env.d.ts
 # Testing
 coverage/
 REFACTORING_ANALYSIS.md
+
+# Claude Code
+.claude/
+CLAUDE.md
+
+# Local data dumps
+Usersmatthsp_addresses_sample.json
+Usersmatthwalsall_services.json
+wmca_raw_data_*.json
+wmca_scraper_v2.py
