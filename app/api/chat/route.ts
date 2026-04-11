@@ -9,7 +9,8 @@ import {
   processInput,
   getFirstMessage,
   parseUserInput,
-  processLocationInput
+  processLocationInput,
+  interceptUnder16Age
 } from '@/lib/stateMachine';
 import { getPhrase } from '@/lib/phrasebank';
 
@@ -272,7 +273,21 @@ export async function POST(request: NextRequest) {
         }
       }
     }
-    
+
+    // Mid-conversation under-16 safeguarding intercept.
+    // Runs at every gate, not just early gates. Triggers on explicit
+    // first-person disclosure of age 10-15 or school year 7-10.
+    const under16Exit = interceptUnder16Age(session, message);
+    if (under16Exit) {
+      session = { ...session, ...under16Exit.stateUpdates };
+      return NextResponse.json({
+        s: encodeState(session),
+        m: under16Exit.text,
+        o: under16Exit.options,
+        e: under16Exit.sessionEnded,
+      });
+    }
+
     // Try to parse user input
     let parsed = parseUserInput(message, currentPhrase?.options);
     

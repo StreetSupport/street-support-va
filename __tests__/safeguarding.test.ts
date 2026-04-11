@@ -39,7 +39,13 @@
 
 import type { GateType, SessionState } from '../lib/types';
 import { toUserProfile } from '../lib/types';
-import { createSession, getFirstMessage, processInput } from '../lib/stateMachine';
+import {
+  createSession,
+  getFirstMessage,
+  processInput,
+  detectUnder16Age,
+  interceptUnder16Age,
+} from '../lib/stateMachine';
 import { getPhrase } from '../lib/phrasebank';
 
 // Helper: create session at specific gate with profile data
@@ -860,6 +866,148 @@ describe('Housing Options Involvement', () => {
   test('supporter variant uses third-person phrasing', () => {
     const phrase = getPhrase('HOUSING_OPTIONS_INVOLVEMENT_ASK', true);
     expect(phrase?.text).toContain('they');
+  });
+
+});
+
+// =============================================================================
+// MID-CONVERSATION UNDER-16 DETECTION
+// Detects explicit first-person disclosure of under-16 age at any gate
+// and routes to the safeguarding exit, even if the user previously declared
+// an adult age at B3_AGE_CATEGORY.
+// =============================================================================
+
+describe('Mid-Conversation Under-16 Detection', () => {
+
+  describe('Numeric age triggers (10-15)', () => {
+    const cases: Array<[number, string]> = [
+      [10, "I'm 10"],
+      [11, "I am 11"],
+      [12, "im 12"],
+      [13, "I'm 13"],
+      [14, "I am 14"],
+      [15, "I'm 15"],
+    ];
+
+    test.each(cases)('age %i (%s) triggers AGE_NUMERIC escalation', (age, phrase) => {
+      const result = detectUnder16Age(phrase);
+      expect(result.triggered).toBe(true);
+      if (result.triggered) {
+        expect(result.type).toBe('AGE_NUMERIC');
+        expect(result.code).toBe(`AGE_NUMERIC_${age}`);
+      }
+    });
+
+    test('age 16 does not trigger', () => {
+      expect(detectUnder16Age("I'm 16").triggered).toBe(false);
+    });
+  });
+
+  describe('School year triggers (Year 7-10)', () => {
+    const cases: Array<[number, string]> = [
+      [7, "I'm in Year 7"],
+      [8, "year 8"],
+      [9, "I'm in Year 9"],
+      [10, "yr 10"],
+    ];
+
+    test.each(cases)('Year %i (%s) triggers SCHOOL_YEAR escalation', (year, phrase) => {
+      const result = detectUnder16Age(phrase);
+      expect(result.triggered).toBe(true);
+      if (result.triggered) {
+        expect(result.type).toBe('SCHOOL_YEAR');
+        expect(result.code).toBe(`SCHOOL_YEAR_${year}`);
+      }
+    });
+
+    test('Year 11 does not trigger', () => {
+      expect(detectUnder16Age("I'm in Year 11").triggered).toBe(false);
+    });
+  });
+
+  describe('Ambiguous phrases do not trigger', () => {
+    test.each([
+      "I'm young",
+      "still at school",
+      "my mum won't let me",
+      "I'm in trouble with my parents",
+    ])('"%s" does not trigger', (phrase) => {
+      expect(detectUnder16Age(phrase).triggered).toBe(false);
+    });
+  });
+
+  describe('Contextual qualifier does not suppress trigger', () => {
+    test('"I\'m 14 but asking for my mum" still triggers', () => {
+      const result = detectUnder16Age("I'm 14 but asking for my mum");
+      expect(result.triggered).toBe(true);
+      if (result.triggered) {
+        expect(result.code).toBe('AGE_NUMERIC_14');
+      }
+    });
+  });
+
+  describe('Mid-conversation interception', () => {
+    test('triggers regardless of prior B3 age gate selection', () => {
+      // User has already passed B3 declaring 25+ — trigger must still fire mid-flow
+      const session = sessionAt('B7_HOMELESS_SLEEPING_SITUATION', {
+        ageCategory: '25 or over',
+        homeless: true,
+      });
+      const result = interceptUnder16Age(session, "I'm 14");
+      expect(result).not.toBeNull();
+      expect(result?.sessionEnded).toBe(true);
+      expect(result?.stateUpdates?.safeguardingType).toBe('UNDER_16');
+    });
+
+    test('session terminates on trigger — user cannot continue original pathway', () => {
+      const session = sessionAt('B5_PROFILE_GENDER', { ageCategory: '25 or over' });
+      const result = interceptUnder16Age(session, "I'm in year 9");
+      expect(result?.sessionEnded).toBe(true);
+      expect(result?.stateUpdates?.currentGate).toBe('SESSION_END');
+    });
+
+    test('non-trigger input returns null (does not intercept)', () => {
+      const session = sessionAt('B5_PROFILE_GENDER');
+      expect(interceptUnder16Age(session, "I'm 25")).toBeNull();
+    });
+  });
+
+  describe('Audit logging', () => {
+    let logSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      logSpy.mockRestore();
+    });
+
+    test('captures trigger type, trigger code, session ID, timestamp — and does not capture raw user text', () => {
+      const session = sessionAt('B5_PROFILE_GENDER');
+      session.sessionId = 'test-session-abc-123';
+      const sentinel = 'XYZZY_SECRET_PHRASE_42';
+
+      interceptUnder16Age(session, `I'm 14 and ${sentinel}`);
+
+      // Find the safeguarding-trigger log call
+      const safeguardingCalls = logSpy.mock.calls.filter(
+        (c) => typeof c[0] === 'string' && c[0].includes('SAFEGUARDING_TRIGGER')
+      );
+      expect(safeguardingCalls.length).toBeGreaterThan(0);
+
+      const payload = JSON.parse(safeguardingCalls[0][1]);
+      expect(payload.type).toBe('AGE_NUMERIC');
+      expect(payload.code).toBe('AGE_NUMERIC_14');
+      expect(payload.sessionId).toBe('test-session-abc-123');
+      expect(payload.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+      expect(payload.event).toBe('UNDER_16_DETECTED');
+      expect(payload.pathwayChange).toBe('TERMINATED_TO_UNDER_16_EXIT');
+
+      // Verify NO log call across the whole spy contains the raw user text
+      const allLogText = JSON.stringify(logSpy.mock.calls);
+      expect(allLogText).not.toContain(sentinel);
+    });
   });
 
 });

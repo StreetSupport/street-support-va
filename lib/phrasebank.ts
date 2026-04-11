@@ -1434,6 +1434,36 @@ What is their gender?
     options: ["Female", "Male", "Non-binary or other", "Prefer not to say"]
   },
 
+  CRISIS_UNDER16_LOCATION: {
+    text: `Thank you for telling me. You've done the right thing by reaching out. So I can give you the right Children's Services to contact, please tell me which area you're in.
+
+1. Wolverhampton
+2. Birmingham
+3. Coventry
+4. Dudley
+5. Sandwell
+6. Solihull
+7. Walsall
+8. Somewhere else
+9. Prefer not to say`,
+    options: ["Wolverhampton", "Birmingham", "Coventry", "Dudley", "Sandwell", "Solihull", "Walsall", "Somewhere else", "Prefer not to say"]
+  },
+
+  CRISIS_UNDER16_LOCATION__SUPPORTER: {
+    text: `Thank you for letting me know. So I can give you the right Children's Services to contact for them, please tell me which area they're in.
+
+1. Wolverhampton
+2. Birmingham
+3. Coventry
+4. Dudley
+5. Sandwell
+6. Solihull
+7. Walsall
+8. Somewhere else
+9. Prefer not to say`,
+    options: ["Wolverhampton", "Birmingham", "Coventry", "Dudley", "Sandwell", "Solihull", "Walsall", "Somewhere else", "Prefer not to say"]
+  },
+
   // ============================================================
   // SAFEGUARDING EXITS
   // ============================================================

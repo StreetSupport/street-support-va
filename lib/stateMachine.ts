@@ -870,13 +870,13 @@ export function getFirstMessage(_session: SessionState): RoutingResult {
 
 export function parseUserInput(input: string, options?: string[]): number | null {
   const trimmed = input.trim();
-  
+
   // Direct number
   const num = parseInt(trimmed, 10);
   if (!isNaN(num) && num >= 1 && (!options || num <= options.length)) {
     return num;
   }
-  
+
   // Text matching
   if (options) {
     const lower = trimmed.toLowerCase();
@@ -886,8 +886,93 @@ export function parseUserInput(input: string, options?: string[]): number | null
       }
     }
   }
-  
+
   return null;
+}
+
+// ============================================================
+// MID-CONVERSATION UNDER-16 SAFEGUARDING DETECTION
+// ============================================================
+//
+// Intercepts free-text user input at every gate and looks for explicit
+// disclosure of under-16 age. Triggers an immediate safeguarding exit
+// regardless of where in the conversation the user currently is, even if
+// they previously declared an adult age at B3_AGE_CATEGORY.
+//
+// Trigger patterns are intentionally narrow:
+//   1. First-person numeric statement of ages 10-15 ("I'm 14", "I am 13").
+//   2. England/Wales/NI school years 7-10 ("Year 9", "yr 10").
+//
+// Deliberately NOT triggered by: ages 16+, Years 11+, ambiguous phrases
+// like "I'm young" or "still at school". A trigger fires even when wrapped
+// in contextual qualifiers ("I'm 14 but asking for my mum").
+
+export type AgeTriggerResult =
+  | { triggered: true; type: 'AGE_NUMERIC' | 'SCHOOL_YEAR'; code: string }
+  | { triggered: false };
+
+// First-person statement: "i'm/i am/im" + age 10-15.
+// Negative lookahead excludes unit-of-measurement false positives
+// ("I'm 14 minutes late", "I'm 14 years older than her").
+const NUMERIC_AGE_RE = /\bi[\u2018\u2019']?\s*a?m\s+(1[0-5])\b(?!\s+(?:minutes?|mins?|hours?|hrs?|days?|weeks?|wks?|months?|miles?|km|kilometres?|kilometers?|metres?|meters?|feet|ft|inches?|stone|kgs?|lbs?|pounds?|percent|%|years?\s+(?:older|younger|ago)))/i;
+
+// England/Wales/NI school years 7-10. Year 11+ deliberately excluded
+// because Year 11 students may already be 16.
+const SCHOOL_YEAR_RE = /\b(?:year|yr)\s*(10|7|8|9)\b/i;
+
+export function detectUnder16Age(input: string): AgeTriggerResult {
+  if (!input) return { triggered: false };
+
+  const numMatch = input.match(NUMERIC_AGE_RE);
+  if (numMatch) {
+    return { triggered: true, type: 'AGE_NUMERIC', code: `AGE_NUMERIC_${numMatch[1]}` };
+  }
+
+  const yearMatch = input.match(SCHOOL_YEAR_RE);
+  if (yearMatch) {
+    return { triggered: true, type: 'SCHOOL_YEAR', code: `SCHOOL_YEAR_${yearMatch[1]}` };
+  }
+
+  return { triggered: false };
+}
+
+// Categorical audit log for safeguarding triggers. Never includes raw user input.
+export function logUnder16Trigger(
+  sessionId: string,
+  fromGate: string,
+  trigger: { type: string; code: string }
+): void {
+  console.log('[VA] SAFEGUARDING_TRIGGER:', JSON.stringify({
+    event: 'UNDER_16_DETECTED',
+    type: trigger.type,
+    code: trigger.code,
+    sessionId,
+    fromGate,
+    timestamp: new Date().toISOString(),
+    pathwayChange: 'TERMINATED_TO_UNDER_16_EXIT',
+  }));
+}
+
+// Mid-conversation intercept. Returns a session-ending RoutingResult if
+// the input discloses under-16 age, otherwise returns null so the caller
+// can continue normal processing.
+export function interceptUnder16Age(session: SessionState, input: string): RoutingResult | null {
+  const trigger = detectUnder16Age(input);
+  if (!trigger.triggered) return null;
+
+  logUnder16Trigger(session.sessionId, session.currentGate, trigger);
+
+  // Prepend a plain-language explanation to the standard under-16 exit text
+  // so the user understands why the conversation is being redirected.
+  const exit = buildUnder16Exit(session);
+  const explanation = session.isSupporter
+    ? `From what you've shared, it sounds like the person you're supporting may be under 16. Because of that, I'm going to point you to specialist services for young people instead — they can help in ways I can't.\n\n`
+    : `From what you just said, it sounds like you may be under 16. Because of that, I'm going to point you to specialist services for young people instead — they can help in ways I can't.\n\n`;
+
+  return {
+    ...exit,
+    text: explanation + exit.text,
+  };
 }
 
 // ============================================================
