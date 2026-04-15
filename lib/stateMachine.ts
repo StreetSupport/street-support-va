@@ -226,12 +226,15 @@ const needProfileRequirements: Record<string, string[]> = {
  * and what profile data has already been collected.
  * Returns terminal output when all required fields are collected.
  */
-function routeToNextProfileQuestion(session: SessionState): RoutingResult {
+function routeToNextProfileQuestion(session: SessionState, after?: string): RoutingResult {
   const need = session.supportNeed || '';
   const required = needProfileRequirements[need] || [];
-  
+
   // Check each required field in order
   for (const field of required) {
+    // Skip the field we just answered — prevents re-triggering on null PNTS values
+    if (after && field === after) continue;
+
     // Age
     if (field === 'age' && !session.ageCategory) {
       return {
@@ -1292,18 +1295,18 @@ export function processInput(session: SessionState, input: string): RoutingResul
       if (profAge === '25 or over') mappedProfAge = '25+';
       
       const sessionWithAge = { ...session, ageCategory: mappedProfAge };
-      return routeToNextProfileQuestion(sessionWithAge);
+      return routeToNextProfileQuestion(sessionWithAge, 'age');
     
     case 'B5_PROFILE_GENDER':
       const profGenderOptions = ['Male', 'Female', 'Non-binary or other', 'Prefer not to say'];
       const profGender = choice ? profGenderOptions[choice - 1] : null;
       
       const sessionWithGender = { ...session, gender: profGender };
-      return routeToNextProfileQuestion(sessionWithGender);
+      return routeToNextProfileQuestion(sessionWithGender, 'gender');
     
     case 'B5_PROFILE_LGBTQ': {
       // 1 = Yes, 2 = No, 3 = Prefer not to say
-      const lgbtqValue = choice === 1 ? true : false;
+      const lgbtqValue = choice === 1 ? true : (choice === 2 ? false : null);
       if (lgbtqValue === true) {
         return {
           ...phrase('LGBTQ_SPECIALIST_ASK', session.isSupporter),
@@ -1311,7 +1314,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
         };
       }
       const sessionWithLgbtq = { ...session, lgbtq: lgbtqValue };
-      const lgbtqResult = routeToNextProfileQuestion(sessionWithLgbtq);
+      const lgbtqResult = routeToNextProfileQuestion(sessionWithLgbtq, 'lgbtq');
       return {
         ...lgbtqResult,
         stateUpdates: {
@@ -1324,7 +1327,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
     case 'LGBTQ_SPECIALIST_ASK': {
       const lgbtqPref = choice === 1 ? 'Specialist first' : 'Show both';
       const sessionWithSpec = { ...session, lgbtqServicePreference: lgbtqPref };
-      const specResult = routeToNextProfileQuestion(sessionWithSpec);
+      const specResult = routeToNextProfileQuestion(sessionWithSpec, 'lgbtq');
       return {
         ...specResult,
         stateUpdates: {
@@ -1339,7 +1342,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
       const convictions = choice ? convictionOptions[choice - 1] : null;
       
       const sessionWithConvictions = { ...session, criminalConvictions: convictions };
-      return routeToNextProfileQuestion(sessionWithConvictions);
+      return routeToNextProfileQuestion(sessionWithConvictions, 'convictions');
     
     case 'IMMIGRATION_STATUS_ASK': {
       const immigrationMap: Record<number, { status: string; funds: string | null }> = {
@@ -1362,7 +1365,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
         immigrationStatus,
         publicFunds,
       };
-      const result = routeToNextProfileQuestion(sessionWithImmigration);
+      const result = routeToNextProfileQuestion(sessionWithImmigration, 'nrpf');
       return {
         ...result,
         stateUpdates: {
@@ -1375,10 +1378,10 @@ export function processInput(session: SessionState, input: string): RoutingResul
     
     case 'B5_PROFILE_CHILDREN':
       // 1 = Yes, 2 = No, 3 = Prefer not to say
-      const childrenValue = choice === 1 ? true : false;
+      const childrenValue = choice === 1 ? true : (choice === 2 ? false : null);
       
       const sessionWithChildren = { ...session, hasChildren: childrenValue };
-      return routeToNextProfileQuestion(sessionWithChildren);
+      return routeToNextProfileQuestion(sessionWithChildren, 'children');
     
     case 'B6_HOMELESSNESS_STATUS':
       const homeless = choice === 1;

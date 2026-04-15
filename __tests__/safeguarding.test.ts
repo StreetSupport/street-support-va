@@ -743,7 +743,7 @@ describe('LGBTQ+ Specialist Follow-up', () => {
     expect(result.stateUpdates.lgbtq).toBe(false);
   });
 
-  test('answering Prefer not to say to LGBTQ sets lgbtq false and skips specialist ask', () => {
+  test('answering Prefer not to say to LGBTQ sets lgbtq null and skips specialist ask', () => {
     const session = sessionAt('B5_PROFILE_LGBTQ', {
       supportNeed: 'Emergency Housing',
       ageCategory: '25+',
@@ -754,7 +754,7 @@ describe('LGBTQ+ Specialist Follow-up', () => {
     const result = select(session, 3); // Prefer not to say
     expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_LGBTQ');
     expect(result.stateUpdates.currentGate).not.toBe('LGBTQ_SPECIALIST_ASK');
-    expect(result.stateUpdates.lgbtq).toBe(false);
+    expect(result.stateUpdates.lgbtq).toBeNull();
   });
 
 });
@@ -805,6 +805,18 @@ describe('Null-Check Gate Fix', () => {
     });
     const result = select(session, 3); // Prefer not to say
     // Must NOT loop back to B5_PROFILE_CHILDREN — should advance to terminal
+    expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_CHILDREN');
+  });
+
+  test('PNTS through B5_PROFILE_CHILDREN does not re-trigger (regression)', () => {
+    const session = sessionAt('B5_PROFILE_CHILDREN', {
+      supportNeed: 'Financial',
+      ageCategory: '25+',
+      localAuthority: 'Birmingham',
+      immigrationStatus: 'British',
+      publicFunds: 'Yes',
+    });
+    const result = select(session, 3); // Prefer not to say
     expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_CHILDREN');
   });
 
