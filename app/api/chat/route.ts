@@ -9,7 +9,8 @@ import {
   processInput,
   getFirstMessage,
   parseUserInput,
-  processLocationInput
+  processLocationInput,
+  interceptUnder16Age
 } from '@/lib/stateMachine';
 import { getPhrase } from '@/lib/phrasebank';
 
@@ -203,7 +204,7 @@ export async function POST(request: NextRequest) {
     // Decode or create session
     let session: SessionState = decodeState(encodedState) || createSession(crypto.randomUUID());
     
-    console.log(`[VA] Gate: ${session.currentGate}, Input: "${message.substring(0, 50)}..."`);
+    console.log(`[VA] Gate: ${session.currentGate}`);
     
     // INIT -> return first message (crisis gate)
     if (session.currentGate === 'INIT') {
@@ -234,9 +235,24 @@ export async function POST(request: NextRequest) {
       });
     }
     
+    // Mid-conversation under-16 safeguarding intercept.
+    // Runs at every gate, not just early gates. Must fire BEFORE any Claude
+    // classifier (checkScope, detectAdviceQuestion) to ensure safeguarding
+    // is never gated behind an async API call.
+    const under16Exit = interceptUnder16Age(session, message);
+    if (under16Exit) {
+      session = { ...session, ...under16Exit.stateUpdates };
+      return NextResponse.json({
+        s: encodeState(session),
+        m: under16Exit.text,
+        o: under16Exit.options,
+        e: under16Exit.sessionEnded,
+      });
+    }
+
     // Get current phrase for option parsing
     const currentPhrase = getPhrase(session.currentGate, session.isSupporter);
-    
+
     // Check for out-of-scope requests at early gates
     const earlyGates = ['GATE0_CRISIS_DANGER', 'GATE1_INTENT', 'B4_ADVICE_TOPIC_SELECTION', 'ADVICE_BRIDGE'];
     if (earlyGates.includes(session.currentGate) && message.length > 5 && !/^\d+$/.test(message.trim())) {
@@ -250,18 +266,18 @@ export async function POST(request: NextRequest) {
           e: false
         });
       }
-      
+
       // Check for advice questions (tangent handling)
       const advicePhraseKey = await detectAdviceQuestion(message);
       if (advicePhraseKey) {
         console.log(`[VA] Advice tangent detected: ${advicePhraseKey}`);
         const adviceContent = getPhrase(advicePhraseKey, session.isSupporter);
         const adviceBridge = getPhrase('ADVICE_BRIDGE', session.isSupporter);
-        
+
         if (adviceContent) {
           // Set gate to ADVICE_BRIDGE so next response is handled correctly
           session.currentGate = 'ADVICE_BRIDGE';
-          
+
           // Return advice content with bridge options
           return NextResponse.json({
             s: encodeState(session),
@@ -272,7 +288,7 @@ export async function POST(request: NextRequest) {
         }
       }
     }
-    
+
     // Try to parse user input
     let parsed = parseUserInput(message, currentPhrase?.options);
     

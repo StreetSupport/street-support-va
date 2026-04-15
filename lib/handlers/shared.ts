@@ -57,23 +57,22 @@ export function buildUnder16Exit(session: SessionState): RoutingResult {
     text += `Thank you for reaching out. Because you are under 16, there are specialist services that can help keep you safe. It takes courage to ask for help, and you've done the right thing.\n\n`;
   }
 
-  // Local Children's Services (if we have LA info)
-  if (childServices) {
-    text += `CHILDREN'S SERVICES\n`;
-    text += `${childServices.name}\n`;
-    if (childServices.phoneOOH) {
-      text += `${childServices.phone} (out of hours: ${childServices.phoneOOH})\n`;
-    } else {
-      text += `${childServices.phone}\n`;
-    }
-    text += `${childServices.website}\n`;
-    text += `They can talk through what's happening and help work out the best support\n\n`;
-  } else {
-    text += `CHILDREN'S SERVICES\n`;
-    text += `Local council Children's Services\n`;
-    text += `https://www.gov.uk/find-local-council\n`;
-    text += `They can talk through what's happening and help work out the best support\n\n`;
+  // Local Children's Services — LA must be known by this point.
+  // All call sites should route through CRISIS_UNDER16_LOCATION first
+  // if LA is not yet set, so this is never reached without a valid LA.
+  if (!childServices) {
+    throw new Error(`buildUnder16Exit called without a valid local authority (got: ${JSON.stringify(session.localAuthority)}). Route to CRISIS_UNDER16_LOCATION first.`);
   }
+
+  text += `CHILDREN'S SERVICES\n`;
+  text += `${childServices.name}\n`;
+  if (childServices.phoneOOH) {
+    text += `${childServices.phone} (out of hours: ${childServices.phoneOOH})\n`;
+  } else {
+    text += `${childServices.phone}\n`;
+  }
+  text += `${childServices.website}\n`;
+  text += `They can talk through what's happening and help work out the best support\n\n`;
 
   // Childline
   text += `SPECIALIST HELPLINE\n`;

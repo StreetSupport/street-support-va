@@ -137,9 +137,15 @@ export function handleC3Q3Age(session: SessionState, choice: number | null): Rou
   const detailedAgeOptions = ['Under 16', '16-17', '18-20', '21-24', '25+'];
   const detailedAge = choice ? detailedAgeOptions[choice - 1] : null;
 
-  // Under 16 safeguarding
+  // Under 16 safeguarding — exit directly if LA known, otherwise ask for area first
   if (choice === 1) {
-    return buildUnder16Exit(session);
+    if (session.localAuthority) {
+      return buildUnder16Exit(session);
+    }
+    return {
+      ...phrase('CRISIS_UNDER16_LOCATION', session.isSupporter),
+      stateUpdates: { currentGate: 'CRISIS_UNDER16_LOCATION' }
+    };
   }
 
   return {

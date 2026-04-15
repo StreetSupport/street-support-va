@@ -229,23 +229,32 @@ export function handleCrisisDanger(session: SessionState, choice: number | null)
         ...phrase('CRISIS_FIRE_FLOOD_LOCATION', session.isSupporter),
         stateUpdates: { currentGate: 'CRISIS_FIRE_FLOOD_LOCATION' }
       };
-    case 7: // None apply
-      return phrase('GATE1_INTENT', session.isSupporter);
+    case 7: // None apply — collect location before intent
+      return phrase('LOCATION_CONSENT', session.isSupporter);
     default:
       return phrase('GATE0_CRISIS_DANGER', session.isSupporter);
   }
 }
 
 export function handleCrisisUnder16Location(session: SessionState, choice: number | null): RoutingResult {
-  // Options: 1=Wolverhampton, 2=Birmingham, 3=Coventry, 4=Dudley, 5=Sandwell, 6=Solihull, 7=Walsall, 8=Somewhere else, 9=Prefer not to say
+  // Options: 1=Wolverhampton, 2=Birmingham, 3=Coventry, 4=Dudley, 5=Sandwell, 6=Solihull, 7=Walsall, 8=Somewhere else
   const under16LAs = ['Wolverhampton', 'Birmingham', 'Coventry', 'Dudley', 'Sandwell', 'Solihull', 'Walsall'];
   if (choice && choice >= 1 && choice <= 7) {
     const la = under16LAs[choice - 1];
     return buildUnder16Exit({ ...session, localAuthority: la });
-  } else {
-    // Somewhere else or prefer not to say - show generic
-    return buildUnder16Exit(session);
   }
+  // Somewhere else — no LA to look up, so surface Childline directly
+  const exit = phrase('CRISIS_UNDER16_SOMEWHERE_ELSE', session.isSupporter);
+  return {
+    ...exit,
+    stateUpdates: {
+      currentGate: 'SESSION_END',
+      safeguardingTriggered: true,
+      safeguardingType: 'UNDER_16',
+      timestampEnd: new Date().toISOString(),
+    },
+    sessionEnded: true,
+  };
 }
 
 export function handleCrisisFireFloodLocation(session: SessionState, choice: number | null): RoutingResult {
