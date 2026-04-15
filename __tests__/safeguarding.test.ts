@@ -117,10 +117,10 @@ describe('Crisis Gate', () => {
     expect(result.options?.[4]).toContain('Sexual violence');
   });
 
-  test('option 7 (none) proceeds to GATE1_INTENT', () => {
+  test('option 7 (none) proceeds to LOCATION_CONSENT', () => {
     const session = sessionAt('GATE0_CRISIS_DANGER');
     const result = select(session, 7);
-    expect(result.stateUpdates.currentGate).toBe('GATE1_INTENT');
+    expect(result.stateUpdates.currentGate).toBe('LOCATION_CONSENT');
   });
 
 });
@@ -143,7 +143,7 @@ describe('Under 16', () => {
   });
 
   test('response contains Childline number', () => {
-    const session = sessionAt('B3_AGE_CATEGORY');
+    const session = sessionAt('B3_AGE_CATEGORY', { localAuthority: 'Birmingham' });
     const result = select(session, 1);
     expect(result.text).toContain('0800 1111');
   });
@@ -948,22 +948,46 @@ describe('Mid-Conversation Under-16 Detection', () => {
 
   describe('Mid-conversation interception', () => {
     test('triggers regardless of prior B3 age gate selection', () => {
-      // User has already passed B3 declaring 25+ — trigger must still fire mid-flow
+      // User has already passed B3 declaring 25+ — trigger must still fire mid-flow.
+      // No LA set, so intercept routes to CRISIS_UNDER16_LOCATION (asks for area).
       const session = sessionAt('B7_HOMELESS_SLEEPING_SITUATION', {
         ageCategory: '25 or over',
         homeless: true,
       });
       const result = interceptUnder16Age(session, "I'm 14");
       expect(result).not.toBeNull();
-      expect(result?.sessionEnded).toBe(true);
+      expect(result?.stateUpdates?.currentGate).toBe('CRISIS_UNDER16_LOCATION');
       expect(result?.stateUpdates?.safeguardingType).toBe('UNDER_16');
     });
 
-    test('session terminates on trigger — user cannot continue original pathway', () => {
-      const session = sessionAt('B5_PROFILE_GENDER', { ageCategory: '25 or over' });
+    test('session terminates on trigger when LA is set', () => {
+      const session = sessionAt('B5_PROFILE_GENDER', {
+        ageCategory: '25 or over',
+        localAuthority: 'Birmingham',
+      });
       const result = interceptUnder16Age(session, "I'm in year 9");
       expect(result?.sessionEnded).toBe(true);
       expect(result?.stateUpdates?.currentGate).toBe('SESSION_END');
+    });
+
+    test('routes to CRISIS_UNDER16_LOCATION on trigger when LA is not set', () => {
+      const session = sessionAt('B5_PROFILE_GENDER', { ageCategory: '25 or over' });
+      const result = interceptUnder16Age(session, "I'm in year 9");
+      expect(result).not.toBeNull();
+      expect(result?.sessionEnded).toBeUndefined();
+      expect(result?.stateUpdates?.currentGate).toBe('CRISIS_UNDER16_LOCATION');
+    });
+
+    test('intercept fires at GATE0_CRISIS_DANGER before any classifier would run', () => {
+      // "I'm 14" at the crisis gate must hit the safeguarding intercept,
+      // not checkScope or detectAdviceQuestion (which are async Claude calls).
+      // The intercept is a pure synchronous function — if it returns non-null
+      // at GATE0, the classifier is never reached in route.ts.
+      const session = sessionAt('GATE0_CRISIS_DANGER');
+      const result = interceptUnder16Age(session, "I'm 14");
+      expect(result).not.toBeNull();
+      expect(result?.stateUpdates?.currentGate).toBe('CRISIS_UNDER16_LOCATION');
+      expect(result?.stateUpdates?.safeguardingType).toBe('UNDER_16');
     });
 
     test('non-trigger input returns null (does not intercept)', () => {
