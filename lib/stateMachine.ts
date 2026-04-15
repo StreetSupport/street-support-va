@@ -937,7 +937,7 @@ export function detectUnder16Age(input: string): AgeTriggerResult {
 }
 
 // Categorical audit log for safeguarding triggers. Never includes raw user input.
-export function logUnder16Trigger(
+function logUnder16Trigger(
   sessionId: string,
   fromGate: string,
   trigger: { type: string; code: string }
@@ -962,16 +962,28 @@ export function interceptUnder16Age(session: SessionState, input: string): Routi
 
   logUnder16Trigger(session.sessionId, session.currentGate, trigger);
 
-  // Prepend a plain-language explanation to the standard under-16 exit text
-  // so the user understands why the conversation is being redirected.
-  const exit = buildUnder16Exit(session);
-  const explanation = session.isSupporter
-    ? `From what you've shared, it sounds like the person you're supporting may be under 16. Because of that, I'm going to point you to specialist services for young people instead — they can help in ways I can't.\n\n`
-    : `From what you just said, it sounds like you may be under 16. Because of that, I'm going to point you to specialist services for young people instead — they can help in ways I can't.\n\n`;
+  const prefix = getPhrase('UNDER16_INTERCEPT_PREFIX', session.isSupporter);
+  const explanation = prefix ? `${prefix.text}\n\n` : '';
 
+  // If LA is already known, exit directly with localised Children's Services info.
+  // Otherwise, route to CRISIS_UNDER16_LOCATION to ask for their area first.
+  if (session.localAuthority) {
+    const exit = buildUnder16Exit(session);
+    return {
+      ...exit,
+      text: explanation + exit.text,
+    };
+  }
+
+  const locationPhrase = getPhrase('CRISIS_UNDER16_LOCATION', session.isSupporter);
   return {
-    ...exit,
-    text: explanation + exit.text,
+    text: explanation + (locationPhrase?.text || ''),
+    options: locationPhrase?.options,
+    stateUpdates: {
+      currentGate: 'CRISIS_UNDER16_LOCATION',
+      safeguardingTriggered: true,
+      safeguardingType: 'UNDER_16',
+    },
   };
 }
 
@@ -1030,8 +1042,8 @@ export function processInput(session: SessionState, input: string): RoutingResul
           };
         case 3: // Specific org
           return {
-            ...phrase('B1_LOCAL_AUTHORITY', session.isSupporter),
-            stateUpdates: { currentGate: 'B1_LOCAL_AUTHORITY', intentType: 'ORGANISATION' }
+            ...phrase('PREFERRED_NAME_ASK', session.isSupporter),
+            stateUpdates: { currentGate: 'PREFERRED_NAME_ASK', intentType: 'ORGANISATION' }
           };
         default:
           return phrase('GATE1_INTENT', session.isSupporter);
@@ -1085,9 +1097,8 @@ export function processInput(session: SessionState, input: string): RoutingResul
     case 'GATE2_ROUTE_SELECTION':
       const routeType = choice === 1 ? 'FULL' : 'QUICK';
       return {
-        ...phrase('LOCATION_CONSENT', session.isSupporter),
-        stateUpdates: { currentGate: 'LOCATION_CONSENT', routeType },
-        responseType: 'location_consent'
+        ...phrase('PREFERRED_NAME_ASK', session.isSupporter),
+        stateUpdates: { currentGate: 'PREFERRED_NAME_ASK', routeType }
       };
     
     // ========================================
@@ -1125,8 +1136,8 @@ export function processInput(session: SessionState, input: string): RoutingResul
       }
       
       return {
-        ...phrase('PREFERRED_NAME_ASK', session.isSupporter),
-        stateUpdates: { currentGate: 'PREFERRED_NAME_ASK', localAuthority: la }
+        ...phrase('GATE1_INTENT', session.isSupporter),
+        stateUpdates: { currentGate: 'GATE1_INTENT', localAuthority: la }
       };
 
     // ========================================
@@ -1196,10 +1207,16 @@ export function processInput(session: SessionState, input: string): RoutingResul
     case 'B3_AGE_CATEGORY':
       const ageOptions = ['Under 16', '16-17', '18-24', '25 or over'];
       const age = choice ? ageOptions[choice - 1] : null;
-      
-      // Under 16 safeguarding exit
+
+      // Under 16 safeguarding — exit directly if LA known, otherwise ask for area first
       if (choice === 1) {
-        return buildUnder16Exit(session);
+        if (session.localAuthority) {
+          return buildUnder16Exit(session);
+        }
+        return {
+          ...phrase('CRISIS_UNDER16_LOCATION', session.isSupporter),
+          stateUpdates: { currentGate: 'CRISIS_UNDER16_LOCATION' }
+        };
       }
       
       // Youth flag for 16-17
