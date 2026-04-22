@@ -60,8 +60,19 @@ export function buildUnder16Exit(session: SessionState): RoutingResult {
   // Local Children's Services — LA must be known by this point.
   // All call sites should route through CRISIS_UNDER16_LOCATION first
   // if LA is not yet set, so this is never reached without a valid LA.
+  // If it IS reached without one, log the error and recover by asking for area.
   if (!childServices) {
-    throw new Error(`buildUnder16Exit called without a valid local authority (got: ${JSON.stringify(session.localAuthority)}). Route to CRISIS_UNDER16_LOCATION first.`);
+    console.error(`[VA] buildUnder16Exit called without valid LA (got: ${JSON.stringify(session.localAuthority)}, sessionId: ${session.sessionId}). Recovering to CRISIS_UNDER16_LOCATION.`);
+    const locationPhrase = getPhrase('CRISIS_UNDER16_LOCATION', isSupporter);
+    return {
+      text: locationPhrase?.text || '',
+      options: locationPhrase?.options,
+      stateUpdates: {
+        currentGate: 'CRISIS_UNDER16_LOCATION' as GateType,
+        safeguardingTriggered: true,
+        safeguardingType: 'UNDER_16',
+      },
+    };
   }
 
   text += `CHILDREN'S SERVICES\n`;

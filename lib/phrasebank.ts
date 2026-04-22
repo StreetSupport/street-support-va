@@ -1479,7 +1479,7 @@ Childline
 https://www.childline.org.uk
 You can call or chat online about anything — they'll listen and help you work out what to do next.
 
-You can also talk to any trusted adult — a teacher, a family member, or your local council's Children's Services team.
+You can also talk to any trusted adult — a teacher, a family member, or your local council's Children's Services team. You can find your local council at https://www.gov.uk/find-local-council
 
 ---
 If you are in immediate danger, call 999.`
@@ -1500,7 +1500,7 @@ NSPCC Helpline (for adults)
 https://www.nspcc.org.uk/keeping-children-safe/reporting-abuse/
 For adults who are worried about a child.
 
-They can also be supported by a trusted adult — a teacher, a family member, or their local council's Children's Services team.
+They can also be supported by a trusted adult — a teacher, a family member, or their local council's Children's Services team. You can find their local council at https://www.gov.uk/find-local-council
 
 ---
 If they are in immediate danger, call 999.`
