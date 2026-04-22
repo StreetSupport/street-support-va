@@ -144,6 +144,7 @@ const adviceSubcategoryMap: Record<string, string[]> = {
 const needSubcategoryConstraints: Record<string, Record<string, string[]>> = {
   'Health': { 'support': ['mental-health'] },
   'Work': { 'support': ['employment'] },
+  'Financial': { 'support': ['debt-financial-problems', 'money-management'] },
 };
 
 // Needs where profile (gender, age, LGBTQ+, etc.) should affect filtering

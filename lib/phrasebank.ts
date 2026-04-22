@@ -1448,6 +1448,34 @@ What is their gender?
     options: ["Wolverhampton", "Birmingham", "Coventry", "Dudley", "Sandwell", "Solihull", "Walsall", "Somewhere else"]
   },
 
+  CRISIS_FIRE_FLOOD_LOCATION: {
+    text: `I'm so sorry you're dealing with this. So I can give you the right council emergency contact, please tell me which area you're in.
+
+1. Wolverhampton
+2. Birmingham
+3. Coventry
+4. Dudley
+5. Sandwell
+6. Solihull
+7. Walsall
+8. Somewhere else`,
+    options: ["Wolverhampton", "Birmingham", "Coventry", "Dudley", "Sandwell", "Solihull", "Walsall", "Somewhere else"]
+  },
+
+  CRISIS_FIRE_FLOOD_LOCATION__SUPPORTER: {
+    text: `I'm so sorry they're dealing with this. So I can give you the right council emergency contact for them, please tell me which area they're in.
+
+1. Wolverhampton
+2. Birmingham
+3. Coventry
+4. Dudley
+5. Sandwell
+6. Solihull
+7. Walsall
+8. Somewhere else`,
+    options: ["Wolverhampton", "Birmingham", "Coventry", "Dudley", "Sandwell", "Solihull", "Walsall", "Somewhere else"]
+  },
+
   CRISIS_UNDER16_LOCATION__SUPPORTER: {
     text: `Thank you for letting me know. So I can give you the right Children's Services to contact for them, please tell me which area they're in.
 

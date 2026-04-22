@@ -795,19 +795,6 @@ describe('Null-Check Gate Fix', () => {
     expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_CHILDREN');
   });
 
-  test('User who prefers not to say on children question progresses past the question', () => {
-    const session = sessionAt('B5_PROFILE_CHILDREN', {
-      supportNeed: 'Financial',
-      ageCategory: '25+',
-      localAuthority: 'Birmingham',
-      immigrationStatus: 'British',
-      publicFunds: 'Yes',
-    });
-    const result = select(session, 3); // Prefer not to say
-    // Must NOT loop back to B5_PROFILE_CHILDREN — should advance to terminal
-    expect(result.stateUpdates.currentGate).not.toBe('B5_PROFILE_CHILDREN');
-  });
-
   test('PNTS through B5_PROFILE_CHILDREN does not re-trigger (regression)', () => {
     const session = sessionAt('B5_PROFILE_CHILDREN', {
       supportNeed: 'Financial',
