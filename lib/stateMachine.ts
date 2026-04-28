@@ -226,7 +226,7 @@ const needProfileRequirements: Record<string, string[]> = {
  * and what profile data has already been collected.
  * Returns terminal output when all required fields are collected.
  */
-function routeToNextProfileQuestion(session: SessionState, after?: string): RoutingResult {
+function routeToNextProfileQuestion(session: SessionState, after?: 'age' | 'gender' | 'lgbtq' | 'convictions' | 'nrpf' | 'children'): RoutingResult {
   const need = session.supportNeed || '';
   const required = needProfileRequirements[need] || [];
 
