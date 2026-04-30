@@ -1,7 +1,7 @@
 # Street Support VA: Implementation Backlog
 
 **Purpose:** Track what we should be considering working on next.
-**Last updated:** 22 April 2026
+**Last updated:** 30 April 2026
 
 ---
 
@@ -15,14 +15,16 @@
 **Status:** Merged to main. 97/97 tests passing.
 **URL:** https://github.com/StreetSupport/street-support-va/pull/17
 
-### PR #18: In progress — tidy-up + items 55, 56
-**Status:** Build in progress 22 Apr 2026. 96/96 tests passing. Not yet committed.
+### PR #18: Merged — 29 April 2026
+**Status:** Merged to main. 96/96 tests passing.
+**URL:** https://github.com/StreetSupport/street-support-va/pull/18
+
+### PR #19: Ready to commit — mechanical safeguarding changes
+**Status:** Built and tested 30 Apr 2026. 96/96 tests passing. Not yet committed.
 **Scope:**
-- `after` param on `routeToNextProfileQuestion` typed as union (`'age' | 'gender' | 'lgbtq' | 'convictions' | 'nrpf' | 'children'`) — compile-time protection against typos (James PR #17 comment)
-- Duplicate PNTS children test removed — PR #17 regression test kept as sole test (James PR #17 comment)
-- Item 55: Financial subcategory constraint added to `needSubcategoryConstraints` — `'Financial': { 'support': ['debt-financial-problems', 'money-management'] }`
-- Item 56: `CRISIS_FIRE_FLOOD_LOCATION` and `CRISIS_FIRE_FLOOD_LOCATION__SUPPORTER` phrasebank entries added
-- `VA_BACKLOG.md` included in commit (James PR #17 request — item 59 visible)
+- GATE0 case 2 (`Under 16`) missing `safeguardingTriggered: true` and `safeguardingType: 'UNDER_16'` — fixed in `crisis.ts`
+- Phrasebank selector (`getPhrase` / `phrase`) widened to accept `userType` (`'SELF' | 'SUPPORTER' | 'PROFESSIONAL' | null | boolean`) — enables `__PROFESSIONAL` phrasebank variants. No `__PROFESSIONAL` entries added yet (language sign-off pending — see item 57 and language review document)
+- `VA_BACKLOG.md` included in commit
 
 ---
 
@@ -53,8 +55,8 @@ This log records Tier 2 and Tier 3 governance decisions for trustee visibility. 
 
 ### 3. Mid-conversation age detection
 **Priority:** High
-**Status:** Complete. PR #16 merged 15 Apr 2026.
-**Post-merge governance outstanding:** Update Safeguarding Contract (add to main body, remove from Approved Design Changes section), update Safeguarding Governance Note, update Mid-Conversation Age Detection Design Note v1.1 (LA-aware routing and generic fallback removal). Trustee-Accessible Safeguarding Boundary Summary remains a standalone approval paper — do not absorb.
+**Status:** Complete. PR #16 merged 15 Apr 2026. Post-merge governance docs updated 15 Apr 2026.
+**Post-merge governance completed:** Design Note v1.2 produced (Section 14 implementation record added). Safeguarding Contract v3.2 produced (test count updated, mid-conversation age detection moved from pending to implemented). Safeguarding Governance Note v3.3 produced (test count updated, mid-conversation age detection row added to test table). Trustee-Accessible Safeguarding Boundary Summary remains a standalone approval paper.
 
 ---
 
@@ -82,6 +84,7 @@ This log records Tier 2 and Tier 3 governance decisions for trustee visibility. 
 
 #### C1. Care leavers (18–20): previously_looked_after field missing
 **Priority:** High
+**Status:** Not started. Scoped Feb 2026. Launch blocker — not yet progressed.
 **Issue:** `previously_looked_after` field does not exist in the codebase. WatsonX had this as a routing variable. Codebase only has generic "contact Leaving Care team" text (stateMachine.ts:942) with no LA-specific lookup.
 **Required:**
 - Add `previously_looked_after` to UserProfile (types.ts)
@@ -331,7 +334,11 @@ This document is the operational companion to the validation script (item 35). T
 
 ### 46. 'Prefer not to say' responses should store `null`, not `false`
 **Priority:** Low
-**Status:** Built — 97/97 tests passing (15 Apr 2026). In PR #17, awaiting commit and James review.
+**Status:** Complete — PR #17 merged 22 Apr 2026.
+**Issue:** 'Prefer not to say' selections mapped to `false`, collapsing two distinct states: user said "no" vs user declined to answer. Broke the type integrity rule (boolean fields hold `true`, `false`, or `null` only).
+**Audit findings (11 Apr 2026):** Two fields needed fixing: `lgbtq` (stateMachine.ts:1204) and `hasChildren` (stateMachine.ts:1276). `housingOptionsInvolvement` already correct. Fix exposed a routing bug: `routeToNextProfileQuestion` used `=== null` to decide whether to ask a question — PNTS `null` was indistinguishable from "never asked" `null`, causing hasChildren to re-ask on PNTS selection.
+**James's direction (13 Apr 2026):** Pass `after: '<field>'` from the caller into `routeToNextProfileQuestion` so the router knows what was just handled rather than inferring from null state. Avoids need for a separate `askedGates` Set.
+**Implementation:** 9 call sites audited. Call sites 3–9 pass `after: '<field>'` for the field just handled. Call sites 1–2 (initial routing) stay parameter-free. Both PNTS fields now store `null`. Regression test added: PNTS through B5_PROFILE_CHILDREN does not re-trigger the gate. `after` param subsequently typed as union (`'age' | 'gender' | 'lgbtq' | 'convictions' | 'nrpf' | 'children'`) in PR #18 — compile-time protection against typos.
 **Issue:** 'Prefer not to say' selections currently map to `false`, collapsing two distinct states: user said "no" vs user declined to answer. No routing is affected today, but it breaks the type integrity rule (boolean fields hold `true`, `false`, or `null` only) and obscures the distinction if routing ever needs to differentiate.
 **Audit findings (11 Apr 2026):** Two fields need fixing: `lgbtq` (stateMachine.ts:1204) and `hasChildren` (stateMachine.ts:1276). `housingOptionsInvolvement` already correct. String fields all correct.
 **James's direction (13 Apr 2026):** Pass `after: '<field>'` from the caller into `routeToNextProfileQuestion`. Implemented: 9 call sites audited, call sites 3–9 pass `after`, call sites 1–2 stay parameter-free. Both PNTS fields now store `null`. Regression test added.
@@ -441,7 +448,7 @@ ChatWidget calls `/api/location`, so this file is unreachable dead code. Confirm
 
 ### 23/28/40. Reporting format and workflow for Eliz
 **Priority:** Medium
-**Status:** Blocked pending Monday team meeting (31 Mar 2026). Matt to scope what Eliz currently does manually and what SSN's automated outputs can replace or feed into.
+**Status:** On Matt's to-do list (Apr 2026). Team meeting (31 Mar 2026) has passed — not yet progressed. To be explored as a priority conversation with Eliz.
 **Scope:** Three things that converge into one conversation:
 1. **Gap reporting** (was item 23): How NO_SUITABLE_PATHWAY signals (zero-match data by category and LA) reach Eliz. Format, frequency, delivery mechanism.
 2. **Human review queue** (was item 28): Excel format built and ready (three-tab: Instructions, Review Queue, Summary). Confirming Eliz is the right reviewer, format works for her, delivery frequency.
@@ -453,29 +460,43 @@ ChatWidget calls `/api/location`, so this file is unreachable dead code. Confirm
 
 ## Prevention Pathway
 
-### 24. Prevention pathway — dedicated terminal
+### 24. Prevention pathway — conversational architecture
 **Priority:** High (user-facing gap)
-**Status:** Scoped 25 Mar 2026. Ready to build. No external dependencies.
-**Issue:** Prevention users (at risk of losing home, not yet homeless) get the same housing terminal as homeless users. The only difference is one line of council advice wording. The six prevention fields collected (reason, urgency, children, employment, prior support, safeguarding signals) are stored but never used for service matching or terminal output. No debt advice, tenancy support, Citizens Advice, or financial help is surfaced.
-**Required:** New `buildPreventionTerminal(session)` function that replaces `buildTerminalServices()` for prevention users.
+**Status:** Design note produced (Prevention Pathway Design Note v1.0, 28 April 2026). Awaiting James review before build begins. Original scoping (profiling-shaped terminal) superseded.
+**Design document:** Prevention Pathway Design Note v1.0 — replaces the original `buildPreventionTerminal` scoping. Architecture is a single conversational gate (`PREVENTION_CONVERSATION`) with four routing modes, three governing questions, and a buttons-and-text input pattern at every turn.
 
-**Terminal sections:**
-1. YOUR FIRST STEP — Council Housing Options with prevention framing. Urgency shapes language strength.
-2. ADVICE AND SUPPORT (reason-driven): Rent arrears/eviction → Shelter legal + Citizens Advice + local debt/legal via service matcher. Mortgage → Shelter mortgage page + StepChange. Financial difficulties → Turn2Us + StepChange + local financial services. Family/friends → Shelter advice + mediation if available. Citizens Advice as floor for all reasons.
-3. MONEY AND DEBT SUPPORT (shown for financial/arrears/mortgage reasons): StepChange, CAP UK, Turn2Us benefits calculator, local debt services via matcher (subcategories: debt-financial-problems, money-management).
-4. IF THINGS GET WORSE: what to do if served a formal notice, Shelter helpline, council Housing Options with crisis framing.
-5. Conditional sections (LGBTQ+, NRPF, youth) — same logic as housing terminal where profile matches.
+**Architecture summary:**
+Three governing questions form the routing spine — pathway position (pre-risk, risk-emerging, imminent, post-housing), protective factors (financial, mental health, physical health, housing, safety, access, social), and housing imminency (imminent/not imminent/not sure). These are a technical state model; user-facing wording uses grounded situational language. Questions are asked only when needed — the system asks the minimum to route.
 
-**How collected data shapes output:**
-- preventionReason → selects which advice sections appear
-- preventionUrgency → shapes framing strength (urgent vs planning ahead)
-- preventionChildren → surfaces children-specific framing where relevant
-- preventionEmployment → surfaces employment support (Jobcentre Plus, NCS) if unemployed
-- preventionPriorSupport → acknowledges prior contact or emphasises first steps
+Four routing modes:
+- Prevention upstream — no housing in view, factor-specific service cards surfaced
+- Prevention at-risk — housing in view but not imminent, factor cards plus universal floor (council, Citizens Advice, Shelter)
+- Crisis — imminent housing loss, hands off to existing crisis routing unchanged
+- Post-housing — hands off to existing housing pathway unchanged
 
-**Implementation:** One PR, 3-4 commits. New terminal builder function, new phrasebank entries, wire existing service matcher categories (debt, legal, financial) into prevention terminal, replace buildTerminalServices() call for prevention users. Tests: prevention user with each reason gets appropriate services; prevention user does not see outreach/navigator orgs.
-**Escalation exits:** Already working correctly (urgent+eviction → legal emergency, urgent+children → children risk, health crisis → NHS). No changes needed.
-**Note:** Service matcher categories for debt, legal, financial already exist but are only reachable via the Advice path at B5. This work makes them reachable from prevention.
+AI layer is reduced to clarity assessment of free text and phrasebank selection only. All routing follows explicit user input (button or confirmed free text). AI never routes from inference.
+
+Endpoint surfacing: cards alongside the conversation (not a terminal page), collapsible, persistent within the session.
+
+**Implementation phasing (three PRs):**
+- Phase 1: Architecture skeleton, button-only. Gate, four-mode state model, three questions, session state extensions, phrasebank library structure, entry/exit/mode transitions wired. No free text, no AI in this phase.
+- Phase 2: Free text input with AI clarity check. Clear text routes as equivalent button; unclear text triggers clarification with buttons.
+- Phase 3: Conversation polish. Acknowledgement/next-step/clarification libraries, card persistence, step-back if scoped, UI polish, accessibility re-audit.
+
+**Two open questions for James:**
+1. Phrasebank library structure — each entry needs user-facing label, technical mapping, and context. Does this live in the existing phrasebank file or alongside it?
+2. Mid-conversation step-back — does the append-only `preventionFactorsDisclosed` pattern support revisiting an earlier turn? May defer if loop-back comes naturally from conversation cycling.
+
+**Session state extensions needed:** `preventionPathwayPosition`, `preventionFactorsDisclosed`, `preventionHousingImminency`, `preventionMode`, `preventionFactorsEngaged`, `preventionFactorsDeclined`, `preventionTurnCount`, `preventionExitMode`. Existing prevention fields deprecated.
+
+**Governance documents needed after Phase 1:**
+- Prevention Pathway Endpoints Contract (revised — original draft is profiling-shaped, needs rewriting)
+- AI Usage Boundaries Contract amendment (real-time clarity assessment and phrasebank selection — Tier 2 with trustee sight)
+- Phrasebank library governance note
+- VA Analytics Contract amendment (prevention-specific events)
+- Safeguarding Contract review (confirm existing mid-conversation triggers cover prevention mode)
+
+**Compatibility:** Crisis gate unchanged. No-typing-required preserved (buttons at every turn). Act-on-stated preserved (AI never routes from inference). Quick route compatible. Mid-conversation safeguarding triggers hold. ChatWidget requires material UI change (conversation foreground, cards alongside). WCAG re-audit needed.
 
 ---
 
@@ -505,7 +526,7 @@ ChatWidget calls `/api/location`, so this file is unreachable dead code. Confirm
 
 ### 41. WCAG 2.1 AA and accessibility fixes — remaining
 **Priority:** Medium
-**Status:** 3 critical fixes merged (PR #13, 28 Mar 2026). Remaining fixes not yet implemented.
+**Status:** 3 critical fixes merged (PR #13, 28 Mar 2026). Remaining fixes to be addressed before launch — on the list.
 **Audit scope:** ChatWidget.tsx reviewed against WCAG 2.1 AA, WCAG 2.2 cognitive criteria, W3C COGA, Mencap Easy Read Guidelines, BS 8878:2010.
 **Completed (PR #13):** aria-live on message container, dialog role + focus trap + Escape + focus return, send button aria-label.
 **Remaining implementation:** Next PR: colour contrast (darker teal), focus states (keyboard visibility), structural (touch targets, headings, ARIA roles). Include item 43 (geolocation fallback) in same PR.
@@ -577,7 +598,7 @@ ChatWidget calls `/api/location`, so this file is unreachable dead code. Confirm
 
 ### 44c. Classifier decisions write-back to enriched data file
 **Priority:** Medium (pipeline workstream)
-**Status:** Blocked pending Eliz's response on the 22-item safeguarding governance review.
+**Status:** May be complete — needs verification. Previously blocked pending Eliz's response on the 22-item safeguarding governance review. Not a priority right now.
 **Issue:** The safeguarding classifier produced AUTO_VERIFY, AUTO_REJECT and REVIEW verdicts. The 22 REVIEW items require human decisions before classifications can be finalised and written back to the enriched data file.
 **Required:** Once Eliz returns decisions, write confirmed classifications back to the enriched services file. Update the baseline snapshot (item 34).
 **Blocked by:** Eliz's 22-item governance review (sent 28 Mar 2026).
@@ -657,19 +678,29 @@ ChatWidget calls `/api/location`, so this file is unreachable dead code. Confirm
 
 ### 55. Financial category: constrain unconstrained `support` mapping
 **Priority:** Low (follow-up to PR #14)
-**Status:** Complete — PR #18 (22 Apr 2026).
+**Status:** Complete — PR #18 merged 29 Apr 2026.
 
 ### 56. Missing `CRISIS_FIRE_FLOOD_LOCATION` phrasebank entry
 **Priority:** Medium (safeguarding-adjacent)
-**Status:** Complete — PR #18 (22 Apr 2026). `CRISIS_FIRE_FLOOD_LOCATION` and `CRISIS_FIRE_FLOOD_LOCATION__SUPPORTER` added to `lib/phrasebank.ts`.
+**Status:** Complete — PR #18 merged 29 Apr 2026. `CRISIS_FIRE_FLOOD_LOCATION` and `CRISIS_FIRE_FLOOD_LOCATION__SUPPORTER` added to `lib/phrasebank.ts`.
 
-### 57. Under-16 exit: supporter pathway review
+### 57. Under-16 exit: supporter and professional pathway review
 **Priority:** High (safeguarding)
-**Status:** Not started. Flagged by James during PR #16 review (13 Apr 2026). Separate PR from item 3.
-**Issue:** When a supporter discloses that someone they are helping is under 16, the current exit pathway has not been properly reviewed. The intercept fires on supporter sessions but the routing logic, messaging, and LA-aware exit behaviour may not be appropriate for the supporter context.
-**Required:** Review the full supporter pathway through the under-16 intercept and `buildUnder16Exit`. Confirm routing, messaging, and LA-aware exit are correct for someone calling on behalf of a child. Separate PR — do not bundle with item 3 fixes.
-**Depends on:** PR #16 merged (item 3 changes complete).
-**Files:** `lib/stateMachine.ts`, `lib/handlers/crisis.ts`, `lib/phrasebank.ts`
+**Status:** In progress — 30 Apr 2026. Mechanical changes built (PR #19). Language review document produced and with James for sign-off. PR #20 will implement language changes once approved.
+**Work completed:**
+- GATE0 case 2 `safeguardingTriggered` fix — built in PR #19
+- Phrasebank selector widened to support `__PROFESSIONAL` variant — built in PR #19
+- `B2_WHO_FOR` audit confirmed `userType` stored as `'SUPPORTER'` or `'PROFESSIONAL'` — distinction exists in session state, unused downstream
+- Supporter and Professional Language Review v1.0 document produced — with James for sign-off
+**Language changes proposed (pending James sign-off):**
+- `UNDER16_INTERCEPT_PREFIX__SUPPORTER` updated; `__PROFESSIONAL` added
+- `CRISIS_UNDER16_LOCATION__SUPPORTER` updated; `__PROFESSIONAL` added
+- `CRISIS_UNDER16_SOMEWHERE_ELSE__SUPPORTER` updated; `__PROFESSIONAL` added
+- `buildUnder16Exit` professional branch added
+- DV exits: all `__SUPPORTER` openers updated; `__PROFESSIONAL` variants added
+- SA exits: all `__SUPPORTER` openers updated; `__PROFESSIONAL` variants added
+- `SELF_HARM_EXIT__SUPPORTER` updated; `__PROFESSIONAL` added
+**Depends on:** James language sign-off → PR #20
 
 ### 58. Location gate fires too late in the flow
 **Priority:** Medium
@@ -677,11 +708,39 @@ ChatWidget calls `/api/location`, so this file is unreachable dead code. Confirm
 
 ### 59. stateUpdates propagation bug in B5 profiling handlers
 **Priority:** Low
-**Status:** In PR #18 (22 Apr 2026). Visible to James via backlog commit.
-**Issue:** Four B5 profiling handlers return `routeToNextProfileQuestion()` directly without wrapping `stateUpdates`. This means the field just collected is set on the synthetic session passed to the routing function for decisions, but is never propagated back to the actual session via `stateUpdates`.
-**Affected handlers:** `ageCategory`, `gender`, `criminalConvictions`, `hasChildren` — all return the routing result directly.
-**Working correctly:** `lgbtq`, `lgbtqServicePreference`, `immigrationStatus`, `publicFunds` — all wrap with the correct field in `stateUpdates`.
+**Status:** Known. Flagged in PR #17 build (15 Apr 2026), visible to James via backlog in PR #18. Not yet built.
+**Issue:** Four B5 profiling handlers return `routeToNextProfileQuestion()` directly without wrapping `stateUpdates`. The field just collected is not propagated back to the actual session via `stateUpdates`.
+**Affected handlers:** `ageCategory`, `gender`, `criminalConvictions`, `hasChildren`.
+**Working correctly:** `lgbtq`, `lgbtqServicePreference`, `immigrationStatus`, `publicFunds`.
 **Required:** Wrap the four affected handlers to include the just-collected field in `stateUpdates`, mirroring the `lgbtq` handler pattern. Low risk, isolated change.
+
+### 67. GATE0 end-to-end phrasebank regression test
+**Priority:** Low
+**Status:** Not started. Flagged by James in PR #18 review (29 Apr 2026).
+**Issue:** The missing `CRISIS_FIRE_FLOOD_LOCATION` phrasebank entry (item 56) slipped past CI because existing fire/flood tests all start sessions at `CRISIS_FIRE_FLOOD_LOCATION` directly, bypassing the GATE0 → option 6 path. The same class of bug could recur for any safeguarding-adjacent phrase added to phrasebank without a full-path test.
+**Required:** Add a regression test that starts at GATE0, selects option 6 (fire/flood), and asserts the rendered response does not contain `[Missing phrase:`. Low effort, high protective value for this class of bug. Candidate for next tidy-up PR.
+**Files:** `__tests__/safeguarding.test.ts`
+
+### 68. Lift profile field union to shared type alias
+**Priority:** Low
+**Status:** Not started. Flagged by James in PR #18 review (29 Apr 2026).
+**Issue:** `needProfileRequirements` is typed as `Record<string, string[]>`, so a typo in any requirements array (e.g. `'agee'`) would silently produce a never-matching branch in `routeToNextProfileQuestion`. The `after` param union (`'age' | 'gender' | 'lgbtq' | 'convictions' | 'nrpf' | 'children'`) is defined inline on the function signature. Lifting this to a shared type alias and reusing it on both `needProfileRequirements` and the `after` param would give compile-time protection on both.
+**Required:** Extract the union to a named type (e.g. `ProfileField`), apply it to both the `after` param and the `needProfileRequirements` value type. Small ergonomics change — same protective benefit as PR #18's union typing, extended to the requirements array.
+**Files:** `lib/stateMachine.ts`
+
+### 69. Supporter and professional language review — full VA audit
+**Priority:** Medium
+**Status:** Not started. Identified 29 Apr 2026 during item 57 (under-16 supporter pathway) work.
+**Issue:** `isSupporter` collapses informal supporters and professionals into a single boolean, and phrasebank has only one `__SUPPORTER` variant per key. The distinction between an informal supporter (friend, family member) and a professional (social worker, housing worker, teacher) is meaningful — particularly in safeguarding exits where professionals have statutory reporting obligations that the VA should acknowledge. The under-16 path is being addressed in PR #19, but the same gap exists across DV, self-harm, and the wider conversation flow.
+**Scope of full review:**
+- DV exits: supporter/professional variants
+- Self-harm exits: supporter/professional variants (highest risk — professional has duty of care obligations)
+- Profiling gates: B5 questions asked on behalf of someone else read oddly ("Are you pregnant?")
+- Terminal outputs: "here are services for you" framing wrong in supporter/professional mode
+- General conversational framing throughout: PREFERRED_NAME_ASK, GATE2_ROUTE_SELECTION, B2_WHO_FOR follow-up
+**Prerequisite:** Item 60 (B2_WHO_FOR follow-up gates for org type and relationship) should be built first so professional/supporter distinction is available downstream.
+**Approach:** Design note recommended before build — scope is wide enough that a systematic approach is better than piecemeal fixes.
+**Files:** `lib/phrasebank.ts`, `lib/handlers/`, `lib/stateMachine.ts`
 
 ### 60. B2_WHO_FOR: capture professional organisation type, supporter relationship, and person's name
 **Priority:** Medium
@@ -993,6 +1052,8 @@ When enriched eligibility data is in use, confidence levels must influence langu
 | 2026-04-15 | PR #16 all changes complete. 96/96 passing. 6 commits pushed to staging. Item 3 complete pending merge. Item 58 resolved in PR #16 — location gate moved immediately after GATE0, restores WatsonX design. PR #16 awaiting James re-review. |
 | 2026-04-15 | PR #16 merged. Item 3 marked complete. Governance decisions log added — records Tier 2 and Tier 3 decisions for trustee visibility. Four Tier 2 entries and one Tier 3 entry added, reconstructed from PR history. Log to be maintained going forward. Post-merge governance outstanding: Safeguarding Contract, Governance Note, Design Note updates. |
 | 2026-04-15 | PR #17 build started (item 46). 97/97 tests passing. routeToNextProfileQuestion gains optional `after` param; lgbtq and hasChildren PNTS selections now store null; 9 call sites audited and updated; regression test added. Pre-existing stateUpdates propagation bug identified in 4 handlers — not in scope, logged as item 59. Awaiting commit and James review. |
-| 2026-04-15 | Governance docs updated post PR #16 merge: Design Note v1.2 (Section 14 implementation record added), Safeguarding Contract v3.2 (test count updated, mid-conversation age detection moved from pending to implemented), Safeguarding Governance Note v3.3 (test count updated, mid-conversation age detection row added to test table). |
-| 2026-04-22 | PR #17 merged. PR #18 build started: after param typed as union (PR #17 James comment), duplicate PNTS children test removed (PR #17 James comment), item 55 complete (Financial subcategory constraint), item 56 complete (CRISIS_FIRE_FLOOD_LOCATION phrasebank entries). VA_BACKLOG.md included in commit. 96/96 tests passing. |
-| 2026-04-01 | James reviewed PR #14, requested one blocking change: `phoneHours` field on Walsall navigator not rendering as `availabilityNote` is not typed or wired through. Resolved: `availabilityNote` added to DefaultOrg type, passed through getNavigatorOrgs() map, and rendered conditionally in both youth and adult terminal renderers. Dudley navigator (Lighthouse Community Hub) corrected at the same time: phone 01384 239222 added, website corrected to heavenskitchen.org.uk, isDropIn set to true, internal annotation rewritten as user-facing language. Item 44b marked complete. Item 55 added: Financial category support constraint (debt-financial-problems, money-management) as follow-up to PR #14 fix pattern — flagged by James in review. Items 46, 47, 48 confirmed already on backlog. PR #14 back with James (commit 1da6fad). All 73 tests pass. |
+| 2026-04-15 | Governance docs updated post PR #16 merge: Design Note v1.2 (Section 14 implementation record), Safeguarding Contract v3.2 (test count updated, mid-conversation age detection moved to implemented), Safeguarding Governance Note v3.3 (test count updated, mid-conversation age detection row added). |
+| 2026-04-22 | PR #17 merged. PR #18 raised: after param typed as union, duplicate PNTS test removed, items 55 and 56 complete, backlog committed to repo. 96/96 tests. Awaiting James review. |
+| 2026-04-29 | Item 24 architecture superseded. Prevention Pathway Design Note v1.0 produced (28 April 2026). Original profiling-shaped terminal scoping replaced by conversational architecture: single PREVENTION_CONVERSATION gate, four routing modes, three governing questions, buttons-and-text input pattern, reduced AI layer (clarity assessment only, no routing inference). Three-phase implementation. Two open questions for James. Five governance documents needed post-Phase 1. Item 24 updated in full. |
+| 2026-04-29 | PR #18 merged. Items 55, 56 complete. Item 59 now visible to James via backlog. Items 67 and 68 added from James PR #18 review comments: GATE0 end-to-end phrasebank regression test (67), ProfileField shared type alias (68). Item 69 added: full VA supporter/professional language audit — wider scope identified during item 57 work. Items originally numbered 60/61 from PR #18 session corrected to 67/68 to avoid collision with WatsonX audit items. |
+| 2026-04-30 | Item 57 in progress. B2_WHO_FOR audit: userType stored as SUPPORTER/PROFESSIONAL but collapsed to isSupporter boolean downstream — distinction unused. GATE0 case 2 safeguardingTriggered fix built. Phrasebank selector widened to support __PROFESSIONAL variant. Supporter and Professional Language Review v1.0 produced — with James for sign-off. PR #19 ready to commit (mechanical changes). PR #20 will follow once language approved. Items 46, 55, 56, 3 (governance docs) all marked complete. Backlog fully audited and updated. |

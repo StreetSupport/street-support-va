@@ -2387,8 +2387,17 @@ The more details you can provide (location, description, best time to find them)
 };
 
 // Helper function
-export function getPhrase(key: string, isSupporter: boolean): PhraseEntry | null {
-  if (isSupporter) {
+export function getPhrase(key: string, audience: 'SELF' | 'SUPPORTER' | 'PROFESSIONAL' | null | boolean): PhraseEntry | null {
+  if (audience === 'PROFESSIONAL') {
+    const professionalKey = `${key}__PROFESSIONAL`;
+    if (phrasebank[professionalKey]) {
+      return phrasebank[professionalKey];
+    }
+    const supporterFallback = `${key}__SUPPORTER`;
+    if (phrasebank[supporterFallback]) {
+      return phrasebank[supporterFallback];
+    }
+  } else if (audience === 'SUPPORTER' || audience === true) {
     const supporterKey = `${key}__SUPPORTER`;
     if (phrasebank[supporterKey]) {
       return phrasebank[supporterKey];

@@ -160,8 +160,8 @@ export function createSession(sessionId: string): SessionState {
 // HELPERS
 // ============================================================
 
-function phrase(key: string, isSupporter: boolean): RoutingResult {
-  const p = getPhrase(key, isSupporter);
+function phrase(key: string, audience: 'SELF' | 'SUPPORTER' | 'PROFESSIONAL' | null | boolean): RoutingResult {
+  const p = getPhrase(key, audience);
   return {
     text: p?.text || `[Missing phrase: ${key}]`,
     options: p?.options,

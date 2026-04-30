@@ -12,8 +12,8 @@ import { getPhrase } from '../phrasebank';
 import type { SessionState, RoutingResult, GateType } from '../types';
 import endpointsData from '../data/housing-pathway-endpoints.json';
 
-export function phrase(key: string, isSupporter: boolean): RoutingResult {
-  const p = getPhrase(key, isSupporter);
+export function phrase(key: string, audience: 'SELF' | 'SUPPORTER' | 'PROFESSIONAL' | null | boolean): RoutingResult {
+  const p = getPhrase(key, audience);
   return {
     text: p?.text || `[Missing phrase: ${key}]`,
     options: p?.options,
