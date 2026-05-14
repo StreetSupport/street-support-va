@@ -212,10 +212,10 @@ function buildLocalDVInfo(session: SessionState): string {
 export function handleCrisisDanger(session: SessionState, choice: number | null): RoutingResult {
   switch (choice) {
     case 1: // Immediate danger
-      return safeguardingExit('IMMEDIATE_PHYSICAL_DANGER_EXIT', session.isSupporter, 'IMMEDIATE_DANGER');
+      return safeguardingExit('IMMEDIATE_PHYSICAL_DANGER_EXIT', session.userType, 'IMMEDIATE_DANGER');
     case 2: // Under 16 -> ask location first
       return {
-        ...phrase('CRISIS_UNDER16_LOCATION', session.isSupporter),
+        ...phrase('CRISIS_UNDER16_LOCATION', session.userType),
         stateUpdates: {
           currentGate: 'CRISIS_UNDER16_LOCATION',
           safeguardingTriggered: true,
@@ -225,9 +225,9 @@ export function handleCrisisDanger(session: SessionState, choice: number | null)
     case 3: // Self-harm
       return buildSelfHarmExit(session);
     case 4: // Domestic abuse -> ask gender
-      return phrase('DV_GENDER_ASK', session.isSupporter);
+      return phrase('DV_GENDER_ASK', session.userType);
     case 5: // Sexual violence -> ask gender
-      return phrase('SA_GENDER_ASK', session.isSupporter);
+      return phrase('SA_GENDER_ASK', session.userType);
     case 6: // Fire/flood -> ask location first
       return {
         ...phrase('CRISIS_FIRE_FLOOD_LOCATION', session.isSupporter),
@@ -236,7 +236,7 @@ export function handleCrisisDanger(session: SessionState, choice: number | null)
     case 7: // None apply — collect location before intent
       return phrase('LOCATION_CONSENT', session.isSupporter);
     default:
-      return phrase('GATE0_CRISIS_DANGER', session.isSupporter);
+      return phrase('GATE0_CRISIS_DANGER', session.userType);
   }
 }
 
@@ -248,7 +248,7 @@ export function handleCrisisUnder16Location(session: SessionState, choice: numbe
     return buildUnder16Exit({ ...session, localAuthority: la });
   }
   // Somewhere else — no LA to look up, so surface Childline directly
-  const exit = phrase('CRISIS_UNDER16_SOMEWHERE_ELSE', session.isSupporter);
+  const exit = phrase('CRISIS_UNDER16_SOMEWHERE_ELSE', session.userType);
   return {
     ...exit,
     stateUpdates: {
@@ -277,7 +277,7 @@ export function handleDVGenderAsk(session: SessionState, choice: number | null):
   const dvGenders = ['Female', 'Male', 'Non-binary or other', 'Prefer not to say'];
   const dvGender = choice ? dvGenders[choice - 1] : null;
   return {
-    ...phrase('DV_CHILDREN_ASK', session.isSupporter),
+    ...phrase('DV_CHILDREN_ASK', session.userType),
     stateUpdates: { currentGate: 'DV_CHILDREN_ASK', dvGender }
   };
 }
@@ -285,7 +285,7 @@ export function handleDVGenderAsk(session: SessionState, choice: number | null):
 export function handleDVChildrenAsk(session: SessionState, choice: number | null): RoutingResult {
   const dvChildren = choice === 1;
   const dvExitKey = getDVExitKey(session.dvGender, dvChildren);
-  const result = safeguardingExit(dvExitKey, session.isSupporter, 'DOMESTIC_ABUSE');
+  const result = safeguardingExit(dvExitKey, session.userType, 'DOMESTIC_ABUSE');
   const localDV = buildLocalDVInfo(session);
   return { ...result, text: result.text + localDV };
 }
@@ -294,7 +294,7 @@ export function handleSAGenderAsk(session: SessionState, choice: number | null):
   const saGenders = ['Female', 'Male', 'Non-binary or other', 'Prefer not to say'];
   const saGender = choice ? saGenders[choice - 1] : null;
   const saExitKey = getSAExitKey(saGender);
-  const result = safeguardingExit(saExitKey, session.isSupporter, 'SEXUAL_VIOLENCE');
+  const result = safeguardingExit(saExitKey, session.userType, 'SEXUAL_VIOLENCE');
   const sarcInfo = buildSARCInfo(session);
   return { ...result, text: result.text + sarcInfo };
 }

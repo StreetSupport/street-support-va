@@ -23,8 +23,8 @@ export function phrase(key: string, audience: 'SELF' | 'SUPPORTER' | 'PROFESSION
   };
 }
 
-export function safeguardingExit(key: string, isSupporter: boolean, type: string): RoutingResult {
-  const p = getPhrase(key, isSupporter);
+export function safeguardingExit(key: string, audience: 'SELF' | 'SUPPORTER' | 'PROFESSIONAL' | null | boolean, type: string): RoutingResult {
+  const p = getPhrase(key, audience);
   return {
     text: p?.text || `[Missing phrase: ${key}]`,
     stateUpdates: {
@@ -63,7 +63,7 @@ export function buildUnder16Exit(session: SessionState): RoutingResult {
   // If it IS reached without one, log the error and recover by asking for area.
   if (!childServices) {
     console.error(`[VA] buildUnder16Exit called without valid LA (got: ${JSON.stringify(session.localAuthority)}, sessionId: ${session.sessionId}). Recovering to CRISIS_UNDER16_LOCATION.`);
-    const locationPhrase = getPhrase('CRISIS_UNDER16_LOCATION', isSupporter);
+    const locationPhrase = getPhrase('CRISIS_UNDER16_LOCATION', session.userType);
     return {
       text: locationPhrase?.text || '',
       options: locationPhrase?.options,
