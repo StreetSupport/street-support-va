@@ -1833,6 +1833,75 @@ NSPCC: 0808 800 5000 (for adults concerned about a child)
 If they are in immediate danger, call 999.`
   },
 
+  // ------------------------------------------------------------
+  // Under-16 exit fragments — composed by buildUnder16Exit
+  // Order: opener, [LA contact data — inline], next-steps,
+  //        Childline, NSPCC (supporter only), sign-off, 999
+  // ------------------------------------------------------------
+
+  UNDER16_EXIT_OPENER: {
+    text: `Thank you for reaching out. Because you are under 16, there are specialist services that can help keep you safe. It takes courage to ask for help, and you've done the right thing.
+
+`
+  },
+
+  UNDER16_EXIT_OPENER__SUPPORTER: {
+    text: `Thank you for reaching out. Because they are under 16, there are specialist services that can help keep them safe. It's really good that you're looking for support for them.
+
+`
+  },
+
+  UNDER16_EXIT_NEXT_STEPS: {
+    text: `They can talk through what's happening and help work out the best support
+
+`
+  },
+
+  UNDER16_EXIT_CHILDLINE_FOR_YOUNG_PERSON: {
+    text: `SPECIALIST HELPLINE
+Childline
+0800 1111 (free, confidential, 24/7)
+https://www.childline.org.uk
+A free helpline where you can call or chat online about anything
+
+`
+  },
+
+  UNDER16_EXIT_CHILDLINE_FOR_YOUNG_PERSON__SUPPORTER: {
+    text: `SPECIALIST HELPLINE
+Childline
+0800 1111 (free, confidential, 24/7)
+https://www.childline.org.uk
+A free helpline for young people to call or chat online about anything
+
+`
+  },
+
+  UNDER16_EXIT_NSPCC_FOR_ADULT__SUPPORTER: {
+    text: `SPECIALIST HELPLINE
+NSPCC Helpline (for adults)
+0808 800 5000 (free, 24/7)
+https://www.nspcc.org.uk/keeping-children-safe/reporting-abuse/
+For adults who are worried about a child
+
+`
+  },
+
+  UNDER16_EXIT_SIGN_OFF: {
+    text: `---
+Please reach out when you feel ready. I'll be here if you need help finding other services later.
+
+`
+  },
+
+  UNDER16_EXIT_999: {
+    text: `If you are in immediate danger, call 999.`
+  },
+
+  UNDER16_EXIT_999__SUPPORTER: {
+    text: `If they are in immediate danger, call 999.`
+  },
+
   FIRE_FLOOD_EXIT: {
     text: `Losing your home due to fire, flood, or another emergency is frightening, and it makes sense to want urgent help.
 
