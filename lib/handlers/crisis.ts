@@ -216,7 +216,11 @@ export function handleCrisisDanger(session: SessionState, choice: number | null)
     case 2: // Under 16 -> ask location first
       return {
         ...phrase('CRISIS_UNDER16_LOCATION', session.isSupporter),
-        stateUpdates: { currentGate: 'CRISIS_UNDER16_LOCATION' }
+        stateUpdates: {
+          currentGate: 'CRISIS_UNDER16_LOCATION',
+          safeguardingTriggered: true,
+          safeguardingType: 'UNDER_16',
+        },
       };
     case 3: // Self-harm
       return buildSelfHarmExit(session);

@@ -164,6 +164,22 @@ describe('Under 16', () => {
 });
 
 // =============================================================================
+// Crisis gate option 2 — safeguarding state set before LA prompt (PR #19)
+// =============================================================================
+
+describe('Crisis gate option 2', () => {
+
+  test('GATE0 option 2 sets safeguardingTriggered and safeguardingType before LA prompt', () => {
+    const session = sessionAt('GATE0_CRISIS_DANGER');
+    const result = select(session, 2);
+    expect(result.stateUpdates.currentGate).toBe('CRISIS_UNDER16_LOCATION');
+    expect(result.stateUpdates.safeguardingTriggered).toBe(true);
+    expect(result.stateUpdates.safeguardingType).toBe('UNDER_16');
+  });
+
+});
+
+// =============================================================================
 // 16-17 - Must continue profiling (not exit), but flag youth services
 // =============================================================================
 
