@@ -161,6 +161,23 @@ describe('Under 16', () => {
     expect(result.text).not.toContain('0808 800 4444');
   });
 
+  test('PROFESSIONAL user does not see NSPCC adult helpline or warm sign-off', () => {
+    // Per v1.1 §1.4: NSPCC adult helpline is for non-professionals worried
+    // about a child; professionals call Children's Services directly. Warm
+    // sign-off is inappropriate register for the professional context.
+    const session = sessionAt('B3_AGE_CATEGORY', {
+      localAuthority: 'Birmingham',
+      userType: 'PROFESSIONAL',
+      isSupporter: true,
+    });
+    const result = select(session, 1);
+    expect(result.text).not.toContain('0808 800 5000'); // NSPCC number
+    expect(result.text).not.toContain('Please reach out when you feel ready');
+    // But still gets the professional opener and the 999 line
+    expect(result.text).toContain("Here are the Children's Services contacts");
+    expect(result.text).toContain('999');
+  });
+
 });
 
 // =============================================================================

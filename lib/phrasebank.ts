@@ -1477,7 +1477,7 @@ What is their gender?
   },
 
   CRISIS_UNDER16_LOCATION__SUPPORTER: {
-    text: `Thank you for letting me know. So I can give you the right Children's Services to contact for them, please tell me which area they're in.
+    text: `Which area are they in? I can find the Children's Services contact.
 
 1. Wolverhampton
 2. Birmingham
@@ -1495,7 +1495,11 @@ What is their gender?
   },
 
   UNDER16_INTERCEPT_PREFIX__SUPPORTER: {
-    text: `From what you've shared, it sounds like the person you're supporting may be under 16. Because of that, I'm going to point you to specialist services for young people instead — they can help in ways I can't.`
+    text: `It sounds like they might be under 16. Let's get them to the right support.`
+  },
+
+  UNDER16_INTERCEPT_PREFIX__PROFESSIONAL: {
+    text: `It sounds like they might be under 16. I can give you the Children's Services contact for their area.`
   },
 
   CRISIS_UNDER16_SOMEWHERE_ELSE: {
@@ -1514,24 +1518,29 @@ If you are in immediate danger, call 999.`
   },
 
   CRISIS_UNDER16_SOMEWHERE_ELSE__SUPPORTER: {
-    text: `Thank you for letting me know. Even though I can't look up their local Children's Services, there are people who can help right now.
+    text: `Even if I can't look up their local Children's Services, there are people who can help right now.
 
-SPECIALIST HELPLINE
 Childline
 0800 1111 (free, confidential, 24/7)
 https://www.childline.org.uk
-A free helpline for young people to call or chat online about anything.
+A free helpline for young people to talk about anything.
 
-SPECIALIST HELPLINE
 NSPCC Helpline (for adults)
 0808 800 5000 (free, 24/7)
 https://www.nspcc.org.uk/keeping-children-safe/reporting-abuse/
 For adults who are worried about a child.
 
-They can also be supported by a trusted adult — a teacher, a family member, or their local council's Children's Services team. You can find their local council at https://www.gov.uk/find-local-council
+You can also find their local council here: https://www.gov.uk/find-local-council
 
----
-If they are in immediate danger, call 999.`
+If they're in immediate danger, call 999.`
+  },
+
+  CRISIS_UNDER16_SOMEWHERE_ELSE__PROFESSIONAL: {
+    text: `They'll need their local Children's Services contact. You can find the right number here: https://www.gov.uk/find-local-council
+
+You'll know your next steps from here. If you're not sure, Children's Services can advise before you make a referral.
+
+If they're in immediate danger, call 999.`
   },
 
   // ============================================================
@@ -1851,8 +1860,20 @@ If they are in immediate danger, call 999.`
 `
   },
 
+  UNDER16_EXIT_OPENER__PROFESSIONAL: {
+    text: `Here are the Children's Services contacts for their area.
+
+`
+  },
+
   UNDER16_EXIT_NEXT_STEPS: {
     text: `They can talk through what's happening and help work out the best support
+
+`
+  },
+
+  UNDER16_EXIT_NEXT_STEPS__PROFESSIONAL: {
+    text: `You'll know your next steps from here. If you're not sure, contact Children's Services directly or check your organisation's safeguarding policy.
 
 `
   },
@@ -1873,6 +1894,12 @@ Childline
 0800 1111 (free, confidential, 24/7)
 https://www.childline.org.uk
 A free helpline for young people to call or chat online about anything
+
+`
+  },
+
+  UNDER16_EXIT_CHILDLINE_FOR_YOUNG_PERSON__PROFESSIONAL: {
+    text: `Childline is also there for the young person if they need it: 0800 1111.
 
 `
   },
@@ -1900,6 +1927,10 @@ Please reach out when you feel ready. I'll be here if you need help finding othe
 
   UNDER16_EXIT_999__SUPPORTER: {
     text: `If they are in immediate danger, call 999.`
+  },
+
+  UNDER16_EXIT_999__PROFESSIONAL: {
+    text: `If they're in immediate danger, call 999.`
   },
 
   FIRE_FLOOD_EXIT: {

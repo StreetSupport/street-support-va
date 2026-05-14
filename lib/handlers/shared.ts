@@ -87,12 +87,17 @@ export function buildUnder16Exit(session: SessionState): RoutingResult {
   // Childline
   text += getPhrase('UNDER16_EXIT_CHILDLINE_FOR_YOUNG_PERSON', session.userType)?.text || '';
 
-  // NSPCC — supporter-only entry. Selector returns null for SELF users
-  // (no base entry exists), so this contributes nothing for SELF.
-  text += getPhrase('UNDER16_EXIT_NSPCC_FOR_ADULT', session.userType)?.text || '';
-
-  // Warm sign-off
-  text += getPhrase('UNDER16_EXIT_SIGN_OFF', session.userType)?.text || '';
+  // NSPCC and warm sign-off — included for SELF and SUPPORTER, excluded for
+  // PROFESSIONAL per Supporter and Professional Language Review v1.1 §1.4.
+  // NSPCC adult helpline is for non-professionals worried about a child;
+  // professionals call Children's Services directly. Warm sign-off is
+  // inappropriate register for the professional context.
+  // (For SELF, NSPCC has no base entry so the selector returns null —
+  // contributes nothing — preserving prior behaviour.)
+  if (session.userType !== 'PROFESSIONAL') {
+    text += getPhrase('UNDER16_EXIT_NSPCC_FOR_ADULT', session.userType)?.text || '';
+    text += getPhrase('UNDER16_EXIT_SIGN_OFF', session.userType)?.text || '';
+  }
 
   // 999 line
   text += getPhrase('UNDER16_EXIT_999', session.userType)?.text || '';
