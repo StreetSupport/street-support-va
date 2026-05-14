@@ -324,6 +324,57 @@ describe('Domestic Abuse Disclosure', () => {
     expect(result.text).toContain('england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse');
   });
 
+  test('DV __PROFESSIONAL exit fires when userType is PROFESSIONAL', () => {
+    // Per v1.1 §3.1: professional register replaces consolation framing
+    // with direct service framing.
+    const session = sessionAt('DV_CHILDREN_ASK', {
+      dvGender: 'Female',
+      isSupporter: true,
+      userType: 'PROFESSIONAL',
+    });
+    const result = select(session, 1);
+    expect(result.text).toContain('Here are the specialist contacts');
+    expect(result.text).toContain("You'll know your next steps from here");
+    expect(result.text).not.toContain("You don't have to work this out on your own");
+    // Service contacts and 999 line still present
+    expect(result.text).toContain('0808 2000 247');
+    expect(result.text).toContain('999');
+  });
+
+});
+
+// =============================================================================
+// SEXUAL VIOLENCE - Must route to SA exit with appropriate helplines and 999
+// =============================================================================
+
+describe('Sexual Violence Disclosure', () => {
+
+  test('SA __SUPPORTER exits include the 999 line (behavioural change per v1.1)', () => {
+    // Pre-v1.1 SA exits did not include a 999 line. v1.1 adds one to every
+    // safeguarding exit. Locking in the behavioural change so a regression
+    // can't silently remove it.
+    const session = sessionAt('SA_GENDER_ASK', {
+      isSupporter: true,
+      userType: 'SUPPORTER',
+    });
+    const result = select(session, 1); // Female
+    expect(result.text).toContain("If they're in immediate danger, call 999");
+  });
+
+  test('SA __PROFESSIONAL exit fires when userType is PROFESSIONAL', () => {
+    const session = sessionAt('SA_GENDER_ASK', {
+      isSupporter: true,
+      userType: 'PROFESSIONAL',
+    });
+    const result = select(session, 1); // Female
+    expect(result.text).toContain('Here are the specialist contacts');
+    expect(result.text).toContain("You'll know your next steps from here");
+    expect(result.text).not.toContain("You don't have to work this out on your own");
+    // Service contact and 999 line still present
+    expect(result.text).toContain('0808 500 2222');
+    expect(result.text).toContain('999');
+  });
+
 });
 
 // =============================================================================
