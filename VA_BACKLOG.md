@@ -721,6 +721,42 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 **Files:** `lib/stateMachine.ts`, `lib/handlers/profiling.ts`
 **Not in PR #20 scope.** Capture here for a future tidy-up PR.
 
+### 72. Self-harm exit wiring
+**Priority:** Medium (governance)
+**Status:** Open. Surfaced 14 May 2026 during PR #20 commit 5 (4185c9e) build.
+
+**Context:** PR #20 added `SELF_HARM_EXIT__SUPPORTER` (v1.1 wording) and `SELF_HARM_EXIT__PROFESSIONAL` (new) to `lib/phrasebank.ts`. Both are governance-approved content but are NOT currently wired into `buildSelfHarmExit` (`lib/handlers/crisis.ts:85-126`), which still composes from inline strings. The entries are reachable via direct `getPhrase()` calls (regression test in commit 5 confirms selector resolution) but the live self-harm exit pathway does not use them.
+
+**Discrepancy:** Audit during commit 5 build revealed `buildSelfHarmExit` currently includes Mind Infoline and a warm sign-off that v1.1 §4.1 did not represent in its "current text" column. Wiring the v1.1 entries live would silently remove that content. James's 8 May sign-off on v1.1 §4.1 was therefore against an incomplete representation of current code.
+
+**Decision required from James before wiring:**
+- Retain Mind Infoline and warm sign-off in any refactor (would require expanding the v1.1 entries)
+- Drop them per v1.1's reading
+- Some middle position
+
+**Sequence:**
+1. Surface to James with current text + v1.1 text side-by-side
+2. James decides on content
+3. Update entries if needed
+4. Refactor `buildSelfHarmExit` to source from phrasebank, parallel to commit 2's `buildUnder16Exit` refactor pattern
+5. Test and ship
+
+**Files:** `lib/phrasebank.ts`, `lib/handlers/crisis.ts`, `tests/safeguarding.test.ts`
+
+**Code comment already added** (commit 4185c9e) adjacent to the phrasebank entries documenting the not-wired state and the reason.
+
+### 73. UNDER_16_EXIT__SUPPORTER orphan
+**Priority:** Low (cleanup)
+**Status:** Open. Surfaced 14 May 2026 during PR #20 commit 6 (a1526ec) audit.
+
+**Issue:** `UNDER_16_EXIT__SUPPORTER` (with `__SUPPORTER` suffix; different naming from the new `UNDER16_EXIT_*__SUPPORTER` entries added in PR #20 — note the underscore in the number, monolithic rather than fragment-based) was identified during the orphan-cleanup audit as also orphaned. PR #20 commit 6 was scoped to unsuffixed orphans only, so this suffixed-but-orphaned entry was intentionally retained for separate handling.
+
+**Required:** Audit-first to confirm zero direct references, then delete.
+
+**Files:** `lib/phrasebank.ts`
+
+**Not blocking anything.** Small follow-up commit when convenient.
+
 ---
 
 ### 55. Financial category: constrain unconstrained `support` mapping
@@ -733,31 +769,32 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 
 ### 57. Under-16 exit: supporter and professional pathway review
 **Priority:** High (safeguarding)
-**Status:** Ready to build — 14 May 2026. Language v1.1 signed off by James 8 May 2026. Codebase audit complete 14 May 2026. PR #20 build pending.
+**Status:** Code complete — 14 May 2026. PR #20 raised against main, awaiting James review.
 
-**Language sign-off (8 May 2026):**
-- Supporter and Professional Language Review v1.1 signed off in full.
-- Substantive v1.1 changes from v1.0: §1.1 professional wording revised to handle both LA-known and LA-unknown contexts; §1.2 professional entry dropped (falls back to __SUPPORTER); §1.4 restructured to use named phrasebank entries with composition in code; DV and SA professional variants confirmed as separate entries with alignment comment.
-- James's email also confirmed Tier 2 governance posture for this work.
+**PR #20 commits on staging (chain from b1f4ee4):**
+- b1f4ee4 — userType propagation through phrasebank selector (13 safeguarding-pathway call sites)
+- b5e5d49 — buildUnder16Exit refactor: inline → phrasebank composition (9 new entries, byte-identical output)
+- fe0fef6 — under-16 v1.1 supporter wording + 6 new __PROFESSIONAL entries, NSPCC + sign-off excluded for PROFESSIONAL users
+- a567860 — DV/SA v1.1 supporter wording + 9 new __PROFESSIONAL entries, alignment comment in phrasebank.ts; SA 999 line added (behavioural change)
+- 4185c9e — self-harm v1.1 entries added but NOT wired (see Item 72)
+- a1526ec — orphan cleanup: unsuffixed SELF_HARM_EXIT and UNDER_16_EXIT removed
 
-**PR #20 scope (confirmed by codebase audit, 14 May 2026):**
+**Test count:** 96 → 102 across the chain, all green.
 
-Three structural pieces:
-1. Wire `userType` through to the phrasebank selector at the relevant call sites. Critical structural piece — PR #19 widened the selector to accept `userType` but the audit reveals `userType` is not currently being passed to the selector at exit-build time. Without this wiring, every `__PROFESSIONAL` entry added in PR #20 is dead code at the moment of merge.
-2. Refactor `buildUnder16Exit` to source every fragment from phrasebank rather than inline strings. The function is currently 100% inline. Supporter-side fragments need extracting under matching key names (`UNDER16_EXIT_OPENER__SUPPORTER`, etc.) so the structure aligns with the new professional branch.
-3. Add the v1.1 phrasebank entries: `UNDER16_INTERCEPT_PREFIX__SUPPORTER` (update), `UNDER16_INTERCEPT_PREFIX__PROFESSIONAL` (new), `CRISIS_UNDER16_LOCATION__SUPPORTER` (update only), `CRISIS_UNDER16_SOMEWHERE_ELSE__SUPPORTER` (update), `CRISIS_UNDER16_SOMEWHERE_ELSE__PROFESSIONAL` (new), plus four new `UNDER16_EXIT_*__PROFESSIONAL` entries. Also DV exit variants (update all `__SUPPORTER`, add `__PROFESSIONAL` with alignment comment), SA exit variants (same, plus new 999 line — behavioural change to flag in PR description), and self-harm exit (update `__SUPPORTER`, add `__PROFESSIONAL`).
+**Behaviours now implemented:**
+- PROFESSIONAL users see professional register on under-16, DV, and SA exits
+- PROFESSIONAL users on under-16 exits no longer see NSPCC adult helpline or warm sign-off (not appropriate for professional context per v1.1 §1.4)
+- SUPPORTER users see v1.1 updated wording across under-16, DV, SA
+- SA exits now include a 999 line on SUPPORTER and PROFESSIONAL variants
+- SELF users unchanged (out of v1.1 scope; see Deferred below)
 
-Two adjacent cleanups in same PR:
-- Delete orphaned `SELF_HARM_EXIT` and `UNDER_16_EXIT` phrasebank entries (no `__SUPPORTER` suffix, not fired by current code paths). Audit zero references first as part of the build, then delete.
-- SA exits gain a 999 line per the v1.1 language principle. Behavioural change rather than wording change. Flag explicitly in the PR description.
-
-One backlog spin-off: see Item 71 (B2_WHO_FOR handler duplication).
-
-**Files affected (per audit):**
-- `lib/phrasebank.ts` — entry additions and updates, orphaned entry deletions
-- `lib/shared.ts` — `buildUnder16Exit` refactor
-- Call sites passing `userType` to selector — locations to be confirmed in PR #20 commit 1
-- `tests/safeguarding.test.ts` — updates to any tests asserting the old opener text
+**Deferred (recorded in PR description for trustee sight):**
+- Self-harm exit wiring: see Item 72
+- SELF DV/SA base entries: not updated in PR #20; possible future SELF wording refresh
+- SELF SA 999 line: not added; possible future SELF refresh under same principle
+- CRISIS_UNDER16_SOMEWHERE_ELSE SELF base entry uses old "SPECIALIST HELPLINE" style; diverges from v1.1 supporter/professional variants. Deliberate per v1.1 scope but worth noting.
+- UNDER_16_EXIT__SUPPORTER orphan: see Item 73
+- B2_WHO_FOR handler duplication: see Item 71
 
 ### 58. Location gate fires too late in the flow
 **Priority:** Medium
@@ -1115,3 +1152,4 @@ When enriched eligibility data is in use, confidence levels must influence langu
 | 2026-04-29 | PR #18 merged. Items 55, 56 complete. Item 59 now visible to James via backlog. Items 67 and 68 added from James PR #18 review comments: GATE0 end-to-end phrasebank regression test (67), ProfileField shared type alias (68). Item 69 added: full VA supporter/professional language audit — wider scope identified during item 57 work. Items originally numbered 60/61 from PR #18 session corrected to 67/68 to avoid collision with WatsonX audit items. |
 | 2026-04-30 | Item 57 in progress. B2_WHO_FOR audit: userType stored as SUPPORTER/PROFESSIONAL but collapsed to isSupporter boolean downstream — distinction unused. GATE0 case 2 safeguardingTriggered fix built. Phrasebank selector widened to support __PROFESSIONAL variant. Supporter and Professional Language Review v1.0 produced — with James for sign-off. PR #19 ready to commit (mechanical changes). PR #20 will follow once language approved. Items 46, 55, 56, 3 (governance docs) all marked complete. Backlog fully audited and updated. |
 | 2026-05-14 | Supporter and Professional Language Review v1.1 signed off by James 8 May 2026. PR #20 codebase audit complete, three structural pieces confirmed: (1) add v1.1 phrasebank entries, (2) refactor buildUnder16Exit from inline strings to phrasebank composition, (3) wire userType through to phrasebank selector at call sites — critical structural piece without which new __PROFESSIONAL entries would be dead code. Adjacent findings: orphaned SELF_HARM_EXIT and UNDER_16_EXIT phrasebank entries to delete in PR #20 (audit-first confirmation), SA exits gain 999 line (behavioural change to flag in PR description). Item 57 status updated; Item 71 added (B2_WHO_FOR handler duplication, not in PR #20 scope). PR #20 ready to build. Pipeline repo work today is on a separate workstream — see PIPELINE_BACKLOG.md in ssn-enrichment-pipeline. |
+| 2026-05-14 (afternoon) | PR #20 (under-16 + DV + SA + self-harm supporter/professional language) work complete on staging, awaiting James review. Six commits: b1f4ee4 (userType propagation through selector), b5e5d49 (buildUnder16Exit refactor to phrasebank composition), fe0fef6 (under-16 v1.1 wording + professional variants, PROFESSIONAL excludes NSPCC/sign-off), a567860 (DV/SA v1.1 wording + professional variants, SA 999 behavioural change), 4185c9e (self-harm entries placed but not wired pending Item 72 decision), a1526ec (orphan cleanup of unsuffixed SELF_HARM_EXIT and UNDER_16_EXIT). Plus 7th commit refreshing this backlog. Test count 96 → 102, all green throughout. Item 57 status updated. Item 72 added (self-harm wiring follow-up — governance decision needed on Mind Infoline and warm sign-off). Item 73 added (UNDER_16_EXIT__SUPPORTER orphan cleanup, low priority). |
