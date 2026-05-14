@@ -2012,16 +2012,32 @@ If you are in immediate danger, call 999 or go to A and E.`
   },
 
   SELF_HARM_EXIT__SUPPORTER: {
-    text: `They deserve support with this, and they do not have to go through it alone.
+    text: `These services can help right now.
 
-You can encourage them to contact:
-
-Samaritans: 116 123 (24 hours, free)
+Samaritans
+116 123 (24 hours, free)
 https://samaritans.org
 
-NHS Mental Health Helpline: call 111 and choose option 2
+NHS Mental Health Crisis Line
+Call 111, option 2.
 
-If they are in immediate danger, call 999 or go to A and E.`
+You don't have to work this out on your own.
+
+If they're in immediate danger, call 999 or go to A&E.`
+  },
+
+  SELF_HARM_EXIT__PROFESSIONAL: {
+    text: `Here are the immediate support contacts.
+
+Samaritans
+116 123
+
+NHS Mental Health Crisis Line
+111, option 2
+
+You'll know what to do from here. If you're not sure, 111 can advise or check your organisation's safeguarding policy.
+
+If they're in immediate danger, call 999 or go to A&E.`
   },
 
   UNDER_16_EXIT: {

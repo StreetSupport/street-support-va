@@ -401,6 +401,19 @@ describe('Self-Harm Pathway', () => {
     expect(result.sessionEnded).toBe(true);
   });
 
+  test('SELF_HARM_EXIT__PROFESSIONAL resolves and uses direct register', () => {
+    // Note: buildSelfHarmExit (crisis.ts) is still inline and does not yet
+    // source from the SELF_HARM_EXIT phrasebank entries. This test asserts
+    // selector resolution only — the entry's pathway wiring is pending.
+    const entry = getPhrase('SELF_HARM_EXIT', 'PROFESSIONAL');
+    expect(entry?.text).toContain('Here are the immediate support contacts');
+    expect(entry?.text).toContain("You'll know what to do from here");
+    expect(entry?.text).toContain('A&E');
+    // Selector falls back through __PROFESSIONAL → __SUPPORTER → base.
+    // Confirm the PROFESSIONAL variant fired (not the SUPPORTER fallback).
+    expect(entry?.text).not.toContain("You don't have to work this out on your own");
+  });
+
 });
 
 // =============================================================================
