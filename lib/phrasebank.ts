@@ -2000,17 +2000,6 @@ You'll know your next steps from here.
 If they're in immediate danger, call 999.`
   },
 
-  SELF_HARM_EXIT: {
-    text: `You deserve support with this, and you do not have to go through it alone.
-
-Samaritans: 116 123 (24 hours, free)
-https://samaritans.org
-
-NHS Mental Health Helpline: call 111 and choose option 2
-
-If you are in immediate danger, call 999 or go to A and E.`
-  },
-
   SELF_HARM_EXIT__SUPPORTER: {
     text: `These services can help right now.
 
@@ -2038,16 +2027,6 @@ NHS Mental Health Crisis Line
 You'll know what to do from here. If you're not sure, 111 can advise or check your organisation's safeguarding policy.
 
 If they're in immediate danger, call 999 or go to A&E.`
-  },
-
-  UNDER_16_EXIT: {
-    text: `Thank you for reaching out. Because you are under 16, there are specific services designed to help keep you safe.
-
-The best next step is to contact your local Children's Services team.
-
-Childline: 0800 1111 (free and confidential)
-
-If you are in immediate danger, call 999.`
   },
 
   UNDER_16_EXIT__SUPPORTER: {
