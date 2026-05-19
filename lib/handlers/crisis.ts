@@ -230,11 +230,11 @@ export function handleCrisisDanger(session: SessionState, choice: number | null)
       return phrase('SA_GENDER_ASK', session.userType);
     case 6: // Fire/flood -> ask location first
       return {
-        ...phrase('CRISIS_FIRE_FLOOD_LOCATION', session.isSupporter),
+        ...phrase('CRISIS_FIRE_FLOOD_LOCATION', session.userType),
         stateUpdates: { currentGate: 'CRISIS_FIRE_FLOOD_LOCATION' }
       };
     case 7: // None apply — collect location before intent
-      return phrase('LOCATION_CONSENT', session.isSupporter);
+      return phrase('LOCATION_CONSENT', session.userType);
     default:
       return phrase('GATE0_CRISIS_DANGER', session.userType);
   }
