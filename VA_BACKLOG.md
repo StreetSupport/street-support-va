@@ -745,6 +745,8 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 
 **Code comment already added** (commit 4185c9e) adjacent to the phrasebank entries documenting the not-wired state and the reason.
 
+**Note (from PR review, May 2026):** `SELF_HARM_EXIT__SUPPORTER` and `SELF_HARM_EXIT__PROFESSIONAL` ship dormant in the phrasebank ahead of this item via PR 20. `buildSelfHarmExit` in `lib/handlers/crisis.ts` remains inline and continues to read `session.isSupporter`. This item picks up the wiring to align runtime with the phrasebank.
+
 ### 73. UNDER_16_EXIT__SUPPORTER orphan
 **Priority:** Low (cleanup)
 **Status:** Open. Surfaced 14 May 2026 during PR #20 commit 6 (a1526ec) audit.
