@@ -1,7 +1,7 @@
 # Street Support VA: Implementation Backlog
 
 **Purpose:** Track what we should be considering working on next.
-**Last updated:** 14 May 2026
+**Last updated:** 19 May 2026
 
 ---
 
@@ -19,14 +19,27 @@
 **Status:** Merged to main. 96/96 tests passing.
 **URL:** https://github.com/StreetSupport/street-support-va/pull/18
 
-### PR #19: Open — awaiting James review
-**Status:** Raised 30 Apr 2026. 96/96 tests passing.
+### PR #19: Merged — 14 May 2026
+**Status:** Merged to main 14 May 2026. 96/96 tests passing.
 **URL:** https://github.com/StreetSupport/street-support-va/pull/19
 **Scope:**
 - GATE0 case 2 (`Under 16`) missing `safeguardingTriggered: true` and `safeguardingType: 'UNDER_16'` — fixed in `crisis.ts`
 - Phrasebank selector (`getPhrase` / `phrase`) widened to accept `userType` — enables `__PROFESSIONAL` phrasebank variants
-- `__PROFESSIONAL` entries pending James language sign-off — will follow in PR #20
 - `VA_BACKLOG.md` included in commit
+- `__PROFESSIONAL` entries deferred to PR #20
+
+### PR #20: Open — awaiting James review
+**Status:** Raised against main 14 May 2026. 102/102 tests passing on staging at dd40a7f. Review responded 19 May 2026; awaiting approval.
+**URL:** https://github.com/StreetSupport/street-support-va/pull/20
+**Scope:**
+- userType propagation through phrasebank selector (13 sites)
+- buildUnder16Exit refactor: inline → phrasebank
+- Under-16 v1.1 supporter and 6 __PROFESSIONAL phrasebank entries
+- DV/SA v1.1 supporter and 9 __PROFESSIONAL entries; SA 999 line
+- Self-harm v1.1 entries added but not wired (deferred to Item 72)
+- Orphan cleanup: unsuffixed SELF_HARM_EXIT and UNDER_16_EXIT removed (UNDER_16_EXIT__SUPPORTER orphan retained for separate handling — Item 73)
+- Post-review tidy-ups: Item 72 backlog note added (bfed14c); cases 6 and 7 in crisis.ts threaded to session.userType for visual consistency with cases 1 to 5 (dd40a7f)
+**Deferred to follow-ups:** Item 71 (B2_WHO_FOR duplication), Item 72 (self-harm wiring), Item 73 (UNDER_16_EXIT__SUPPORTER orphan delete), Item 74 (CHILD_AT_RISK_EXIT v1.1 wiring)
 
 ---
 
@@ -759,6 +772,14 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 
 **Not blocking anything.** Small follow-up commit when convenient.
 
+### 74. CHILD_AT_RISK_EXIT: supporter and professional pathway wiring
+**Priority:** Medium (safeguarding-adjacent)
+**Status:** Surfaced 19 May 2026 in PR #20 review. Not started.
+**Issue:** `safeguardingExit('CHILD_AT_RISK_EXIT', ...)` in `lib/handlers/prevention.ts` still passes `session.isSupporter` as a boolean and is not in the "13 selector calls wired" count delivered by PR #20. Behaviour is unchanged today because there is no `__PROFESSIONAL` variant for this key, so `phrase()` produces the same output. Wiring needs picking up to complete the safeguarding-pathway selector coverage.
+**Required:** Thread `session.userType` through the `safeguardingExit('CHILD_AT_RISK_EXIT', ...)` call. If a `CHILD_AT_RISK_EXIT__PROFESSIONAL` variant is wanted, write it in phrasebank as part of this item. Run tests.
+**Files:** `lib/handlers/prevention.ts`, possibly `lib/phrasebank.ts`
+**Note:** Out of scope for PR #20 to keep v1.1 wiring tight. Confirmed with James in 19 May PR review response.
+
 ---
 
 ### 55. Financial category: constrain unconstrained `support` mapping
@@ -780,6 +801,9 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 - a567860 — DV/SA v1.1 supporter wording + 9 new __PROFESSIONAL entries, alignment comment in phrasebank.ts; SA 999 line added (behavioural change)
 - 4185c9e — self-harm v1.1 entries added but NOT wired (see Item 72)
 - a1526ec — orphan cleanup: unsuffixed SELF_HARM_EXIT and UNDER_16_EXIT removed
+- 5b32a4c — chore: update backlog with PR #20 completion and follow-up items
+- bfed14c — docs: note phrasebank dormant entries on Item 72 (19 May 2026)
+- dd40a7f — refactor(crisis): pass session.userType for cases 6 and 7 (19 May 2026)
 
 **Test count:** 96 → 102 across the chain, all green.
 
