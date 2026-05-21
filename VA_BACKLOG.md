@@ -1,7 +1,7 @@
 # Street Support VA: Implementation Backlog
 
 **Purpose:** Track what we should be considering working on next.
-**Last updated:** 19 May 2026
+**Last updated:** 21 May 2026
 
 ---
 
@@ -780,6 +780,27 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 **Files:** `lib/handlers/prevention.ts`, possibly `lib/phrasebank.ts`
 **Note:** Out of scope for PR #20 to keep v1.1 wiring tight. Confirmed with James in 19 May PR review response.
 
+### 75. SELF DV and SA exits: 999 line parity
+**Priority:** Medium (safeguarding)
+**Status:** Surfaced 19 May 2026 in PR #20 review. Not started.
+**Issue:** PR #20 added the 999 line to DV and SA `__SUPPORTER` exits. SELF (direct-experience) DV and SA exits still have no 999 line, so a person directly experiencing DV or SA gets less emergency information than their supporter does.
+**Required:** Add 999 line to SELF DV and SA exits mirroring the `__SUPPORTER` pattern, with regression tests.
+**Files:** `lib/phrasebank.ts`, `__tests__/safeguarding.test.ts`
+
+### 76. PROFESSIONAL under-16 exit: abrupt ending on 999 line
+**Priority:** Low (design clarity)
+**Status:** Surfaced 19 May 2026 in PR #20 review. Design confirmation needed.
+**Issue:** The PROFESSIONAL under-16 exit ends abruptly on the 999 line without warm sign-off or onward guidance. May be deliberate (professionals have statutory escalation routes). Worth being explicit either way.
+**Required:** Confirm with James whether the abrupt ending is deliberate; if yes, add a comment documenting the design choice.
+**Files:** `lib/phrasebank.ts`
+
+### 77. `__PROFESSIONAL` Male and LGBTQ+ DV/SA variants: regression tests
+**Priority:** Medium (test coverage)
+**Status:** Surfaced 19 May 2026 in PR #20 review. Not started.
+**Issue:** PR #20 added `__PROFESSIONAL` Male and LGBTQ+ variants for DV and SA exits. Female `__PROFESSIONAL` variants have regression tests; Male and LGBTQ+ don't. Asymmetric coverage on safeguarding-adjacent entries.
+**Required:** Add regression tests for Male and LGBTQ+ `__PROFESSIONAL` variants on both DV and SA exits.
+**Files:** `__tests__/safeguarding.test.ts`
+
 ---
 
 ### 55. Financial category: constrain unconstrained `support` mapping
@@ -798,7 +819,7 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 - b1f4ee4 — userType propagation through phrasebank selector (13 safeguarding-pathway call sites)
 - b5e5d49 — buildUnder16Exit refactor: inline → phrasebank composition (9 new entries, byte-identical output)
 - fe0fef6 — under-16 v1.1 supporter wording + 6 new __PROFESSIONAL entries, NSPCC + sign-off excluded for PROFESSIONAL users
-- a567860 — DV/SA v1.1 supporter wording + 9 new __PROFESSIONAL entries, alignment comment in phrasebank.ts; SA 999 line added (behavioural change)
+- a567860 — DV/SA v1.1 supporter wording + 9 new __PROFESSIONAL entries, alignment comment in phrasebank.ts; DV and SA 999 line added (behavioural change — all 6 DV __SUPPORTER and all 3 SA __SUPPORTER exits, pre-PR they ended at the Shelter URL; line also present in the new __PROFESSIONAL variants)
 - 4185c9e — self-harm v1.1 entries added but NOT wired (see Item 72)
 - a1526ec — orphan cleanup: unsuffixed SELF_HARM_EXIT and UNDER_16_EXIT removed
 - 5b32a4c — chore: update backlog with PR #20 completion and follow-up items
@@ -811,7 +832,7 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 - PROFESSIONAL users see professional register on under-16, DV, and SA exits
 - PROFESSIONAL users on under-16 exits no longer see NSPCC adult helpline or warm sign-off (not appropriate for professional context per v1.1 §1.4)
 - SUPPORTER users see v1.1 updated wording across under-16, DV, SA
-- SA exits now include a 999 line on SUPPORTER and PROFESSIONAL variants
+- DV and SA exits now include a 999 line on SUPPORTER and PROFESSIONAL variants. Behavioural change: pre-PR the DV and SA __SUPPORTER exits ended at the Shelter URL with no 999 line; PR #20 adds "If they're in immediate danger, call 999." to all of them. The new __PROFESSIONAL variants carry the line as part of their initial content.
 - SELF users unchanged (out of v1.1 scope; see Deferred below)
 
 **Deferred (recorded in PR description for trustee sight):**
