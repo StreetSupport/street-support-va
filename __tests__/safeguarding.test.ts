@@ -341,6 +341,33 @@ describe('Domestic Abuse Disclosure', () => {
     expect(result.text).toContain('999');
   });
 
+  test('DV __SUPPORTER exits all end with the 999 line (behavioural change per v1.1)', () => {
+    // Pre-v1.1 DV __SUPPORTER exits ended at the Shelter housing advice URL.
+    // v1.1 adds a 999 line to every safeguarding exit. Locking in the
+    // behavioural change so a regression cannot silently remove it.
+    // Parallel to the SA 999 test in 'Sexual Violence Disclosure'.
+    const NINE_NINE_NINE = "If they're in immediate danger, call 999.";
+    const cases: Array<[string, number]> = [
+      ['Female', 1], ['Female', 2],
+      ['Male', 1], ['Male', 2],
+      ['Non-binary or other', 1], ['Non-binary or other', 2],
+    ];
+    const endings = cases.map(([dvGender, childrenOption]) => {
+      const session = sessionAt('DV_CHILDREN_ASK', {
+        dvGender,
+        isSupporter: true,
+        userType: 'SUPPORTER',
+      });
+      const result = select(session, childrenOption);
+      return {
+        variant: `${dvGender} / children=${childrenOption === 1 ? 'yes' : 'no'}`,
+        ends999: result.text.trim().endsWith(NINE_NINE_NINE),
+      };
+    });
+    // Every DV __SUPPORTER exit must end with the 999 line.
+    expect(endings.filter((e) => !e.ends999)).toEqual([]);
+  });
+
 });
 
 // =============================================================================
