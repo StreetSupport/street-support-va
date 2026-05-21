@@ -1477,7 +1477,7 @@ What is their gender?
   },
 
   CRISIS_UNDER16_LOCATION__SUPPORTER: {
-    text: `Thank you for letting me know. So I can give you the right Children's Services to contact for them, please tell me which area they're in.
+    text: `Which area are they in? I can find the Children's Services contact.
 
 1. Wolverhampton
 2. Birmingham
@@ -1495,7 +1495,11 @@ What is their gender?
   },
 
   UNDER16_INTERCEPT_PREFIX__SUPPORTER: {
-    text: `From what you've shared, it sounds like the person you're supporting may be under 16. Because of that, I'm going to point you to specialist services for young people instead — they can help in ways I can't.`
+    text: `It sounds like they might be under 16. Let's get them to the right support.`
+  },
+
+  UNDER16_INTERCEPT_PREFIX__PROFESSIONAL: {
+    text: `It sounds like they might be under 16. I can give you the Children's Services contact for their area.`
   },
 
   CRISIS_UNDER16_SOMEWHERE_ELSE: {
@@ -1514,24 +1518,29 @@ If you are in immediate danger, call 999.`
   },
 
   CRISIS_UNDER16_SOMEWHERE_ELSE__SUPPORTER: {
-    text: `Thank you for letting me know. Even though I can't look up their local Children's Services, there are people who can help right now.
+    text: `Even if I can't look up their local Children's Services, there are people who can help right now.
 
-SPECIALIST HELPLINE
 Childline
 0800 1111 (free, confidential, 24/7)
 https://www.childline.org.uk
-A free helpline for young people to call or chat online about anything.
+A free helpline for young people to talk about anything.
 
-SPECIALIST HELPLINE
 NSPCC Helpline (for adults)
 0808 800 5000 (free, 24/7)
 https://www.nspcc.org.uk/keeping-children-safe/reporting-abuse/
 For adults who are worried about a child.
 
-They can also be supported by a trusted adult — a teacher, a family member, or their local council's Children's Services team. You can find their local council at https://www.gov.uk/find-local-council
+You can also find their local council here: https://www.gov.uk/find-local-council
 
----
-If they are in immediate danger, call 999.`
+If they're in immediate danger, call 999.`
+  },
+
+  CRISIS_UNDER16_SOMEWHERE_ELSE__PROFESSIONAL: {
+    text: `They'll need their local Children's Services contact. You can find the right number here: https://www.gov.uk/find-local-council
+
+You'll know your next steps from here. If you're not sure, Children's Services can advise before you make a referral.
+
+If they're in immediate danger, call 999.`
   },
 
   // ============================================================
@@ -1576,7 +1585,7 @@ https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk
   },
 
   DV_FEMALE_CHILDREN_YES__SUPPORTER: {
-    text: `I'm really sorry this is happening to them. They deserve support, and these services are here to help. They can talk through options, help with safety planning, and connect them with emergency housing if needed. Everything is confidential.
+    text: `These services can help right now with safety planning, emergency housing, and confidential support.
 
 DOMESTIC ABUSE SUPPORT
 National Domestic Violence Helpline
@@ -1585,7 +1594,37 @@ https://nationaldahelpline.org.uk
 
 HOUSING ADVICE
 Shelter - Domestic Violence Advice
-https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse
+
+You don't have to work this out on your own.
+
+If they're in immediate danger, call 999.`
+  },
+
+  // ------------------------------------------------------------
+  // DV and SA __PROFESSIONAL entries are intentionally aligned
+  // in content. Stored as separate entries per variant so future
+  // divergent changes (e.g. SA-specific terminology, DV-specific
+  // service mentions) can be made locally without disturbing the
+  // other. Per Supporter and Professional Language Review v1.1,
+  // May 2026.
+  // ------------------------------------------------------------
+
+  DV_FEMALE_CHILDREN_YES__PROFESSIONAL: {
+    text: `Here are the specialist contacts.
+
+DOMESTIC ABUSE SUPPORT
+National Domestic Violence Helpline
+0808 2000 247 (24/7, free, confidential)
+https://nationaldahelpline.org.uk
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse
+
+You'll know your next steps from here.
+
+If they're in immediate danger, call 999.`
   },
 
   DV_FEMALE_CHILDREN_NO: {
@@ -1602,7 +1641,7 @@ https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk
   },
 
   DV_FEMALE_CHILDREN_NO__SUPPORTER: {
-    text: `I'm really sorry this is happening to them. They deserve support, and these services are here to help. They can talk through options, help with safety planning, and connect them with emergency housing if needed. Everything is confidential.
+    text: `These services can help right now with safety planning, emergency housing, and confidential support.
 
 DOMESTIC ABUSE SUPPORT
 National Domestic Violence Helpline
@@ -1611,7 +1650,28 @@ https://nationaldahelpline.org.uk
 
 HOUSING ADVICE
 Shelter - Domestic Violence Advice
-https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse
+
+You don't have to work this out on your own.
+
+If they're in immediate danger, call 999.`
+  },
+
+  DV_FEMALE_CHILDREN_NO__PROFESSIONAL: {
+    text: `Here are the specialist contacts.
+
+DOMESTIC ABUSE SUPPORT
+National Domestic Violence Helpline
+0808 2000 247 (24/7, free, confidential)
+https://nationaldahelpline.org.uk
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse
+
+You'll know your next steps from here.
+
+If they're in immediate danger, call 999.`
   },
 
   DV_MALE_CHILDREN_YES: {
@@ -1629,7 +1689,7 @@ https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk
   },
 
   DV_MALE_CHILDREN_YES__SUPPORTER: {
-    text: `I'm really sorry this is happening to them. They deserve support, and these services are here to help. They can talk through options, help with safety planning, and connect them with emergency housing if needed. Everything is confidential.
+    text: `These services can help right now with safety planning, emergency housing, and confidential support.
 
 DOMESTIC ABUSE SUPPORT
 ManKind Initiative
@@ -1639,7 +1699,29 @@ Confidential support for men affected by domestic violence
 
 HOUSING ADVICE
 Shelter - Domestic Violence Advice
-https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse
+
+You don't have to work this out on your own.
+
+If they're in immediate danger, call 999.`
+  },
+
+  DV_MALE_CHILDREN_YES__PROFESSIONAL: {
+    text: `Here are the specialist contacts.
+
+DOMESTIC ABUSE SUPPORT
+ManKind Initiative
+0808 800 1170
+https://mankind.org.uk
+Confidential support for men affected by domestic violence
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse
+
+You'll know your next steps from here.
+
+If they're in immediate danger, call 999.`
   },
 
   DV_MALE_CHILDREN_NO: {
@@ -1656,7 +1738,7 @@ https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk
   },
 
   DV_MALE_CHILDREN_NO__SUPPORTER: {
-    text: `I'm really sorry this is happening to them. They need support from people who can help right now.
+    text: `These services can help right now with safety planning, emergency housing, and confidential support.
 
 DOMESTIC ABUSE SUPPORT
 ManKind Initiative
@@ -1665,7 +1747,28 @@ https://mankind.org.uk
 
 HOUSING ADVICE
 Shelter - Domestic Violence Advice
-https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse
+
+You don't have to work this out on your own.
+
+If they're in immediate danger, call 999.`
+  },
+
+  DV_MALE_CHILDREN_NO__PROFESSIONAL: {
+    text: `Here are the specialist contacts.
+
+DOMESTIC ABUSE SUPPORT
+ManKind Initiative
+0808 800 1170
+https://mankind.org.uk
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse
+
+You'll know your next steps from here.
+
+If they're in immediate danger, call 999.`
   },
 
   DV_LGBTQ_CHILDREN_YES: {
@@ -1683,7 +1786,7 @@ https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk
   },
 
   DV_LGBTQ_CHILDREN_YES__SUPPORTER: {
-    text: `I'm really sorry this is happening to them. They need support from people who can help right now.
+    text: `These services can help right now with safety planning, emergency housing, and confidential support.
 
 DOMESTIC ABUSE SUPPORT
 Galop
@@ -1693,7 +1796,29 @@ National helpline for LGBTQ+ people affected by abuse or violence
 
 HOUSING ADVICE
 Shelter - Domestic Violence Advice
-https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse
+
+You don't have to work this out on your own.
+
+If they're in immediate danger, call 999.`
+  },
+
+  DV_LGBTQ_CHILDREN_YES__PROFESSIONAL: {
+    text: `Here are the specialist contacts.
+
+DOMESTIC ABUSE SUPPORT
+Galop
+0800 999 5428
+https://galop.org.uk
+National helpline for LGBTQ+ people affected by abuse or violence
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse
+
+You'll know your next steps from here.
+
+If they're in immediate danger, call 999.`
   },
 
   DV_LGBTQ_CHILDREN_NO: {
@@ -1710,7 +1835,7 @@ https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk
   },
 
   DV_LGBTQ_CHILDREN_NO__SUPPORTER: {
-    text: `I'm really sorry this is happening to them. They need support from people who can help right now.
+    text: `These services can help right now with safety planning, emergency housing, and confidential support.
 
 DOMESTIC ABUSE SUPPORT
 Galop
@@ -1719,7 +1844,28 @@ https://galop.org.uk
 
 HOUSING ADVICE
 Shelter - Domestic Violence Advice
-https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse
+
+You don't have to work this out on your own.
+
+If they're in immediate danger, call 999.`
+  },
+
+  DV_LGBTQ_CHILDREN_NO__PROFESSIONAL: {
+    text: `Here are the specialist contacts.
+
+DOMESTIC ABUSE SUPPORT
+Galop
+0800 999 5428
+https://galop.org.uk
+
+HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse
+
+You'll know your next steps from here.
+
+If they're in immediate danger, call 999.`
   },
 
   SA_FEMALE_16PLUS: {
@@ -1732,12 +1878,38 @@ https://rapecrisis.org.uk`
   },
 
   SA_FEMALE_16PLUS__SUPPORTER: {
-    text: `I'm really sorry this has happened to them. They need support from people who can help right now.
+    text: `These specialist services can help right now.
 
 SEXUAL VIOLENCE SUPPORT
 Rape Crisis England & Wales
 0808 500 2222 (Free, confidential, 24/7)
-https://rapecrisis.org.uk`
+https://rapecrisis.org.uk
+
+You don't have to work this out on your own.
+
+If they're in immediate danger, call 999.`
+  },
+
+  // ------------------------------------------------------------
+  // DV and SA __PROFESSIONAL entries are intentionally aligned
+  // in content. Stored as separate entries per variant so future
+  // divergent changes (e.g. SA-specific terminology, DV-specific
+  // service mentions) can be made locally without disturbing the
+  // other. Per Supporter and Professional Language Review v1.1,
+  // May 2026.
+  // ------------------------------------------------------------
+
+  SA_FEMALE_16PLUS__PROFESSIONAL: {
+    text: `Here are the specialist contacts.
+
+SEXUAL VIOLENCE SUPPORT
+Rape Crisis England & Wales
+0808 500 2222 (Free, confidential, 24/7)
+https://rapecrisis.org.uk
+
+You'll know your next steps from here.
+
+If they're in immediate danger, call 999.`
   },
 
   SA_MALE_16PLUS: {
@@ -1751,13 +1923,31 @@ Specialist, confidential support for men and boys aged 16 and over`
   },
 
   SA_MALE_16PLUS__SUPPORTER: {
-    text: `I'm really sorry this has happened to them. They need support from people who can help right now.
+    text: `These specialist services can help right now.
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
 020 3598 3898
 https://survivorsuk.org
-Specialist, confidential support for men and boys aged 16 and over`
+Specialist, confidential support for men and boys aged 16 and over
+
+You don't have to work this out on your own.
+
+If they're in immediate danger, call 999.`
+  },
+
+  SA_MALE_16PLUS__PROFESSIONAL: {
+    text: `Here are the specialist contacts.
+
+SEXUAL VIOLENCE SUPPORT
+SurvivorsUK
+020 3598 3898
+https://survivorsuk.org
+Specialist, confidential support for men and boys aged 16 and over
+
+You'll know your next steps from here.
+
+If they're in immediate danger, call 999.`
   },
 
   SA_LGBTQ_OR_NONBINARY: {
@@ -1775,7 +1965,7 @@ https://galop.org.uk`
   },
 
   SA_LGBTQ_OR_NONBINARY__SUPPORTER: {
-    text: `I'm really sorry this has happened to them. They need support from people who can help right now.
+    text: `These specialist services can help right now.
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
@@ -1785,41 +1975,58 @@ https://survivorsuk.org
 SEXUAL VIOLENCE SUPPORT
 Galop
 0800 999 5428
-https://galop.org.uk`
+https://galop.org.uk
+
+You don't have to work this out on your own.
+
+If they're in immediate danger, call 999.`
   },
 
-  SELF_HARM_EXIT: {
-    text: `You deserve support with this, and you do not have to go through it alone.
+  SA_LGBTQ_OR_NONBINARY__PROFESSIONAL: {
+    text: `Here are the specialist contacts.
 
-Samaritans: 116 123 (24 hours, free)
-https://samaritans.org
+SEXUAL VIOLENCE SUPPORT
+SurvivorsUK
+020 3598 3898
+https://survivorsuk.org
 
-NHS Mental Health Helpline: call 111 and choose option 2
+SEXUAL VIOLENCE SUPPORT
+Galop
+0800 999 5428
+https://galop.org.uk
 
-If you are in immediate danger, call 999 or go to A and E.`
+You'll know your next steps from here.
+
+If they're in immediate danger, call 999.`
   },
 
   SELF_HARM_EXIT__SUPPORTER: {
-    text: `They deserve support with this, and they do not have to go through it alone.
+    text: `These services can help right now.
 
-You can encourage them to contact:
-
-Samaritans: 116 123 (24 hours, free)
+Samaritans
+116 123 (24 hours, free)
 https://samaritans.org
 
-NHS Mental Health Helpline: call 111 and choose option 2
+NHS Mental Health Crisis Line
+Call 111, option 2.
 
-If they are in immediate danger, call 999 or go to A and E.`
+You don't have to work this out on your own.
+
+If they're in immediate danger, call 999 or go to A&E.`
   },
 
-  UNDER_16_EXIT: {
-    text: `Thank you for reaching out. Because you are under 16, there are specific services designed to help keep you safe.
+  SELF_HARM_EXIT__PROFESSIONAL: {
+    text: `Here are the immediate support contacts.
 
-The best next step is to contact your local Children's Services team.
+Samaritans
+116 123
 
-Childline: 0800 1111 (free and confidential)
+NHS Mental Health Crisis Line
+111, option 2
 
-If you are in immediate danger, call 999.`
+You'll know what to do from here. If you're not sure, 111 can advise or check your organisation's safeguarding policy.
+
+If they're in immediate danger, call 999 or go to A&E.`
   },
 
   UNDER_16_EXIT__SUPPORTER: {
@@ -1831,6 +2038,97 @@ Childline: 0800 1111 (free and confidential, for young people)
 NSPCC: 0808 800 5000 (for adults concerned about a child)
 
 If they are in immediate danger, call 999.`
+  },
+
+  // ------------------------------------------------------------
+  // Under-16 exit fragments — composed by buildUnder16Exit
+  // Order: opener, [LA contact data — inline], next-steps,
+  //        Childline, NSPCC (supporter only), sign-off, 999
+  // ------------------------------------------------------------
+
+  UNDER16_EXIT_OPENER: {
+    text: `Thank you for reaching out. Because you are under 16, there are specialist services that can help keep you safe. It takes courage to ask for help, and you've done the right thing.
+
+`
+  },
+
+  UNDER16_EXIT_OPENER__SUPPORTER: {
+    text: `Thank you for reaching out. Because they are under 16, there are specialist services that can help keep them safe. It's really good that you're looking for support for them.
+
+`
+  },
+
+  UNDER16_EXIT_OPENER__PROFESSIONAL: {
+    text: `Here are the Children's Services contacts for their area.
+
+`
+  },
+
+  UNDER16_EXIT_NEXT_STEPS: {
+    text: `They can talk through what's happening and help work out the best support
+
+`
+  },
+
+  UNDER16_EXIT_NEXT_STEPS__PROFESSIONAL: {
+    text: `You'll know your next steps from here. If you're not sure, contact Children's Services directly or check your organisation's safeguarding policy.
+
+`
+  },
+
+  UNDER16_EXIT_CHILDLINE_FOR_YOUNG_PERSON: {
+    text: `SPECIALIST HELPLINE
+Childline
+0800 1111 (free, confidential, 24/7)
+https://www.childline.org.uk
+A free helpline where you can call or chat online about anything
+
+`
+  },
+
+  UNDER16_EXIT_CHILDLINE_FOR_YOUNG_PERSON__SUPPORTER: {
+    text: `SPECIALIST HELPLINE
+Childline
+0800 1111 (free, confidential, 24/7)
+https://www.childline.org.uk
+A free helpline for young people to call or chat online about anything
+
+`
+  },
+
+  UNDER16_EXIT_CHILDLINE_FOR_YOUNG_PERSON__PROFESSIONAL: {
+    text: `Childline is also there for the young person if they need it: 0800 1111.
+
+`
+  },
+
+  UNDER16_EXIT_NSPCC_FOR_ADULT__SUPPORTER: {
+    text: `SPECIALIST HELPLINE
+NSPCC Helpline (for adults)
+0808 800 5000 (free, 24/7)
+https://www.nspcc.org.uk/keeping-children-safe/reporting-abuse/
+For adults who are worried about a child
+
+`
+  },
+
+  UNDER16_EXIT_SIGN_OFF: {
+    text: `---
+Please reach out when you feel ready. I'll be here if you need help finding other services later.
+
+`
+  },
+
+  UNDER16_EXIT_999: {
+    text: `If you are in immediate danger, call 999.`
+  },
+
+  UNDER16_EXIT_999__SUPPORTER: {
+    text: `If they are in immediate danger, call 999.`
+  },
+
+  UNDER16_EXIT_999__PROFESSIONAL: {
+    text: `If they're in immediate danger, call 999.`
   },
 
   FIRE_FLOOD_EXIT: {

@@ -23,8 +23,8 @@ export function phrase(key: string, audience: 'SELF' | 'SUPPORTER' | 'PROFESSION
   };
 }
 
-export function safeguardingExit(key: string, isSupporter: boolean, type: string): RoutingResult {
-  const p = getPhrase(key, isSupporter);
+export function safeguardingExit(key: string, audience: 'SELF' | 'SUPPORTER' | 'PROFESSIONAL' | null | boolean, type: string): RoutingResult {
+  const p = getPhrase(key, audience);
   return {
     text: p?.text || `[Missing phrase: ${key}]`,
     stateUpdates: {
@@ -45,17 +45,8 @@ export const childrenServicesData = Object.fromEntries(
 ) as Record<string, { name: string; phone: string; phoneOOH?: string; website: string }>;
 
 export function buildUnder16Exit(session: SessionState): RoutingResult {
-  const isSupporter = session.isSupporter;
   const la = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
   const childServices = childrenServicesData[la];
-
-  let text = '';
-
-  if (isSupporter) {
-    text += `Thank you for reaching out. Because they are under 16, there are specialist services that can help keep them safe. It's really good that you're looking for support for them.\n\n`;
-  } else {
-    text += `Thank you for reaching out. Because you are under 16, there are specialist services that can help keep you safe. It takes courage to ask for help, and you've done the right thing.\n\n`;
-  }
 
   // Local Children's Services — LA must be known by this point.
   // All call sites should route through CRISIS_UNDER16_LOCATION first
@@ -63,7 +54,7 @@ export function buildUnder16Exit(session: SessionState): RoutingResult {
   // If it IS reached without one, log the error and recover by asking for area.
   if (!childServices) {
     console.error(`[VA] buildUnder16Exit called without valid LA (got: ${JSON.stringify(session.localAuthority)}, sessionId: ${session.sessionId}). Recovering to CRISIS_UNDER16_LOCATION.`);
-    const locationPhrase = getPhrase('CRISIS_UNDER16_LOCATION', isSupporter);
+    const locationPhrase = getPhrase('CRISIS_UNDER16_LOCATION', session.userType);
     return {
       text: locationPhrase?.text || '',
       options: locationPhrase?.options,
@@ -75,6 +66,12 @@ export function buildUnder16Exit(session: SessionState): RoutingResult {
     };
   }
 
+  let text = '';
+
+  // Opener
+  text += getPhrase('UNDER16_EXIT_OPENER', session.userType)?.text || '';
+
+  // Local Children's Services — data-driven, stays inline
   text += `CHILDREN'S SERVICES\n`;
   text += `${childServices.name}\n`;
   if (childServices.phoneOOH) {
@@ -83,27 +80,27 @@ export function buildUnder16Exit(session: SessionState): RoutingResult {
     text += `${childServices.phone}\n`;
   }
   text += `${childServices.website}\n`;
-  text += `They can talk through what's happening and help work out the best support\n\n`;
+
+  // Next-steps reinforcement
+  text += getPhrase('UNDER16_EXIT_NEXT_STEPS', session.userType)?.text || '';
 
   // Childline
-  text += `SPECIALIST HELPLINE\n`;
-  text += `Childline\n`;
-  text += `0800 1111 (free, confidential, 24/7)\n`;
-  text += `https://www.childline.org.uk\n`;
-  text += `${isSupporter ? 'A free helpline for young people to call or chat online about anything' : 'A free helpline where you can call or chat online about anything'}\n\n`;
+  text += getPhrase('UNDER16_EXIT_CHILDLINE_FOR_YOUNG_PERSON', session.userType)?.text || '';
 
-  if (isSupporter) {
-    text += `SPECIALIST HELPLINE\n`;
-    text += `NSPCC Helpline (for adults)\n`;
-    text += `0808 800 5000 (free, 24/7)\n`;
-    text += `https://www.nspcc.org.uk/keeping-children-safe/reporting-abuse/\n`;
-    text += `For adults who are worried about a child\n\n`;
+  // NSPCC and warm sign-off — included for SELF and SUPPORTER, excluded for
+  // PROFESSIONAL per Supporter and Professional Language Review v1.1 §1.4.
+  // NSPCC adult helpline is for non-professionals worried about a child;
+  // professionals call Children's Services directly. Warm sign-off is
+  // inappropriate register for the professional context.
+  // (For SELF, NSPCC has no base entry so the selector returns null —
+  // contributes nothing — preserving prior behaviour.)
+  if (session.userType !== 'PROFESSIONAL') {
+    text += getPhrase('UNDER16_EXIT_NSPCC_FOR_ADULT', session.userType)?.text || '';
+    text += getPhrase('UNDER16_EXIT_SIGN_OFF', session.userType)?.text || '';
   }
 
-  // Warm sign-off with separator
-  text += `---\n`;
-  text += `Please reach out when you feel ready. I'll be here if you need help finding other services later.\n\n`;
-  text += `If ${isSupporter ? 'they are' : 'you are'} in immediate danger, call 999.`;
+  // 999 line
+  text += getPhrase('UNDER16_EXIT_999', session.userType)?.text || '';
 
   return {
     text,

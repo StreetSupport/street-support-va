@@ -161,6 +161,23 @@ describe('Under 16', () => {
     expect(result.text).not.toContain('0808 800 4444');
   });
 
+  test('PROFESSIONAL user does not see NSPCC adult helpline or warm sign-off', () => {
+    // Per v1.1 §1.4: NSPCC adult helpline is for non-professionals worried
+    // about a child; professionals call Children's Services directly. Warm
+    // sign-off is inappropriate register for the professional context.
+    const session = sessionAt('B3_AGE_CATEGORY', {
+      localAuthority: 'Birmingham',
+      userType: 'PROFESSIONAL',
+      isSupporter: true,
+    });
+    const result = select(session, 1);
+    expect(result.text).not.toContain('0808 800 5000'); // NSPCC number
+    expect(result.text).not.toContain('Please reach out when you feel ready');
+    // But still gets the professional opener and the 999 line
+    expect(result.text).toContain("Here are the Children's Services contacts");
+    expect(result.text).toContain('999');
+  });
+
 });
 
 // =============================================================================
@@ -307,6 +324,84 @@ describe('Domestic Abuse Disclosure', () => {
     expect(result.text).toContain('england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse');
   });
 
+  test('DV __PROFESSIONAL exit fires when userType is PROFESSIONAL', () => {
+    // Per v1.1 §3.1: professional register replaces consolation framing
+    // with direct service framing.
+    const session = sessionAt('DV_CHILDREN_ASK', {
+      dvGender: 'Female',
+      isSupporter: true,
+      userType: 'PROFESSIONAL',
+    });
+    const result = select(session, 1);
+    expect(result.text).toContain('Here are the specialist contacts');
+    expect(result.text).toContain("You'll know your next steps from here");
+    expect(result.text).not.toContain("You don't have to work this out on your own");
+    // Service contacts and 999 line still present
+    expect(result.text).toContain('0808 2000 247');
+    expect(result.text).toContain('999');
+  });
+
+  test('DV __SUPPORTER exits all end with the 999 line (behavioural change per v1.1)', () => {
+    // Pre-v1.1 DV __SUPPORTER exits ended at the Shelter housing advice URL.
+    // v1.1 adds a 999 line to every safeguarding exit. Locking in the
+    // behavioural change so a regression cannot silently remove it.
+    // Parallel to the SA 999 test in 'Sexual Violence Disclosure'.
+    const NINE_NINE_NINE = "If they're in immediate danger, call 999.";
+    const cases: Array<[string, number]> = [
+      ['Female', 1], ['Female', 2],
+      ['Male', 1], ['Male', 2],
+      ['Non-binary or other', 1], ['Non-binary or other', 2],
+    ];
+    const endings = cases.map(([dvGender, childrenOption]) => {
+      const session = sessionAt('DV_CHILDREN_ASK', {
+        dvGender,
+        isSupporter: true,
+        userType: 'SUPPORTER',
+      });
+      const result = select(session, childrenOption);
+      return {
+        variant: `${dvGender} / children=${childrenOption === 1 ? 'yes' : 'no'}`,
+        ends999: result.text.trim().endsWith(NINE_NINE_NINE),
+      };
+    });
+    // Every DV __SUPPORTER exit must end with the 999 line.
+    expect(endings.filter((e) => !e.ends999)).toEqual([]);
+  });
+
+});
+
+// =============================================================================
+// SEXUAL VIOLENCE - Must route to SA exit with appropriate helplines and 999
+// =============================================================================
+
+describe('Sexual Violence Disclosure', () => {
+
+  test('SA __SUPPORTER exits include the 999 line (behavioural change per v1.1)', () => {
+    // Pre-v1.1 SA exits did not include a 999 line. v1.1 adds one to every
+    // safeguarding exit. Locking in the behavioural change so a regression
+    // can't silently remove it.
+    const session = sessionAt('SA_GENDER_ASK', {
+      isSupporter: true,
+      userType: 'SUPPORTER',
+    });
+    const result = select(session, 1); // Female
+    expect(result.text).toContain("If they're in immediate danger, call 999");
+  });
+
+  test('SA __PROFESSIONAL exit fires when userType is PROFESSIONAL', () => {
+    const session = sessionAt('SA_GENDER_ASK', {
+      isSupporter: true,
+      userType: 'PROFESSIONAL',
+    });
+    const result = select(session, 1); // Female
+    expect(result.text).toContain('Here are the specialist contacts');
+    expect(result.text).toContain("You'll know your next steps from here");
+    expect(result.text).not.toContain("You don't have to work this out on your own");
+    // Service contact and 999 line still present
+    expect(result.text).toContain('0808 500 2222');
+    expect(result.text).toContain('999');
+  });
+
 });
 
 // =============================================================================
@@ -331,6 +426,19 @@ describe('Self-Harm Pathway', () => {
     const session = sessionAt('GATE0_CRISIS_DANGER');
     const result = select(session, 3);
     expect(result.sessionEnded).toBe(true);
+  });
+
+  test('SELF_HARM_EXIT__PROFESSIONAL resolves and uses direct register', () => {
+    // Note: buildSelfHarmExit (crisis.ts) is still inline and does not yet
+    // source from the SELF_HARM_EXIT phrasebank entries. This test asserts
+    // selector resolution only — the entry's pathway wiring is pending.
+    const entry = getPhrase('SELF_HARM_EXIT', 'PROFESSIONAL');
+    expect(entry?.text).toContain('Here are the immediate support contacts');
+    expect(entry?.text).toContain("You'll know what to do from here");
+    expect(entry?.text).toContain('A&E');
+    // Selector falls back through __PROFESSIONAL → __SUPPORTER → base.
+    // Confirm the PROFESSIONAL variant fired (not the SUPPORTER fallback).
+    expect(entry?.text).not.toContain("You don't have to work this out on your own");
   });
 
 });
