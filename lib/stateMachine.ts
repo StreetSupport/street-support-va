@@ -965,7 +965,7 @@ export function interceptUnder16Age(session: SessionState, input: string): Routi
 
   logUnder16Trigger(session.sessionId, session.currentGate, trigger);
 
-  const prefix = getPhrase('UNDER16_INTERCEPT_PREFIX', session.isSupporter);
+  const prefix = getPhrase('UNDER16_INTERCEPT_PREFIX', session.userType);
   const explanation = prefix ? `${prefix.text}\n\n` : '';
 
   // If LA is already known, exit directly with localised Children's Services info.
@@ -978,7 +978,7 @@ export function interceptUnder16Age(session: SessionState, input: string): Routi
     };
   }
 
-  const locationPhrase = getPhrase('CRISIS_UNDER16_LOCATION', session.isSupporter);
+  const locationPhrase = getPhrase('CRISIS_UNDER16_LOCATION', session.userType);
   return {
     text: explanation + (locationPhrase?.text || ''),
     options: locationPhrase?.options,
@@ -1217,7 +1217,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
           return buildUnder16Exit(session);
         }
         return {
-          ...phrase('CRISIS_UNDER16_LOCATION', session.isSupporter),
+          ...phrase('CRISIS_UNDER16_LOCATION', session.userType),
           stateUpdates: { currentGate: 'CRISIS_UNDER16_LOCATION' }
         };
       }

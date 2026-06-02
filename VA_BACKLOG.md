@@ -1,7 +1,7 @@
 # Street Support VA: Implementation Backlog
 
 **Purpose:** Track what we should be considering working on next.
-**Last updated:** 30 April 2026
+**Last updated:** 21 May 2026
 
 ---
 
@@ -19,12 +19,27 @@
 **Status:** Merged to main. 96/96 tests passing.
 **URL:** https://github.com/StreetSupport/street-support-va/pull/18
 
-### PR #19: Ready to commit — mechanical safeguarding changes
-**Status:** Built and tested 30 Apr 2026. 96/96 tests passing. Not yet committed.
+### PR #19: Merged — 14 May 2026
+**Status:** Merged to main 14 May 2026. 96/96 tests passing.
+**URL:** https://github.com/StreetSupport/street-support-va/pull/19
 **Scope:**
 - GATE0 case 2 (`Under 16`) missing `safeguardingTriggered: true` and `safeguardingType: 'UNDER_16'` — fixed in `crisis.ts`
-- Phrasebank selector (`getPhrase` / `phrase`) widened to accept `userType` (`'SELF' | 'SUPPORTER' | 'PROFESSIONAL' | null | boolean`) — enables `__PROFESSIONAL` phrasebank variants. No `__PROFESSIONAL` entries added yet (language sign-off pending — see item 57 and language review document)
+- Phrasebank selector (`getPhrase` / `phrase`) widened to accept `userType` — enables `__PROFESSIONAL` phrasebank variants
 - `VA_BACKLOG.md` included in commit
+- `__PROFESSIONAL` entries deferred to PR #20
+
+### PR #20: Open — awaiting James review
+**Status:** Raised against main 14 May 2026. 102/102 tests passing on staging at dd40a7f. Review responded 19 May 2026; awaiting approval.
+**URL:** https://github.com/StreetSupport/street-support-va/pull/20
+**Scope:**
+- userType propagation through phrasebank selector (13 sites)
+- buildUnder16Exit refactor: inline → phrasebank
+- Under-16 v1.1 supporter and 6 __PROFESSIONAL phrasebank entries
+- DV/SA v1.1 supporter and 9 __PROFESSIONAL entries; SA 999 line
+- Self-harm v1.1 entries added but not wired (deferred to Item 72)
+- Orphan cleanup: unsuffixed SELF_HARM_EXIT and UNDER_16_EXIT removed (UNDER_16_EXIT__SUPPORTER orphan retained for separate handling — Item 73)
+- Post-review tidy-ups: Item 72 backlog note added (bfed14c); cases 6 and 7 in crisis.ts threaded to session.userType for visual consistency with cases 1 to 5 (dd40a7f)
+**Deferred to follow-ups:** Item 71 (B2_WHO_FOR duplication), Item 72 (self-harm wiring), Item 73 (UNDER_16_EXIT__SUPPORTER orphan delete), Item 74 (CHILD_AT_RISK_EXIT v1.1 wiring)
 
 ---
 
@@ -153,7 +168,7 @@ Standard housing route — no specialist framing, no Langley Trust.
 
 ### 34. Baseline snapshot from current WMCA governance review
 **Priority:** High (prerequisite for everything below)
-**Status:** In progress. Unblocked once Eliz returns decisions on the 22-item safeguarding governance review (sent 28 Mar 2026) and cross-boundary findings are confirmed. Both feeds into the baseline before it is locked.
+**Status:** Inputs cleared May 2026. Baseline can now be locked. Specifically: the May 2026 review pass produced 21 decisions which were written back via `wmca_review_writeback_v1_2.py`; cross-boundary findings approved under Data Enrichment Contract v2.1 amendment (April 2026); safeguarding classifier v2.4 with precedent inheritance applied. The May 3 enriched output (`wmca_enriched_services_2026-05-03.json`) is the candidate baseline. Locking it requires the version-controlled pipeline repo (which itself is not yet in place) and a brief governance moment to mark "this is the approved state."
 **Required:** When Matt completes the governance review (REVIEW items decided, AUTO_VERIFY/AUTO_REJECT spot-checked, rules confirmed), the approved enriched output file is saved as the baseline snapshot: `wmca_baseline_YYYY-MM-DD.json`. This is the anchoring artefact for all future regression checks. Must be version-controlled in the pipeline repo once it exists.
 **Governance:** The baseline is a governance artefact, not just a data file. It represents "this is the approved state of enrichment for this area." Any future run that produces different verdicts for unchanged services must be explained.
 
@@ -283,7 +298,28 @@ This document is the operational companion to the validation script (item 35). T
 
 ### 38. Feedback loop: human review decisions as classifier training data
 **Priority:** Medium (pipeline workstream)
-**Status:** Not started. Scoped 12 Mar 2026.
+**Status:** Implemented May 2026. Goes beyond original scope.
+**Implementation summary:**
+
+The feedback loop is now built and operational. Three components landed (writeback v1.2, candidate generator v1.1, precedent inheritance in safeguarding classifier v2.4), governed by Reclassification Protocol v1.1. Tested end-to-end on the May 3 pipeline re-run: 21 review decisions from the May 2026 review pass now auto-resolve from precedent on every future run; the four v2.4 rule changes (MH-R6 structural fix, KIKIT pattern) handle ~4 additional cases from rules. May 3 review bucket: 0 items.
+
+**Components built:**
+- `wmca_review_writeback_v1_2.py` — applies decisions from annotated CSV to enriched dataset, parses structured tags from reviewer notes, writes precedent log entries.
+- `wmca_candidate_generator_v1_1.py` — reads precedent log, surfaces three streams of candidates (rule changes, listings curation, investigations) with min-support thresholds.
+- Precedent inheritance in `safeguarding_classifier_v2_4.py` — classifier consults precedent log before falling through to rules; verdicts from precedent carry rule_id 'PRECEDENT'.
+
+**Beyond original spec:**
+- Original spec described feedback as a comparison/analysis loop with the reviewer choosing when to analyse. Built version inherits decisions automatically at classification time, so review work compounds across runs without any manual analysis step.
+- Original spec covered classifier rule refinement only. Built version also surfaces listings curation candidates (three categories: ambiguity, insufficient information, category mismatch) and investigations.
+- Original spec did not anticipate listings as a parallel output of the loop; that emerged from Eliz's observation that much of her review time was about listing quality, not classifier quality.
+
+**References:**
+- Reclassification_Protocol_v1_1.docx (the operating procedure)
+- Safeguarding_Classifier_v2_4_Release_Note.docx (the classifier change with precedent inheritance)
+- SSN_Data_Pipeline_Architecture.docx Part 2 (May 2026 entries)
+
+**Original specification preserved below for reference:**
+
 **Issue:** Every time a human reviews an item and decides "yes, this is a specialism" or "no, it isn't", that decision is signal. Currently these decisions are not stored in a way that feeds back into the classifier. The system stays the same quality rather than improving over time.
 
 **Two uses for accumulated human decisions:**
@@ -316,6 +352,8 @@ This document is the operational companion to the validation script (item 35). T
 **Source:** Edge cases audit (Feb 2026). Confirmed by Claude Code (Feb 10).
 **Status:** Scoped, not yet implemented.
 
+**Adjacent finding (May 2026):** The May 2026 review pass surfaced a related but separate issue at the extractor level — Growbaby cots was misclassified as accepting under-18s because the description mentions "items for children aged 0-2". The age refers to product recipients, not service users. Items-category services need an explicit accept_under_18s statement, not just an age range mentioned in description. Carried by precedent log for now (Growbaby auto-resolves on every future run via the May 2 decision); structural fix is in the enrichment pipeline's age extractor when this item is implemented.
+
 ### 10. Contradictory gender data not detected
 **Priority:** High
 **Issue:** `matchesGender()` uses two independent signals OR'd together with no conflict check. Examples: client_groups ["Men"] but description "women's refuge"; client_groups ["Women", "Men"] treated as both women-only AND men-only.
@@ -327,6 +365,8 @@ This document is the operational companion to the validation script (item 35). T
 **Issue:** `womenOnlyTerms` includes "mothers", "pregnancy" etc. Substring matching means "help for fathers and mothers" flags as women-only because "mothers" matches.
 **Source:** Claude Code analysis (Feb 10).
 **Status:** Not yet scoped.
+
+**Adjacent evidence (May 2026):** The May 2026 review pass confirmed this as a real failure mode in production data. Non Violentiam CIC was misclassified on a weak signal alone ("pregnant women" as gender restriction). The website confirms Non Violentiam is genuinely women-only DV refuge so the verdict ended up correct, but the reasoning was wrong — the classifier saw "pregnant women" as a population mention in the description rather than as an explicit gender restriction. Need-statement vs population-mention distinction is the deeper fix. Carried by precedent log for Non Violentiam; structural fix is at the gender extractor level when this item is implemented.
 
 ---
 
@@ -598,10 +638,9 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 
 ### 44c. Classifier decisions write-back to enriched data file
 **Priority:** Medium (pipeline workstream)
-**Status:** May be complete — needs verification. Previously blocked pending Eliz's response on the 22-item safeguarding governance review. Not a priority right now.
-**Issue:** The safeguarding classifier produced AUTO_VERIFY, AUTO_REJECT and REVIEW verdicts. The 22 REVIEW items require human decisions before classifications can be finalised and written back to the enriched data file.
-**Required:** Once Eliz returns decisions, write confirmed classifications back to the enriched services file. Update the baseline snapshot (item 34).
-**Blocked by:** Eliz's 22-item governance review (sent 28 Mar 2026).
+**Status:** Complete — May 2026. Closed by item 38 (feedback loop) implementation. The May 2026 review pass produced 21 decisions which were written back to the enriched dataset via `wmca_review_writeback_v1_2.py`. The corrected enriched file (`wmca_enriched_services_2026-04-24_corrected.json`) reflects every human decision in the safeguarding flags and in `service.human_review[]` audit trail. Subsequent runs (May 3 onward) inherit the same decisions automatically via precedent inheritance in `safeguarding_classifier_v2_4.py`, so the write-back step now compounds across runs rather than being a manual step each time.
+**Original issue (preserved):** The safeguarding classifier produced AUTO_VERIFY, AUTO_REJECT and REVIEW verdicts. The 22 REVIEW items required human decisions before classifications could be finalised and written back to the enriched data file.
+**See also:** Item 38 (the feedback loop that delivered this), Reclassification_Protocol_v1_1.docx (operating procedure).
 
 ### 45. Solihull cross-boundary coverage: proof of concept scrape
 **Status:** Complete — 28 Mar 2026. 201 candidates checked, 23 findings, 10 HIGH confidence. Approach validated. Full WMCA run completed same day. See item 49.
@@ -630,24 +669,24 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 
 ### 49. Cross-boundary checker: integrate as standard pipeline step
 **Priority:** High (pipeline workstream)
-**Status:** Blocked. Governance question open — requires Data Enrichment Contract amendment and Tier 3 trustee approval before becoming standard pipeline.
-**Background:** Script built and full WMCA run completed 28 Mar 2026. Coverage Methodology Note v1.0 sent to James. James confirmed (28 Mar) that website reading (BeautifulSoup scraping of org websites) crosses the agreed data source boundary in the Data Enrichment Contract, which restricts enrichment to SSN API endpoints only. The boundary was not checked before building. James is open to website reading as a governed exception for coverage checking specifically, with the mitigations described, but requires it to go through properly.
-**What exists:** `wmca_cross_boundary_checker.py` — paginated fetch, 5km baseline vs 20km expanded radius, SSN description and website text checked for coverage signals, HIGH/MEDIUM/LOW confidence classification, structured review queue output. Run results: 374 findings, 88 strong matches across 7 LAs.
-**Governance path required:**
-1. Data Enrichment Contract amended to include website reading as a defined, bounded exception for coverage checking — with specific constraints (rate limiting, self-identification, read-only, no storage, coverage checking only)
-2. Amendment reviewed and approved at Tier 3 (trustees) per Governance Decision Framework
-3. AI Governance Plan checked for whether a new data source requires flagging under that document
-4. Once approved: checker documented as a required pre-rollout step in item 54
-**The findings (88 strong matches) remain valid** and can go to Eliz for review — the governance question is about whether website reading becomes standard pipeline methodology, not about whether the findings have value.
-**Depends on:** Items 50 (contract amendment), Tier 3 trustee sign-off.
+**Status:** Governance approved April 2026 (Data Enrichment Contract v2.1 amendment, Tier 3 trustee sign-off). Cross-boundary checker now permitted as a bounded exception under the contract. Operationally available; integration as standard pipeline step still pending — currently runs on a separate cadence from the data pipeline, driven by outreach planning. See SSN_Data_Pipeline_Architecture.docx for current operational treatment.
+**Background:** Script built and full WMCA run completed 28 Mar 2026. Coverage Methodology Note v1.0 sent to James. James confirmed (28 Mar) that website reading (BeautifulSoup scraping of org websites) crosses the agreed data source boundary in the Data Enrichment Contract, which restricts enrichment to SSN API endpoints only. Subsequently approved as a bounded exception via the v2.1 amendment.
+**What exists:** `wmca_cross_boundary_checker_v2.py` — paginated fetch, 5km baseline vs 20km expanded radius, SSN description and website text checked for coverage signals, HIGH/MEDIUM/LOW confidence classification, structured review queue output. Run results: 374 findings, 88 strong matches across 7 LAs.
+**Original governance path (now resolved):**
+1. ~~Data Enrichment Contract amended to include website reading as a defined, bounded exception for coverage checking~~ — done (v2.1 amendment)
+2. ~~Amendment reviewed and approved at Tier 3 (trustees) per Governance Decision Framework~~ — done
+3. ~~AI Governance Plan checked for whether a new data source requires flagging under that document~~ — done
+4. Once approved: checker documented as a required pre-rollout step in item 54 — still outstanding (item 54 update)
+**The findings (88 strong matches)** remain with Eliz for review.
+**See also:** Item 50 (resolved by the same amendment), item 54 (item 36 update still pending).
 
 ### 50. Data Enrichment Contract: amendment for website reading
 **Priority:** High (governance — blocks item 49)
-**Status:** Not started. Required before the cross-boundary checker can become standard pipeline.
-**Required:** Draft an amendment to the Data Enrichment Contract v2 covering website reading as a defined, bounded exception for coverage checking. Amendment must specify: permitted use (coverage checking only, not general enrichment), technical constraints (rate-limited, self-identifying User-Agent, read-only, no storage of website content), confidence classification requirement (website-only findings flagged as such), human review requirement (nothing from website signals enters the VA without a recorded human decision), and review cadence.
-**Then:** Data Integrity Methodology document updated from v2.2 to v3.0 to reflect the cross-boundary checker as an approved pipeline step (once amendment is signed off).
+**Status:** Complete — April 2026. Data Enrichment Contract v2.1 amendment approved at Tier 3 (trustees). Website reading permitted as a bounded exception for cross-boundary coverage checking. Constraints documented: permitted use (coverage checking only, not general enrichment), technical constraints (rate-limited, self-identifying User-Agent, read-only, no storage of website content), confidence classification (website-only findings flagged as such), human review requirement (nothing from website signals enters the VA without a recorded human decision), review cadence.
+**Original requirement (preserved):** Draft an amendment to the Data Enrichment Contract v2 covering website reading as a defined, bounded exception for coverage checking. Amendment must specify: permitted use, technical constraints, confidence classification requirement, human review requirement, review cadence.
+**Then:** Data Integrity Methodology document updated from v2.2 to v3.0 to reflect the cross-boundary checker as an approved pipeline step. ← **This step still outstanding** — Data Integrity Methodology is a known gap in project knowledge per the project instructions document.
 **Decision tier:** Tier 3 (trustees) per Governance Decision Framework. Change to a governing principle — the data source boundary defined in the Data Enrichment Contract.
-**Depends on:** Contract drafted → James reviews → trustee sign-off (Catherine) → methodology updated.
+**See also:** Item 49 (operational use of the cross-boundary checker, now unblocked).
 
 ### 51. Pipeline orchestration: sequenced workflow for multi-area operation
 **Priority:** Medium (future workstream)
@@ -674,6 +713,94 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 **Priority:** Medium (governance, follows from item 49)
 **Status:** Not started. Update item 36 (new location onboarding procedure) once James approves item 49. Cross-boundary check sits between Step 2 (scraper run) and Step 3 (enrichment pipeline run) in the procedure.
 
+### 70. Listings curation queue (new workstream, May 2026)
+**Priority:** Medium (post-launch quality work, not launch-blocking)
+**Status:** New workstream emerged from May 2026 review pass. Output mechanism built (`wmca_candidate_generator_v1_1.py` produces `listings_curation_log_*.json` per review cycle). First populated log: `listings_curation_log_2026-05-02.json` with 11 entries.
+**Three categories:**
+1. **Ambiguity** — listing is clear but the service sits in a genuine grey zone (e.g. Kapella perpetrator programme: clear what it is, but in-scope question is the ambiguity). Listing fix is to clarify scope or reposition, not to add detail.
+2. **Insufficient information** — listing doesn't say enough; reviewer needed external information (website, prior knowledge) to make the call (e.g. Non Violentiam, St George's House). Listing fix is to expand the listing through outreach.
+3. **Category mismatch** — auto-detected when human verdict contradicts the platform category (e.g. St Giles Trust listed under support/domestic-abuse but rejected as DV specialism). Listing fix is to recategorise.
+**How findings reach the queue:** Reviewer drops `LISTING_AMBIGUITY` or `LISTING_INSUFFICIENT` tag in reviewer_notes during the standard review cycle. Category mismatch is auto-detected without reviewer action. The candidate generator surfaces all three streams as part of every review cycle output.
+**Cadence:** Tied to outreach planning, not to the pipeline. The current upfront audit round will substantially rework many listings; after that, listings work shifts to ongoing maintenance based on candidate output.
+**Why this is in the VA backlog rather than the architecture document:** The architecture document covers the pipeline (how the queue is produced). This item covers the platform work (what happens with the queue once it exists). The two intersect but operate on different cadences.
+**Reference:** Reclassification_Protocol_v1_1.docx for the loop, SSN_Data_Pipeline_Architecture.docx for the technical implementation, Working_Note_May03_Findings.docx for the headline observation that makes listings curation the right next workstream.
+**Depends on:** Eliz's outreach planning, item 23/28/40 (the broader workflow conversation with Eliz).
+
+### 71. B2_WHO_FOR handler duplication
+**Priority:** Low (cleanup)
+**Status:** Open. Pre-existing duplication surfaced 14 May 2026 by PR #20 codebase audit.
+**Issue:** The B2_WHO_FOR handler logic is duplicated between `lib/stateMachine.ts:1194` and `lib/handlers/profiling.ts:43`. Both implementations exist and presumably do the same thing. Pre-existing; not introduced by recent work.
+**Required:** Identify the canonical implementation, remove the duplicate, ensure all call sites use the remaining implementation. Low risk if behaviour genuinely identical, but verify before removal.
+**Files:** `lib/stateMachine.ts`, `lib/handlers/profiling.ts`
+**Not in PR #20 scope.** Capture here for a future tidy-up PR.
+
+### 72. Self-harm exit wiring
+**Priority:** Medium (governance)
+**Status:** Open. Surfaced 14 May 2026 during PR #20 commit 5 (4185c9e) build.
+
+**Context:** PR #20 added `SELF_HARM_EXIT__SUPPORTER` (v1.1 wording) and `SELF_HARM_EXIT__PROFESSIONAL` (new) to `lib/phrasebank.ts`. Both are governance-approved content but are NOT currently wired into `buildSelfHarmExit` (`lib/handlers/crisis.ts:85-126`), which still composes from inline strings. The entries are reachable via direct `getPhrase()` calls (regression test in commit 5 confirms selector resolution) but the live self-harm exit pathway does not use them.
+
+**Discrepancy:** Audit during commit 5 build revealed `buildSelfHarmExit` currently includes Mind Infoline and a warm sign-off that v1.1 §4.1 did not represent in its "current text" column. Wiring the v1.1 entries live would silently remove that content. James's 8 May sign-off on v1.1 §4.1 was therefore against an incomplete representation of current code.
+
+**Decision required from James before wiring:**
+- Retain Mind Infoline and warm sign-off in any refactor (would require expanding the v1.1 entries)
+- Drop them per v1.1's reading
+- Some middle position
+
+**Sequence:**
+1. Surface to James with current text + v1.1 text side-by-side
+2. James decides on content
+3. Update entries if needed
+4. Refactor `buildSelfHarmExit` to source from phrasebank, parallel to commit 2's `buildUnder16Exit` refactor pattern
+5. Test and ship
+
+**Files:** `lib/phrasebank.ts`, `lib/handlers/crisis.ts`, `tests/safeguarding.test.ts`
+
+**Code comment already added** (commit 4185c9e) adjacent to the phrasebank entries documenting the not-wired state and the reason.
+
+**Note (from PR review, May 2026):** `SELF_HARM_EXIT__SUPPORTER` and `SELF_HARM_EXIT__PROFESSIONAL` ship dormant in the phrasebank ahead of this item via PR 20. `buildSelfHarmExit` in `lib/handlers/crisis.ts` remains inline and continues to read `session.isSupporter`. This item picks up the wiring to align runtime with the phrasebank.
+
+### 73. UNDER_16_EXIT__SUPPORTER orphan
+**Priority:** Low (cleanup)
+**Status:** Open. Surfaced 14 May 2026 during PR #20 commit 6 (a1526ec) audit.
+
+**Issue:** `UNDER_16_EXIT__SUPPORTER` (with `__SUPPORTER` suffix; different naming from the new `UNDER16_EXIT_*__SUPPORTER` entries added in PR #20 — note the underscore in the number, monolithic rather than fragment-based) was identified during the orphan-cleanup audit as also orphaned. PR #20 commit 6 was scoped to unsuffixed orphans only, so this suffixed-but-orphaned entry was intentionally retained for separate handling.
+
+**Required:** Audit-first to confirm zero direct references, then delete.
+
+**Files:** `lib/phrasebank.ts`
+
+**Not blocking anything.** Small follow-up commit when convenient.
+
+### 74. CHILD_AT_RISK_EXIT: supporter and professional pathway wiring
+**Priority:** Medium (safeguarding-adjacent)
+**Status:** Surfaced 19 May 2026 in PR #20 review. Not started.
+**Issue:** `safeguardingExit('CHILD_AT_RISK_EXIT', ...)` in `lib/handlers/prevention.ts` still passes `session.isSupporter` as a boolean and is not in the "13 selector calls wired" count delivered by PR #20. Behaviour is unchanged today because there is no `__PROFESSIONAL` variant for this key, so `phrase()` produces the same output. Wiring needs picking up to complete the safeguarding-pathway selector coverage.
+**Required:** Thread `session.userType` through the `safeguardingExit('CHILD_AT_RISK_EXIT', ...)` call. If a `CHILD_AT_RISK_EXIT__PROFESSIONAL` variant is wanted, write it in phrasebank as part of this item. Run tests.
+**Files:** `lib/handlers/prevention.ts`, possibly `lib/phrasebank.ts`
+**Note:** Out of scope for PR #20 to keep v1.1 wiring tight. Confirmed with James in 19 May PR review response.
+
+### 75. SELF DV and SA exits: 999 line parity
+**Priority:** Medium (safeguarding)
+**Status:** Surfaced 19 May 2026 in PR #20 review. Not started.
+**Issue:** PR #20 added the 999 line to DV and SA `__SUPPORTER` exits. SELF (direct-experience) DV and SA exits still have no 999 line, so a person directly experiencing DV or SA gets less emergency information than their supporter does.
+**Required:** Add 999 line to SELF DV and SA exits mirroring the `__SUPPORTER` pattern, with regression tests.
+**Files:** `lib/phrasebank.ts`, `__tests__/safeguarding.test.ts`
+
+### 76. PROFESSIONAL under-16 exit: abrupt ending on 999 line
+**Priority:** Low (design clarity)
+**Status:** Surfaced 19 May 2026 in PR #20 review. Design confirmation needed.
+**Issue:** The PROFESSIONAL under-16 exit ends abruptly on the 999 line without warm sign-off or onward guidance. May be deliberate (professionals have statutory escalation routes). Worth being explicit either way.
+**Required:** Confirm with James whether the abrupt ending is deliberate; if yes, add a comment documenting the design choice.
+**Files:** `lib/phrasebank.ts`
+
+### 77. `__PROFESSIONAL` Male and LGBTQ+ DV/SA variants: regression tests
+**Priority:** Medium (test coverage)
+**Status:** Surfaced 19 May 2026 in PR #20 review. Not started.
+**Issue:** PR #20 added `__PROFESSIONAL` Male and LGBTQ+ variants for DV and SA exits. Female `__PROFESSIONAL` variants have regression tests; Male and LGBTQ+ don't. Asymmetric coverage on safeguarding-adjacent entries.
+**Required:** Add regression tests for Male and LGBTQ+ `__PROFESSIONAL` variants on both DV and SA exits.
+**Files:** `__tests__/safeguarding.test.ts`
+
 ---
 
 ### 55. Financial category: constrain unconstrained `support` mapping
@@ -686,21 +813,35 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 
 ### 57. Under-16 exit: supporter and professional pathway review
 **Priority:** High (safeguarding)
-**Status:** In progress — 30 Apr 2026. Mechanical changes built (PR #19). Language review document produced and with James for sign-off. PR #20 will implement language changes once approved.
-**Work completed:**
-- GATE0 case 2 `safeguardingTriggered` fix — built in PR #19
-- Phrasebank selector widened to support `__PROFESSIONAL` variant — built in PR #19
-- `B2_WHO_FOR` audit confirmed `userType` stored as `'SUPPORTER'` or `'PROFESSIONAL'` — distinction exists in session state, unused downstream
-- Supporter and Professional Language Review v1.0 document produced — with James for sign-off
-**Language changes proposed (pending James sign-off):**
-- `UNDER16_INTERCEPT_PREFIX__SUPPORTER` updated; `__PROFESSIONAL` added
-- `CRISIS_UNDER16_LOCATION__SUPPORTER` updated; `__PROFESSIONAL` added
-- `CRISIS_UNDER16_SOMEWHERE_ELSE__SUPPORTER` updated; `__PROFESSIONAL` added
-- `buildUnder16Exit` professional branch added
-- DV exits: all `__SUPPORTER` openers updated; `__PROFESSIONAL` variants added
-- SA exits: all `__SUPPORTER` openers updated; `__PROFESSIONAL` variants added
-- `SELF_HARM_EXIT__SUPPORTER` updated; `__PROFESSIONAL` added
-**Depends on:** James language sign-off → PR #20
+**Status:** Code complete — 14 May 2026. PR #20 raised against main, awaiting James review.
+
+**PR #20 commits on staging (chain from b1f4ee4):**
+- b1f4ee4 — userType propagation through phrasebank selector (13 safeguarding-pathway call sites)
+- b5e5d49 — buildUnder16Exit refactor: inline → phrasebank composition (9 new entries, byte-identical output)
+- fe0fef6 — under-16 v1.1 supporter wording + 6 new __PROFESSIONAL entries, NSPCC + sign-off excluded for PROFESSIONAL users
+- a567860 — DV/SA v1.1 supporter wording + 9 new __PROFESSIONAL entries, alignment comment in phrasebank.ts; DV and SA 999 line added (behavioural change — all 6 DV __SUPPORTER and all 3 SA __SUPPORTER exits, pre-PR they ended at the Shelter URL; line also present in the new __PROFESSIONAL variants)
+- 4185c9e — self-harm v1.1 entries added but NOT wired (see Item 72)
+- a1526ec — orphan cleanup: unsuffixed SELF_HARM_EXIT and UNDER_16_EXIT removed
+- 5b32a4c — chore: update backlog with PR #20 completion and follow-up items
+- bfed14c — docs: note phrasebank dormant entries on Item 72 (19 May 2026)
+- dd40a7f — refactor(crisis): pass session.userType for cases 6 and 7 (19 May 2026)
+
+**Test count:** 96 → 102 across the chain, all green.
+
+**Behaviours now implemented:**
+- PROFESSIONAL users see professional register on under-16, DV, and SA exits
+- PROFESSIONAL users on under-16 exits no longer see NSPCC adult helpline or warm sign-off (not appropriate for professional context per v1.1 §1.4)
+- SUPPORTER users see v1.1 updated wording across under-16, DV, SA
+- DV and SA exits now include a 999 line on SUPPORTER and PROFESSIONAL variants. Behavioural change: pre-PR the DV and SA __SUPPORTER exits ended at the Shelter URL with no 999 line; PR #20 adds "If they're in immediate danger, call 999." to all of them. The new __PROFESSIONAL variants carry the line as part of their initial content.
+- SELF users unchanged (out of v1.1 scope; see Deferred below)
+
+**Deferred (recorded in PR description for trustee sight):**
+- Self-harm exit wiring: see Item 72
+- SELF DV/SA base entries: not updated in PR #20; possible future SELF wording refresh
+- SELF SA 999 line: not added; possible future SELF refresh under same principle
+- CRISIS_UNDER16_SOMEWHERE_ELSE SELF base entry uses old "SPECIALIST HELPLINE" style; diverges from v1.1 supporter/professional variants. Deliberate per v1.1 scope but worth noting.
+- UNDER_16_EXIT__SUPPORTER orphan: see Item 73
+- B2_WHO_FOR handler duplication: see Item 71
 
 ### 58. Location gate fires too late in the flow
 **Priority:** Medium
@@ -1057,3 +1198,5 @@ When enriched eligibility data is in use, confidence levels must influence langu
 | 2026-04-29 | Item 24 architecture superseded. Prevention Pathway Design Note v1.0 produced (28 April 2026). Original profiling-shaped terminal scoping replaced by conversational architecture: single PREVENTION_CONVERSATION gate, four routing modes, three governing questions, buttons-and-text input pattern, reduced AI layer (clarity assessment only, no routing inference). Three-phase implementation. Two open questions for James. Five governance documents needed post-Phase 1. Item 24 updated in full. |
 | 2026-04-29 | PR #18 merged. Items 55, 56 complete. Item 59 now visible to James via backlog. Items 67 and 68 added from James PR #18 review comments: GATE0 end-to-end phrasebank regression test (67), ProfileField shared type alias (68). Item 69 added: full VA supporter/professional language audit — wider scope identified during item 57 work. Items originally numbered 60/61 from PR #18 session corrected to 67/68 to avoid collision with WatsonX audit items. |
 | 2026-04-30 | Item 57 in progress. B2_WHO_FOR audit: userType stored as SUPPORTER/PROFESSIONAL but collapsed to isSupporter boolean downstream — distinction unused. GATE0 case 2 safeguardingTriggered fix built. Phrasebank selector widened to support __PROFESSIONAL variant. Supporter and Professional Language Review v1.0 produced — with James for sign-off. PR #19 ready to commit (mechanical changes). PR #20 will follow once language approved. Items 46, 55, 56, 3 (governance docs) all marked complete. Backlog fully audited and updated. |
+| 2026-05-14 | Supporter and Professional Language Review v1.1 signed off by James 8 May 2026. PR #20 codebase audit complete, three structural pieces confirmed: (1) add v1.1 phrasebank entries, (2) refactor buildUnder16Exit from inline strings to phrasebank composition, (3) wire userType through to phrasebank selector at call sites — critical structural piece without which new __PROFESSIONAL entries would be dead code. Adjacent findings: orphaned SELF_HARM_EXIT and UNDER_16_EXIT phrasebank entries to delete in PR #20 (audit-first confirmation), SA exits gain 999 line (behavioural change to flag in PR description). Item 57 status updated; Item 71 added (B2_WHO_FOR handler duplication, not in PR #20 scope). PR #20 ready to build. Pipeline repo work today is on a separate workstream — see PIPELINE_BACKLOG.md in ssn-enrichment-pipeline. |
+| 2026-05-14 (afternoon) | PR #20 (under-16 + DV + SA + self-harm supporter/professional language) work complete on staging, awaiting James review. Six commits: b1f4ee4 (userType propagation through selector), b5e5d49 (buildUnder16Exit refactor to phrasebank composition), fe0fef6 (under-16 v1.1 wording + professional variants, PROFESSIONAL excludes NSPCC/sign-off), a567860 (DV/SA v1.1 wording + professional variants, SA 999 behavioural change), 4185c9e (self-harm entries placed but not wired pending Item 72 decision), a1526ec (orphan cleanup of unsuffixed SELF_HARM_EXIT and UNDER_16_EXIT). Plus 7th commit refreshing this backlog. Test count 96 → 102, all green throughout. Item 57 status updated. Item 72 added (self-harm wiring follow-up — governance decision needed on Mind Infoline and warm sign-off). Item 73 added (UNDER_16_EXIT__SUPPORTER orphan cleanup, low priority). |
