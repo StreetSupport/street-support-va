@@ -1,7 +1,7 @@
 # Street Support VA: Implementation Backlog
 
 **Purpose:** Track what we should be considering working on next.
-**Last updated:** 21 May 2026
+**Last updated:** 2 June 2026
 
 ---
 
@@ -28,9 +28,10 @@
 - `VA_BACKLOG.md` included in commit
 - `__PROFESSIONAL` entries deferred to PR #20
 
-### PR #20: Open — awaiting James review
-**Status:** Raised against main 14 May 2026. 102/102 tests passing on staging at dd40a7f. Review responded 19 May 2026; awaiting approval.
+### PR #20: Merged — 2 June 2026
+**Status:** Merged to main 2 June 2026 (mergedAt 2026-06-02T09:20:22Z; base `main`). Raised against main 14 May 2026; review responded 19 May 2026; approved and merged 2 June 2026. 102/102 tests passing on staging at dd40a7f.
 **URL:** https://github.com/StreetSupport/street-support-va/pull/20
+**Delivered:** Item 57 (under-16 exit — supporter and professional pathway). Cross-referenced against the merged commit list; Item 57 is the only backlog item the commits close. See Item 57 for the full chain.
 **Scope:**
 - userType propagation through phrasebank selector (13 sites)
 - buildUnder16Exit refactor: inline → phrasebank
@@ -38,8 +39,8 @@
 - DV/SA v1.1 supporter and 9 __PROFESSIONAL entries; SA 999 line
 - Self-harm v1.1 entries added but not wired (deferred to Item 72)
 - Orphan cleanup: unsuffixed SELF_HARM_EXIT and UNDER_16_EXIT removed (UNDER_16_EXIT__SUPPORTER orphan retained for separate handling — Item 73)
-- Post-review tidy-ups: Item 72 backlog note added (bfed14c); cases 6 and 7 in crisis.ts threaded to session.userType for visual consistency with cases 1 to 5 (dd40a7f)
-**Deferred to follow-ups:** Item 71 (B2_WHO_FOR duplication), Item 72 (self-harm wiring), Item 73 (UNDER_16_EXIT__SUPPORTER orphan delete), Item 74 (CHILD_AT_RISK_EXIT v1.1 wiring)
+- Post-review tidy-ups: Item 72 backlog note added (bfed14c); cases 6 and 7 in crisis.ts threaded to session.userType for visual consistency with cases 1 to 5 (dd40a7f); DV __SUPPORTER 999 line locked by test (6b61ebf)
+**Deferred to follow-ups (surfaced by PR #20 / its review, NOT closed by it):** Item 71 (B2_WHO_FOR duplication), Item 72 (self-harm wiring), Item 73 (UNDER_16_EXIT__SUPPORTER orphan delete), Item 74 (CHILD_AT_RISK_EXIT v1.1 wiring), Item 75 (SELF DV/SA 999 parity), Item 76 (PROFESSIONAL under-16 abrupt ending), Item 77 (PROFESSIONAL Male/LGBTQ+ DV/SA regression tests), Item 78 (under-16 NSPCC SELF guard hardening).
 
 ---
 
@@ -801,6 +802,16 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 **Required:** Add regression tests for Male and LGBTQ+ `__PROFESSIONAL` variants on both DV and SA exits.
 **Files:** `__tests__/safeguarding.test.ts`
 
+### 78. Under-16 NSPCC adult-helpline guard for SELF: harden against fallback-by-omission
+**Priority:** Medium (safeguarding-adjacent)
+**Status:** Open. Follow-up from James's PR #20 approval (2 June 2026). Not started.
+**Issue:** The under-16 exit suppresses the adult NSPCC helpline line for SELF (direct-experience) users by fallback-by-omission. In `buildUnder16Exit` (`lib/handlers/shared.ts:97`) the guard is `if (session.userType !== 'PROFESSIONAL')`, so SELF users enter the block; the line is then dropped only because `UNDER16_EXIT_NSPCC_FOR_ADULT` has no base/SELF entry (only `UNDER16_EXIT_NSPCC_FOR_ADULT__SUPPORTER`, `phrasebank.ts:2105`), so `getPhrase(...)` returns null and `?.text || ''` yields an empty string. Output is correct today, but the guard is implicit and fragile — adding a base entry or changing the selector could silently reintroduce the adult helpline line into a child's exit. No SELF test asserts its absence.
+**Required (codebase audit first, tests after — safeguarding adjacency):**
+- (a) Tighten the guard to an explicit condition — `if (session.userType === 'SUPPORTER')` — so only SUPPORTER receives the NSPCC adult line, matching Under-16 Design Note v1.1 §1.4. (Confirm this preserves the PROFESSIONAL exclusion already in place.)
+- (b) Add a SELF regression assertion that the under-16 exit does NOT contain the adult NSPCC helpline line.
+**Files:** `lib/handlers/shared.ts`, `lib/phrasebank.ts`, `__tests__/safeguarding.test.ts`
+**Source:** James Cross, PR #20 approval follow-up (2 June 2026).
+
 ---
 
 ### 55. Financial category: constrain unconstrained `support` mapping
@@ -813,7 +824,7 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 
 ### 57. Under-16 exit: supporter and professional pathway review
 **Priority:** High (safeguarding)
-**Status:** Code complete — 14 May 2026. PR #20 raised against main, awaiting James review.
+**Status:** Delivered — PR #20 merged to main 2 June 2026 (mergedAt 2026-06-02T09:20:22Z). Code complete 14 May 2026; approved and merged 2 June 2026. Follow-ups split out as Items 72–78.
 
 **PR #20 commits on staging (chain from b1f4ee4):**
 - b1f4ee4 — userType propagation through phrasebank selector (13 safeguarding-pathway call sites)
@@ -825,6 +836,8 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 - 5b32a4c — chore: update backlog with PR #20 completion and follow-up items
 - bfed14c — docs: note phrasebank dormant entries on Item 72 (19 May 2026)
 - dd40a7f — refactor(crisis): pass session.userType for cases 6 and 7 (19 May 2026)
+
+**Also merged in PR #20** (post-19-May staging work that rode the same merge, confirmed against the GitHub PR commit list): c5ada99 (backlog refresh, ahead of b1f4ee4), ce37922 (backlog: PR #19 merged, Item 74 added), fc5b28b (merge main into staging), 6b61ebf (test: lock DV __SUPPORTER 999 line), 773197a (backlog: Items 75–77, Item 57 DV 999 annotation). Merge tip on main: 75186c1.
 
 **Test count:** 96 → 102 across the chain, all green.
 
