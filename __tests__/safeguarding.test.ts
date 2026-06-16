@@ -449,6 +449,29 @@ describe('Sexual Violence Disclosure', () => {
 });
 
 // =============================================================================
+// CHILD AT RISK - userType wiring must resolve to a valid exit in every register
+// =============================================================================
+
+describe('Child At Risk Exit', () => {
+
+  test('CHILD_AT_RISK_EXIT resolves to base entry with 999 line for SELF and PROFESSIONAL', () => {
+    // The call site passes session.userType (not a boolean). There is only a
+    // base CHILD_AT_RISK_EXIT entry — no __SUPPORTER or __PROFESSIONAL variant.
+    // Both registers must fall through to the base entry and still surface the
+    // 999 line. Guards the wiring so adding a variant later can't silently
+    // break either register.
+    const NINE_NINE_NINE = 'If a child is in immediate danger, call 999.';
+    for (const userType of ['SELF', 'PROFESSIONAL'] as const) {
+      // B7D_4A option 4 = Child safety -> CHILD_AT_RISK_EXIT
+      const session = sessionAt('B7D_4A_PREVENTION_SAFEGUARDING_FOLLOW_UP', { userType });
+      const result = select(session, 4);
+      expect(result.text).toContain(NINE_NINE_NINE);
+    }
+  });
+
+});
+
+// =============================================================================
 // SELF-HARM (from crisis gate) - Must show support, not abandon
 // =============================================================================
 
