@@ -1,7 +1,7 @@
 # Street Support VA: Implementation Backlog
 
 **Purpose:** Track what we should be considering working on next.
-**Last updated:** 2 June 2026
+**Last updated:** 16 June 2026
 
 ---
 
@@ -41,6 +41,17 @@
 - Orphan cleanup: unsuffixed SELF_HARM_EXIT and UNDER_16_EXIT removed (UNDER_16_EXIT__SUPPORTER orphan retained for separate handling — Item 73)
 - Post-review tidy-ups: Item 72 backlog note added (bfed14c); cases 6 and 7 in crisis.ts threaded to session.userType for visual consistency with cases 1 to 5 (dd40a7f); DV __SUPPORTER 999 line locked by test (6b61ebf)
 **Deferred to follow-ups (surfaced by PR #20 / its review, NOT closed by it):** Item 71 (B2_WHO_FOR duplication), Item 72 (self-harm wiring), Item 73 (UNDER_16_EXIT__SUPPORTER orphan delete), Item 74 (CHILD_AT_RISK_EXIT v1.1 wiring), Item 75 (SELF DV/SA 999 parity), Item 76 (PROFESSIONAL under-16 abrupt ending), Item 77 (PROFESSIONAL Male/LGBTQ+ DV/SA regression tests), Item 78 (under-16 NSPCC SELF guard hardening).
+
+### PR #21: Open — raised 16 June 2026
+**Status:** Open. Raised against main 16 June 2026. Awaiting James review. 110/110 tests passing on staging; tsc clean.
+**URL:** TBC
+**Scope:**
+- Item 75 — 999 line added to the nine SELF DV and SA base exits for parity (behavioural change — flagged for James in the PR description)
+- Item 74 — `session.userType` threaded through the `CHILD_AT_RISK_EXIT` call site (no behaviour change; completes safeguarding-pathway selector coverage)
+- Item 77 — four Male and LGBTQ+ professional regression tests for DV and SA exits
+**Test count:** 102 → 110, all green. `tsc --noEmit` clean.
+**Commits:** f274f2a, be11c58, bb73d03, plus this backlog refresh.
+**Behavioural change flagged for James:** Item 75 adds a 999 emergency line to the SELF (direct-experience) DV and SA exits, so a person disclosing for themselves now sees the same emergency line their supporter does. Called out explicitly in the PR description.
 
 ---
 
@@ -775,7 +786,7 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 
 ### 74. CHILD_AT_RISK_EXIT: supporter and professional pathway wiring
 **Priority:** Medium (safeguarding-adjacent)
-**Status:** Surfaced 19 May 2026 in PR #20 review. Not started.
+**Status:** Complete — PR #21, 16 June 2026. Surfaced 19 May 2026 in PR #20 review.
 **Issue:** `safeguardingExit('CHILD_AT_RISK_EXIT', ...)` in `lib/handlers/prevention.ts` still passes `session.isSupporter` as a boolean and is not in the "13 selector calls wired" count delivered by PR #20. Behaviour is unchanged today because there is no `__PROFESSIONAL` variant for this key, so `phrase()` produces the same output. Wiring needs picking up to complete the safeguarding-pathway selector coverage.
 **Required:** Thread `session.userType` through the `safeguardingExit('CHILD_AT_RISK_EXIT', ...)` call. If a `CHILD_AT_RISK_EXIT__PROFESSIONAL` variant is wanted, write it in phrasebank as part of this item. Run tests.
 **Files:** `lib/handlers/prevention.ts`, possibly `lib/phrasebank.ts`
@@ -783,7 +794,7 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 
 ### 75. SELF DV and SA exits: 999 line parity
 **Priority:** Medium (safeguarding)
-**Status:** Surfaced 19 May 2026 in PR #20 review. Not started.
+**Status:** Complete — PR #21, 16 June 2026. Surfaced 19 May 2026 in PR #20 review.
 **Issue:** PR #20 added the 999 line to DV and SA `__SUPPORTER` exits. SELF (direct-experience) DV and SA exits still have no 999 line, so a person directly experiencing DV or SA gets less emergency information than their supporter does.
 **Required:** Add 999 line to SELF DV and SA exits mirroring the `__SUPPORTER` pattern, with regression tests.
 **Files:** `lib/phrasebank.ts`, `__tests__/safeguarding.test.ts`
@@ -797,7 +808,7 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 
 ### 77. `__PROFESSIONAL` Male and LGBTQ+ DV/SA variants: regression tests
 **Priority:** Medium (test coverage)
-**Status:** Surfaced 19 May 2026 in PR #20 review. Not started.
+**Status:** Complete — PR #21, 16 June 2026. Surfaced 19 May 2026 in PR #20 review.
 **Issue:** PR #20 added `__PROFESSIONAL` Male and LGBTQ+ variants for DV and SA exits. Female `__PROFESSIONAL` variants have regression tests; Male and LGBTQ+ don't. Asymmetric coverage on safeguarding-adjacent entries.
 **Required:** Add regression tests for Male and LGBTQ+ `__PROFESSIONAL` variants on both DV and SA exits.
 **Files:** `__tests__/safeguarding.test.ts`
@@ -811,6 +822,14 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 - (b) Add a SELF regression assertion that the under-16 exit does NOT contain the adult NSPCC helpline line.
 **Files:** `lib/handlers/shared.ts`, `lib/phrasebank.ts`, `__tests__/safeguarding.test.ts`
 **Source:** James Cross, PR #20 approval follow-up (2 June 2026).
+
+### 79. SA supporter 999 test asymmetry: extend to Male and LGBTQ+
+**Priority:** Low (test-only)
+**Status:** Open. Surfaced 16 June 2026 codebase audit. Not started.
+**Issue:** The SA `__SUPPORTER` 999 test checks the Female variant only, while the DV `__SUPPORTER` 999 test loops all six variants. Asymmetric coverage on the SA supporter 999 line.
+**Required:** Extend the SA supporter 999 test to Male and LGBTQ+ for symmetric coverage with the DV supporter test.
+**Files:** `__tests__/safeguarding.test.ts`
+**Note:** Originally raised as "Item 78" in the 16 June 2026 instruction; renumbered to 79 because 78 was already taken by the under-16 NSPCC SELF guard item (collision-renumbering convention, cf. items 60/61 → 67/68).
 
 ---
 
@@ -1213,3 +1232,4 @@ When enriched eligibility data is in use, confidence levels must influence langu
 | 2026-04-30 | Item 57 in progress. B2_WHO_FOR audit: userType stored as SUPPORTER/PROFESSIONAL but collapsed to isSupporter boolean downstream — distinction unused. GATE0 case 2 safeguardingTriggered fix built. Phrasebank selector widened to support __PROFESSIONAL variant. Supporter and Professional Language Review v1.0 produced — with James for sign-off. PR #19 ready to commit (mechanical changes). PR #20 will follow once language approved. Items 46, 55, 56, 3 (governance docs) all marked complete. Backlog fully audited and updated. |
 | 2026-05-14 | Supporter and Professional Language Review v1.1 signed off by James 8 May 2026. PR #20 codebase audit complete, three structural pieces confirmed: (1) add v1.1 phrasebank entries, (2) refactor buildUnder16Exit from inline strings to phrasebank composition, (3) wire userType through to phrasebank selector at call sites — critical structural piece without which new __PROFESSIONAL entries would be dead code. Adjacent findings: orphaned SELF_HARM_EXIT and UNDER_16_EXIT phrasebank entries to delete in PR #20 (audit-first confirmation), SA exits gain 999 line (behavioural change to flag in PR description). Item 57 status updated; Item 71 added (B2_WHO_FOR handler duplication, not in PR #20 scope). PR #20 ready to build. Pipeline repo work today is on a separate workstream — see PIPELINE_BACKLOG.md in ssn-enrichment-pipeline. |
 | 2026-05-14 (afternoon) | PR #20 (under-16 + DV + SA + self-harm supporter/professional language) work complete on staging, awaiting James review. Six commits: b1f4ee4 (userType propagation through selector), b5e5d49 (buildUnder16Exit refactor to phrasebank composition), fe0fef6 (under-16 v1.1 wording + professional variants, PROFESSIONAL excludes NSPCC/sign-off), a567860 (DV/SA v1.1 wording + professional variants, SA 999 behavioural change), 4185c9e (self-harm entries placed but not wired pending Item 72 decision), a1526ec (orphan cleanup of unsuffixed SELF_HARM_EXIT and UNDER_16_EXIT). Plus 7th commit refreshing this backlog. Test count 96 → 102, all green throughout. Item 57 status updated. Item 72 added (self-harm wiring follow-up — governance decision needed on Mind Infoline and warm sign-off). Item 73 added (UNDER_16_EXIT__SUPPORTER orphan cleanup, low priority). |
+| 2026-06-16 | Recorded PR #20 merge to main (2 June 2026) in changelog. PR #21 raised against main (items 75, 74, 77): 999 line added to the nine SELF DV/SA base exits (behavioural change flagged for James), `session.userType` threaded through the CHILD_AT_RISK_EXIT call site (no behaviour change), four Male/LGBTQ+ professional regression tests for DV and SA. Commits f274f2a, be11c58, bb73d03 plus this backlog refresh. Test count 102 → 110, all green, tsc clean. Items 75, 74, 77 marked Complete (PR #21). Item 79 added (SA supporter 999 test asymmetry, low priority test-only; requested as "Item 78" but renumbered — 78 already taken). |
