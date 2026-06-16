@@ -341,6 +341,36 @@ describe('Domestic Abuse Disclosure', () => {
     expect(result.text).toContain('999');
   });
 
+  test('DV Male __PROFESSIONAL exit fires when userType is PROFESSIONAL', () => {
+    const session = sessionAt('DV_CHILDREN_ASK', {
+      dvGender: 'Male',
+      isSupporter: true,
+      userType: 'PROFESSIONAL',
+    });
+    const result = select(session, 1);
+    expect(result.text).toContain('Here are the specialist contacts');
+    expect(result.text).toContain("You'll know your next steps from here");
+    expect(result.text).not.toContain("You don't have to work this out on your own");
+    // Male DV variant routes to ManKind, not the National DA Helpline.
+    expect(result.text).toContain('0808 800 1170');
+    expect(result.text).toContain('999');
+  });
+
+  test('DV LGBTQ+ __PROFESSIONAL exit fires when userType is PROFESSIONAL', () => {
+    const session = sessionAt('DV_CHILDREN_ASK', {
+      dvGender: 'Non-binary or other',
+      isSupporter: true,
+      userType: 'PROFESSIONAL',
+    });
+    const result = select(session, 1);
+    expect(result.text).toContain('Here are the specialist contacts');
+    expect(result.text).toContain("You'll know your next steps from here");
+    expect(result.text).not.toContain("You don't have to work this out on your own");
+    // LGBTQ+ DV variant routes to Galop.
+    expect(result.text).toContain('0800 999 5428');
+    expect(result.text).toContain('999');
+  });
+
   test('DV __SUPPORTER exits all end with the 999 line (behavioural change per v1.1)', () => {
     // Pre-v1.1 DV __SUPPORTER exits ended at the Shelter housing advice URL.
     // v1.1 adds a 999 line to every safeguarding exit. Locking in the
@@ -423,6 +453,35 @@ describe('Sexual Violence Disclosure', () => {
     expect(result.text).not.toContain("You don't have to work this out on your own");
     // Service contact and 999 line still present
     expect(result.text).toContain('0808 500 2222');
+    expect(result.text).toContain('999');
+  });
+
+  test('SA Male __PROFESSIONAL exit fires when userType is PROFESSIONAL', () => {
+    const session = sessionAt('SA_GENDER_ASK', {
+      isSupporter: true,
+      userType: 'PROFESSIONAL',
+    });
+    const result = select(session, 2); // Male
+    expect(result.text).toContain('Here are the specialist contacts');
+    expect(result.text).toContain("You'll know your next steps from here");
+    expect(result.text).not.toContain("You don't have to work this out on your own");
+    // Male SA variant routes to SurvivorsUK, not Rape Crisis.
+    expect(result.text).toContain('020 3598 3898');
+    expect(result.text).toContain('999');
+  });
+
+  test('SA LGBTQ+ __PROFESSIONAL exit fires when userType is PROFESSIONAL', () => {
+    const session = sessionAt('SA_GENDER_ASK', {
+      isSupporter: true,
+      userType: 'PROFESSIONAL',
+    });
+    const result = select(session, 3); // Non-binary or other
+    expect(result.text).toContain('Here are the specialist contacts');
+    expect(result.text).toContain("You'll know your next steps from here");
+    expect(result.text).not.toContain("You don't have to work this out on your own");
+    // LGBTQ+ SA variant lists both SurvivorsUK and Galop.
+    expect(result.text).toContain('020 3598 3898');
+    expect(result.text).toContain('0800 999 5428');
     expect(result.text).toContain('999');
   });
 
