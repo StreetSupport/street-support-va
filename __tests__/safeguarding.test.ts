@@ -368,6 +368,30 @@ describe('Domestic Abuse Disclosure', () => {
     expect(endings.filter((e) => !e.ends999)).toEqual([]);
   });
 
+  test('DV SELF base exits all include the 999 line (parity with supporter variants)', () => {
+    // The SELF base DV exits previously had no 999 line, unlike their
+    // __SUPPORTER counterparts. Parity added so a person disclosing for
+    // themselves sees the emergency line too. Parallel to the SELF SA 999
+    // test in 'Sexual Violence Disclosure'.
+    const NINE_NINE_NINE = "If you're in immediate danger, call 999.";
+    const cases: Array<[string, number]> = [
+      ['Female', 1], ['Female', 2],
+      ['Male', 1], ['Male', 2],
+      ['Non-binary or other', 1], ['Non-binary or other', 2],
+    ];
+    const missing = cases.filter(([dvGender, childrenOption]) => {
+      const session = sessionAt('DV_CHILDREN_ASK', {
+        dvGender,
+        isSupporter: false,
+        userType: 'SELF',
+      });
+      const result = select(session, childrenOption);
+      return !result.text.includes(NINE_NINE_NINE);
+    });
+    // Every DV SELF exit must include the 999 line.
+    expect(missing).toEqual([]);
+  });
+
 });
 
 // =============================================================================
@@ -400,6 +424,26 @@ describe('Sexual Violence Disclosure', () => {
     // Service contact and 999 line still present
     expect(result.text).toContain('0808 500 2222');
     expect(result.text).toContain('999');
+  });
+
+  test('SA SELF base exits all include the 999 line (parity with supporter variants)', () => {
+    // The SELF base SA exits previously had no 999 line, unlike their
+    // __SUPPORTER counterparts. Parity added so a person disclosing for
+    // themselves sees the emergency line too. Parallel to the SELF DV 999
+    // test in 'Domestic Abuse Disclosure'.
+    const NINE_NINE_NINE = "If you're in immediate danger, call 999.";
+    // SA_GENDER_ASK options: 1=Female, 2=Male, 3=Non-binary or other
+    const genderOptions = [1, 2, 3];
+    const missing = genderOptions.filter((genderOption) => {
+      const session = sessionAt('SA_GENDER_ASK', {
+        isSupporter: false,
+        userType: 'SELF',
+      });
+      const result = select(session, genderOption);
+      return !result.text.includes(NINE_NINE_NINE);
+    });
+    // Every SA SELF exit must include the 999 line.
+    expect(missing).toEqual([]);
   });
 
 });
