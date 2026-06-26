@@ -341,6 +341,36 @@ describe('Domestic Abuse Disclosure', () => {
     expect(result.text).toContain('999');
   });
 
+  test('DV Male __PROFESSIONAL exit fires when userType is PROFESSIONAL', () => {
+    const session = sessionAt('DV_CHILDREN_ASK', {
+      dvGender: 'Male',
+      isSupporter: true,
+      userType: 'PROFESSIONAL',
+    });
+    const result = select(session, 1);
+    expect(result.text).toContain('Here are the specialist contacts');
+    expect(result.text).toContain("You'll know your next steps from here");
+    expect(result.text).not.toContain("You don't have to work this out on your own");
+    // Male DV variant routes to ManKind, not the National DA Helpline.
+    expect(result.text).toContain('0808 800 1170');
+    expect(result.text).toContain('999');
+  });
+
+  test('DV LGBTQ+ __PROFESSIONAL exit fires when userType is PROFESSIONAL', () => {
+    const session = sessionAt('DV_CHILDREN_ASK', {
+      dvGender: 'Non-binary or other',
+      isSupporter: true,
+      userType: 'PROFESSIONAL',
+    });
+    const result = select(session, 1);
+    expect(result.text).toContain('Here are the specialist contacts');
+    expect(result.text).toContain("You'll know your next steps from here");
+    expect(result.text).not.toContain("You don't have to work this out on your own");
+    // LGBTQ+ DV variant routes to Galop.
+    expect(result.text).toContain('0800 999 5428');
+    expect(result.text).toContain('999');
+  });
+
   test('DV __SUPPORTER exits all end with the 999 line (behavioural change per v1.1)', () => {
     // Pre-v1.1 DV __SUPPORTER exits ended at the Shelter housing advice URL.
     // v1.1 adds a 999 line to every safeguarding exit. Locking in the
@@ -366,6 +396,30 @@ describe('Domestic Abuse Disclosure', () => {
     });
     // Every DV __SUPPORTER exit must end with the 999 line.
     expect(endings.filter((e) => !e.ends999)).toEqual([]);
+  });
+
+  test('DV SELF base exits all include the 999 line (parity with supporter variants)', () => {
+    // The SELF base DV exits previously had no 999 line, unlike their
+    // __SUPPORTER counterparts. Parity added so a person disclosing for
+    // themselves sees the emergency line too. Parallel to the SELF SA 999
+    // test in 'Sexual Violence Disclosure'.
+    const NINE_NINE_NINE = "If you're in immediate danger, call 999.";
+    const cases: Array<[string, number]> = [
+      ['Female', 1], ['Female', 2],
+      ['Male', 1], ['Male', 2],
+      ['Non-binary or other', 1], ['Non-binary or other', 2],
+    ];
+    const missing = cases.filter(([dvGender, childrenOption]) => {
+      const session = sessionAt('DV_CHILDREN_ASK', {
+        dvGender,
+        isSupporter: false,
+        userType: 'SELF',
+      });
+      const result = select(session, childrenOption);
+      return !result.text.includes(NINE_NINE_NINE);
+    });
+    // Every DV SELF exit must include the 999 line.
+    expect(missing).toEqual([]);
   });
 
 });
@@ -400,6 +454,78 @@ describe('Sexual Violence Disclosure', () => {
     // Service contact and 999 line still present
     expect(result.text).toContain('0808 500 2222');
     expect(result.text).toContain('999');
+  });
+
+  test('SA Male __PROFESSIONAL exit fires when userType is PROFESSIONAL', () => {
+    const session = sessionAt('SA_GENDER_ASK', {
+      isSupporter: true,
+      userType: 'PROFESSIONAL',
+    });
+    const result = select(session, 2); // Male
+    expect(result.text).toContain('Here are the specialist contacts');
+    expect(result.text).toContain("You'll know your next steps from here");
+    expect(result.text).not.toContain("You don't have to work this out on your own");
+    // Male SA variant routes to SurvivorsUK, not Rape Crisis.
+    expect(result.text).toContain('020 3598 3898');
+    expect(result.text).toContain('999');
+  });
+
+  test('SA LGBTQ+ __PROFESSIONAL exit fires when userType is PROFESSIONAL', () => {
+    const session = sessionAt('SA_GENDER_ASK', {
+      isSupporter: true,
+      userType: 'PROFESSIONAL',
+    });
+    const result = select(session, 3); // Non-binary or other
+    expect(result.text).toContain('Here are the specialist contacts');
+    expect(result.text).toContain("You'll know your next steps from here");
+    expect(result.text).not.toContain("You don't have to work this out on your own");
+    // LGBTQ+ SA variant lists both SurvivorsUK and Galop.
+    expect(result.text).toContain('020 3598 3898');
+    expect(result.text).toContain('0800 999 5428');
+    expect(result.text).toContain('999');
+  });
+
+  test('SA SELF base exits all include the 999 line (parity with supporter variants)', () => {
+    // The SELF base SA exits previously had no 999 line, unlike their
+    // __SUPPORTER counterparts. Parity added so a person disclosing for
+    // themselves sees the emergency line too. Parallel to the SELF DV 999
+    // test in 'Domestic Abuse Disclosure'.
+    const NINE_NINE_NINE = "If you're in immediate danger, call 999.";
+    // SA_GENDER_ASK options: 1=Female, 2=Male, 3=Non-binary or other
+    const genderOptions = [1, 2, 3];
+    const missing = genderOptions.filter((genderOption) => {
+      const session = sessionAt('SA_GENDER_ASK', {
+        isSupporter: false,
+        userType: 'SELF',
+      });
+      const result = select(session, genderOption);
+      return !result.text.includes(NINE_NINE_NINE);
+    });
+    // Every SA SELF exit must include the 999 line.
+    expect(missing).toEqual([]);
+  });
+
+});
+
+// =============================================================================
+// CHILD AT RISK - userType wiring must resolve to a valid exit in every register
+// =============================================================================
+
+describe('Child At Risk Exit', () => {
+
+  test('CHILD_AT_RISK_EXIT resolves to base entry with 999 line for SELF and PROFESSIONAL', () => {
+    // The call site passes session.userType (not a boolean). There is only a
+    // base CHILD_AT_RISK_EXIT entry — no __SUPPORTER or __PROFESSIONAL variant.
+    // Both registers must fall through to the base entry and still surface the
+    // 999 line. Guards the wiring so adding a variant later can't silently
+    // break either register.
+    const NINE_NINE_NINE = 'If a child is in immediate danger, call 999.';
+    for (const userType of ['SELF', 'PROFESSIONAL'] as const) {
+      // B7D_4A option 4 = Child safety -> CHILD_AT_RISK_EXIT
+      const session = sessionAt('B7D_4A_PREVENTION_SAFEGUARDING_FOLLOW_UP', { userType });
+      const result = select(session, 4);
+      expect(result.text).toContain(NINE_NINE_NINE);
+    }
   });
 
 });

@@ -143,7 +143,7 @@ export function handleB7D4APreventionSafeguardingFollowUp(
         sessionEnded: true
       };
     case 4: // Child safety
-      return safeguardingExit('CHILD_AT_RISK_EXIT', session.isSupporter, 'CHILD_AT_RISK');
+      return safeguardingExit('CHILD_AT_RISK_EXIT', session.userType, 'CHILD_AT_RISK');
     default: // Continue to terminal
       const result2 = buildTerminalServices(session);
       const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);

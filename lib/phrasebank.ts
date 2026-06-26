@@ -1581,7 +1581,9 @@ https://nationaldahelpline.org.uk
 
 HOUSING ADVICE
 Shelter - Domestic Violence Advice
-https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse
+
+If you're in immediate danger, call 999.`
   },
 
   DV_FEMALE_CHILDREN_YES__SUPPORTER: {
@@ -1637,7 +1639,9 @@ https://nationaldahelpline.org.uk
 
 HOUSING ADVICE
 Shelter - Domestic Violence Advice
-https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse
+
+If you're in immediate danger, call 999.`
   },
 
   DV_FEMALE_CHILDREN_NO__SUPPORTER: {
@@ -1685,7 +1689,9 @@ Confidential support for men affected by domestic violence
 
 HOUSING ADVICE
 Shelter - Domestic Violence Advice
-https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse
+
+If you're in immediate danger, call 999.`
   },
 
   DV_MALE_CHILDREN_YES__SUPPORTER: {
@@ -1734,7 +1740,9 @@ https://mankind.org.uk
 
 HOUSING ADVICE
 Shelter - Domestic Violence Advice
-https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse
+
+If you're in immediate danger, call 999.`
   },
 
   DV_MALE_CHILDREN_NO__SUPPORTER: {
@@ -1782,7 +1790,9 @@ National helpline for LGBTQ+ people affected by abuse or violence
 
 HOUSING ADVICE
 Shelter - Domestic Violence Advice
-https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse
+
+If you're in immediate danger, call 999.`
   },
 
   DV_LGBTQ_CHILDREN_YES__SUPPORTER: {
@@ -1831,7 +1841,9 @@ https://galop.org.uk
 
 HOUSING ADVICE
 Shelter - Domestic Violence Advice
-https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse
+
+If you're in immediate danger, call 999.`
   },
 
   DV_LGBTQ_CHILDREN_NO__SUPPORTER: {
@@ -1874,7 +1886,9 @@ If they're in immediate danger, call 999.`
 SEXUAL VIOLENCE SUPPORT
 Rape Crisis England & Wales
 0808 500 2222 (Free, confidential, 24/7)
-https://rapecrisis.org.uk`
+https://rapecrisis.org.uk
+
+If you're in immediate danger, call 999.`
   },
 
   SA_FEMALE_16PLUS__SUPPORTER: {
@@ -1919,7 +1933,9 @@ SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
 020 3598 3898
 https://survivorsuk.org
-Specialist, confidential support for men and boys aged 16 and over`
+Specialist, confidential support for men and boys aged 16 and over
+
+If you're in immediate danger, call 999.`
   },
 
   SA_MALE_16PLUS__SUPPORTER: {
@@ -1961,7 +1977,9 @@ https://survivorsuk.org
 SEXUAL VIOLENCE SUPPORT
 Galop
 0800 999 5428
-https://galop.org.uk`
+https://galop.org.uk
+
+If you're in immediate danger, call 999.`
   },
 
   SA_LGBTQ_OR_NONBINARY__SUPPORTER: {
