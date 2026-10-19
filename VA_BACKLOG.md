@@ -245,7 +245,7 @@ The report is saved alongside the pipeline output: `validation_report_YYYY-MM-DD
 
 ### 36. New location onboarding procedure
 **Priority:** Medium (governance, not code)
-**Status:** Not started. Draft after validation script is built.
+**Status:** Replaced, 19 October 2026, by `governance/VA_Go_Live_Readiness_Technical_Paper.md` in the pipeline repository (PR #166), on the Managing Director's decision. Step 6 is carried there as checks D1 and D2. The classifier and known-organisation steps belong to the old route and retire with pipeline #132. The text below is kept as the record.
 **Required:** A step-by-step procedure document for onboarding a new geographic area to the enrichment pipeline and VA. Written so that anyone with pipeline access can follow it without prior knowledge of the system. Each step specifies what to do, what the expected output is, and what decisions need to be made before proceeding.
 
 This document is the operational companion to the validation script (item 35). The validation script implements the automated checks; this document provides the full context, rationale, and manual steps that sit around them.

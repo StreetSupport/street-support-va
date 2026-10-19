@@ -409,13 +409,13 @@ Changes requiring governance review (trustees informed, decision documented):
 
 - Children’s Wellbeing and Schools Bill receiving Royal Assent (care leaver pathway review required)
 
-- New LA added to the WMCA rollout
-
 Operational changes within existing rules (no governance review required):
 
 - Updating contact details in housing-pathway-endpoints.json where the pathway logic is unchanged
 
 - Adding or updating a navigator organisation entry in housing-pathway-endpoints.json
+
+- Adding a new local authority or area, through the pre-go-live procedure (`governance/VA_Go_Live_Readiness_Technical_Paper.md` in the pipeline repository). The Managing Director decides, James Cross reviews the technical implementation, and trustees are informed through operational updates (Managing Director, 19 October 2026)
 
 **Document History**
 
