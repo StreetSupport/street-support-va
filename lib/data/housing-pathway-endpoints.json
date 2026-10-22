@@ -31,7 +31,7 @@
       {
         "name": "SIFA Fireside",
         "description": "Drop-in housing advice and support for single adults experiencing homelessness. Broad knowledge of local housing pathways.",
-        "ageMin": 18,
+        "ageMin": 25,
         "ageMax": null,
         "phone": "0121 766 1700",
         "website": "https://www.sifafireside.co.uk",
@@ -149,18 +149,8 @@
       "phoneOOH": "0300 555 8574",
       "website": "https://www.dudley.gov.uk/resident/care-health/children-and-family-care"
     },
-    "navigatorOrgs": [
-      {
-        "name": "Lighthouse Community Hub",
-        "description": "Drop-in housing and homelessness support.",
-        "ageMin": null,
-        "ageMax": null,
-        "phone": "01384 239222",
-        "availabilityNote": "Monday evenings from 4pm",
-        "website": "https://www.heavenskitchen.org.uk/",
-        "isDropIn": true
-      }
-    ],
+    "navigatorOrgs": [],
+    "_navigatorGap": "No housing navigator organisation identified for Dudley. Lighthouse Community Hub was removed on 22 October 2026 (Managing Director): it is a weekly soup kitchen with an adviser, not a housing navigator for Dudley.",
     "dvOrgs": {
       "womensAid": {
         "name": "Black Country Women's Aid",
@@ -272,7 +262,7 @@
       {
         "name": "Glebe Centre / YMCA Black Country",
         "description": "Housing advice and support for people experiencing homelessness.",
-        "ageMin": null,
+        "ageMin": 18,
         "ageMax": null,
         "phone": "01922 625687",
         "availabilityNote": "Mon-Fri 10am-4pm",
@@ -315,9 +305,19 @@
     },
     "navigatorOrgs": [
       {
+        "name": "Young Persons Team (City of Wolverhampton Council)",
+        "description": "Specialist support and accommodation for young people aged 16 and 17 who are homeless or at risk of homelessness. Support for young people aged 16 to 25.",
+        "ageMin": 16,
+        "ageMax": 25,
+        "email": "youngpersonsteam@wolverhampton.gov.uk",
+        "website": "https://www.wolverhampton.gov.uk/housing/homelessness/young-people-care-leavers",
+        "isDropIn": false,
+        "_canonicalNote": "Added 22 October 2026 on the Managing Director's instruction. Email and website from the Street Support listing (16 September 2026 capture); to be confirmed against the council website before merge."
+      },
+      {
         "name": "P3 Wolverhampton",
         "description": "Commissioned housing navigator service. Drop-in support for people experiencing homelessness.",
-        "ageMin": null,
+        "ageMin": 18,
         "ageMax": null,
         "phone": "01902 296451",
         "phoneHours": "Mon-Fri 9am-5pm",

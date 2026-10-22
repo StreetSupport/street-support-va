@@ -576,6 +576,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
       for (const org of navigatorOrgs) {
         text += `${org.name}\n`;
         if (org.phone) text += `${org.phone}\n`;
+        if (org.email) text += `${org.email}\n`;
         if (org.availabilityNote) text += `${org.availabilityNote}\n`;
         if (org.website) text += `${org.website}\n`;
         if (org.description) text += `${org.description}\n`;
@@ -681,6 +682,9 @@ function buildTerminalServices(session: SessionState): TerminalResult {
       text += `${org.name}\n`;
       if (org.phone) {
         text += `${org.phone}\n`;
+      }
+      if (org.email) {
+        text += `${org.email}\n`;
       }
       if (org.availabilityNote) {
         text += `${org.availabilityNote}\n`;
@@ -801,6 +805,9 @@ function buildTerminalServices(session: SessionState): TerminalResult {
       text += `${org.name}\n`;
       if (org.phone) {
         text += `${org.phone}\n`;
+      }
+      if (org.email) {
+        text += `${org.email}\n`;
       }
       if (org.website) {
         text += `${org.website}\n`;
