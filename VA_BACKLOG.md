@@ -1101,6 +1101,34 @@ When enriched eligibility data is in use, confidence levels must influence langu
 
 ---
 
+## V4 Alignment (new, 23 Oct 2026)
+
+### 80. Align the assistant with the V4 governed baseline
+
+**Source:** WMCA consequential discovery run, S3 (`ssn-enrichment-pipeline`, `governance/assurance/source_first/run_records/wmca_discovery_run_2026-10-23/RUN_RECORD.md`, `08600e1` on #175). Compared `staging` at `6b7eaba` with `wmca_baseline_hardened_2026-10-23_records`.
+
+**Status:** Not started. All of it is needed before go-live in WMCA. None of it affects anyone today, because the assistant is not live. The pipeline side is pipeline backlog item 3: join the assistant to the governed baseline, not to the derived decision ledger.
+
+**What the run found:**
+- **A1. Categories.** `needToCategoryMap`, `adviceSubcategoryMap` and `needSubcategoryConstraints` in `lib/serviceMatcher.ts` use the old taxonomy's twelve parents (`support`, `items`, `dropin`, `accom`, `foodbank`, `medical` and others). They move to the ten parents and their subcategories (Platform Scope v4).
+- **A2. Service data.** The assistant reads a fixed snapshot, `lib/data/wmca_services_v7.json`: 1,323 entries, 1,252 distinct services.
+  - 752 are among the baseline's 1,399 current services.
+  - 500 are not current services in the baseline, from 109 organisations.
+  - 647 current services are missing from the snapshot.
+  - Of the 752 in both, 159 are not listed in the baseline: 76 footnotes, 31 out of scope, 26 held for outreach, 25 carried by a place to start and 1 consolidated population row. The assistant would show these as services.
+  - The fix is reading the governed baseline (pipeline item 3).
+- **A3. Population and age gates.** `clientGroupKeywords` still has:
+  - Older people, no longer a factor (board, 20 October);
+  - mental health and rough sleepers, which are not population factors;
+  - refugees, asylum seekers and migrants as one group, where they are now three factors;
+  - ex-offenders, where the factor is People with criminal records.
+
+  It has no gate for care leavers, sex workers, veterans, people with dogs or ethnic minority communities. Gates follow the fourteen population factors and the 16 and 17 access rule (pipeline #132).
+- **A4. Phase.** The assistant does not read phase. When it does, it reads phase as a set split on `|`, never as an exact match (James, #17, 30 July 2026).
+- **A5. Endpoint data.** Covered by VA #26: Nightstop out, Lighthouse not a Dudley navigator, SIFA Fireside 25 and over, the Glebe Centre and P3 Wolverhampton 18 and over, and Wolverhampton's Young Persons Team added. Its email is to be confirmed at source before merge. The other 32 named endpoints that are listings agree with the baseline.
+
+**Governance:** routing and safeguarding changes go through James's review and, where an established pathway changes, the Safeguarding Contract. Contact data is confirmed at primary source.
+
 ## Completed
 
 | Item | Date |
