@@ -1343,6 +1343,17 @@ describe('Youth route: what a 16 or 17 year old is shown', () => {
   test('Wolverhampton 25 and over is still shown P3', () => {
     const result = select(homeless16('Wolverhampton', { ageCategory: '25 or over' }), 3);
     expect(result.text).toContain('P3 Wolverhampton');
+    expect(result.text).not.toContain('Young Persons Team');
+  });
+
+  test('Birmingham 25 and over is not shown St Basil\'s', () => {
+    const result = select(homeless16('Birmingham', { ageCategory: '25 or over' }), 3);
+    expect(result.text).not.toContain('St Basil');
+  });
+
+  test('Solihull 25 and over is not shown the St Basil\'s Youth Hub', () => {
+    const result = select(homeless16('Solihull', { ageCategory: '25 or over' }), 3);
+    expect(result.text).not.toContain('St Basil');
   });
 
 });

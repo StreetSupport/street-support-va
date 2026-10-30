@@ -41,7 +41,7 @@
         "name": "St Basil's Birmingham",
         "description": "Specialist housing support for young people. Help to find and keep a home.",
         "ageMin": 16,
-        "ageMax": 25,
+        "ageMax": 24,
         "phone": "0300 303 0099",
         "website": "https://www.stbasils.org.uk",
         "isDropIn": true
@@ -150,7 +150,7 @@
       "website": "https://www.dudley.gov.uk/resident/care-health/children-and-family-care"
     },
     "navigatorOrgs": [],
-    "_navigatorGap": "No housing navigator organisation identified for Dudley. Lighthouse Community Hub was removed on 22 October 2026 (Managing Director): it is a weekly soup kitchen with an adviser, not a housing navigator for Dudley.",
+    "_navigatorGap": "No housing navigator organisation identified for Dudley. Lighthouse Community Hub was removed on 22 October 2026 (Managing Director): it is a weekly soup kitchen with an adviser, not a housing navigator for Dudley. The gap sits with the WMCA regional coordinator, who liaises with the rough sleeping leads and councils; if they have no equivalent service, it is not a short-term fix (Managing Director, 30 October 2026).",
     "dvOrgs": {
       "womensAid": {
         "name": "Black Country Women's Aid",
@@ -224,7 +224,7 @@
         "name": "St Basil's Solihull Youth Hub",
         "description": "Specialist housing support for young people, commissioned by Solihull Housing Options.",
         "ageMin": 16,
-        "ageMax": 25,
+        "ageMax": 24,
         "phone": "0330 332 7978",
         "email": "SolihullYouthHub@stbasils.org.uk",
         "website": "https://www.stbasils.org.uk",
@@ -308,7 +308,7 @@
         "name": "Young Persons Team (City of Wolverhampton Council)",
         "description": "Specialist support and accommodation for young people aged 16 and 17 who are homeless or at risk of homelessness. Support for young people aged 16 to 25.",
         "ageMin": 16,
-        "ageMax": 25,
+        "ageMax": 24,
         "email": "youngpersonsteam@wolverhampton.gov.uk",
         "website": "https://www.wolverhampton.gov.uk/housing/homelessness/young-people-care-leavers",
         "isDropIn": false,
