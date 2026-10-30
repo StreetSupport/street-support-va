@@ -6,7 +6,7 @@ Document type: Governance Contract
 
 Status: Draft – Pending trustee review
 
-Version: 1.0 │ Last updated: February 2026
+Version: 1.1 │ Last updated: October 2026
 
 **Purpose**
 
@@ -156,13 +156,15 @@ The VA signposts the Shelter legal page on 16–17 year olds and housing rights 
 
 Required endpoints:
 
+- Their social worker, or the Children’s Services duty team, surfaced first as the route back to the support they already have. The VA does not state what social services must do.
+
 - Housing navigator organisation (e.g. St Basil’s)
 
 - Council Housing Options contact
 
 - Shelter helpline
 
-Social services is not surfaced as a recommendation because the user is already engaged with them and is seeking additional support beyond what social services is providing.
+A young person already involved with social services is pointed back to them first (Managing Director, 30 October 2026, agreeing the routing for PR #30). Children’s Services’ duty to a homeless 16 or 17 year old takes precedence (Statutory Homelessness Duties paper). The other endpoints follow as additional support.
 
 **Care Leavers: 18–20**
 
@@ -423,6 +425,7 @@ Operational changes within existing rules (no governance review required):
 |-------------|---------------|--------------------------------------------------------------------------------------------|------------|
 | **Version** | **Date**      | **Change**                                                                                 | **Author** |
 | 1.0         | February 2026 | Initial draft following WatsonX pathway audit and legal review of care leaver entitlements | SSN        |
+| 1.1         | October 2026  | 16–17 currently involved with social services: social worker or Children’s Services duty team surfaced first, matching the VA (PR #30) | SSN        |
 
 **Status: Draft – Pending trustee review**
 
