@@ -1284,3 +1284,76 @@ describe('Mid-Conversation Under-16 Detection', () => {
   });
 
 });
+
+// =============================================================================
+// Youth route, 22 October 2026 (Managing Director): a 16 or 17 year old is shown
+// only what they can reach themselves. Adult navigators carry their ages; the
+// Wolverhampton Young Persons Team is the youth route there; Nightstop is
+// reached through St Basils, not directly.
+// =============================================================================
+
+describe('Youth route: what a 16 or 17 year old is shown', () => {
+
+  const homeless16 = (localAuthority: string, extra: Record<string, unknown> = {}) =>
+    sessionAt('B7_HOMELESS_SLEEPING_SITUATION', {
+      ageCategory: '16-17',
+      gender: 'Female',
+      localAuthority,
+      supportNeed: 'Emergency Housing',
+      homeless: true,
+      routeType: 'QUICK',
+      ...extra,
+    });
+
+  test('Wolverhampton 16-17 sees the Young Persons Team and its email, not P3', () => {
+    const result = select(homeless16('Wolverhampton'), 3);
+    expect(result.text).toContain('Young Persons Team');
+    expect(result.text).toContain('youngpersonsteam@wolverhampton.gov.uk');
+    expect(result.text).not.toContain('P3 Wolverhampton');
+  });
+
+  test('Wolverhampton 16-17 with social services: Children\'s Services first, then the Young Persons Team, not P3', () => {
+    const result = select(homeless16('Wolverhampton', { socialServices: 'Yes' }), 3);
+    expect(result.text).toContain('duty team');
+    expect(result.text).toContain('Young Persons Team');
+    expect(result.text).not.toContain('P3 Wolverhampton');
+  });
+
+  test('Walsall 16-17 is not shown the Glebe Centre', () => {
+    const result = select(homeless16('Walsall'), 3);
+    expect(result.text).not.toContain('Glebe Centre');
+  });
+
+  test('Dudley 16-17 is not shown Lighthouse Community Hub', () => {
+    const result = select(homeless16('Dudley'), 3);
+    expect(result.text).not.toContain('Lighthouse Community Hub');
+  });
+
+  test('no young person is shown Nightstop', () => {
+    const result = select(homeless16('Birmingham'), 3);
+    expect(result.text).not.toContain('Nightstop');
+  });
+
+  test('Birmingham 18-24 is not shown SIFA Fireside (25 and over); St Basil\'s is', () => {
+    const result = select(homeless16('Birmingham', { ageCategory: '18-24' }), 3);
+    expect(result.text).not.toContain('SIFA Fireside');
+    expect(result.text).toContain('St Basil');
+  });
+
+  test('Wolverhampton 25 and over is still shown P3', () => {
+    const result = select(homeless16('Wolverhampton', { ageCategory: '25 or over' }), 3);
+    expect(result.text).toContain('P3 Wolverhampton');
+    expect(result.text).not.toContain('Young Persons Team');
+  });
+
+  test('Birmingham 25 and over is not shown St Basil\'s', () => {
+    const result = select(homeless16('Birmingham', { ageCategory: '25 or over' }), 3);
+    expect(result.text).not.toContain('St Basil');
+  });
+
+  test('Solihull 25 and over is not shown the St Basil\'s Youth Hub', () => {
+    const result = select(homeless16('Solihull', { ageCategory: '25 or over' }), 3);
+    expect(result.text).not.toContain('St Basil');
+  });
+
+});
