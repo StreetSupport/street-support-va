@@ -545,26 +545,32 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   const is16_17 = effectiveAge === '16-17';
   const hasSocialServices = session.socialServices === 'Yes';
 
-  if (is16_17 && hasSocialServices) {
-    text += `I've found some services that can help with ${possessive} situation.\n\n`;
-
-    // Children's Services as primary route
+  // Children's Services framing and LA duty team contact, shown first for every 16-17 year old
+  const childrensServicesFirstStep = (): string => {
     const csPhrase = getPhrase('TERMINAL_YOUTH_16_17_CHILDRENS_SERVICES', isSupporter);
-    text += `YOUR FIRST STEP\n`;
-    text += `---------------\n`;
-    text += `${csPhrase?.text}\n\n`;
+    let cs = `${csPhrase?.text}\n\n`;
 
     const laKey = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
     const childServices = childrenServicesData[laKey];
     if (childServices) {
-      text += `${childServices.name}\n`;
-      text += `${childServices.phone}`;
+      cs += `${childServices.name}\n`;
+      cs += `${childServices.phone}`;
       if (childServices.phoneOOH) {
-        text += ` (out of hours: ${childServices.phoneOOH})`;
+        cs += ` (out of hours: ${childServices.phoneOOH})`;
       }
-      text += `\n`;
-      text += `${childServices.website}\n\n`;
+      cs += `\n`;
+      cs += `${childServices.website}\n\n`;
     }
+    return cs;
+  };
+
+  if (is16_17 && hasSocialServices) {
+    text += `I've found some services that can help with ${possessive} situation.\n\n`;
+
+    // Children's Services as primary route
+    text += `YOUR FIRST STEP\n`;
+    text += `---------------\n`;
+    text += childrensServicesFirstStep();
 
     // Age-filtered navigator orgs as secondary
     if (navigatorOrgs.length > 0) {
@@ -621,10 +627,18 @@ function buildTerminalServices(session: SessionState): TerminalResult {
 
   // ----------------------------------------
   // YOUR FIRST STEP - Council Housing Options
+  // 16-17 not involved with social services: Children's Services first, then Housing Options
+  // (the children's services duty takes precedence for 16 and 17 year olds)
   // ----------------------------------------
   text += `YOUR FIRST STEP\n`;
   text += `---------------\n`;
-  
+
+  if (is16_17) {
+    text += childrensServicesFirstStep();
+    text += `HOUSING OPTIONS\n`;
+    text += `---------------\n`;
+  }
+
   if (councilOrg) {
     text += `${councilOrg.name}\n`;
     if (councilOrg.phone) {
@@ -1271,6 +1285,15 @@ export function processInput(session: SessionState, input: string): RoutingResul
       const needsFullProfiling = housingRelatedNeeds.includes(need || '');
 
       if (needsFullProfiling) {
+        // Quick route asks age before B6 — it has no Section C, so a 16-17 year old
+        // would otherwise never be recognised (full route asks detailed age in Section C)
+        if (session.routeType === 'QUICK' && !session.ageCategory) {
+          return {
+            ...phrase('B5_PROFILE_AGE', session.isSupporter),
+            stateUpdates: { currentGate: 'B5_PROFILE_AGE', supportNeed: need, needCount: session.needCount + 1 }
+          };
+        }
+
         // Continue to homelessness status question
         return {
           ...phrase('B6_HOMELESSNESS_STATUS', session.isSupporter),
@@ -1293,14 +1316,33 @@ export function processInput(session: SessionState, input: string): RoutingResul
     // ============================================================
     
     case 'B5_PROFILE_AGE':
-      const profAgeOptions = ['Under 18', '18-24', '25 or over'];
+      const profAgeOptions = ['Under 16', '16-17', '18-24', '25 or over'];
       const profAge = choice ? profAgeOptions[choice - 1] : null;
-      
+
+      // Under 16 safeguarding — same exit as B3_AGE_CATEGORY
+      if (choice === 1) {
+        if (session.localAuthority) {
+          return buildUnder16Exit(session);
+        }
+        return {
+          ...phrase('CRISIS_UNDER16_LOCATION', session.userType),
+          stateUpdates: { currentGate: 'CRISIS_UNDER16_LOCATION' }
+        };
+      }
+
       // Map to standard age categories
       let mappedProfAge = profAge;
-      if (profAge === 'Under 18') mappedProfAge = '16-17';
       if (profAge === '25 or over') mappedProfAge = '25+';
-      
+      const profYouthFlag = choice === 2;
+
+      // Emergency Housing (quick route) continues to the homelessness status question
+      if (session.supportNeed === 'Emergency Housing') {
+        return {
+          ...phrase('B6_HOMELESSNESS_STATUS', session.isSupporter),
+          stateUpdates: { currentGate: 'B6_HOMELESSNESS_STATUS', ageCategory: mappedProfAge, youthServicesFlag: profYouthFlag }
+        };
+      }
+
       const sessionWithAge = { ...session, ageCategory: mappedProfAge };
       return routeToNextProfileQuestion(sessionWithAge, 'age');
     
