@@ -6,7 +6,7 @@ Document type: Governance Contract
 
 Status: Draft – Pending trustee review
 
-Version: 1.0 │ Last updated: February 2026
+Version: 1.1 │ Last updated: October 2026
 
 **Purpose**
 
