@@ -413,23 +413,26 @@ Support with Benefits and Grants | Turn2us - https://www.turn2us.org.uk/`
   // Asked based on which support need was selected
   // ============================================================
 
-  // AGE - Asked for: Health, Work, Training, Activities, Drop In
+  // AGE - Asked for: Health, Work, Training, Activities, Drop In, and Emergency Housing on the quick route
+  // Under 16 takes the same under-16 exit as B3_AGE_CATEGORY
   B5_PROFILE_AGE: {
     text: `To help find the most relevant services, which age group are you in?
 
-1. Under 18
-2. 18-24
-3. 25 or over`,
-    options: ["Under 18", "18-24", "25 or over"]
+1. Under 16
+2. 16-17
+3. 18-24
+4. 25 or over`,
+    options: ["Under 16", "16-17", "18-24", "25 or over"]
   },
 
   B5_PROFILE_AGE__SUPPORTER: {
     text: `To help find the most relevant services, which age group are they in?
 
-1. Under 18
-2. 18-24
-3. 25 or over`,
-    options: ["Under 18", "18-24", "25 or over"]
+1. Under 16
+2. 16-17
+3. 18-24
+4. 25 or over`,
+    options: ["Under 16", "16-17", "18-24", "25 or over"]
   },
 
   // GENDER - Asked for: Health, Activities, Drop In

@@ -1357,3 +1357,159 @@ describe('Youth route: what a 16 or 17 year old is shown', () => {
   });
 
 });
+
+// =============================================================================
+// QUICK ROUTE AGE - whole conversations from the first message, nothing preset
+// =============================================================================
+
+describe('Quick route: age for housing, under-16 exit, Children\'s Services first for 16-17', () => {
+
+  // Play a conversation from the opening message, carrying state as the widget does
+  function converse(inputs: string[]) {
+    let session = createSession('scenario');
+    let result = getFirstMessage(session);
+    session = { ...session, ...result.stateUpdates } as SessionState;
+    for (const input of inputs) {
+      result = processInput(session, input);
+      session = { ...session, ...result.stateUpdates } as SessionState;
+    }
+    return { session, result };
+  }
+
+  // No crisis, enter area by hand, connect to services, quick route, skip name,
+  // on my phone, not a return user, for myself, Emergency Housing
+  const quickHousing = (areaOption: string) =>
+    ['7', '3', areaOption, '2', '2', '1', '5', '2', '1', '1'];
+
+  // Homeless, not in touch with Housing Options, sofa surfing
+  const homelessSofaSurfing = ['1', '2', '3'];
+
+  const WOLVERHAMPTON = '1';
+
+  test('a person on the quick route asking for Emergency Housing is asked their age', () => {
+    const { session, result } = converse(quickHousing(WOLVERHAMPTON));
+    expect(session.routeType).toBe('QUICK');
+    expect(session.currentGate).toBe('B5_PROFILE_AGE');
+    expect(result.options).toEqual(['Under 16', '16-17', '18-24', '25 or over']);
+  });
+
+  test('a 15 year old on the quick route gets the under-16 exit, not housing services', () => {
+    const { session, result } = converse([...quickHousing(WOLVERHAMPTON), '1']);
+    expect(result.sessionEnded).toBe(true);
+    expect(session.safeguardingType).toBe('UNDER_16');
+    expect(result.text).toContain('Wolverhampton Children\'s Services');
+    expect(result.text).not.toContain('HOUSING OPTIONS');
+  });
+
+  test('a 16 year old on the quick route is recognised as 16-17 and carries on to the homelessness question', () => {
+    const { session } = converse([...quickHousing(WOLVERHAMPTON), '2']);
+    expect(session.currentGate).toBe('B6_HOMELESSNESS_STATUS');
+    expect(session.ageCategory).toBe('16-17');
+    expect(session.youthServicesFlag).toBe(true);
+  });
+
+  test('a 16 year old sofa surfing in Wolverhampton sees Children\'s Services before Housing Options, and the Young Persons Team', () => {
+    const { result } = converse([...quickHousing(WOLVERHAMPTON), '2', ...homelessSofaSurfing]);
+    const text = result.text;
+    expect(text).toContain('Children\'s Services or a social worker');
+    expect(text).toContain('01902 555392');
+    expect(text.indexOf('Wolverhampton Children\'s Services')).toBeLessThan(text.indexOf('HOUSING OPTIONS'));
+    expect(text).toContain('Young Persons Team');
+    expect(text).not.toContain('P3 Wolverhampton');
+  });
+
+  test('a 30 year old sofa surfing in Wolverhampton sees Housing Options first and no Children\'s Services', () => {
+    const { result } = converse([...quickHousing(WOLVERHAMPTON), '4', ...homelessSofaSurfing]);
+    expect(result.text).not.toContain('Children\'s Services or a social worker');
+    expect(result.text).not.toContain('Wolverhampton Children\'s Services');
+    expect(result.text).toContain('P3 Wolverhampton');
+  });
+
+  test('a supporter asking for a 15 year old on the quick route gets the under-16 exit', () => {
+    const inputs = quickHousing(WOLVERHAMPTON);
+    inputs[8] = '2'; // Someone I'm supporting
+    const { session, result } = converse([...inputs, '1']);
+    expect(result.sessionEnded).toBe(true);
+    expect(session.safeguardingType).toBe('UNDER_16');
+  });
+
+  test('a 15 year old asking for Health on the quick route gets the under-16 exit', () => {
+    const inputs = quickHousing(WOLVERHAMPTON);
+    inputs[9] = '4'; // Health
+    const { session, result } = converse([...inputs, '1']);
+    expect(result.sessionEnded).toBe(true);
+    expect(session.safeguardingType).toBe('UNDER_16');
+  });
+
+  test('a 16 year old already involved with social services keeps the existing layout', () => {
+    const session = sessionAt('B7_HOMELESS_SLEEPING_SITUATION', {
+      ageCategory: '16-17',
+      localAuthority: 'Wolverhampton',
+      supportNeed: 'Emergency Housing',
+      homeless: true,
+      routeType: 'QUICK',
+      socialServices: 'Yes',
+    });
+    const text = select(session, 3).text;
+    expect(text.indexOf('Wolverhampton Children\'s Services')).toBeLessThan(text.indexOf('LOCAL SUPPORT'));
+    expect(text.indexOf('LOCAL SUPPORT')).toBeLessThan(text.indexOf('HOUSING OPTIONS'));
+  });
+
+  // B1_LOCAL_AUTHORITY option for each WMCA area, with its Children's Services entry
+  const WMCA_AREAS: Array<[string, string, string]> = [
+    ['Wolverhampton', '1', 'Wolverhampton Children\'s Services'],
+    ['Coventry', '2', 'Coventry Children\'s Services'],
+    ['Birmingham', '3', 'Birmingham Children\'s Trust'],
+    ['Walsall', '4', 'Walsall Children\'s Services'],
+    ['Solihull', '5', 'Solihull Children\'s Services'],
+    ['Dudley', '6', 'Dudley Children\'s Services'],
+    ['Sandwell', '7', 'Sandwell Children\'s Trust'],
+  ];
+
+  test.each(WMCA_AREAS)('a 16 year old sofa surfing in %s sees Children\'s Services before Housing Options', (area, option, childrensServices) => {
+    const { session, result } = converse([...quickHousing(option), '2', ...homelessSofaSurfing]);
+    const text = result.text;
+    expect(session.localAuthority).toBe(area);
+    expect(text).toContain('Children\'s Services or a social worker');
+    expect(text).toContain(childrensServices);
+    expect(text.indexOf('Children\'s Services or a social worker')).toBeLessThan(text.indexOf('HOUSING OPTIONS'));
+    expect(text.indexOf(childrensServices)).toBeLessThan(text.indexOf('HOUSING OPTIONS'));
+  });
+
+  test('a 16 year old sleeping rough on the quick route still gets StreetLink', () => {
+    const { result } = converse([...quickHousing(WOLVERHAMPTON), '2', '1', '2', '1']); // homeless, no Housing Options, rough sleeping
+    expect(result.text).toContain('make a StreetLink alert');
+    expect(result.text).toContain('OUTREACH SUPPORT');
+    expect(result.text).toContain('https://streetlink.org.uk');
+    expect(result.text.indexOf('Children\'s Services or a social worker')).toBeLessThan(result.text.indexOf('HOUSING OPTIONS'));
+  });
+
+  test('an 18-24 year old on the quick route sees no Children\'s Services block, and the same results as an 18-24 year old reaching the results page directly', () => {
+    const { result } = converse([...quickHousing('3'), '3', ...homelessSofaSurfing]); // Birmingham, 18-24
+    expect(result.text).not.toContain('Children\'s Services or a social worker');
+    expect(result.text).not.toContain('Birmingham Children\'s Trust');
+    expect(result.text).toMatch(/YOUR FIRST STEP\n-+\nBirmingham/);
+    expect(result.text).toContain('St Basil');
+
+    const direct = select(sessionAt('B7_HOMELESS_SLEEPING_SITUATION', {
+      userType: 'SELF',
+      isSupporter: false,
+      ageCategory: '18-24',
+      localAuthority: 'Birmingham',
+      supportNeed: 'Emergency Housing',
+      homeless: true,
+      housingOptionsInvolvement: false,
+      routeType: 'QUICK',
+    }), 3);
+    expect(result.text).toBe(direct.text);
+  });
+
+  test('the full route still goes straight from Emergency Housing to the homelessness question', () => {
+    const inputs = quickHousing(WOLVERHAMPTON);
+    inputs[4] = '1'; // Full guided route
+    const { session } = converse(inputs);
+    expect(session.routeType).toBe('FULL');
+    expect(session.currentGate).toBe('B6_HOMELESSNESS_STATUS');
+  });
+
+});
