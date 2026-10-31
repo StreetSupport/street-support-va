@@ -1305,10 +1305,10 @@ describe('Youth route: what a 16 or 17 year old is shown', () => {
       ...extra,
     });
 
-  test('Wolverhampton 16-17 sees the Young Persons Team and its email, not P3', () => {
+  test('Wolverhampton 16-17 sees the Young Persons Team and a way to reach it, not P3', () => {
     const result = select(homeless16('Wolverhampton'), 3);
     expect(result.text).toContain('Young Persons Team');
-    expect(result.text).toContain('youngpersonsteam@wolverhampton.gov.uk');
+    expect(result.text).toContain('wolverhampton.gov.uk/housing/homelessness/young-people-care-leavers');
     expect(result.text).not.toContain('P3 Wolverhampton');
   });
 

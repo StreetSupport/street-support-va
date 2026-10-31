@@ -305,14 +305,13 @@
     },
     "navigatorOrgs": [
       {
-        "name": "Young Persons Team (City of Wolverhampton Council)",
-        "description": "Specialist support and accommodation for young people aged 16 and 17 who are homeless or at risk of homelessness. Support for young people aged 16 to 25.",
+        "name": "Young Persons Team (Wolverhampton Homes)",
+        "description": "Housing advice and support for young people who are homeless or at risk of homelessness, including care leavers.",
         "ageMin": 16,
         "ageMax": 24,
-        "email": "youngpersonsteam@wolverhampton.gov.uk",
         "website": "https://www.wolverhampton.gov.uk/housing/homelessness/young-people-care-leavers",
         "isDropIn": false,
-        "_canonicalNote": "Added 22 October 2026 on the Managing Director's instruction. Email and website from the Street Support listing (16 September 2026 capture); to be confirmed against the council website before merge."
+        "_canonicalNote": "Added 22 October 2026 on the Managing Director's instruction. Provisional (31 October 2026): surfaced pending confirmation through Eliz of how a young person contacts the team directly. Email dropped: it appears on no council or Wolverhampton Homes page. Run by Wolverhampton Homes, which gives the team's ages as 18 to 25; the council page (updated 3 September 2026) says Wolverhampton Homes supports 16 to 25, and the council's 16-17 leaflet (WCC 2255, 01/2023) has Children's Services and Wolverhampton Homes working jointly for 16 and 17 year olds. ageMax 24 because the VA reads the '25 or over' band as 25. Website confirmed on the council site, 31 October 2026."
       },
       {
         "name": "P3 Wolverhampton",
