@@ -228,6 +228,7 @@ export interface DefaultOrg {
   name: string;
   phone: string | null;
   website: string | null;
+  email?: string | null;
   description: string;
   isCouncil?: boolean;
   isDropIn?: boolean;

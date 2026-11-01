@@ -229,13 +229,9 @@ const youthOrgs: DefaultOrg[] = [
     phone: "0808 800 0661",
     website: "https://centrepoint.org.uk",
     description: "Support for young people aged 16-25 facing homelessness"
-  },
-  {
-    name: "Nightstop UK",
-    phone: null,
-    website: "https://www.nightstop.org.uk",
-    description: "Emergency accommodation for young people in safe volunteer homes"
   }
+  // Nightstop UK removed 22 October 2026 (Managing Director): in the WMCA it is reached through St Basils,
+  // not directly, so it is not a national route a young person can use on their own.
 ];
 
 // ============================================================
@@ -644,6 +640,7 @@ export function getYouthOrgs(profile: UserProfile): DefaultOrg[] {
           name: nav.name,
           phone: nav.phone || null,
           website: nav.website || null,
+          email: nav.email || null,
           description: nav.description,
         });
       }
@@ -698,6 +695,7 @@ export function getNavigatorOrgs(localAuthority: string | null, ageCategory?: st
       name: nav.name,
       phone: nav.phone || null,
       website: nav.website || null,
+      email: nav.email || null,
       description: nav.description,
       isDropIn: nav.isDropIn,
       availabilityNote: nav.availabilityNote,

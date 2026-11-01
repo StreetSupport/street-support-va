@@ -31,7 +31,7 @@
       {
         "name": "SIFA Fireside",
         "description": "Drop-in housing advice and support for single adults experiencing homelessness. Broad knowledge of local housing pathways.",
-        "ageMin": 18,
+        "ageMin": 25,
         "ageMax": null,
         "phone": "0121 766 1700",
         "website": "https://www.sifafireside.co.uk",
@@ -41,7 +41,7 @@
         "name": "St Basil's Birmingham",
         "description": "Specialist housing support for young people. Help to find and keep a home.",
         "ageMin": 16,
-        "ageMax": 25,
+        "ageMax": 24,
         "phone": "0300 303 0099",
         "website": "https://www.stbasils.org.uk",
         "isDropIn": true
@@ -149,18 +149,8 @@
       "phoneOOH": "0300 555 8574",
       "website": "https://www.dudley.gov.uk/resident/care-health/children-and-family-care"
     },
-    "navigatorOrgs": [
-      {
-        "name": "Lighthouse Community Hub",
-        "description": "Drop-in housing and homelessness support.",
-        "ageMin": null,
-        "ageMax": null,
-        "phone": "01384 239222",
-        "availabilityNote": "Monday evenings from 4pm",
-        "website": "https://www.heavenskitchen.org.uk/",
-        "isDropIn": true
-      }
-    ],
+    "navigatorOrgs": [],
+    "_navigatorGap": "No housing navigator organisation identified for Dudley. Lighthouse Community Hub was removed on 22 October 2026 (Managing Director): it is a weekly soup kitchen with an adviser, not a housing navigator for Dudley. The gap sits with the WMCA regional coordinator, who liaises with the rough sleeping leads and councils; if they have no equivalent service, it is not a short-term fix (Managing Director, 30 October 2026).",
     "dvOrgs": {
       "womensAid": {
         "name": "Black Country Women's Aid",
@@ -234,7 +224,7 @@
         "name": "St Basil's Solihull Youth Hub",
         "description": "Specialist housing support for young people, commissioned by Solihull Housing Options.",
         "ageMin": 16,
-        "ageMax": 25,
+        "ageMax": 24,
         "phone": "0330 332 7978",
         "email": "SolihullYouthHub@stbasils.org.uk",
         "website": "https://www.stbasils.org.uk",
@@ -272,7 +262,7 @@
       {
         "name": "Glebe Centre / YMCA Black Country",
         "description": "Housing advice and support for people experiencing homelessness.",
-        "ageMin": null,
+        "ageMin": 18,
         "ageMax": null,
         "phone": "01922 625687",
         "availabilityNote": "Mon-Fri 10am-4pm",
@@ -315,9 +305,18 @@
     },
     "navigatorOrgs": [
       {
+        "name": "Young Persons Team (Wolverhampton Homes)",
+        "description": "Housing advice and support for young people who are homeless or at risk of homelessness, including care leavers.",
+        "ageMin": 16,
+        "ageMax": 24,
+        "website": "https://www.wolverhampton.gov.uk/housing/homelessness/young-people-care-leavers",
+        "isDropIn": false,
+        "_canonicalNote": "Added 22 October 2026 on the Managing Director's instruction. Provisional (31 October 2026): surfaced pending confirmation through Eliz of how a young person contacts the team directly. Email dropped: it appears on no council or Wolverhampton Homes page. Run by Wolverhampton Homes, which gives the team's ages as 18 to 25; the council page (updated 3 September 2026) says Wolverhampton Homes supports 16 to 25, and the council's 16-17 leaflet (WCC 2255, 01/2023) has Children's Services and Wolverhampton Homes working jointly for 16 and 17 year olds. ageMax 24 because the VA reads the '25 or over' band as 25. Website confirmed on the council site, 31 October 2026."
+      },
+      {
         "name": "P3 Wolverhampton",
         "description": "Commissioned housing navigator service. Drop-in support for people experiencing homelessness.",
-        "ageMin": null,
+        "ageMin": 18,
         "ageMax": null,
         "phone": "01902 296451",
         "phoneHours": "Mon-Fri 9am-5pm",
