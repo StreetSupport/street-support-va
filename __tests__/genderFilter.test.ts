@@ -79,7 +79,7 @@ describe('Gender filter: services are restricted only by what they explicitly st
 
   test('the listings labelled both female only and male only are exactly the known ones, so any new contradiction is seen', () => {
     // Known contradictions, to be corrected at source. A new one fails this test.
-    const conflicting = [...new Set(allServices.filter(s => hasConflictingGenderLabels(s as any)).map(s => s.name))].sort();
+    const conflicting = Array.from(new Set(allServices.filter(s => hasConflictingGenderLabels(s as any)).map(s => s.name))).sort();
     expect(conflicting).toEqual([
       'Changing Lives - IRIS Project Sexual exploitation, sex work and sexual violence support',
       'Cranstoun Housing Support [Birmingham]',
