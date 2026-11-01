@@ -155,8 +155,6 @@ const locationOnlyNeeds = ['Food', 'Items', 'Services', 'Comms'];
 
 // Client group keywords for matching
 const clientGroupKeywords = {
-  women: ['Women', 'Female', 'Girls'],
-  men: ['Men', 'Male', 'Boys'],
   lgbtq: ['LGBT+', 'Gay', 'Lesbian', 'Bisexual', 'Transgender', 'LGBTQ'],
   youth: ['Young People', 'Youth', '16-25', 'Young Adults'],
   families: ['Families', 'Children', 'Parents'],
@@ -267,55 +265,74 @@ function getOrgName(orgId: string): string | null {
   return org?.name || null;
 }
 
+// Whole words only. "women" does not contain the word "men", and "female"
+// does not contain the word "male". Substring matching treated every woman as
+// a man, and every "Female only" service as men-only as well as women-only.
+// Wording counts only when the description opens with it, as in
+// "Male only accommodation". A phrase later on ("plus a women only session",
+// "we are not a women only service") does not restrict the whole service, and
+// nor does an opening about part of a service ("Women only sessions on
+// Tuesdays"). Whether description wording should count at all, or only the
+// structured labels, is for the technical lead to confirm.
+const PART_OF_A_SERVICE = String.raw`(?![\s-]+(sessions?|groups?|days?|evenings?|nights?|class(es)?|times?|slots?|hours?|drop[\s-]?ins?)\b)`;
+const WOMEN_ONLY_OPENING = new RegExp(String.raw`^\W*(women|female)[\s-]+only\b` + PART_OF_A_SERVICE, 'i');
+const MEN_ONLY_OPENING = new RegExp(String.raw`^\W*(men|male)[\s-]+only\b` + PART_OF_A_SERVICE, 'i');
+
 /**
- * Check if service matches gender filter
- * Checks client_groups, name, and description for gender-specific terms
+ * A listing carrying both the "Female only" and "Male only" labels contradicts
+ * itself. The filter does not guess: it hides it from no one (interim, for the
+ * technical lead to confirm). This function lets the contradiction be found
+ * and corrected at source.
+ */
+export function hasConflictingGenderLabels(service: Service): boolean {
+  const groups = (service.client_groups || []).map(g => g.trim().toLowerCase());
+  return groups.includes('female only') && groups.includes('male only');
+}
+
+/**
+ * Work out whether a service is restricted to women or to men.
+ *
+ * Restriction must be explicit, not implied (Service Matching Contract). A
+ * service is restricted only when:
+ * - its client groups carry the platform's "Female only" or "Male only" label; or
+ * - its description opens with "women only", "female only", "men only" or
+ *   "male only".
+ * A name is not a restriction: a women's organisation may run services for
+ * men. Nor is mentioning mothers, pregnancy, maternity, fathers or FGM.
+ * Wrongly showing a service costs a person a click; wrongly hiding one can
+ * cost them help.
+ */
+export function serviceGenderRestriction(service: Service): 'WOMEN' | 'MEN' | null {
+  const groups = (service.client_groups || []).map(g => g.trim().toLowerCase());
+  const description = service.description || '';
+
+  const women = groups.includes('female only') || WOMEN_ONLY_OPENING.test(description);
+  const men = groups.includes('male only') || MEN_ONLY_OPENING.test(description);
+
+  if (women && !men) return 'WOMEN';
+  if (men && !women) return 'MEN';
+  return null;
+}
+
+/**
+ * Check if service matches gender filter.
+ * Only an exact "Male" or "Female" answer excludes anything. Every other
+ * answer (non-binary or other, prefer not to say, trans female, trans male)
+ * excludes nothing, so an uncertain or declined answer widens the results.
+ * The handling of the trans answers is an interim placeholder, the least
+ * exclusionary option, pending the service matching review. It is not a
+ * policy decision.
  */
 function matchesGender(service: Service, gender: string | null): boolean {
   if (!gender) return true;
-  
-  const genderLower = gender.toLowerCase();
-  const clientGroups = service.client_groups || [];
-  const name = service.name.toLowerCase();
-  const desc = service.description.toLowerCase();
-  
-  // Women-only indicators
-  const womenOnlyTerms = ['women', 'woman', 'female', 'girls', 'mothers', 'period poverty', 'period products', 'menstrual', 'maternity', 'pregnancy'];
-  const menOnlyTerms = ['men only', 'for men', 'male only', 'fathers'];
-  
-  // Check if service is gender-restricted via client_groups
-  const hasWomenClientGroup = clientGroups.some(g => 
-    clientGroupKeywords.women.some(k => g.toLowerCase().includes(k.toLowerCase()))
-  );
-  const hasMenClientGroup = clientGroups.some(g => 
-    clientGroupKeywords.men.some(k => g.toLowerCase().includes(k.toLowerCase()))
-  );
-  
-  // Check if service name/description indicates women-only
-  const nameDescIndicatesWomenOnly = womenOnlyTerms.some(term => 
-    name.includes(term) || desc.includes(term)
-  );
-  
-  // Check if service name/description indicates men-only
-  const nameDescIndicatesMenOnly = menOnlyTerms.some(term => 
-    name.includes(term) || desc.includes(term)
-  );
-  
-  // Determine if service is gender-restricted
-  const isWomenOnly = hasWomenClientGroup || nameDescIndicatesWomenOnly;
-  const isMenOnly = hasMenClientGroup || nameDescIndicatesMenOnly;
-  
-  // If user is male and service is women-only, exclude
-  if (isWomenOnly && ['male', 'man', 'boy'].some(g => genderLower.includes(g))) {
-    return false;
-  }
-  
-  // If user is female and service is men-only, exclude
-  if (isMenOnly && ['female', 'woman', 'girl'].some(g => genderLower.includes(g))) {
-    return false;
-  }
-  
-  return true;;
+
+  const answer = gender.trim().toLowerCase();
+  const restriction = serviceGenderRestriction(service);
+
+  if (restriction === 'WOMEN' && answer === 'male') return false;
+  if (restriction === 'MEN' && answer === 'female') return false;
+
+  return true;
 }
 
 /**
