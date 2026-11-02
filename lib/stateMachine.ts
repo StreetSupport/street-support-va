@@ -1285,9 +1285,11 @@ export function processInput(session: SessionState, input: string): RoutingResul
       const needsFullProfiling = housingRelatedNeeds.includes(need || '');
 
       if (needsFullProfiling) {
-        // Quick route asks age before B6 — it has no Section C, so a 16-17 year old
-        // would otherwise never be recognised (full route asks detailed age in Section C)
-        if (session.routeType === 'QUICK' && !session.ageCategory) {
+        // Every housing route asks age before B6. Age decides the under-16 exit
+        // and the 16-17 route, so it cannot wait for Section C: the full route
+        // reaches Section C only with consent, the prevention branch never
+        // reaches it, and the organisation-details route skips it.
+        if (!session.ageCategory) {
           return {
             ...phrase('B5_PROFILE_AGE', session.isSupporter),
             stateUpdates: { currentGate: 'B5_PROFILE_AGE', supportNeed: need, needCount: session.needCount + 1 }

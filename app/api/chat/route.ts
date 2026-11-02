@@ -221,7 +221,13 @@ export async function POST(request: NextRequest) {
     
     // Handle location result from widget
     if (message === '__LOCATION_RESULT__' && locationData) {
-      console.log(`[VA] Location result:`, locationData);
+      // Log the local authority only. Coordinates are never logged: the
+      // Analytics Contract limits geographic analysis to local authority level.
+      console.log('[VA] Location result:', JSON.stringify({
+        success: !!locationData.success,
+        localAuthority: locationData.localAuthority ?? null,
+        inWMCA: locationData.isWMCA ?? locationData.isInWMCA ?? null,
+      }));
       
       const result = processLocationInput(session, locationData);
       session = { ...session, ...result.stateUpdates };
