@@ -490,6 +490,20 @@ The "by" column is proposed. It is the latest an item can land without putting i
 | 7 Dec (M6) | Contact data and fallbacks verified for launch; data protection notes complete; Service Matching Contract amended; final test run and type check | C8, E4, G4, G5, I3a |
 | 14 Dec or 4 Jan (M7) | VA live in the West Midlands; Watsonx off | |
 
+### Review rounds and build (proposed, 2 November 2026)
+
+The technical lead reviews about once a week, so about five rounds remain before M6. Build effort, scaled to the pace of 2 November (PRs #36 and #37 built and tested inside a design day), is roughly 7 to 10 focused days in all. The review rounds and the copy of the site set the dates, not the build.
+
+| Review round, week of | In the batch | Design that must close first |
+|---|---|---|
+| 9 Nov | #36, #37; crisis housing changes, 16 and 17, Food, C7 | The 16 and 17 wording sign-offs |
+| 16 Nov | C9 Safety route; C5 prevention | Advice mechanism; multiple-harm exits specified; remaining prevention rows; awareness line fallback wording |
+| 23 Nov | I4, I5, I8, I9 matching and cards; B1b, B2, B3 live read and V4 maps | I1, I2 and the reading rule; the copy of the site |
+| 30 Nov | Fixes from the trial; C1, C10 | The answer on under-18 services (pipeline #132) for C10 |
+| 7 Dec (M6) | The launch commit (G4, G5) | |
+
+Remaining design and decisions close by about 13 November. If the copy of the site is late, B1 and the trial move, and with them the date.
+
 ---
 
 ## 6. Risks to the VA dates
