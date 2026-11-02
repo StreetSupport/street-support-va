@@ -2,7 +2,7 @@
 // The VA finds services by distance from the person, as the website does, and
 // never tells someone there is no local support when it could not load it.
 
-import type { SessionState } from '../lib/types';
+import type { SessionState, UserProfile } from '../lib/types';
 import { createSession, processInput } from '../lib/stateMachine';
 import { getServicesForNeed } from '../lib/serviceMatcher';
 import { runWithServicePool, type ServicePool } from '../lib/data/servicePool';
@@ -16,6 +16,20 @@ import {
 function sessionAt(gate: SessionState['currentGate'], profile: Partial<SessionState> = {}): SessionState {
   return { ...createSession('test'), currentGate: gate, ...profile };
 }
+
+const profile = (p: Partial<UserProfile>): UserProfile => ({
+  localAuthority: null,
+  supportNeed: null,
+  gender: null,
+  ageCategory: null,
+  lgbtq: null,
+  criminalConvictions: null,
+  hasChildren: null,
+  sleepingSituation: null,
+  mentalHealth: null,
+  physicalHealth: null,
+  ...p,
+});
 
 const row = (over: Record<string, unknown> = {}) => ({
   _id: 'svc1',
@@ -82,21 +96,21 @@ describe('Live read: mapping platform rows', () => {
 describe('Live read: matching from the pool', () => {
   test('a person sees services near them, whatever council they are in', () => {
     const shown = runWithServicePool(readyPool(), () =>
-      getServicesForNeed('Food', { localAuthority: 'Walsall' } as any)
+      getServicesForNeed('Food', profile({ localAuthority: 'Walsall' }))
     );
     expect(shown.map(s => s.organizationId)).toEqual(['org-near', 'org-far']);
   });
 
   test('contact details come from the published organisation', () => {
     const shown = runWithServicePool(readyPool(), () =>
-      getServicesForNeed('Food', { localAuthority: null } as any)
+      getServicesForNeed('Food', profile({}))
     );
     expect(shown[0]).toMatchObject({ name: 'Near Pantry', phone: '01902 000001', website: 'https://near.example.org' });
     expect(shown[1]).toMatchObject({ name: 'Far Foodbank', phone: null, website: 'https://far.example.org' });
   });
 
   test('without a pool, the fixed file is used exactly as before', () => {
-    const withoutPool = getServicesForNeed('Food', { localAuthority: 'Wolverhampton' } as any);
+    const withoutPool = getServicesForNeed('Food', profile({ localAuthority: 'Wolverhampton' }));
     expect(withoutPool.length).toBeGreaterThan(0);
     expect(withoutPool.some(s => s.organizationId === 'org-near')).toBe(false);
   });
