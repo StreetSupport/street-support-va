@@ -179,7 +179,7 @@ const defaultOrgsByLA: Record<string, DefaultOrg[]> = Object.fromEntries(
           name: entry.housingOptions.name,
           phone: entry.housingOptions.phone,
           website: entry.housingOptions.website,
-          description: "Council duty to help if homeless or at risk",
+          description: "Council housing team, if homeless or at risk",
           isCouncil: true
         }
       ];

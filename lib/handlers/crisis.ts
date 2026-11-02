@@ -42,7 +42,7 @@ function buildFireFloodExit(session: SessionState): RoutingResult {
   let text = '';
 
   text += `I'm really sorry ${theyre} dealing with this. Losing ${their} home to fire or flood is traumatic, and ${they} deserve support right now.\n\n`;
-  text += `The council has a legal duty to help ${them} find emergency accommodation. Here's what to do:\n\n`;
+  text += `The council's housing team is the place to start for emergency accommodation. Here's what to do:\n\n`;
 
   if (councilHousing) {
     text += `EMERGENCY HOUSING\n`;
@@ -53,12 +53,12 @@ function buildFireFloodExit(session: SessionState): RoutingResult {
     }
     text += `\n`;
     text += `${councilHousing.website}\n\n`;
-    text += `Tell them ${theyre} homeless due to fire or flood. This is a priority need - they must help ${them} today.\n\n`;
+    text += `Tell them ${theyre} homeless because of a fire or flood and ${they} need somewhere to stay today.\n\n`;
   } else {
     text += `EMERGENCY HOUSING\n`;
     text += `Contact ${their} local council immediately\n`;
     text += `https://www.gov.uk/find-local-council\n\n`;
-    text += `Tell them ${theyre} homeless due to fire or flood. This is a priority need - they must help ${them} today.\n\n`;
+    text += `Tell them ${theyre} homeless because of a fire or flood and ${they} need somewhere to stay today.\n\n`;
   }
 
   text += `ADDITIONAL SUPPORT\n`;

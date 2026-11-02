@@ -2255,19 +2255,11 @@ In the meantime, keep chatting with me. I can help you look for more support now
   },
 
   TERMINAL_NRPF_FAMILY_SUPPORT: {
-    text: `Children's Services have a duty to assess what support may be available for your family, including if you have no recourse to public funds.`
+    text: `Children's Services can talk with you about what support may be available for your family, including if you have no recourse to public funds.`
   },
 
   TERMINAL_NRPF_FAMILY_SUPPORT__SUPPORTER: {
-    text: `Children's Services have a duty to assess what support may be available for their family, including if they have no recourse to public funds.`
-  },
-
-  TERMINAL_SOCIAL_SERVICES_GUIDANCE: {
-    text: `Based on your situation, you may be entitled to support from social services. They have a duty to help young people and care leavers with housing.
-
-You can contact your local council and ask for the Children's Services or Leaving Care team.
-
-Find your local council: https://www.gov.uk/find-local-council`
+    text: `Children's Services can talk with them about what support may be available for their family, including if they have no recourse to public funds.`
   },
 
   TERMINAL_YOUTH_16_17_CHILDRENS_SERVICES: {
@@ -2322,16 +2314,6 @@ I can still provide general information about how homelessness support usually w
     text: `Contact your local council's Housing Options team. You can find their details at https://www.gov.uk/find-local-council`
   },
 
-  LOCAL_AUTHORITY_FALLBACK_EXTENDED: {
-    text: `Contact your local council's Housing Options or homelessness team. They have a legal duty to help.
-
-Find your local council: https://www.gov.uk/find-local-council
-
-If you need immediate advice:
-Shelter: 0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
-https://england.shelter.org.uk`
-  },
-
   // ============================================================
   // ESCALATION
   // ============================================================
@@ -2375,7 +2357,7 @@ What would be most helpful right now?`,
   },
 
   ESCALATION_LEVEL_2_LEGAL_EMERGENCY: {
-    text: `This sounds urgent. With an eviction notice, there are specific legal steps that need to happen, and getting the right advice quickly can make a real difference.
+    text: `This sounds urgent. With an eviction notice, getting the right advice quickly can make a real difference.
 
 Shelter: 0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
 https://england.shelter.org.uk/get_help/helpline
@@ -2386,9 +2368,9 @@ They can check if the notice is valid and explain your options.`
   },
 
   ESCALATION_LEVEL_2_CHILDREN_RISK: {
-    text: `When children are involved and housing is at risk, there are extra protections available. Local councils have a duty to help prevent homelessness for families with children.
+    text: `When children are involved and housing is at risk, it's worth getting help as early as you can.
 
-Please contact your local council's Housing Options team as soon as possible. They should assess your situation urgently.
+Please contact your local council's Housing Options team as soon as possible and explain your situation.
 
 Shelter: 0808 800 4444 (free)
 https://england.shelter.org.uk`
@@ -2430,51 +2412,51 @@ Whatever you're going through, you deserve support. You're welcome back anytime.
 
 1. You'll speak to someone in the Housing Options team
 2. They'll ask about your situation and do an assessment
-3. If you're homeless or at risk, they have duties to help
-4. You may be offered temporary accommodation while they investigate
-5. They'll make a decision about what help they can provide
+3. They'll talk with you about what help they can offer
+4. You may be offered temporary accommodation while they look into your situation
+5. They'll tell you what help they can provide
 
-The council must give you a written decision. If you disagree, you can ask for a review.
+If you disagree with what they decide, Shelter can explain your options.
 
 Shelter has detailed guides: https://england.shelter.org.uk/housing_advice/homelessness`
   },
 
   ADVICE_PRIORITY_NEED: {
-    text: `In England, councils must provide accommodation to people who are homeless and in 'priority need'. This includes:
+    text: `'Priority need' is a term councils use when deciding what help they can offer. It can depend on things like:
 
-- People with dependent children
-- Pregnant women
-- People who are vulnerable due to health, disability, or other reasons
-- Young people aged 16-17
-- Care leavers aged 18-20
-- People made homeless by fire, flood, or emergency
-- People fleeing domestic abuse
+- Having dependent children
+- Being pregnant
+- Health, disability or other reasons that make you vulnerable
+- Being 16 or 17
+- Having left care, if you're 18 to 20
+- Losing your home to fire, flood or another emergency
+- Fleeing domestic abuse
 
-Even if you don't think you're in priority need, the council still has duties to help prevent homelessness and help you find somewhere to live.
+Whatever your situation, you can ask your council for help.
 
 More info: https://england.shelter.org.uk/housing_advice/homelessness/priority_need`
   },
 
   ADVICE_LEGALLY_HOMELESS: {
-    text: `You're considered legally homeless if:
+    text: `You can be homeless even with a roof over your head. Councils may treat you as homeless if:
 
 - You have nowhere you can stay
-- You can't access your home (for example, it's not safe)
-- You're staying somewhere temporarily with no right to stay
-- You're living somewhere that's not reasonable to continue living in
+- You can't get into your home (for example, it's not safe)
+- You're only staying somewhere temporarily
+- It's not reasonable for you to keep living where you are
 
 You don't have to be sleeping rough to be homeless. Sofa surfing or staying in unsuitable conditions counts too.
 
-The council can help before you actually lose your home - this is called 'threatened with homelessness' and kicks in 56 days before you'll become homeless.`
+The council can help before you lose your home, so it's worth getting in touch early.`
   },
 
   ADVICE_SOFA_SURFING: {
-    text: `Staying on someone's sofa or floor counts as being homeless in law. You're not expected to stay there forever, and it's not secure housing.
+    text: `Staying on someone's sofa or floor can count as being homeless. It isn't secure housing, and you're not expected to stay there forever.
 
-You have the right to approach your local council for help. They should:
-- Accept a homelessness application from you
-- Work with you to find somewhere more stable
-- Possibly provide temporary accommodation while they help
+You can ask your local council for help. They can talk with you about:
+- Making a homelessness application
+- Finding somewhere more stable
+- Temporary accommodation while they help
 
 Don't wait until you're asked to leave - you can approach the council now.
 
@@ -2483,12 +2465,12 @@ https://england.shelter.org.uk/housing_advice/homelessness/sofa_surfing`
   },
 
   ADVICE_EVICTION_RISK_PREVENTION: {
-    text: `If your landlord wants you to leave or you've received a notice, don't panic. There are rules they must follow, and you may have more time than you think.
+    text: `If your landlord wants you to leave or you've received a notice, don't panic. Ending a tenancy follows a set process, and you may have more time than you think.
 
 Key things to know:
-- Most notices require at least 2 months warning (Section 21) or specific grounds (Section 8)
-- You don't have to leave just because the notice period ends - only a court can evict you
-- The council can help prevent homelessness up to 56 days before you'd need to leave
+- A notice on its own doesn't mean you have to leave straight away
+- Shelter or Citizens Advice can check your notice and explain your options
+- The council can help before you lose your home, so contact them early
 
 Get advice quickly:
 Shelter: 0808 800 4444 (free)
@@ -2498,7 +2480,7 @@ Citizens Advice: https://www.citizensadvice.org.uk/housing/renting-privately/end
   ADVICE_SLEEP_TONIGHT: {
     text: `If you need somewhere to sleep tonight:
 
-1. Contact your local council's Housing Options team - they have a duty to help if you're homeless tonight. Many have out-of-hours numbers.
+1. Contact your local council's Housing Options team - they can help if you have nowhere to stay tonight. Many have out-of-hours numbers.
 
 2. StreetLink can alert local outreach services to your location: https://streetlink.org.uk
 
@@ -2514,128 +2496,30 @@ Your safety matters. If you're in danger, call 999.`
 
 Steps to take:
 1. Talk to your landlord - explain your situation, many will work with you
-2. Check what benefits you might be entitled to (Universal Credit, Housing Benefit)
+2. Check whether benefits could help (Universal Credit, Housing Benefit)
 3. Contact your council - they may have Discretionary Housing Payments available
 4. Get debt advice - organisations like StepChange can help you manage overall debt
 
-Important: Your landlord cannot evict you just for being in arrears. They must follow a legal process, which takes time.
+Being behind on rent doesn't mean you'll lose your home straight away, and there's time to get help.
 
 Citizens Advice: https://www.citizensadvice.org.uk/debt-and-money/rent-arrears/
 Shelter: 0808 800 4444`
   },
 
-  ADVICE_RENT_ARREARS_EARLY_HELP_SCOTLAND: {
-    text: `If you're struggling to pay rent in Scotland, help is available.
-
-In Scotland, eviction rules are different - your landlord must apply to a tribunal to evict you, and the process takes time.
-
-Steps to take:
-1. Speak to your landlord early
-2. Check your benefit entitlement
-3. Contact your council about Discretionary Housing Payments
-4. Get advice from Shelter Scotland: 0808 800 4444
-
-More info: https://scotland.shelter.org.uk/housing_advice/paying_for_a_home/rent_arrears`
-  },
-
   ADVICE_LANDLORD_PRESSURE_OR_NOTICE_ENGLAND: {
     text: `If your landlord is pressuring you to leave or has given you a notice:
 
-Know your rights:
-- You don't have to leave immediately when a notice expires
-- Only a court can legally evict you
-- Your landlord cannot change locks, remove belongings, or harass you
-- If they do, this may be illegal eviction
+Some things to know:
+- You don't have to leave as soon as a notice ends
+- If your landlord changes the locks, removes your belongings or harasses you, get advice straight away
 
 What to do:
-1. Check if the notice is valid - there are strict rules
+1. Ask Shelter or Citizens Advice to check your notice
 2. Don't leave until you've had advice
 3. Contact Shelter or Citizens Advice immediately
 
 Shelter: 0808 800 4444
 https://england.shelter.org.uk/housing_advice/eviction`
-  },
-
-  ADVICE_LANDLORD_PRESSURE_OR_NOTICE_SCOTLAND: {
-    text: `If your landlord is pressuring you to leave or has given you a notice in Scotland:
-
-In Scotland, the eviction process goes through a tribunal, not the courts. Your landlord must:
-- Give proper written notice
-- Apply to the First-tier Tribunal
-- Get an eviction order
-
-You have rights:
-- You don't have to leave just because the notice period ends
-- Changing locks or harassment is illegal
-
-Get advice:
-Shelter Scotland: 0808 800 4444
-https://scotland.shelter.org.uk/housing_advice/eviction`
-  },
-
-  ADVICE_MORTGAGE_ARREARS_ENGLAND: {
-    text: `If you're struggling with mortgage payments:
-
-Your lender must follow a process before repossessing your home:
-1. They should try to work out a payment arrangement with you
-2. Repossession requires a court order
-3. You can apply to delay the order if you can show a payment plan
-
-Get help:
-- Talk to your lender about payment options
-- Check if you can claim Support for Mortgage Interest
-- Speak to a free debt advisor
-
-Citizens Advice: https://www.citizensadvice.org.uk/debt-and-money/mortgage-problems/
-Shelter: 0808 800 4444`
-  },
-
-  ADVICE_MORTGAGE_ARREARS_SCOTLAND: {
-    text: `If you're struggling with mortgage payments in Scotland:
-
-Your lender must follow the pre-action requirements:
-- Give you information about your options
-- Try to agree a reasonable repayment plan
-- Consider alternatives to repossession
-
-Get help:
-- Contact your lender early
-- Check Support for Mortgage Interest eligibility
-- Get free advice
-
-Shelter Scotland: 0808 800 4444
-https://scotland.shelter.org.uk/housing_advice/mortgage_problems`
-  },
-
-  ADVICE_STAYING_WITH_OTHERS_ENGLAND: {
-    text: `If you've been asked to leave by family or friends, or you're worried they might ask you to leave:
-
-You may be legally homeless if:
-- You have no right to stay where you are
-- You're being asked to leave
-- Your situation is unstable or temporary
-
-The council has a duty to help prevent homelessness up to 56 days before you'd have to leave.
-
-What to do:
-1. Approach your local council's Housing Options team
-2. Explain your situation - you don't need a formal notice
-3. Ask about your housing options
-
-Shelter: 0808 800 4444`
-  },
-
-  ADVICE_STAYING_WITH_OTHERS_SCOTLAND: {
-    text: `If you've been asked to leave by family or friends in Scotland, or you're worried they might:
-
-You can approach your local council for help. In Scotland, the council has duties to assess your situation and provide advice.
-
-You may be considered homeless if you have no legal right to stay where you are.
-
-Contact:
-- Your local council's housing team
-- Shelter Scotland: 0808 800 4444
-https://scotland.shelter.org.uk/housing_advice/homelessness`
   },
 
   ADVICE_FINANCIAL_HARDSHIP_ENGLAND: {
