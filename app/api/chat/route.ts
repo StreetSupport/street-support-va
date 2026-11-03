@@ -289,8 +289,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // The name question takes free text. It is passed to the state machine as
+    // typed and never sent to Claude for interpretation. The under-16 check
+    // above has already run on it.
+    const isNameGate = session.currentGate === 'PREFERRED_NAME_ASK';
+
     // Try to parse user input
-    let parsed = parseUserInput(message, currentPhrase?.options);
+    let parsed = isNameGate ? 0 : parseUserInput(message, currentPhrase?.options);
     
     // If parsing failed and we have options, try Claude interpretation
     if (parsed === null && currentPhrase?.options) {
@@ -339,7 +344,7 @@ export async function POST(request: NextRequest) {
     session.unclearCount = 0;
     
     // Process the input through state machine
-    const result = processInput(session, String(parsed));
+    const result = processInput(session, isNameGate ? message : String(parsed));
     session = { ...session, ...result.stateUpdates };
     
     console.log(`[VA] -> Next gate: ${session.currentGate}, Ended: ${result.sessionEnded}`);

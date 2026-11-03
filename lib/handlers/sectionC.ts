@@ -182,8 +182,9 @@ export function handleC3Q5Pregnancy(session: SessionState, choice: number | null
 }
 
 export function handleC3Q6Ethnicity(session: SessionState, choice: number | null): RoutingResult {
-  const ethOptions = ['White British', 'White Other', 'Black African', 'Black Caribbean', 'Asian', 'Mixed'];
-  const eth = choice ? ethOptions[choice - 1] : null;
+  // Option 7, prefer not to say, stores null
+  const ethOptions: (string | null)[] = ['White British', 'White Other', 'Black African', 'Black Caribbean', 'Asian', 'Mixed', null];
+  const eth = choice ? (ethOptions[choice - 1] ?? null) : null;
 
   return {
     ...phrase('C3Q7_PHYSICAL_HEALTH', session.isSupporter),
@@ -192,8 +193,9 @@ export function handleC3Q6Ethnicity(session: SessionState, choice: number | null
 }
 
 export function handleC3Q7PhysicalHealth(session: SessionState, choice: number | null): RoutingResult {
-  const phOptions = ['None', 'Mobility', 'Visual', 'Hearing', 'Verbal', 'Neurological'];
-  const ph = choice ? phOptions[choice - 1] : null;
+  // Option 7, prefer not to say, stores null
+  const phOptions: (string | null)[] = ['None', 'Mobility', 'Visual', 'Hearing', 'Verbal', 'Neurological', null];
+  const ph = choice ? (phOptions[choice - 1] ?? null) : null;
 
   return {
     ...phrase('C3Q8_MENTAL_HEALTH', session.isSupporter),
