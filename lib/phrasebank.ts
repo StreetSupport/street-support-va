@@ -415,6 +415,16 @@ Support with Benefits and Grants | Turn2us - https://www.turn2us.org.uk/`
 
   // AGE - Asked for: Health, Work, Training, Activities, Drop In, and Emergency Housing on the quick route
   // Under 16 takes the same under-16 exit as B3_AGE_CATEGORY
+  B5_YOUTH_SOCIAL_SERVICES: {
+    text: `Are you in care, or in touch with a social worker at the moment?`,
+    options: ["Yes", "No", "Not sure", "Prefer not to say"]
+  },
+
+  B5_YOUTH_SOCIAL_SERVICES__SUPPORTER: {
+    text: `Are they in care, or in touch with a social worker at the moment?`,
+    options: ["Yes", "No", "Not sure", "Prefer not to say"]
+  },
+
   B5_PROFILE_AGE: {
     text: `To help find the most relevant services, which age group are you in?
 

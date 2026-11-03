@@ -31,6 +31,8 @@ import { phrase, buildUnder16Exit } from './shared';
 // Only for 16-17 and 18-20 age groups (priority need assessment)
 function shouldAskSocialServicesQuestions(session: SessionState): boolean {
   const age = session.detailedAge || session.ageCategory;
+  // 16 and 17 year olds are asked once, before the homelessness question
+  if (age === '16-17' && session.youthSocialServicesAsked) return false;
   return age === '16-17' || age === '18-20';
 }
 
