@@ -86,22 +86,22 @@ Which of these fits their situation best?
 
   ACCESS_LOCATION_ASK: {
     text: `Where are you accessing this service from?`,
-    options: ["Library", "Community centre", "Council office", "At home", "On my phone", "Other"]
+    options: ["Library", "Community centre", "Council office", "At home", "On my phone", "Other", "Prefer not to say"]
   },
 
   ACCESS_LOCATION_ASK__SUPPORTER: {
     text: `Where are you accessing this service from?`,
-    options: ["Library", "Community centre", "Council office", "At home", "On my phone", "Other"]
+    options: ["Library", "Community centre", "Council office", "At home", "On my phone", "Other", "Prefer not to say"]
   },
 
   RETURN_USER_ASK: {
     text: `Have you used Street Support before?`,
-    options: ["Yes", "No"]
+    options: ["Yes", "No", "Prefer not to say"]
   },
 
   RETURN_USER_ASK__SUPPORTER: {
     text: `Have you used Street Support before?`,
-    options: ["Yes", "No"]
+    options: ["Yes", "No", "Prefer not to say"]
   },
 
   RETURN_USER_FOLLOWUP: {
@@ -988,7 +988,7 @@ It's fine if they're not sure. We just want to understand how best to help.
   // ============================================================
 
   C2_CONSENT_GATE: {
-    text: `Thanks for sharing that. To help you find the right support, I need to ask a few more questions.
+    text: `Thanks for sharing that. To help you find the right support, I can ask a few more questions.
 
 Some of these might be about sensitive topics - like your health, ethnicity, or sexual orientation. I only ask because certain services are designed for people in particular circumstances, and this helps me guide you to the right places.
 
@@ -998,15 +998,15 @@ Some of these might be about sensitive topics - like your health, ethnicity, or 
 
 Privacy info: https://streetsupport.net/about/privacy-and-data/
 
-Do you give your consent for me to ask these additional questions?
+Would you like to answer a few more questions so I can find services that fit you better?
 
-1. Yes, I consent
-2. No, I do not consent`,
-    options: ["Yes, I consent", "No, I do not consent"]
+1. Yes
+2. Skip these`,
+    options: ["Yes", "Skip these"]
   },
 
   C2_CONSENT_GATE__SUPPORTER: {
-    text: `Thanks for sharing that. To help them find the right support, I need to ask a few more questions.
+    text: `Thanks for sharing that. To help them find the right support, I can ask a few more questions.
 
 Some of these might be about sensitive topics - like their health, ethnicity, or sexual orientation. I only ask because certain services are designed for people in particular circumstances, and this helps me guide them to the right places.
 
@@ -1018,11 +1018,11 @@ Please check with them before you answer.
 
 Privacy info: https://streetsupport.net/about/privacy-and-data/
 
-Do they give their consent for me to ask these additional questions?
+Would they like to answer a few more questions so I can find services that fit them better?
 
-1. Yes, they consent
-2. No, they do not consent`,
-    options: ["Yes, they consent", "No, they do not consent"]
+1. Yes
+2. Skip these`,
+    options: ["Yes", "Skip these"]
   },
 
   C2A_CONSENT_ACKNOWLEDGED: {
@@ -1193,8 +1193,9 @@ We fully respect and support all gender identities. We know this question might 
 3. Black (African)
 4. Black (Caribbean)
 5. Asian
-6. Mixed or Multiethnic Groups`,
-    options: ["White (British)", "White (Other)", "Black (African)", "Black (Caribbean)", "Asian", "Mixed or Multiethnic Groups"]
+6. Mixed or Multiethnic Groups
+7. Prefer not to say`,
+    options: ["White (British)", "White (Other)", "Black (African)", "Black (Caribbean)", "Asian", "Mixed or Multiethnic Groups", "Prefer not to say"]
   },
 
   C3Q6_ETHNICITY__SUPPORTER: {
@@ -1205,8 +1206,9 @@ We fully respect and support all gender identities. We know this question might 
 3. Black (African)
 4. Black (Caribbean)
 5. Asian
-6. Mixed or Multiethnic Groups`,
-    options: ["White (British)", "White (Other)", "Black (African)", "Black (Caribbean)", "Asian", "Mixed or Multiethnic Groups"]
+6. Mixed or Multiethnic Groups
+7. Prefer not to say`,
+    options: ["White (British)", "White (Other)", "Black (African)", "Black (Caribbean)", "Asian", "Mixed or Multiethnic Groups", "Prefer not to say"]
   },
 
   C3Q7_PHYSICAL_HEALTH: {
@@ -1217,8 +1219,9 @@ We fully respect and support all gender identities. We know this question might 
 3. Visual impairment
 4. Hearing impairment
 5. Verbal impairment
-6. Neurological impairment (Parkinson's, Multiple Sclerosis, Stroke)`,
-    options: ["None", "Mobility impairment", "Visual impairment", "Hearing impairment", "Verbal impairment", "Neurological impairment (Parkinson's, Multiple Sclerosis, Stroke)"]
+6. Neurological impairment (Parkinson's, Multiple Sclerosis, Stroke)
+7. Prefer not to say`,
+    options: ["None", "Mobility impairment", "Visual impairment", "Hearing impairment", "Verbal impairment", "Neurological impairment (Parkinson's, Multiple Sclerosis, Stroke)", "Prefer not to say"]
   },
 
   C3Q7_PHYSICAL_HEALTH__SUPPORTER: {
@@ -1229,8 +1232,9 @@ We fully respect and support all gender identities. We know this question might 
 3. Visual impairment
 4. Hearing impairment
 5. Verbal impairment
-6. Neurological impairment (Parkinson's, Multiple Sclerosis, Stroke)`,
-    options: ["None", "Mobility impairment", "Visual impairment", "Hearing impairment", "Verbal impairment", "Neurological impairment (Parkinson's, Multiple Sclerosis, Stroke)"]
+6. Neurological impairment (Parkinson's, Multiple Sclerosis, Stroke)
+7. Prefer not to say`,
+    options: ["None", "Mobility impairment", "Visual impairment", "Hearing impairment", "Verbal impairment", "Neurological impairment (Parkinson's, Multiple Sclerosis, Stroke)", "Prefer not to say"]
   },
 
   C3Q8_MENTAL_HEALTH: {

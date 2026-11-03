@@ -7,6 +7,7 @@
 
 import { getPhrase } from './phrasebank';
 import { getPronouns } from './utils/pronouns';
+import { cleanPreferredName, withNameBeforeFullStop } from './utils/preferredName';
 import type { GateType, SessionState, RoutingResult, TerminalResult } from './types';
 import { toUserProfile } from './types';
 export type { GateType, SessionState, RoutingResult };
@@ -1107,7 +1108,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
         case 3: // Done
           const goodbye = getPhrase('TERMINAL_GOODBYE', session.isSupporter);
           return {
-            text: goodbye?.text || 'Take care.',
+            text: withNameBeforeFullStop(goodbye?.text || 'Take care.', session.preferredName),
             stateUpdates: { currentGate: 'SESSION_END', timestampEnd: new Date().toISOString() },
             sessionEnded: true
           };
@@ -1168,20 +1169,25 @@ export function processInput(session: SessionState, input: string): RoutingResul
     // EARLY FLOW: NAME, ACCESS LOCATION, RETURN USER
     // ========================================
     case 'PREFERRED_NAME_ASK': {
-      const nameInput = input?.trim() || '';
-      const skipped = nameInput === '' || nameInput.toLowerCase() === 'skip' || choice === 1;
+      // The chat route passes the typed text here unparsed. The option parser
+      // is not used: it reads many short names as "Skip".
+      const raw = input?.trim() || '';
+      const skipped = raw === '1' || raw.toLowerCase() === 'skip';
+      const name = skipped ? null : cleanPreferredName(raw);
+      const next = phrase('ACCESS_LOCATION_ASK', session.isSupporter);
       return {
-        ...phrase('ACCESS_LOCATION_ASK', session.isSupporter),
+        ...next,
+        text: name ? `Thanks, ${name}. ${next.text}` : next.text,
         stateUpdates: {
           currentGate: 'ACCESS_LOCATION_ASK',
-          preferredName: skipped ? null : nameInput
+          preferredName: name
         }
       };
     }
 
     case 'ACCESS_LOCATION_ASK': {
-      const accessOptions = ['Library', 'Community centre', 'Council office', 'At home', 'On my phone', 'Other'];
-      const accessLoc = choice ? accessOptions[choice - 1] : null;
+      const accessOptions: (string | null)[] = ['Library', 'Community centre', 'Council office', 'At home', 'On my phone', 'Other', null];
+      const accessLoc = choice ? (accessOptions[choice - 1] ?? null) : null;
       return {
         ...phrase('RETURN_USER_ASK', session.isSupporter),
         stateUpdates: { currentGate: 'RETURN_USER_ASK', accessLocation: accessLoc }
@@ -1196,10 +1202,10 @@ export function processInput(session: SessionState, input: string): RoutingResul
           stateUpdates: { currentGate: 'RETURN_USER_FOLLOWUP', returnUser: true }
         };
       } else {
-        // No - new user, proceed to B2
+        // No, or prefer not to say (null) - proceed to B2
         return {
           ...phrase('B2_WHO_FOR', session.isSupporter),
-          stateUpdates: { currentGate: 'B2_WHO_FOR', returnUser: false }
+          stateUpdates: { currentGate: 'B2_WHO_FOR', returnUser: choice === 2 ? false : null }
         };
       }
 
