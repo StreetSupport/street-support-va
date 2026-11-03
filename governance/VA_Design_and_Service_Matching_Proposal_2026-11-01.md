@@ -270,7 +270,7 @@ Selecting a good fit for a person, by rules applied equally, is within that neut
 
 **What actually sets the launch date** is narrower than the full list of decisions. Five things are on it:
 
-1. **The technical lead's review capacity.** Every routing and safeguarding change passes through it: A1 to A3, A6 and A7, C1 to C4, C9 and C10, and G3 to G5. Small pull requests, each ready to review.
+1. **The technical lead's review capacity.** Every routing and safeguarding change passes through it: A1 to A3, A6 and A7, C1 to C4, C9 to C11, and G3 to G5. Small pull requests, each ready to review.
 2. **The platform data interface.** The week-1 answers on what the platform exposes, then B1a at M4a, then B1b, B2 and B3 by M4. Without these the VA has no V4 data to read at the switch.
 3. **M4a integration.** The first end-to-end slice proves the connection (B1a). It is the leading indicator of whether the dates hold.
 4. **Safeguarding-sensitive pathway changes.**
@@ -280,6 +280,7 @@ Selecting a good fit for a person, by rules applied equally, is within that neut
    - The prevention pathway (C5), decided for launch on 29 October.
    - The Safety route, including modern slavery (C9), decided for launch on 2 November.
    - The young people's prevention route (C10), decided for launch on 2 November.
+   - The conviction pathway, including arson (C11), decided for launch on 3 November.
 
    Domestic abuse (C2 to C4) is launch-dependent: the current exits stay if the review is not done.
 5. **Verified routes and data protection cover.** Statutory routes and contact data verified (C6, C8). The data protection notes covering every question actually asked (D2, D3, E4). Accessibility (G1). Tests on the launch commit (G4, G5).
@@ -303,6 +304,7 @@ Critical items do not all carry the same consequence. This table records the con
 | C7 | A delivery plan launch item is incomplete. Complete it, or change launch scope explicitly |
 | C9 | A committed safety route (2 November) is incomplete. Modern slavery stays signposted only to people without recourse to public funds. Complete it, or change launch scope explicitly |
 | C10 | A committed pathway (2 November) is incomplete. Complete it, or change launch scope explicitly |
+| C11 | Someone with an arson conviction is shown services that cannot accommodate them, with no route to the specialist provider. Complete it, or change launch scope explicitly |
 | D1, D2, D3, E4 | Questions asked without documented purpose, lawful basis or a prefer-not-to-say option. A data protection compliance gap |
 | D8 | Text that applies the law to the person stays live, against principle 1. A correction needed |
 | G1 | Accessibility issues remain. Assess them against the applicable launch requirements |
@@ -382,6 +384,7 @@ The "by" column is proposed. It is the latest an item can land without putting i
 | C8 | Contact data re-verified at source before launch, **including the contact data in every fallback relied on at M6** (section 2A) | Critical | Input | Statutory routes map; Eliz | Claude, Eliz | M6 |
 | C9 | **The Safety route, including modern slavery:** open to everyone, not only people without recourse to public funds; exploitation in plain words in the housing safety question; a type-of-harm question in the Safety pathway; Safety from harm on the main menu; the Modern Slavery Helpline, the Salvation Army's 24-hour line and 999; website advice. No new crisis gate option | Critical (MD, 2 Nov: safety, consequential) | Next | B2 for the menu; C8 for the contacts; Safeguarding Contract and Housing Pathway Endpoints Contract amendments, with trustee review by email | Claude, James; the trustees for the contracts | M4 |
 | C10 | **The young people's prevention route** | Critical (MD, 2 Nov: before launch) | Input | James on under-18 services (pipeline #132) | Claude, James | M4 |
+| C11 | **The conviction pathway, including arson** (backlog C2; Housing Pathway Endpoints Contract): arson routes to the specialist provider (Langley Trust, Murray Lodge, Coventry), Housing Options, the navigator, Unlock and Nacro, with no matched local results; sexual or violent offences add local results with a disclosure note; other or spent convictions get disclosure guidance. The code asks the conviction type but nothing reads it | Critical (MD, 3 Nov: housing, consequential) | Next | Specialist contacts verified at source (C8); prefer not to say settled against D3; Article 10 condition recorded (D2) | Claude, James | M4 |
 
 ### D. Questions and routes
 
@@ -485,7 +488,7 @@ The "by" column is proposed. It is the latest an item can land without putting i
 | 2 Nov (M1) | Fixes reviewed. Week-1 answers. Decisions 1 and 2 | A1 to A3, A6 |
 | 9 Nov (M2) | WMCA leaving care contacts verified. Question purposes settled. Gender fix decisions. Population tag questions settled; service matching design note | D1, A7, A9, A10, H1, I1, I2, I9 |
 | 16 Nov (M4a) | **Connection proved** on a representative slice. This is not the full live read | B1a |
-| 23 Nov | Critical pathways and question fixes built, each with its tests | C1, C5, C7, C9, C10, D2 to D4, D8, G1, I5, I8 |
+| 23 Nov | Critical pathways and question fixes built, each with its tests | C1, C5, C7, C9 to C11, D2 to D4, D8, G1, I5, I8 |
 | 30 Nov (M4, M5) | Live read complete on the copy; V4 categories and age gates; matcher on V4; WMCA trial | B1b, B2, B3, C6, I4 |
 | 7 Dec (M6) | Contact data and fallbacks verified for launch; data protection notes complete; Service Matching Contract amended; final test run and type check | C8, E4, G4, G5, I3a |
 | 14 Dec or 4 Jan (M7) | VA live in the West Midlands; Watsonx off | |

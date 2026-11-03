@@ -58,7 +58,7 @@ Twenty corrections: three already built (#36, #37), the rest small, each with te
 
 ## 2. Requirements for a safe, functioning launch
 
-Eighteen requirements. Most have their design decided and wait only on wording or one named decision; the live read is the hardest dependency, because it needs the copy of the site. Being in this class does not make an item launch-ready.
+Nineteen requirements. Most have their design decided and wait only on wording or one named decision; the live read is the hardest dependency, because it needs the copy of the site. Being in this class does not make an item launch-ready.
 
 | # | Requirement | Code today (audit) | Decided (MD) | Still proposed or open | Authority | Plan, round |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -80,6 +80,7 @@ Eighteen requirements. Most have their design decided and wait only on wording o
 | 2.16 | **Website advice on modern slavery** | None on the website | Write it, modelled on Unseen's FAQs; does not explain who refers | Draft | MD approval | New; by M6 |
 | 2.17 | **Contract amendments** | Passive-only signposting in the Endpoints Contract; no Safety route in the Safeguarding Contract | Amend both; explicit trustee review by email, responses recorded | Drafts | Trustees, then James via PR | C9; drafts 16 Nov, review before M6 |
 | 2.18 | **Accessibility and the launch commit** | Backlog 41 open | Tests ship with each change | None | James | G1 23 Nov; G4, G5 7 Dec |
+| 2.19 | **Conviction pathway, including arson (C11)** | Asks the conviction type on the full route; nothing reads it; no specialist endpoint in the endpoints file (A §E; B §4) | Arson excludes from most housing; the specialist provider, Housing Options, the navigator, Unlock and Nacro; no matched local results for arson (backlog C2; Endpoints Contract); Critical (MD, 3 Nov) | Prefer not to say against D3; contacts from a 2022-23 brochure, to verify | Tier 2, PR; contract endpoint already named | C11; 23 Nov |
 
 ## 3. New capabilities and design extensions
 
