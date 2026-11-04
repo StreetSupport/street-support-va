@@ -5,6 +5,17 @@
 // GATE TYPE
 // ============================================================
 
+// The six answers to the housing situation question.
+// KEEP_STEADY goes to prevention. The other five are crisis: the housing loss
+// has materialised, whether or not the person has left their home yet.
+export type HousingSituation =
+  | 'KEEP_STEADY'
+  | 'LOSING_HOME'
+  | 'STAYING_SOMEWHERE'
+  | 'LEAVING_INSTITUTION'
+  | 'NOWHERE_TONIGHT'
+  | 'NOT_SURE';
+
 export type GateType =
   // Init & Gates
   | 'INIT'
@@ -113,6 +124,8 @@ export interface SessionState {
   returnUser: boolean | null;
   returnOutcome: string | null;
   housingOptionsInvolvement: boolean | null;
+  // Answer to the housing situation question (Managing Director, 3 November 2026)
+  housingSituation: HousingSituation | null;
 
   // Core profile
   localAuthority: string | null;
@@ -235,6 +248,7 @@ export interface DefaultOrg {
   isCouncil?: boolean;
   isDropIn?: boolean;
   availabilityNote?: string;
+  isYouthRoute?: boolean;
 }
 
 export interface UserProfile {
