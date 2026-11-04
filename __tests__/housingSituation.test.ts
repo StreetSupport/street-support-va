@@ -33,13 +33,20 @@ describe('the housing situation question', () => {
     const phrase = getPhrase('B6_HOMELESSNESS_STATUS', false);
     expect(phrase?.text).toContain('Which of these is closest to your housing situation at the moment?');
     expect(phrase?.options).toHaveLength(6);
-    expect(phrase?.options?.[3]).toBe("I'm leaving prison or hospital and don't have somewhere to go");
+    expect(phrase?.options?.[3]).toBe('Leaving prison or hospital with nowhere to go');
+  });
+
+  test('each option starts with different words, for voice control', () => {
+    for (const supporter of [false, true]) {
+      const starts = (getPhrase('B6_HOMELESSNESS_STATUS', supporter)?.options || []).map(o => o.split(' ').slice(0, 2).join(' '));
+      expect(new Set(starts).size).toBe(6);
+    }
   });
 
   test('a supporter is asked about the person they are helping', () => {
     const phrase = getPhrase('B6_HOMELESSNESS_STATUS', true);
     expect(phrase?.text).toContain('closest to their housing situation');
-    expect(phrase?.options?.[4]).toBe("They're sleeping rough, or don't have anywhere to stay tonight");
+    expect(phrase?.options?.[1]).toBe('About to lose their home, like an eviction date or being told to leave');
   });
 
   test.each([

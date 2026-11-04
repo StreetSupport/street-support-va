@@ -614,28 +614,33 @@ This helps us show family-focused financial support if relevant.
   // Housing situation question (Managing Director, 3 November 2026). Replaces the
   // yes or no homelessness question and the two where-are-you questions after it.
   // The gate keeps its name so the routes into it are unchanged.
+  // Housing situation question (Managing Director, 3 November 2026). Replaces the
+  // yes or no homelessness question and the two where-are-you questions after it.
+  // The gate keeps its name so the routes into it are unchanged. Options are short
+  // and each starts with different words, for voice control and listening
+  // (Managing Director, 4 November 2026).
   B6_HOMELESSNESS_STATUS: {
-    text: `Which of these is closest to your housing situation at the moment?
+    text: `Which of these is closest to your housing situation at the moment? Staying with friends or family counts as temporary.
 
-1. I have somewhere to live, but I'd like some help or advice to keep things steady
-2. I have somewhere to live, but something has happened that means I'm going to lose it, like an eviction date or being told to leave
-3. I'm staying somewhere for now, like with friends or family, in a hostel or in temporary accommodation
-4. I'm leaving prison or hospital and don't have somewhere to go
-5. I'm sleeping rough, or don't have anywhere to stay tonight
-6. I'm not sure, or it's something else`,
-    options: ["I have somewhere to live, but I'd like some help or advice to keep things steady", "I have somewhere to live, but something has happened that means I'm going to lose it, like an eviction date or being told to leave", "I'm staying somewhere for now, like with friends or family, in a hostel or in temporary accommodation", "I'm leaving prison or hospital and don't have somewhere to go", "I'm sleeping rough, or don't have anywhere to stay tonight", "I'm not sure, or it's something else"]
+1. Help or advice to keep things steady at home
+2. About to lose my home, like an eviction date or being told to leave
+3. Staying somewhere temporary
+4. Leaving prison or hospital with nowhere to go
+5. Sleeping rough, or nowhere to stay tonight
+6. Not sure, or something else`,
+    options: ["Help or advice to keep things steady at home", "About to lose my home, like an eviction date or being told to leave", "Staying somewhere temporary", "Leaving prison or hospital with nowhere to go", "Sleeping rough, or nowhere to stay tonight", "Not sure, or something else"]
   },
 
   B6_HOMELESSNESS_STATUS__SUPPORTER: {
-    text: `Which of these is closest to their housing situation at the moment?
+    text: `Which of these is closest to their housing situation at the moment? Staying with friends or family counts as temporary.
 
-1. They have somewhere to live, but they'd like some help or advice to keep things steady
-2. They have somewhere to live, but something has happened that means they're going to lose it, like an eviction date or being told to leave
-3. They're staying somewhere for now, like with friends or family, in a hostel or in temporary accommodation
-4. They're leaving prison or hospital and don't have somewhere to go
-5. They're sleeping rough, or don't have anywhere to stay tonight
-6. I'm not sure, or it's something else`,
-    options: ["They have somewhere to live, but they'd like some help or advice to keep things steady", "They have somewhere to live, but something has happened that means they're going to lose it, like an eviction date or being told to leave", "They're staying somewhere for now, like with friends or family, in a hostel or in temporary accommodation", "They're leaving prison or hospital and don't have somewhere to go", "They're sleeping rough, or don't have anywhere to stay tonight", "I'm not sure, or it's something else"]
+1. Help or advice to keep things steady at home
+2. About to lose their home, like an eviction date or being told to leave
+3. Staying somewhere temporary
+4. Leaving prison or hospital with nowhere to go
+5. Sleeping rough, or nowhere to stay tonight
+6. Not sure, or something else`,
+    options: ["Help or advice to keep things steady at home", "About to lose their home, like an eviction date or being told to leave", "Staying somewhere temporary", "Leaving prison or hospital with nowhere to go", "Sleeping rough, or nowhere to stay tonight", "Not sure, or something else"]
   },
 
   HOUSING_OPTIONS_INVOLVEMENT_ASK: {
