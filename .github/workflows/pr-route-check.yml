@@ -1,0 +1,49 @@
+name: PR route check
+
+# One PR, one route (governance/pre_pr_check.md). The pull_request job checks a PR
+# whose base carries this workflow. The sweep runs from the default branch, so it
+# also reaches stacked PRs, and sets a pr-route-check status on each PR's head.
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled, unlabeled]
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+  statuses: write
+
+jobs:
+  pr:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Use the default branch's copy of the check, so a PR cannot change the
+      # check that judges it. Until the check reaches the default branch, use the PR's.
+      - name: One PR, one route
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEFAULT: ${{ github.event.repository.default_branch }}
+        run: |
+          if git cat-file -e "origin/$DEFAULT:scripts/pr_route_check.py" 2>/dev/null; then
+            git show "origin/$DEFAULT:scripts/pr_route_check.py" > "$RUNNER_TEMP/pr_route_check.py"
+          else
+            cp scripts/pr_route_check.py "$RUNNER_TEMP/pr_route_check.py"
+          fi
+          python "$RUNNER_TEMP/pr_route_check.py" --github
+
+  sweep:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Every open PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/pr_route_check.py --sweep
