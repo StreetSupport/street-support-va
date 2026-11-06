@@ -27,11 +27,16 @@ import { getPhrase } from '../phrasebank';
 import type { SessionState, RoutingResult, TerminalResult } from '../types';
 import { phrase, buildUnder16Exit } from './shared';
 
-// Check if social services questions should be asked
-// Only for 16-17 and 18-20 age groups (priority need assessment)
-function shouldAskSocialServicesQuestions(session: SessionState): boolean {
+// The care and social services questions are asked of everyone aged 16 to 24.
+// Leaving care support, and the protection from being found intentionally
+// homeless, run to 25 (Children's Wellbeing and Schools Act 2026, s.9, in force 30 September 2026; Managing Director, 6 November 2026).
+export function isAged16To24(session: SessionState): boolean {
   const age = session.detailedAge || session.ageCategory;
-  return age === '16-17' || age === '18-20';
+  return ['16-17', '18-24', '18-20', '21-24'].includes(age || '');
+}
+
+function shouldAskSocialServicesQuestions(session: SessionState): boolean {
+  return isAged16To24(session);
 }
 
 // ============================================================================
@@ -127,13 +132,13 @@ export function handleC3Q1BPublicFundsFollowup(session: SessionState, choice: nu
 export function handleC3Q2DependentChildren(session: SessionState, choice: number | null): RoutingResult {
   const hasChildren = choice === 1;
 
-  // Age is asked before B6 on every housing route. Section C asks it again
-  // only to split 18-24 into 18-20 and 21-24, which decides whether the
-  // social services questions (C3Q11, C3Q12) are asked.
-  if (session.ageCategory && session.ageCategory !== '18-24') {
+  // Age is asked once, before B6, on every housing route. Section C asks it
+  // only if it is somehow missing.
+  const knownAge = session.detailedAge || session.ageCategory;
+  if (knownAge) {
     return {
       ...phrase('C3Q4_GENDER', session.isSupporter),
-      stateUpdates: { currentGate: 'C3Q4_GENDER', hasChildren, detailedAge: session.ageCategory }
+      stateUpdates: { currentGate: 'C3Q4_GENDER', hasChildren, detailedAge: knownAge }
     };
   }
 
@@ -144,7 +149,7 @@ export function handleC3Q2DependentChildren(session: SessionState, choice: numbe
 }
 
 export function handleC3Q3Age(session: SessionState, choice: number | null): RoutingResult {
-  const detailedAgeOptions = ['Under 16', '16-17', '18-20', '21-24', '25+'];
+  const detailedAgeOptions = ['Under 16', '16-17', '18-24', '25+'];
   const detailedAge = choice ? detailedAgeOptions[choice - 1] : null;
 
   // Under 16 safeguarding — exit directly if LA known, otherwise ask for area first
@@ -245,7 +250,7 @@ export function handleC3Q10Lgbtq(
     };
   }
 
-  // UPDATED v7.1: Only ask social services questions for 16-17 and 18-20
+  // Ask the care and social services questions for everyone aged 16 to 24
   const updatedSession = { ...session, lgbtq: false };
   if (shouldAskSocialServicesQuestions(updatedSession)) {
     return {
@@ -253,7 +258,7 @@ export function handleC3Q10Lgbtq(
       stateUpdates: { currentGate: 'C3Q11_CURRENTLY_IN_CARE', lgbtq: false }
     };
   } else {
-    // Skip to terminal for 21-24 and 25+
+    // Skip to terminal for 25 and over
     const result = buildTerminalServices(updatedSession);
     const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
     return {
@@ -273,7 +278,7 @@ export function handleC3Q10ALgbtqServicePreference(
   const lgbtqPrefOptions = ['Specialist first', 'Local only', 'Show both'];
   const lgbtqPref = choice ? lgbtqPrefOptions[choice - 1] : null;
 
-  // UPDATED v7.1: Only ask social services questions for 16-17 and 18-20
+  // Ask the care and social services questions for everyone aged 16 to 24
   const updatedSession = { ...session, lgbtqServicePreference: lgbtqPref };
   if (shouldAskSocialServicesQuestions(updatedSession)) {
     return {
@@ -281,7 +286,7 @@ export function handleC3Q10ALgbtqServicePreference(
       stateUpdates: { currentGate: 'C3Q11_CURRENTLY_IN_CARE', lgbtqServicePreference: lgbtqPref }
     };
   } else {
-    // Skip to terminal for 21-24 and 25+
+    // Skip to terminal for 25 and over
     const result = buildTerminalServices(updatedSession);
     const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
     return {

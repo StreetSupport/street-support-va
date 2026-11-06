@@ -31,8 +31,6 @@ export type GateType =
   // Core Profiling
   | 'B1_LOCAL_AUTHORITY'
   | 'B2_WHO_FOR'
-  | 'B3_AGE_CATEGORY'
-  | 'B4_GENDER'
   | 'B5_MAIN_SUPPORT_NEED'
   | 'B5A_ADVICE_TYPE'
   | 'B5_PROFILE_AGE'
@@ -40,7 +38,6 @@ export type GateType =
   | 'B5_PROFILE_LGBTQ'
   | 'B5_PROFILE_CONVICTIONS'
   | 'B5_PROFILE_CHILDREN'
-  | 'B5A_ADDITIONAL_NEED_SELECTION'
   | 'B6_HOMELESSNESS_STATUS'
   | 'HOUSING_OPTIONS_INVOLVEMENT_ASK'
   | 'B7_HOUSED_SITUATION'
@@ -91,8 +88,7 @@ export type GateType =
   | 'SESSION_END'
   // Escalation
   | 'ESCALATION_LEVEL_1'
-  | 'ESCALATION_LEVEL_2'
-  | 'ESCALATION_LEVEL_3';
+  | 'ESCALATION_LEVEL_2';
 
 // ============================================================
 // SESSION STATE

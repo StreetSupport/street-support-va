@@ -1,7 +1,7 @@
 // Street Support VA v7.1 State Machine - COMPLETE VERSION
 // Full routing logic from CHAR_VA_RoutingLogic_v7.md
 // UPDATES v7.1:
-// - Social services questions (C3Q11/C3Q12) only for 16-17 and 18-20
+// - Social services questions (C3Q11/C3Q12) for everyone aged 16 to 24 (6 November 2026)
 // - Restructured terminal output with clear hierarchy
 // - Trauma-informed language, Shelter as safety net
 
@@ -65,6 +65,7 @@ import {
   handleC3Q1BPublicFundsFollowup,
   handleC3Q2DependentChildren,
   handleC3Q3Age,
+  isAged16To24,
   handleC3Q4Gender,
   handleC3Q5Pregnancy,
   handleC3Q6Ethnicity,
@@ -433,7 +434,7 @@ function buildZeroMatchTerminal(
 
 // Live read failed: say so plainly. Never tell the person there is no local
 // support when the VA simply could not load it. National floors still show.
-// Wording proposed, 2 November 2026, for approval.
+// Wording approved, 4 November 2026.
 function buildLocalResultsUnavailableTerminal(
   la: string,
   fallbacks: Array<{name: string; phone?: string; website: string; description: string}>,
@@ -866,8 +867,10 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   // ----------------------------------------
   // SOCIAL SERVICES GUIDANCE - for care leavers / young people not engaged
   // ----------------------------------------
+  // 16 to 24: leaving care support, and the protection from being found
+  // intentionally homeless, run to 25 (Children's Wellbeing and Schools Act 2026, s.9, in force 30 September 2026; Managing Director, 6 November 2026).
   const showSocialServicesGuidance = 
-    (session.ageCategory === '16-17' || session.detailedAge === '16-17' || session.detailedAge === '18-20' || session.inCare) 
+    (isAged16To24(session) || session.inCare) 
     && session.socialServices === 'No';
     
   if (showSocialServicesGuidance) {
@@ -951,7 +954,7 @@ export function parseUserInput(input: string, options?: string[]): number | null
 // Intercepts free-text user input at every gate and looks for explicit
 // disclosure of under-16 age. Triggers an immediate safeguarding exit
 // regardless of where in the conversation the user currently is, even if
-// they previously declared an adult age at B3_AGE_CATEGORY.
+// they previously declared an adult age at an earlier age question.
 //
 // Trigger patterns are intentionally narrow:
 //   1. First-person numeric statement of ages 10-15 ("I'm 14", "I am 13").
@@ -1258,46 +1261,6 @@ export function processInput(session: SessionState, input: string): RoutingResul
         stateUpdates: { currentGate: 'B5_MAIN_SUPPORT_NEED', userType, isSupporter }
       };
     
-    case 'B3_AGE_CATEGORY':
-      const ageOptions = ['Under 16', '16-17', '18-24', '25 or over'];
-      const age = choice ? ageOptions[choice - 1] : null;
-
-      // Under 16 safeguarding — exit directly if LA known, otherwise ask for area first
-      if (choice === 1) {
-        if (session.localAuthority) {
-          return buildUnder16Exit(session);
-        }
-        return {
-          ...phrase('CRISIS_UNDER16_LOCATION', session.userType),
-          stateUpdates: { currentGate: 'CRISIS_UNDER16_LOCATION' }
-        };
-      }
-      
-      // Youth flag for 16-17
-      const youthFlag = choice === 2;
-      
-      // Full route asks gender, quick route skips to B5
-      if (session.routeType === 'FULL') {
-        return {
-          ...phrase('B4_GENDER', session.isSupporter),
-          stateUpdates: { currentGate: 'B4_GENDER', ageCategory: age, youthServicesFlag: youthFlag }
-        };
-      } else {
-        return {
-          ...phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter),
-          stateUpdates: { currentGate: 'B5_MAIN_SUPPORT_NEED', ageCategory: age, youthServicesFlag: youthFlag }
-        };
-      }
-    
-    case 'B4_GENDER':
-      const genderOptions = ['Male', 'Female', 'Non-binary or other', 'Prefer not to say'];
-      const gender = choice ? genderOptions[choice - 1] : null;
-      
-      return {
-        ...phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter),
-        stateUpdates: { currentGate: 'B5_MAIN_SUPPORT_NEED', gender }
-      };
-    
     case 'B5_MAIN_SUPPORT_NEED':
       const needOptions = ['Emergency Housing', 'Food', 'Work', 'Health', 'Advice', 'Drop In', 'Financial', 'Items', 'Services', 'Comms', 'Training', 'Activities'];
       const need = choice ? needOptions[choice - 1] : null;
@@ -1351,7 +1314,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
       const profAgeOptions = ['Under 16', '16-17', '18-24', '25 or over'];
       const profAge = choice ? profAgeOptions[choice - 1] : null;
 
-      // Under 16 safeguarding — same exit as B3_AGE_CATEGORY
+      // Under 16 safeguarding — the under-16 exit
       if (choice === 1) {
         if (session.localAuthority) {
           return buildUnder16Exit(session);
@@ -1367,7 +1330,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
       if (profAge === '25 or over') mappedProfAge = '25+';
       const profYouthFlag = choice === 2;
 
-      // Emergency Housing (quick route) continues to the homelessness status question
+      // Emergency Housing continues to the homelessness status question, on either route
       if (session.supportNeed === 'Emergency Housing') {
         return {
           ...phrase('B6_HOMELESSNESS_STATUS', session.isSupporter),

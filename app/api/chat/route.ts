@@ -252,7 +252,7 @@ export async function POST(request: NextRequest) {
       console.log('[VA] Location result:', JSON.stringify({
         success: !!locationData.success,
         localAuthority: locationData.localAuthority ?? null,
-        inWMCA: locationData.isWMCA ?? locationData.isInWMCA ?? null,
+        inWMCA: locationData.isWMCA ?? null,
       }));
       
       const result = processLocationInput(session, locationData);
