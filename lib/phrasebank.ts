@@ -611,24 +611,36 @@ This helps us show family-focused financial support if relevant.
     options: ["Yes", "No", "Prefer not to say"]
   },
 
+  // Housing situation question (Managing Director, 3 November 2026). Replaces the
+  // yes or no homelessness question and the two where-are-you questions after it.
+  // The gate keeps its name so the routes into it are unchanged.
+  // Housing situation question (Managing Director, 3 November 2026). Replaces the
+  // yes or no homelessness question and the two where-are-you questions after it.
+  // The gate keeps its name so the routes into it are unchanged. Options are short
+  // and each starts with different words, for voice control and listening
+  // (Managing Director, 4 November 2026).
   B6_HOMELESSNESS_STATUS: {
-    text: `Are you currently experiencing homelessness?
+    text: `Which of these is closest to your housing situation at the moment? Staying with friends or family counts as temporary.
 
-That includes if you don't have your own place and you're staying in temporary accommodation, hospital, prison, or somewhere that isn't your permanent home.
-
-1. Yes
-2. No`,
-    options: ["Yes", "No"]
+1. Help or advice to keep things steady at home
+2. About to lose my home, like an eviction date or being told to leave
+3. Staying somewhere temporary
+4. Leaving prison or hospital with nowhere to go
+5. Sleeping rough, or nowhere to stay tonight
+6. Not sure, or something else`,
+    options: ["Help or advice to keep things steady at home", "About to lose my home, like an eviction date or being told to leave", "Staying somewhere temporary", "Leaving prison or hospital with nowhere to go", "Sleeping rough, or nowhere to stay tonight", "Not sure, or something else"]
   },
 
   B6_HOMELESSNESS_STATUS__SUPPORTER: {
-    text: `Are they currently experiencing homelessness?
+    text: `Which of these is closest to their housing situation at the moment? Staying with friends or family counts as temporary.
 
-That includes if they don't have their own place and they're staying in temporary accommodation, hospital, prison, or somewhere that isn't their permanent home.
-
-1. Yes
-2. No`,
-    options: ["Yes", "No"]
+1. Help or advice to keep things steady at home
+2. About to lose their home, like an eviction date or being told to leave
+3. Staying somewhere temporary
+4. Leaving prison or hospital with nowhere to go
+5. Sleeping rough, or nowhere to stay tonight
+6. Not sure, or something else`,
+    options: ["Help or advice to keep things steady at home", "About to lose their home, like an eviction date or being told to leave", "Staying somewhere temporary", "Leaving prison or hospital with nowhere to go", "Sleeping rough, or nowhere to stay tonight", "Not sure, or something else"]
   },
 
   HOUSING_OPTIONS_INVOLVEMENT_ASK: {

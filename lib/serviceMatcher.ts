@@ -591,6 +591,18 @@ export function getServicesForNeed(need: string, profile: UserProfile): MatchedS
 }
 
 /**
+ * Local housing and legal advice for someone about to lose their home
+ * (Managing Director, 3 November 2026). Current categories: support > housing
+ * and support > legal. To be replaced by Housing, Advice in the V4 redesign.
+ */
+export function getHousingAdviceServices(profile: UserProfile): MatchedService[] {
+  const services = getServicesByCategory(
+    profile.localAuthority, ['support'], undefined, { support: ['housing', 'legal'] }
+  );
+  return rankServices(filterByProfile(services, profile), profile, 5);
+}
+
+/**
  * Return the primary SSN API category key for a need (first entry in the map).
  * Used for building SSN browse URLs.
  */
@@ -729,6 +741,8 @@ export function getNavigatorOrgs(localAuthority: string | null, ageCategory?: st
       description: nav.description,
       isDropIn: nav.isDropIn,
       availabilityNote: nav.availabilityNote,
+      // A navigator with an upper age limit is a young people's route
+      isYouthRoute: nav.ageMax !== null && nav.ageMax !== undefined,
     }));
 }
 
