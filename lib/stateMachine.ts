@@ -346,7 +346,7 @@ const nationalFallbacks: Record<string, Array<{name: string; phone?: string; web
     {
       name: 'Turn2us Benefits Calculator',
       website: 'https://www.turn2us.org.uk/get-support',
-      description: 'Check what benefits you could be entitled to'
+      description: 'Check which benefits could help you'
     },
     {
       name: 'Turn2us Grants Search',
@@ -678,7 +678,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
       text += `${councilOrg.website}\n`;
     }
     text += `\n`;
-    text += `They have a legal duty to assess ${possessive} situation. `;
+    text += `This is the council's housing team. `;
     
     // Contextual advice based on situation
     if (session.sleepingSituation?.toLowerCase().includes('rough')) {
@@ -694,7 +694,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
     // Fallback if no council org found
     text += `${la} Council Housing Options\n`;
     text += `https://www.gov.uk/find-local-council\n\n`;
-    text += `They have a legal duty to help ${pronoun}. Ask for a homelessness assessment.\n`;
+    text += `This is the council's housing team. Ask for a homelessness assessment.\n`;
   }
   
   text += `\n`;
@@ -873,8 +873,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   if (showSocialServicesGuidance) {
     text += `IMPORTANT FOR YOUNG PEOPLE\n`;
     text += `--------------------------\n`;
-    text += `Based on ${possessive} situation, ${they} may be entitled to support from social services. `;
-    text += `They have a duty to help young people and care leavers with housing.\n\n`;
+    text += `Children's Services can also help young people and care leavers with housing.\n\n`;
     text += `Contact ${possessive} local council and ask for the Children's Services or Leaving Care team.\n`;
     text += `https://www.gov.uk/find-local-council\n\n`;
   }
