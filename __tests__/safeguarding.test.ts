@@ -1614,3 +1614,27 @@ describe('Every housing route: age before the homelessness question', () => {
   });
 
 });
+
+describe('Route choice screen', () => {
+  // The quicker route assumes none of the full route's circumstances apply,
+  // so the screen must name them (backlog 62).
+  test.each([
+    'having children with you, or being pregnant',
+    'a health or mental health condition',
+    'your immigration status',
+    'a criminal conviction',
+    'being LGBTQ+',
+    "having been in care, if you're 16 to 24",
+  ])('names "%s"', item => {
+    expect(getPhrase('GATE2_ROUTE_SELECTION', false)?.text).toContain(item);
+  });
+
+  test('says the quicker route assumes none of them apply', () => {
+    expect(getPhrase('GATE2_ROUTE_SELECTION', false)?.text).toContain('assumes none of those apply to you');
+  });
+
+  test.each([['1', 'FULL'], ['2', 'QUICK']])('option %s chooses the %s route', (option, route) => {
+    const result = processInput(sessionAt('GATE2_ROUTE_SELECTION'), option);
+    expect(result.stateUpdates.routeType).toBe(route);
+  });
+});

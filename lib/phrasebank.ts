@@ -118,18 +118,28 @@ Which of these fits their situation best?
   // GATE 2: ROUTE SELECTION
   // ============================================================
 
+  // Says what the quicker route assumes, so choosing it is an informed choice
+  // (backlog 62; Managing Director, 6 November 2026). Asked before "who is it
+  // for", so it is worded to the person. Ethnicity is left off while its
+  // purpose is open (question register Q1).
   GATE2_ROUTE_SELECTION: {
-    text: `I'll ask a few questions to understand what support might help most. It usually takes about five minutes.
+    text: `I'll ask a few questions to understand what support might help most. There are two ways through.
 
-The full guided route asks about things like health conditions, immigration status, criminal convictions, and other circumstances that might affect which services can help you. Some services are specifically designed for people in particular situations, so these questions help us find the best match.
+The full guided route asks about things that change which services can help you:
+- having children with you, or being pregnant
+- a health or mental health condition
+- your immigration status
+- a criminal conviction
+- being LGBTQ+
+- having been in care, if you're 16 to 24
 
-If none of those apply to you, the quicker route will assume the answers are 'no' or 'none' and get you to relevant services faster.
+The quicker route asks fewer questions, and assumes none of those apply to you.
 
-This is entirely up to you - which would you prefer?
+If any of them do, the full route will find better matches for you. Which would you prefer?
 
-1. Full Guided Route (tailored support)
-2. Quicker Route (general support)`,
-    options: ["Full Guided Route (tailored support)", "Quicker Route (general support)"]
+1. Full guided route
+2. Quicker route`,
+    options: ["Full guided route", "Quicker route"]
   },
 
   // ============================================================
