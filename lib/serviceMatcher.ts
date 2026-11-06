@@ -9,6 +9,7 @@ import servicesData from './data/wmca_services_v7.json';
 import orgsData from './data/wmca_organizations_v7.json';
 import endpointsData from './data/housing-pathway-endpoints.json';
 import type { MatchedService, DefaultOrg, UserProfile } from './types';
+import { getServicePool } from './data/servicePool';
 
 // ============================================================
 // TYPES
@@ -445,14 +446,20 @@ export function getServicesByCategory(
   subcategories?: string[],
   parentSubConstraints?: Record<string, string[]>
 ): Service[] {
-  if (!localAuthority || categories.length === 0) return [];
+  if (categories.length === 0) return [];
 
-  const la = normalizeLA(localAuthority);
-  const services = (servicesData as WMCAServicesData).services;
+  // Live read: services near the person, by distance, as on the website.
+  // No council filter; the council still decides the statutory routes.
+  const pool = getServicePool();
+  const livePool = pool && pool.status === 'ready' ? pool : null;
+  const live = livePool !== null;
+  if (!live && !localAuthority) return [];
+
+  const la = localAuthority ? normalizeLA(localAuthority) : '';
+  const services: Service[] = livePool ? livePool.services : (servicesData as WMCAServicesData).services;
 
   return services.filter(s => {
-    const serviceLA = normalizeLA(s.local_authority);
-    const matchesLA = serviceLA === la;
+    const matchesLA = live || normalizeLA(s.local_authority) === la;
     const matchesCategory = categories.includes(s.category.parent);
 
     // Per-parent subcategory constraints take priority when provided.
@@ -520,8 +527,14 @@ export function rankServices(services: Service[], profile: UserProfile, limit: n
   // Convert to MatchedService format
   return top.map(item => {
     const s = item.service;
-    const contact = getOrgContact(s.organization_id);
-    const orgName = getOrgName(s.organization_id);
+    const pool = getServicePool();
+    const live = pool?.status === 'ready' ? pool : null;
+    const contact = live
+      ? (live.contacts[s.organization_id] ?? null)
+      : getOrgContact(s.organization_id);
+    const orgName = live
+      ? (live.contacts[s.organization_id]?.name ?? null)
+      : getOrgName(s.organization_id);
     
     return {
       name: orgName || s.name,
