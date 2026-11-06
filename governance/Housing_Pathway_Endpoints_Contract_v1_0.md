@@ -6,7 +6,7 @@ Document type: Governance Contract
 
 Status: Draft – Pending trustee review
 
-Version: 1.1 │ Last updated: October 2026
+Version: 1.2 │ Last updated: November 2026
 
 **Purpose**
 
@@ -96,17 +96,45 @@ Required endpoints:
 
 If no navigator organisation exists for the LA, this is documented as a system gap in housing-pathway-endpoints.json and shared with the local partnership. The pathway continues with the remaining endpoints.
 
-**Rough Sleeping / Sofa Surfing**
+**About to Lose Their Home**
 
-Trigger: user confirms they are sleeping rough, in a tent, or sofa surfing without a stable arrangement.
+Trigger: user confirms they still have somewhere to live but are about to lose it: an eviction date or notice, or being told to leave by a landlord, family or friends. Confirmed at the housing situation question, or at the prevention reason question (Managing Director, 3 and 6 November 2026).
 
 Required endpoints:
 
-- StreetLink alert offered (national, hardcoded): allows user to alert a local outreach team to their location
+- Council Housing Options contact (LA-specific), first, with the advice to contact them as soon as possible
+
+- Local housing and legal advice (SSN service catalogue matching results)
+
+- Shelter helpline
+
+- Young people's navigator organisation where the user's age is within its range
+
+The adult housing navigator is not surfaced and StreetLink is not offered. The loss has materialised while the person is still housed, so this is a crisis pathway, not prevention (Managing Director, 3 November 2026).
+
+**Rough Sleeping / Sofa Surfing**
+
+Trigger: user confirms at the housing situation question that they are sleeping rough or have nowhere to stay tonight, or that they are staying somewhere for now without a stable arrangement (Managing Director, 3 November 2026).
+
+Required endpoints:
+
+- StreetLink alert offered (national, hardcoded), for sleeping rough or nowhere to stay tonight only: allows user to alert a local outreach team to their location
 
 - Standard housing pathway endpoints as above
 
-StreetLink is offered, not required. The user is told what it does and given the option. It does not replace other endpoints.
+StreetLink is offered, not required. The user is told what it does and given the option. It does not replace other endpoints. Someone staying somewhere for now receives the standard housing pathway endpoints without StreetLink.
+
+**Leaving Prison or Hospital**
+
+Trigger: user confirms at the housing situation question that they are leaving prison or hospital with nowhere to go (Managing Director, 3 November 2026).
+
+Required endpoints:
+
+- Standard housing pathway endpoints as above, with Housing Options signposted for a homelessness assessment
+
+- The statement that someone still in prison or hospital can ask the staff there to refer them to the council's housing team
+
+StreetLink is not offered. The fuller prison and hospital discharge pathways in the VA backlog will amend this section when they are built.
 
 **Fire or Flood Displacement**
 
@@ -426,6 +454,7 @@ Operational changes within existing rules (no governance review required):
 | **Version** | **Date**      | **Change**                                                                                 | **Author** |
 | 1.0         | February 2026 | Initial draft following WatsonX pathway audit and legal review of care leaver entitlements | SSN        |
 | 1.1         | October 2026  | 16–17 currently involved with social services: social worker or Children’s Services duty team surfaced first, matching the VA (PR #30) | SSN        |
+| 1.2         | November 2026 | New pathway for someone about to lose their home; rough sleeping and sofa surfing triggers set by the housing situation question, StreetLink for sleeping rough or nowhere tonight only; leaving prison or hospital as its own trigger, matching the VA (PR #40) | SSN        |
 
 **Status: Draft – Pending trustee review**
 
