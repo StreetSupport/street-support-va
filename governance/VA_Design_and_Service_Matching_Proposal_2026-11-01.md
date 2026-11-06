@@ -29,6 +29,14 @@ This brings together the VA work of the last few days into one proposal, to fina
 
 Agreeing the technical approach does not by itself approve the open changes to the Service Matching Contract or the data protection notes.
 
+**Answered by the technical lead, 5 November 2026** (the technical lead's email of 5 November 2026, recorded verbatim in the pipeline repo at `governance/assurance/source_first/run_records/TECHNICAL_LEAD_EMAIL_2026-11-05.md` (on `docs/national-v4-delivery-plan-2026-10-29`)):
+1. **The live read:** yes. #41 does it, approved to merge with the setting off. Before it is switched on for real people: the population tags on the service rows (his, the week of 9 November), a live login that can see only services and organisations, and zero-match wording that fits a 5 km search. On the last, the Managing Director decided on 6 November (on #41) to widen the search when 5 km finds nothing, as the website does.
+2. **Matching and card changes by M4:** yes, as small tested PRs like #36 and #39. The website's Find Help page takes the category and subcategory in the link, so the see-all link works for that. Whether one link can also set the area is not confirmed, so it is tested early (I9).
+3. **Milestones and review load:** weekly rounds work for him; batches like #35 to #41 are fine. C9 to C11 come through as normal PRs, and the C9 contract amendments can go to the trustees by email. C10 needs his answer on under-18 services in pipeline #132, before the 30 November round.
+4. **Boundaries:** I3b adds a reason to hold back a service, the contract's own trigger for governance review, so it goes through review. I3a changes the contract's wording on how many are shown and where the rest are, so it goes through the contract's approval, as do the C9 amendments. The rest look like fixes within the agreed rules.
+
+**The routing engine:** not for December. It changes how every housing conversation works and would land just before the trial, straight after #36, #39 and #40 changed the housing questions. Claude keeps exploring it on its branch, and it is looked at properly after the switch, so the launch pathways are built on the current VA (technical lead, 5 November 2026). Exploration continues meanwhile (Managing Director, 6 November 2026).
+
 
 ---
 
@@ -414,7 +422,7 @@ The "by" column is proposed. It is the latest an item can land without putting i
 |---|---|---|---|---|---|---|
 | F1 | Exploration on a branch: same results, about half the questions | Deferrable | Done | None | Claude | Done |
 | F2 | Branch labels corrected to the question register's purposes | Deferrable | Next | D1 | Claude | Later |
-| F3 | Whether to adopt the engine for launch | Deferrable. *Default: not yet; launch on the current VA* | Decision | MD and James, only if they choose to | MD, James | Before M4a, if at all |
+| F3 | Whether to adopt the engine for launch | Deferrable. *Default: not yet; launch on the current VA* | Done: not for December (James, 5 November; MD, 6 November 2026). Exploration continues on its branch | None | MD, James | After the switch |
 
 ### G. Functional and readiness
 
@@ -447,7 +455,7 @@ The "by" column is proposed. It is the latest an item can land without putting i
 | I6 | Analytics: completion defined, "contact requested" event, contract amendment; click events wired | Dependent. *Fallback: the current session-end log* | Decision | Analytics review; G2 | MD, Claude | M5 |
 | I7 | Exclude the organisation already supporting someone (B12, B12A buttons) | Dependent. *Fallback: shown as now* | Next after I3b | D4, I3b | Claude | M4 |
 | I8 | Behaviour when fewer than five or no services match. *Basis: established rule; must not tell someone there is no support when there is* | Critical | Next | B2 | Claude | M4 |
-| I9 | See-all link reliably opens the right category **and area** on the website. *Basis: the five-card limit is compatible with "still shown" only if the rest are genuinely reachable* | Critical (condition of I3a and I5). *If it cannot, an alternative route to the rest is needed before launch* | Next | A read of the website code | Claude | M2 |
+| I9 | See-all link reliably opens the right category **and area** on the website. *Basis: the five-card limit is compatible with "still shown" only if the rest are genuinely reachable.* Category and subcategory go in the link; whether one link can set the area is untested, so test early (James, 5 November 2026) | Critical (condition of I3a and I5). *If it cannot, an alternative route to the rest is needed before launch* | Next | A test against the website | Claude | M2 |
 
 ---
 

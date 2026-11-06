@@ -97,7 +97,7 @@ None of these blocks launch. Three are worth deciding now because a launch item 
 | 3.7 | Ethnicity as a routing input | Asked, no prefer not to say, not in the notes (A §E, C §4) | None | Ask everyone, framed around routing, or targeted (register Q1); Article 9 basis | MD | Decide now (D1); routing use later |
 | 3.8 | Duration as a routing input | Asked on the full route, logged (A §E, C §1) | Kept, in broad bands | Listings check for stated restrictions | Claude Code read; MD | Later |
 | 3.9 | A restriction field in the data | None; restrictions live in listing text (plan §8) | Neither platform nor V4 holds one | Whether to add one, and when | MD | Later |
-| 3.10 | Routing engine | Exploration branch only | Launch on the current VA | Adoption | MD and James | Later, unless chosen by 13 Nov |
+| 3.10 | Routing engine | Exploration branch only | Launch on the current VA. Not for December (James, 5 November; MD, 6 November 2026); exploration continues on its branch | None | MD and James | After the switch |
 | 3.11 | Sex work, honour-based violence | No routes | Parked | Test wording with specialists; reconsider honour-based violence as for modern slavery | MD | Later |
 | 3.12 | Position by need beyond prevention | Not designed | Parked, Immigration first | None | MD | Later |
 | 3.13 | Helper access | None | A separate design process, hoped to be commissioned by WMCA | None | MD | Later, long term |
@@ -113,7 +113,7 @@ Fifteen open items. Eleven are the Managing Director's, most minutes each; two a
 | 9 Nov | Register Q2, preferred name: remove or keep | MD | 1.9 |
 | 9 Nov | Register Q5, consent screen: notice and choice, not a gate | MD to confirm | 2.14 |
 | 9 Nov | Crisis branch question wording, on materialisation | MD | 2.3 |
-| 9 Nov | Settled by lookup: the website searches by distance (5 km default; 1 to 25 km offered), never by council. Left: whether the VA offers "look further away" when few match; services stating a local connection requirement (services outside WMCA: none in the data, MD) | MD | 2.1 |
+| 9 Nov | Settled by lookup: the website searches by distance (5 km default; 1 to 25 km offered), never by council. Decided in part (MD, 6 November 2026, on #41): when 5 km finds nothing, the search widens, as the website does. Left: whether the VA offers "look further away" when a few match; services stating a local connection requirement (services outside WMCA: none in the data, MD) | MD | 2.1 |
 | 16 Nov | Advice mechanism: pull into the VA, link to the website, or summary plus link | MD | 2.6, 2.7 |
 | 16 Nov | Multiple-harm exits specified against the Safeguarding Contract | James | 2.6 |
 | 16 Nov | Domestic abuse quick exit button: option A, B or C | MD | 2.7 |
