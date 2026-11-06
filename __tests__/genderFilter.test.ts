@@ -13,12 +13,20 @@
  */
 import { getServicesForNeed, getServicesByCategory, filterByProfile, hasConflictingGenderLabels } from '../lib/serviceMatcher';
 import servicesData from '../lib/data/wmca_services_v7.json';
+import type { UserProfile } from '../lib/types';
 
 type AnyService = { name: string; description: string; client_groups?: string[] };
-const allServices = ((servicesData as any).services || servicesData) as AnyService[];
+type Service = Parameters<typeof filterByProfile>[0][number];
+const allServices = (servicesData as unknown as { services: Service[] }).services;
+// A full profile with every answer unset, so each test states only what it needs.
+const profile = (answers: Partial<UserProfile>): UserProfile => ({
+  localAuthority: null, supportNeed: null, gender: null, ageCategory: null, lgbtq: null,
+  criminalConvictions: null, hasChildren: null, sleepingSituation: null, mentalHealth: null, physicalHealth: null,
+  ...answers,
+});
 
-const names = (list: any[]) => list.map(s => s.name);
-const wolverhampton = (gender: string | null) => ({ localAuthority: 'Wolverhampton', ageCategory: '25+', gender } as any);
+const names = (list: { name: string }[]) => list.map(s => s.name);
+const wolverhampton = (gender: string | null) => profile({ localAuthority: 'Wolverhampton', ageCategory: '25+', gender });
 // Five services carry both labels. A contradiction restricts nothing, so they are left out here.
 const labelled = (label: string) => allServices.filter(s => {
   const g = s.client_groups || [];
@@ -27,7 +35,7 @@ const labelled = (label: string) => allServices.filter(s => {
 const findService = (namePrefix: string, test: (s: AnyService) => boolean = () => true) =>
   allServices.find(s => s.name.startsWith(namePrefix) && test(s))!;
 const shownTo = (service: AnyService, gender: string) =>
-  filterByProfile([service] as any, { gender } as any).length === 1;
+  filterByProfile([service as unknown as Service], profile({ gender })).length === 1;
 
 describe('Gender filter: services are restricted only by what they explicitly state', () => {
 
@@ -49,7 +57,7 @@ describe('Gender filter: services are restricted only by what they explicitly st
     for (const localAuthority of councils) {
       // Need names as the VA passes them (B5_MAIN_SUPPORT_NEED), where gender is asked
       for (const need of ['Activities', 'Drop In', 'Health']) {
-        const shown = getServicesForNeed(need, { localAuthority, ageCategory: '25+', gender: 'Male' } as any);
+        const shown = getServicesForNeed(need, profile({ localAuthority, ageCategory: '25+', gender: 'Male' }));
         expect(shown.some(s => femaleOnly.has(`${s.name}|${s.description}`))).toBe(false);
       }
     }
@@ -58,11 +66,11 @@ describe('Gender filter: services are restricted only by what they explicitly st
   test('in Wolverhampton activities, a woman is excluded from the men-only listings that someone who skipped gender is offered', () => {
     // Full category retrieval before ranking: the top five shown never happen to include a men-only listing,
     // so this checks the exclusion at the matching stage itself
-    const offered = getServicesByCategory('Wolverhampton', ['activities']) as any[];
+    const offered = getServicesByCategory('Wolverhampton', ['activities']);
     const menOnlyOffered = offered.filter(s => (s.client_groups || []).includes('Male only') && !(s.client_groups || []).includes('Female only'));
     expect(menOnlyOffered.length).toBeGreaterThan(0);
-    const toWoman = filterByProfile(offered, { gender: 'Female' } as any);
-    const toSkipped = filterByProfile(offered, { gender: null } as any);
+    const toWoman = filterByProfile(offered, profile({ gender: 'Female' }));
+    const toSkipped = filterByProfile(offered, profile({ gender: null }));
     expect(toWoman.some(s => menOnlyOffered.includes(s))).toBe(false);
     expect(menOnlyOffered.every(s => toSkipped.includes(s))).toBe(true);
   });
@@ -79,7 +87,7 @@ describe('Gender filter: services are restricted only by what they explicitly st
 
   test('the listings labelled both female only and male only are exactly the known ones, so any new contradiction is seen', () => {
     // Known contradictions, to be corrected at source. A new one fails this test.
-    const conflicting = Array.from(new Set(allServices.filter(s => hasConflictingGenderLabels(s as any)).map(s => s.name))).sort();
+    const conflicting = Array.from(new Set(allServices.filter(s => hasConflictingGenderLabels(s)).map(s => s.name))).sort();
     expect(conflicting).toEqual([
       'Changing Lives - IRIS Project Sexual exploitation, sex work and sexual violence support',
       'Cranstoun Housing Support [Birmingham]',
@@ -140,7 +148,7 @@ describe('Gender filter: services are restricted only by what they explicitly st
   test.each(['Non-binary or other', 'Prefer not to say', 'Trans Female', 'Trans Male'])(
     'a person answering "%s" is shown every service, because only an exact Male or Female answer filters',
     (gender: string) => {
-      expect(filterByProfile(allServices as any, { gender } as any)).toHaveLength(allServices.length);
+      expect(filterByProfile(allServices, profile({ gender }))).toHaveLength(allServices.length);
     }
   );
 });
