@@ -36,6 +36,7 @@ export type GateType =
   | 'B5_MAIN_SUPPORT_NEED'
   | 'B5A_ADVICE_TYPE'
   | 'B5_PROFILE_AGE'
+  | 'B5_YOUTH_SOCIAL_SERVICES'
   | 'B5_PROFILE_GENDER'
   | 'B5_PROFILE_LGBTQ'
   | 'B5_PROFILE_CONVICTIONS'
@@ -166,6 +167,7 @@ export interface SessionState {
   lgbtqServicePreference: string | null;
   inCare: boolean | null;
   socialServices: string | null;
+  youthSocialServicesAsked: boolean;
 
   // Flags
   isSupporter: boolean;
