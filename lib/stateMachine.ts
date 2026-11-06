@@ -33,6 +33,7 @@ import {
   handleSAGenderAsk,
 } from './handlers/crisis';
 import { buildUnder16Exit, childrenServicesData } from './handlers/shared';
+import { getServicePool } from './data/servicePool';
 import {
   handleLocationConsent,
   handleLocationPostcode,
@@ -430,6 +431,29 @@ function buildZeroMatchTerminal(
   return { text: text.trim(), terminalOutcome: 'NO_SUITABLE_PATHWAY' };
 }
 
+// Live read failed: say so plainly. Never tell the person there is no local
+// support when the VA simply could not load it. National floors still show.
+// Wording proposed, 2 November 2026, for approval.
+function buildLocalResultsUnavailableTerminal(
+  la: string,
+  fallbacks: Array<{name: string; phone?: string; website: string; description: string}>,
+  categoryKey: string,
+  displayName: string
+): { text: string; terminalOutcome: string } {
+  let text = `I can't load local ${displayName} right now.`;
+  text += fallbacks.length > 0
+    ? ` These national services can help in the meantime.\n\n` + buildNationalFallbacksBlock(fallbacks)
+    : ` Please try again in a few minutes.\n\n`;
+
+  if (categoryKey && la !== 'your area') {
+    text += `---\n\n`;
+    text += `You can also search ${displayName} in ${la} on Street Support:\n`;
+    text += buildSSNBrowseLink(displayName, la, categoryKey) + '\n';
+  }
+
+  return { text: text.trim(), terminalOutcome: 'LOCAL_RESULTS_UNAVAILABLE' };
+}
+
 function buildNonHousingTerminal(session: SessionState): TerminalResult {
   const need = session.supportNeed || 'support';
   const la = session.localAuthority || 'your area';
@@ -439,9 +463,15 @@ function buildNonHousingTerminal(session: SessionState): TerminalResult {
   // Build profile for service matching
   const profile = toUserProfile(session);
 
+  const fallbacks = nationalFallbacks[need] || [];
+
+  // Live read unavailable: say so, do not fall back to the January file
+  if (getServicePool()?.status === 'unavailable') {
+    return buildLocalResultsUnavailableTerminal(la, fallbacks, categoryKey, displayName);
+  }
+
   // Get matched local services
   const localServices = getServicesForNeed(need, profile);
-  const fallbacks = nationalFallbacks[need] || [];
   const hasLocalServices = localServices.length > 0;
 
   // Zero-match path
@@ -1284,9 +1314,11 @@ export function processInput(session: SessionState, input: string): RoutingResul
       const needsFullProfiling = housingRelatedNeeds.includes(need || '');
 
       if (needsFullProfiling) {
-        // Quick route asks age before B6 — it has no Section C, so a 16-17 year old
-        // would otherwise never be recognised (full route asks detailed age in Section C)
-        if (session.routeType === 'QUICK' && !session.ageCategory) {
+        // Every housing route asks age before B6. Age decides the under-16 exit
+        // and the 16-17 route, so it cannot wait for Section C: the full route
+        // reaches Section C only with consent, the prevention branch never
+        // reaches it, and the organisation-details route skips it.
+        if (!session.ageCategory) {
           return {
             ...phrase('B5_PROFILE_AGE', session.isSupporter),
             stateUpdates: { currentGate: 'B5_PROFILE_AGE', supportNeed: need, needCount: session.needCount + 1 }

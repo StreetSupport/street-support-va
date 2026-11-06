@@ -13,6 +13,32 @@ import {
   interceptUnder16Age
 } from '@/lib/stateMachine';
 import { getPhrase } from '@/lib/phrasebank';
+import { isLiveReadEnabled, runWithServicePool, type ServicePool } from '@/lib/data/servicePool';
+import { loadServicesNear } from '@/lib/data/platformServices';
+
+// Gates whose answer can lead to a matched (non-housing) result. The live read
+// runs only from these, so a slow or failed read never delays other turns.
+const MATCHING_GATES = new Set<string>([
+  'B5_MAIN_SUPPORT_NEED',
+  'B5A_ADVICE_TYPE',
+  'B5_PROFILE_AGE',
+  'B5_PROFILE_GENDER',
+  'B5_PROFILE_LGBTQ',
+  'B5_PROFILE_CONVICTIONS',
+  'B5_PROFILE_CHILDREN',
+  'LGBTQ_SPECIALIST_ASK',
+  'IMMIGRATION_STATUS_ASK',
+]);
+
+async function servicePoolFor(session: SessionState): Promise<ServicePool | null> {
+  if (!isLiveReadEnabled()) return null;
+  if (!MATCHING_GATES.has(session.currentGate)) return null;
+  // Distance needs a point. Without one (council chosen from the list), the
+  // fixed file is used for now; searching from the council's own point, as the
+  // website's location pages do, follows with the V4 work.
+  if (session.latitude == null || session.longitude == null) return null;
+  return loadServicesNear(session.latitude, session.longitude);
+}
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -221,7 +247,13 @@ export async function POST(request: NextRequest) {
     
     // Handle location result from widget
     if (message === '__LOCATION_RESULT__' && locationData) {
-      console.log(`[VA] Location result:`, locationData);
+      // Log the local authority only. Coordinates are never logged: the
+      // Analytics Contract limits geographic analysis to local authority level.
+      console.log('[VA] Location result:', JSON.stringify({
+        success: !!locationData.success,
+        localAuthority: locationData.localAuthority ?? null,
+        inWMCA: locationData.isWMCA ?? locationData.isInWMCA ?? null,
+      }));
       
       const result = processLocationInput(session, locationData);
       session = { ...session, ...result.stateUpdates };
@@ -339,7 +371,8 @@ export async function POST(request: NextRequest) {
     session.unclearCount = 0;
     
     // Process the input through state machine
-    const result = processInput(session, String(parsed));
+    const pool = await servicePoolFor(session);
+    const result = runWithServicePool(pool, () => processInput(session, String(parsed)));
     session = { ...session, ...result.stateUpdates };
     
     console.log(`[VA] -> Next gate: ${session.currentGate}, Ended: ${result.sessionEnded}`);
