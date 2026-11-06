@@ -2416,7 +2416,7 @@ Whatever you're going through, you deserve support. You're welcome back anytime.
 4. You may be offered temporary accommodation while they look into your situation
 5. They'll tell you what help they can provide
 
-If you disagree with what they decide, Shelter can explain your options.
+If you disagree with what they decide, you can ask them to look at it again. There's a time limit, so get advice from Shelter quickly.
 
 Shelter has detailed guides: https://england.shelter.org.uk/housing_advice/homelessness`
   },

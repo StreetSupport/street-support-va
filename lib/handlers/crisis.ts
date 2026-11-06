@@ -37,7 +37,7 @@ function buildFireFloodExit(session: SessionState): RoutingResult {
   const la = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
   const councilHousing = councilHousingData[la];
 
-  const { they, their, them, theyre } = getPronouns(isSupporter);
+  const { they, their, theyre } = getPronouns(isSupporter);
 
   let text = '';
 
