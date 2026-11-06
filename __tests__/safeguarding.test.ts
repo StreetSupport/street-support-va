@@ -1504,12 +1504,113 @@ describe('Quick route: age for housing, under-16 exit, Children\'s Services firs
     expect(result.text).toBe(direct.text);
   });
 
-  test('the full route still goes straight from Emergency Housing to the homelessness question', () => {
-    const inputs = quickHousing(WOLVERHAMPTON);
-    inputs[4] = '1'; // Full guided route
-    const { session } = converse(inputs);
+});
+
+// =============================================================================
+// Every housing route asks age before B6 (2 November 2026)
+// Age decides the under-16 exit and the 16-17 route, so it cannot wait for
+// Section C, which the full route reaches only with consent and the
+// prevention branch never reaches.
+// =============================================================================
+
+describe('Every housing route: age before the homelessness question', () => {
+
+  function converse(inputs: string[]) {
+    let session = createSession('scenario');
+    let result = getFirstMessage(session);
+    session = { ...session, ...result.stateUpdates } as SessionState;
+    for (const input of inputs) {
+      result = processInput(session, input);
+      session = { ...session, ...result.stateUpdates } as SessionState;
+    }
+    return { session, result };
+  }
+
+  // No crisis, enter area by hand (Wolverhampton), connect to services,
+  // FULL guided route, skip name, on my phone, not a return user, for myself,
+  // Emergency Housing
+  const fullHousing = ['7', '3', '1', '2', '1', '1', '5', '2', '1', '1'];
+
+  test('a person on the full route asking for Emergency Housing is asked their age', () => {
+    const { session, result } = converse(fullHousing);
     expect(session.routeType).toBe('FULL');
+    expect(session.currentGate).toBe('B5_PROFILE_AGE');
+    expect(result.options).toEqual(['Under 16', '16-17', '18-24', '25 or over']);
+  });
+
+  test('a 15 year old on the full route gets the under-16 exit before any housing question', () => {
+    const { session, result } = converse([...fullHousing, '1']);
+    expect(result.sessionEnded).toBe(true);
+    expect(session.safeguardingType).toBe('UNDER_16');
+    expect(result.text).not.toContain('HOUSING OPTIONS');
+  });
+
+  test('a 16 year old on the full route is recognised as 16-17 before the homelessness question', () => {
+    const { session } = converse([...fullHousing, '2']);
     expect(session.currentGate).toBe('B6_HOMELESSNESS_STATUS');
+    expect(session.ageCategory).toBe('16-17');
+    expect(session.youthServicesFlag).toBe(true);
+  });
+
+  test('a 16 year old at risk of losing their home on the full route is still recognised as 16-17 in the prevention branch', () => {
+    const { session } = converse([...fullHousing, '2', '2']); // not currently homeless
+    expect(session.ageCategory).toBe('16-17');
+    expect(session.homeless).not.toBe(true);
+  });
+
+  test('Section C does not ask age again for a 16 year old, and keeps 16-17 as the detailed age', () => {
+    const session = sessionAt('C3Q2_DEPENDENT_CHILDREN', {
+      ageCategory: '16-17',
+      routeType: 'FULL',
+      supportNeed: 'Emergency Housing',
+      localAuthority: 'Wolverhampton',
+    });
+    const result = select(session, 2); // no dependent children
+    expect(result.stateUpdates.currentGate).toBe('C3Q4_GENDER');
+    expect(result.stateUpdates.detailedAge).toBe('16-17');
+  });
+
+  test('Section C does not ask age again for a 30 year old', () => {
+    const session = sessionAt('C3Q2_DEPENDENT_CHILDREN', {
+      ageCategory: '25+',
+      routeType: 'FULL',
+      supportNeed: 'Emergency Housing',
+      localAuthority: 'Wolverhampton',
+    });
+    const result = select(session, 2);
+    expect(result.stateUpdates.currentGate).toBe('C3Q4_GENDER');
+    expect(result.stateUpdates.detailedAge).toBe('25+');
+  });
+
+  test('Section C still asks an 18-24 year old whether they are 18-20 or 21-24, which decides the social services questions', () => {
+    const session = sessionAt('C3Q2_DEPENDENT_CHILDREN', {
+      ageCategory: '18-24',
+      routeType: 'FULL',
+      supportNeed: 'Emergency Housing',
+      localAuthority: 'Wolverhampton',
+    });
+    const result = select(session, 2);
+    expect(result.stateUpdates.currentGate).toBe('C3Q3_AGE');
+  });
+
+  test('a 16 year old on the full route who declines the further questions still sees Children\'s Services before Housing Options', () => {
+    const { session, result } = converse([
+      ...fullHousing,
+      '2', // 16-17
+      '1', // currently homeless
+      '2', // not in touch with Housing Options
+      '3', // sofa surfing
+      '1', // duration
+      '1', // reason
+      '1', // income
+      '2', // not used Street Support before
+      '2', // not already supported
+      '2', // declines the Section C questions
+    ]);
+    expect(session.ageCategory).toBe('16-17');
+    const text = result.text;
+    expect(text).toContain('Wolverhampton Children\'s Services');
+    expect(text.indexOf('Wolverhampton Children\'s Services')).toBeLessThan(text.indexOf('HOUSING OPTIONS'));
   });
 
 });

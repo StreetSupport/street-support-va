@@ -127,6 +127,16 @@ export function handleC3Q1BPublicFundsFollowup(session: SessionState, choice: nu
 export function handleC3Q2DependentChildren(session: SessionState, choice: number | null): RoutingResult {
   const hasChildren = choice === 1;
 
+  // Age is asked before B6 on every housing route. Section C asks it again
+  // only to split 18-24 into 18-20 and 21-24, which decides whether the
+  // social services questions (C3Q11, C3Q12) are asked.
+  if (session.ageCategory && session.ageCategory !== '18-24') {
+    return {
+      ...phrase('C3Q4_GENDER', session.isSupporter),
+      stateUpdates: { currentGate: 'C3Q4_GENDER', hasChildren, detailedAge: session.ageCategory }
+    };
+  }
+
   return {
     ...phrase('C3Q3_AGE', session.isSupporter),
     stateUpdates: { currentGate: 'C3Q3_AGE', hasChildren }
