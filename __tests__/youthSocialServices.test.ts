@@ -22,13 +22,13 @@ describe('16 and 17: in care or a social worker, asked on every housing route', 
   test.each(['QUICK', 'FULL'] as const)('on the %s route, a 16 year old is asked once their age is known', routeType => {
     const result = processInput(sessionAt('B5_PROFILE_AGE', housing16({ routeType })), '2');
     expect(result.stateUpdates.currentGate).toBe('B5_YOUTH_SOCIAL_SERVICES');
-    expect(result.text).toBe('Are you in care, or in touch with a social worker at the moment?');
+    expect(result.text).toBe('Do you have a social worker or a personal adviser, or are you living somewhere the council arranged, like foster care, a children\'s home or supported accommodation?');
     expect(result.options).toEqual(['Yes', 'No', 'Not sure', 'Prefer not to say']);
   });
 
   test('a supporter is asked about the young person', () => {
     const result = processInput(sessionAt('B5_PROFILE_AGE', housing16({ isSupporter: true })), '2');
-    expect(result.text).toBe('Are they in care, or in touch with a social worker at the moment?');
+    expect(result.text).toBe('Do they have a social worker or a personal adviser, or are they living somewhere the council arranged, like foster care, a children\'s home or supported accommodation?');
   });
 
   test('an adult is not asked, and goes straight to the homelessness question', () => {
