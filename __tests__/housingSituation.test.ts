@@ -137,3 +137,31 @@ describe('someone who has already lost their home, or is not sure', () => {
     expect(answer(option, { routeType: 'FULL' }).result.stateUpdates.currentGate).toBe('B8_DURATION');
   });
 });
+
+describe('someone keeping things steady who then says they have been told to leave', () => {
+  // Answer 1 at the housing situation question, then the prevention reason.
+  function preventionReason(option: string, profile: Partial<SessionState> = {}) {
+    const { session } = answer('1', profile);
+    return processInput(session, option);
+  }
+
+  test.each([
+    ['2', 'Eviction notice'], ['4', 'Family/friends notice'],
+  ])('answer %s goes to the about-to-lose-home results', (option, reason) => {
+    const result = preventionReason(option);
+    expect(result.stateUpdates.housingSituation).toBe('LOSING_HOME');
+    expect(result.stateUpdates.preventionNeed).toBe(false);
+    expect(result.stateUpdates.preventionReason).toBe(reason);
+    expect(result.text).toContain('They can help when you\'re about to lose your home, so it\'s best to contact them as soon as you can.');
+    expect(result.text).toContain('LOCAL HOUSING ADVICE');
+    expect(result.text).not.toContain('P3 Wolverhampton');
+  });
+
+  test.each(['2', '4'])('on the full route, answer %s goes on to the reason, as for anyone about to lose their home', option => {
+    expect(preventionReason(option, { routeType: 'FULL' }).stateUpdates.currentGate).toBe('B9_REASON');
+  });
+
+  test.each(['1', '3', '5', '6'])('answer %s stays on the prevention questions', option => {
+    expect(preventionReason(option).stateUpdates.currentGate).toBe('B7C_PREVENTION_URGENCY');
+  });
+});

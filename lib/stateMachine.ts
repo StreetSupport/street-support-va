@@ -592,6 +592,21 @@ function routeHousingSituation(session: SessionState): RoutingResult {
   };
 }
 
+// An eviction notice, or being told to leave by family or friends, means the
+// loss has materialised while the person is still housed, so they are about
+// to lose their home, not keeping things steady (Managing Director,
+// 3 and 6 November 2026). They go on as if they had chosen that answer.
+function routeNoticeToLeave(session: SessionState, choice: number): RoutingResult {
+  const losing: Partial<SessionState> = {
+    housingSituation: 'LOSING_HOME',
+    ...HOUSING_SITUATION_STATE.LOSING_HOME,
+    preventionNeed: false,
+    preventionReason: choice === 2 ? 'Eviction notice' : 'Family/friends notice',
+  };
+  const result = routeHousingSituation({ ...session, ...losing } as SessionState);
+  return { ...result, stateUpdates: { ...losing, ...result.stateUpdates } };
+}
+
 // ============================================================
 // TERMINAL OUTPUT BUILDER - RESTRUCTURED v7.1
 // Clear hierarchy: First Step -> Outreach -> Local Support -> Specialist -> Youth -> Safety Net
@@ -1672,6 +1687,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
     // PREVENTION PATHWAY (handlers in lib/handlers/prevention.ts)
     // ========================================
     case 'B7B_PREVENTION_REASON':
+      if (choice === 2 || choice === 4) {
+        return routeNoticeToLeave(session, choice);
+      }
       return handleB7BPreventionReason(session, choice);
 
     case 'B7C_PREVENTION_URGENCY':
