@@ -548,10 +548,20 @@ export function rankServices(services: Service[], profile: UserProfile, limit: n
       category: s.category.parent,
       appointmentOnly: s.access.appointment_only,
       matchScore: item.score,
-      organizationId: s.organization_id,
-      isDropIn: !s.access.appointment_only
+      organizationId: s.organization_id
     };
   });
+}
+
+/**
+ * The access note added to a service's description on its card.
+ *
+ * Only a ticked appointment box says something. An unticked box is the
+ * default, not a statement that no appointment is needed, so it adds
+ * nothing (VA #34, A9).
+ */
+export function appointmentNote(service: { appointmentOnly: boolean }): string {
+  return service.appointmentOnly ? ' Appointment required.' : '';
 }
 
 /**
