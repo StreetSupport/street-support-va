@@ -18,10 +18,11 @@ The assistant does not ask for anything that identifies a person: no address, da
 
 Within one conversation, it asks questions that change which help a person is shown. The answers are held only while the conversation runs, in the page's memory and on the server. Nothing is saved in the browser; closing the page clears it.
 
-Three things leave the conversation:
+Three things leave the conversation, and a fourth if the person chooses:
 
 - **Typed text the assistant cannot match** goes to its AI provider, Anthropic, to be understood (section 8). Button choices are never sent.
 - **A session record** is kept (section 9), and the counts reported are drawn from it.
+- **A problem report**, only if the person sends one, through the website's issue reporter: what went wrong, an optional description with personal details removed, an optional email for a reply, and the answers they gave only if they tick to attach them (VA backlog 82). The reporter holds reports on GitHub. A report flagged unsafe or upsetting, or carrying personal details, goes to the Managing Director instead and is not held there (technical lead, 8 November 2026).
 - **A preferred name**, if the person gives one, is used only to address them during the conversation. It is never sent to the AI provider, never counted and never kept.
 
 ## 3. Minimisation by design
