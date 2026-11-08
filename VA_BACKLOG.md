@@ -1105,7 +1105,7 @@ When enriched eligibility data is in use, confidence levels must influence langu
 
 ### 82. Report a problem: a route from the assistant for people to say something went wrong
 
-**Source:** Managing Director, 8 November 2026. Modelled on the website's "Report an issue" form, where Claude examines the report, proposes a fix and submits it to the technical lead for review.
+**Source:** Managing Director, 8 November 2026. The chat links to the website's existing "Report an issue" reporter, where Claude examines the report, proposes a fix and submits it to the technical lead for review, rather than building another route (technical lead, 8 November 2026).
 
 **Status:** Not started. **Needed for launch:** the weeks after launch, with publicity, are when most people will point things out.
 
@@ -1115,11 +1115,11 @@ When enriched eligibility data is in use, confidence levels must influence langu
 - An optional description. Personal details are removed before it is saved, as the Analytics Contract's feedback rules require.
 - An optional email, only if they want a reply.
 - The conversation is not attached by default, because the Analytics Contract keeps feedback apart from the conversation. A tick-box lets the person choose to attach the answers they gave, to help reproduce a fault.
-- Triage by Claude: wrong listing details go to the listing correction route; code faults get a proposed fix sent to the technical lead as a pull request; anything marked unsafe or upsetting goes straight to the Managing Director and is never fixed automatically.
+- Triage by Claude: wrong listing details go to the listing correction route; code faults get a proposed fix sent to the technical lead as a pull request; anything marked unsafe or upsetting, or carrying personal details, goes straight to the Managing Director and is never fixed automatically. Because the reporter turns reports into GitHub issues, those reports never become an issue (technical lead, 8 November 2026).
 
 **Why:** it is the route for complaints and corrections from the public (the VA Terms and Conditions need one line pointing to it), and it lets the Managing Director, who owns the assistant after launch, see problems in one place, already sorted.
 
-**Governance:** a free-text field from the public, so the feedback rules apply (opt-in, scrubbed, de-linked); the attach-my-answers option is a new choice the Data Minimisation and Lawful Basis Note v2.0 should mention. Built to the accessibility rules in the design note.
+**Governance:** a free-text field from the public, so the feedback rules apply (opt-in, scrubbed, de-linked); the attach-my-answers option is a new choice the Data Minimisation and Lawful Basis Note v2.0 should mention; and the privacy notes cover what a report holds and that it is held on GitHub (technical lead, 8 November 2026). Built to the accessibility rules in the design note.
 
 ### 81. Choose the Claude model the assistant uses, and set it in configuration
 
