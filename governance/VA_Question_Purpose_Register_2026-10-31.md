@@ -176,10 +176,15 @@ Each was confirmed by reading the code on 31 October.
 ## Open questions for the Managing Director
 
 1. **Ethnicity.** For routing to ethnic minority services, analysis, or both? If analysis only, should it move to an optional end section with PNTS and into DMN?
+   *Answered 8 November 2026: both. Asked among the optional extra questions, census groups, lifting a service only by the community it names (Service Matching and Questions Design Note, 8 November 2026, section 3.1).*
 2. **Preferred name.** Keep it for personalisation, or remove it to match DMN?
+   *Answered 3 November 2026: kept, for conversational purposes (VA #38).*
 3. **Access location.** Should DMN record the reach and marketing purpose as well as accessibility?
 4. **Duration, income, employment.** Intended for routing, analysis, or both?
 5. **Consent screen.** Keep it as notice and choice, or align it with the March removal?
+   *Answered 3 November 2026: a choice, not a gate (VA #38). It is not consent and is never relied on as a lawful basis (Service Matching and Questions Design Note, 8 November 2026, section 3.1).*
 6. **DA and SA.** Ask orientation as DMN says, or confirm gender as the decided proxy?
+   *Answered 8 November 2026: orientation or gender, because each changes the organisations and endpoints; for safeguarding review (Service Matching and Questions Design Note, 8 November 2026, section 3.6).*
 7. **Care leavers.** Change the in-care question to "ever been in care", 16-24, ahead of C1?
+   *Answered: yes, "ever been in care", asked of everyone aged 16 to 24 (MD, 2, 6 and 8 November 2026; VA #46).*
 8. **The referee branch.** Its labels mark 12 questions as having no purpose. They are corrected here and need correcting there before that work continues.
