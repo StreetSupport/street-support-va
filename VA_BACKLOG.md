@@ -1103,6 +1103,22 @@ When enriched eligibility data is in use, confidence levels must influence langu
 
 ## V4 Alignment (new, 23 Oct 2026)
 
+### 81. Choose the Claude model the assistant uses, and set it in configuration
+
+**Source:** Managing Director, 8 November 2026, during the data protection review (VA #50, work item 5).
+
+**Status:** Not started. Before launch.
+
+**What:** `app/api/chat/route.ts` names one dated model, `claude-sonnet-4-20250514`, in three calls: the scope check, advice topic matching and interpreting a typed answer. It has been there since February 2026. If that model is retired, the calls fail; the code then treats the text as unclear, so the assistant keeps working but stops understanding typed answers.
+
+- Move the model name into configuration, so it can change without a code change.
+- Choose a current model for these short checks. A smaller model such as Haiku is likely enough.
+- Run the safeguarding and routing tests against it.
+
+**Why it is safeguarding-adjacent:** the Governance Overview rates interpreting typed text as high harm, because it can carry crisis disclosures. The under-16 check runs on the server before any of these calls and is not affected.
+
+**Related:** recording Anthropic as a data processor, and its terms and retention, is data protection decision 6 (VA #50, work item 5). The choice of model does not change the processor.
+
 ### 80. Align the assistant with the V4 governed baseline
 
 **Source:** WMCA consequential discovery run, S3 (`ssn-enrichment-pipeline`, `governance/assurance/source_first/run_records/wmca_discovery_run_2026-10-23/RUN_RECORD.md`, `08600e1` on #175). Compared `staging` at `6b7eaba` with `wmca_baseline_hardened_2026-10-23_records`.
