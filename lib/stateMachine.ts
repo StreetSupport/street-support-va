@@ -33,6 +33,7 @@ import {
   handleSAGenderAsk,
 } from './handlers/crisis';
 import { buildUnder16Exit, childrenServicesData } from './handlers/shared';
+import { getServicePool } from './data/servicePool';
 import {
   handleLocationConsent,
   handleLocationPostcode,
@@ -140,6 +141,7 @@ export function createSession(sessionId: string): SessionState {
     lgbtqServicePreference: null,
     inCare: null,
     socialServices: null,
+    youthSocialServicesAsked: false,
     isSupporter: false,
     youthServicesFlag: false,
     safeguardingTriggered: false,
@@ -345,7 +347,7 @@ const nationalFallbacks: Record<string, Array<{name: string; phone?: string; web
     {
       name: 'Turn2us Benefits Calculator',
       website: 'https://www.turn2us.org.uk/get-support',
-      description: 'Check what benefits you could be entitled to'
+      description: 'Check which benefits could help you'
     },
     {
       name: 'Turn2us Grants Search',
@@ -430,6 +432,29 @@ function buildZeroMatchTerminal(
   return { text: text.trim(), terminalOutcome: 'NO_SUITABLE_PATHWAY' };
 }
 
+// Live read failed: say so plainly. Never tell the person there is no local
+// support when the VA simply could not load it. National floors still show.
+// Wording proposed, 2 November 2026, for approval.
+function buildLocalResultsUnavailableTerminal(
+  la: string,
+  fallbacks: Array<{name: string; phone?: string; website: string; description: string}>,
+  categoryKey: string,
+  displayName: string
+): { text: string; terminalOutcome: string } {
+  let text = `I can't load local ${displayName} right now.`;
+  text += fallbacks.length > 0
+    ? ` These national services can help in the meantime.\n\n` + buildNationalFallbacksBlock(fallbacks)
+    : ` Please try again in a few minutes.\n\n`;
+
+  if (categoryKey && la !== 'your area') {
+    text += `---\n\n`;
+    text += `You can also search ${displayName} in ${la} on Street Support:\n`;
+    text += buildSSNBrowseLink(displayName, la, categoryKey) + '\n';
+  }
+
+  return { text: text.trim(), terminalOutcome: 'LOCAL_RESULTS_UNAVAILABLE' };
+}
+
 function buildNonHousingTerminal(session: SessionState): TerminalResult {
   const need = session.supportNeed || 'support';
   const la = session.localAuthority || 'your area';
@@ -439,9 +464,15 @@ function buildNonHousingTerminal(session: SessionState): TerminalResult {
   // Build profile for service matching
   const profile = toUserProfile(session);
 
+  const fallbacks = nationalFallbacks[need] || [];
+
+  // Live read unavailable: say so, do not fall back to the January file
+  if (getServicePool()?.status === 'unavailable') {
+    return buildLocalResultsUnavailableTerminal(la, fallbacks, categoryKey, displayName);
+  }
+
   // Get matched local services
   const localServices = getServicesForNeed(need, profile);
-  const fallbacks = nationalFallbacks[need] || [];
   const hasLocalServices = localServices.length > 0;
 
   // Zero-match path
@@ -572,6 +603,10 @@ function buildTerminalServices(session: SessionState): TerminalResult {
     text += `---------------\n`;
     text += childrensServicesFirstStep();
 
+    // Already involved and still looking: say so neutrally, without judging
+    // the worker (Managing Director, 2 and 3 November 2026)
+    text += `If ${they} need something different, or more help alongside that, these can help too.\n\n`;
+
     // Age-filtered navigator orgs as secondary
     if (navigatorOrgs.length > 0) {
       const navIntro = getPhrase('TERMINAL_YOUTH_16_17_NAVIGATOR_INTRO', isSupporter);
@@ -648,7 +683,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
       text += `${councilOrg.website}\n`;
     }
     text += `\n`;
-    text += `They have a legal duty to assess ${possessive} situation. `;
+    text += `This is the council's housing team. `;
     
     // Contextual advice based on situation
     if (session.sleepingSituation?.toLowerCase().includes('rough')) {
@@ -664,7 +699,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
     // Fallback if no council org found
     text += `${la} Council Housing Options\n`;
     text += `https://www.gov.uk/find-local-council\n\n`;
-    text += `They have a legal duty to help ${pronoun}. Ask for a homelessness assessment.\n`;
+    text += `This is the council's housing team. Ask for a homelessness assessment.\n`;
   }
   
   text += `\n`;
@@ -843,8 +878,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   if (showSocialServicesGuidance) {
     text += `IMPORTANT FOR YOUNG PEOPLE\n`;
     text += `--------------------------\n`;
-    text += `Based on ${possessive} situation, ${they} may be entitled to support from social services. `;
-    text += `They have a duty to help young people and care leavers with housing.\n\n`;
+    text += `Children's Services can also help young people and care leavers with housing.\n\n`;
     text += `Contact ${possessive} local council and ask for the Children's Services or Leaving Care team.\n`;
     text += `https://www.gov.uk/find-local-council\n\n`;
   }
@@ -1285,9 +1319,11 @@ export function processInput(session: SessionState, input: string): RoutingResul
       const needsFullProfiling = housingRelatedNeeds.includes(need || '');
 
       if (needsFullProfiling) {
-        // Quick route asks age before B6 — it has no Section C, so a 16-17 year old
-        // would otherwise never be recognised (full route asks detailed age in Section C)
-        if (session.routeType === 'QUICK' && !session.ageCategory) {
+        // Every housing route asks age before B6. Age decides the under-16 exit
+        // and the 16-17 route, so it cannot wait for Section C: the full route
+        // reaches Section C only with consent, the prevention branch never
+        // reaches it, and the organisation-details route skips it.
+        if (!session.ageCategory) {
           return {
             ...phrase('B5_PROFILE_AGE', session.isSupporter),
             stateUpdates: { currentGate: 'B5_PROFILE_AGE', supportNeed: need, needCount: session.needCount + 1 }
@@ -1335,7 +1371,17 @@ export function processInput(session: SessionState, input: string): RoutingResul
       if (profAge === '25 or over') mappedProfAge = '25+';
       const profYouthFlag = choice === 2;
 
-      // Emergency Housing (quick route) continues to the homelessness status question
+      // Emergency Housing, 16 or 17: ask whether they are in care or have a
+      // social worker, on every route. It decides whether their worker or duty
+      // team comes first (Managing Director, 2 and 3 November 2026).
+      if (session.supportNeed === 'Emergency Housing' && profYouthFlag) {
+        return {
+          ...phrase('B5_YOUTH_SOCIAL_SERVICES', session.isSupporter),
+          stateUpdates: { currentGate: 'B5_YOUTH_SOCIAL_SERVICES', ageCategory: mappedProfAge, youthServicesFlag: true }
+        };
+      }
+
+      // Emergency Housing continues to the homelessness status question
       if (session.supportNeed === 'Emergency Housing') {
         return {
           ...phrase('B6_HOMELESSNESS_STATUS', session.isSupporter),
@@ -1346,6 +1392,16 @@ export function processInput(session: SessionState, input: string): RoutingResul
       const sessionWithAge = { ...session, ageCategory: mappedProfAge };
       return routeToNextProfileQuestion(sessionWithAge, 'age');
     
+    case 'B5_YOUTH_SOCIAL_SERVICES': {
+      // Yes, No; Not sure and prefer not to say store null
+      const youthSsOptions: (string | null)[] = ['Yes', 'No', null, null];
+      const youthSs = choice ? (youthSsOptions[choice - 1] ?? null) : null;
+      return {
+        ...phrase('B6_HOMELESSNESS_STATUS', session.isSupporter),
+        stateUpdates: { currentGate: 'B6_HOMELESSNESS_STATUS', socialServices: youthSs, youthSocialServicesAsked: true }
+      };
+    }
+
     case 'B5_PROFILE_GENDER':
       const profGenderOptions = ['Male', 'Female', 'Non-binary or other', 'Prefer not to say'];
       const profGender = choice ? profGenderOptions[choice - 1] : null;
