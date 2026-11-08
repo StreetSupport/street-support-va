@@ -141,6 +141,7 @@ export function createSession(sessionId: string): SessionState {
     lgbtqServicePreference: null,
     inCare: null,
     socialServices: null,
+    youthSocialServicesAsked: false,
     isSupporter: false,
     youthServicesFlag: false,
     safeguardingTriggered: false,
@@ -601,6 +602,10 @@ function buildTerminalServices(session: SessionState): TerminalResult {
     text += `YOUR FIRST STEP\n`;
     text += `---------------\n`;
     text += childrensServicesFirstStep();
+
+    // Already involved and still looking: say so neutrally, without judging
+    // the worker (Managing Director, 2 and 3 November 2026)
+    text += `If ${they} need something different, or more help alongside that, these can help too.\n\n`;
 
     // Age-filtered navigator orgs as secondary
     if (navigatorOrgs.length > 0) {
@@ -1366,7 +1371,17 @@ export function processInput(session: SessionState, input: string): RoutingResul
       if (profAge === '25 or over') mappedProfAge = '25+';
       const profYouthFlag = choice === 2;
 
-      // Emergency Housing (quick route) continues to the homelessness status question
+      // Emergency Housing, 16 or 17: ask whether they are in care or have a
+      // social worker, on every route. It decides whether their worker or duty
+      // team comes first (Managing Director, 2 and 3 November 2026).
+      if (session.supportNeed === 'Emergency Housing' && profYouthFlag) {
+        return {
+          ...phrase('B5_YOUTH_SOCIAL_SERVICES', session.isSupporter),
+          stateUpdates: { currentGate: 'B5_YOUTH_SOCIAL_SERVICES', ageCategory: mappedProfAge, youthServicesFlag: true }
+        };
+      }
+
+      // Emergency Housing continues to the homelessness status question
       if (session.supportNeed === 'Emergency Housing') {
         return {
           ...phrase('B6_HOMELESSNESS_STATUS', session.isSupporter),
@@ -1377,6 +1392,16 @@ export function processInput(session: SessionState, input: string): RoutingResul
       const sessionWithAge = { ...session, ageCategory: mappedProfAge };
       return routeToNextProfileQuestion(sessionWithAge, 'age');
     
+    case 'B5_YOUTH_SOCIAL_SERVICES': {
+      // Yes, No; Not sure and prefer not to say store null
+      const youthSsOptions: (string | null)[] = ['Yes', 'No', null, null];
+      const youthSs = choice ? (youthSsOptions[choice - 1] ?? null) : null;
+      return {
+        ...phrase('B6_HOMELESSNESS_STATUS', session.isSupporter),
+        stateUpdates: { currentGate: 'B6_HOMELESSNESS_STATUS', socialServices: youthSs, youthSocialServicesAsked: true }
+      };
+    }
+
     case 'B5_PROFILE_GENDER':
       const profGenderOptions = ['Male', 'Female', 'Non-binary or other', 'Prefer not to say'];
       const profGender = choice ? profGenderOptions[choice - 1] : null;

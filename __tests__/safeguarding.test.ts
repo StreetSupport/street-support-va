@@ -1401,15 +1401,17 @@ describe('Quick route: age for housing, under-16 exit, Children\'s Services firs
     expect(result.text).not.toContain('HOUSING OPTIONS');
   });
 
-  test('a 16 year old on the quick route is recognised as 16-17 and carries on to the homelessness question', () => {
+  test('a 16 year old on the quick route is recognised as 16-17, asked about care or a social worker, then the homelessness question', () => {
     const { session } = converse([...quickHousing(WOLVERHAMPTON), '2']);
-    expect(session.currentGate).toBe('B6_HOMELESSNESS_STATUS');
+    expect(session.currentGate).toBe('B5_YOUTH_SOCIAL_SERVICES');
     expect(session.ageCategory).toBe('16-17');
     expect(session.youthServicesFlag).toBe(true);
+    const next = converse([...quickHousing(WOLVERHAMPTON), '2', '3']).session; // not sure
+    expect(next.currentGate).toBe('B6_HOMELESSNESS_STATUS');
   });
 
   test('a 16 year old sofa surfing in Wolverhampton sees Children\'s Services before Housing Options, and the Young Persons Team', () => {
-    const { result } = converse([...quickHousing(WOLVERHAMPTON), '2', ...homelessSofaSurfing]);
+    const { result } = converse([...quickHousing(WOLVERHAMPTON), '2', '3', ...homelessSofaSurfing]);
     const text = result.text;
     expect(text).toContain('Children\'s Services or a social worker');
     expect(text).toContain('01902 555392');
@@ -1467,7 +1469,7 @@ describe('Quick route: age for housing, under-16 exit, Children\'s Services firs
   ];
 
   test.each(WMCA_AREAS)('a 16 year old sofa surfing in %s sees Children\'s Services before Housing Options', (area, option, childrensServices) => {
-    const { session, result } = converse([...quickHousing(option), '2', ...homelessSofaSurfing]);
+    const { session, result } = converse([...quickHousing(option), '2', '3', ...homelessSofaSurfing]);
     const text = result.text;
     expect(session.localAuthority).toBe(area);
     expect(text).toContain('Children\'s Services or a social worker');
@@ -1477,7 +1479,7 @@ describe('Quick route: age for housing, under-16 exit, Children\'s Services firs
   });
 
   test('a 16 year old sleeping rough on the quick route still gets StreetLink', () => {
-    const { result } = converse([...quickHousing(WOLVERHAMPTON), '2', '1', '2', '1']); // homeless, no Housing Options, rough sleeping
+    const { result } = converse([...quickHousing(WOLVERHAMPTON), '2', '3', '1', '2', '1']); // not sure about social worker; homeless, no Housing Options, rough sleeping
     expect(result.text).toContain('make a StreetLink alert');
     expect(result.text).toContain('OUTREACH SUPPORT');
     expect(result.text).toContain('https://streetlink.org.uk');
@@ -1546,14 +1548,14 @@ describe('Every housing route: age before the homelessness question', () => {
   });
 
   test('a 16 year old on the full route is recognised as 16-17 before the homelessness question', () => {
-    const { session } = converse([...fullHousing, '2']);
+    const { session } = converse([...fullHousing, '2', '3']); // 16-17, not sure about social worker
     expect(session.currentGate).toBe('B6_HOMELESSNESS_STATUS');
     expect(session.ageCategory).toBe('16-17');
     expect(session.youthServicesFlag).toBe(true);
   });
 
   test('a 16 year old at risk of losing their home on the full route is still recognised as 16-17 in the prevention branch', () => {
-    const { session } = converse([...fullHousing, '2', '2']); // not currently homeless
+    const { session } = converse([...fullHousing, '2', '3', '2']); // not sure about social worker; not currently homeless
     expect(session.ageCategory).toBe('16-17');
     expect(session.homeless).not.toBe(true);
   });
@@ -1597,6 +1599,7 @@ describe('Every housing route: age before the homelessness question', () => {
     const { session, result } = converse([
       ...fullHousing,
       '2', // 16-17
+      '3', // not sure about care or a social worker
       '1', // currently homeless
       '2', // not in touch with Housing Options
       '3', // sofa surfing
