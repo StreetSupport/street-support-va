@@ -333,6 +333,39 @@ An AI-assisted documentary review of this note (draft, not adopted) found the de
 
 ---
 
+## 14. Accessibility
+
+The assistant meets WCAG 2.2 level AA, as the website does, and follows the W3C's cognitive accessibility guidance. The brand green is #236c58 (6.25:1 against white), shared with the website. (Managing Director, 8 November 2026; VA Accessibility Proposal, 8 November 2026.)
+
+**Every screen:**
+
+- Colours come from one shared setting, never a colour typed in.
+- Every control is a real button or link, and its visible words begin its accessible name.
+- Buttons are at least 44 by 44 pixels (good practice for phone use; the AA minimum is 24 by 24), with a visible focus outline.
+- Text at 4.5:1 and control edges at 3:1. Colour is never the only signal.
+- After each answer, focus moves to the new reply, so its question and any context, including crisis numbers, are read in full before the person responds.
+- The person can see how many services were found, move between them easily, and see that more are on Street Support.
+- A request for reduced motion is respected.
+
+**Offer questions** ("Yes, include them" / "No thanks"): the buttons are grouped with the question, so they make sense read alone, and the choice is echoed back as text, not shown by colour.
+
+**"Designed for" on cards:** written words, after the service name and within the same card, worded as who the service is shaped for, never as an exclusion.
+
+**Advice links:** say they open in a new tab, are named after the organisation or page, and are underlined.
+
+**The quick exit, when designed:**
+
+- A visible button with words, in the same place on every screen of the pathway.
+- Reached in one or two presses of Tab, at least 44 by 44 pixels, and usable by mouse, touch, keyboard and switch access.
+- No confirmation step and no time limit.
+- Any keyboard shortcut must not be a single letter and must not use Escape, which closes the chat.
+
+Where the quick exit goes and what it clears are safeguarding decisions, made separately.
+
+**Before launch:** the interface fixes in the VA Accessibility Proposal; checks in a browser and with the main screen readers; contrast of every component in every state; and a few realistic journeys end to end on a phone and by keyboard or screen reader. Testing with people who use assistive technology is recommended where it can be arranged.
+
+---
+
 ## Sources
 
 - VA analytics and questions working note, 2 November 2026 (Claude Docs; no repo copy).
