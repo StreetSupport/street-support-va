@@ -7,7 +7,7 @@
 
 import { getPhrase } from './phrasebank';
 import { getPronouns } from './utils/pronouns';
-import type { GateType, SessionState, RoutingResult, TerminalResult } from './types';
+import type { GateType, HousingSituation, SessionState, RoutingResult, TerminalResult } from './types';
 import { toUserProfile } from './types';
 export type { GateType, SessionState, RoutingResult };
 import {
@@ -21,6 +21,7 @@ import {
   getShelterInfo,
   getStreetLinkInfo,
   getServicesForNeed,
+  getHousingAdviceServices,
   isProfileRelevantNeed,
   getPrimaryCategoryKey,
 } from './serviceMatcher';
@@ -97,6 +98,7 @@ export function createSession(sessionId: string): SessionState {
     returnUser: null,
     returnOutcome: null,
     housingOptionsInvolvement: null,
+    housingSituation: null,
     localAuthority: null,
     latitude: null,
     longitude: null,
@@ -538,6 +540,104 @@ function buildNonHousingTerminal(session: SessionState): TerminalResult {
 }
 
 // ============================================================
+// HOUSING SITUATION (Managing Director, 3 November 2026)
+// ============================================================
+
+const HOUSING_SITUATION_BY_CHOICE: Record<number, HousingSituation> = {
+  1: 'KEEP_STEADY',
+  2: 'LOSING_HOME',
+  3: 'STAYING_SOMEWHERE',
+  4: 'LEAVING_INSTITUTION',
+  5: 'NOWHERE_TONIGHT',
+  6: 'NOT_SURE',
+};
+
+// The older fields the rest of the conversation reads, set from the answer.
+// Not sure makes no assumption either way.
+const HOUSING_SITUATION_STATE: Record<HousingSituation, Partial<SessionState>> = {
+  KEEP_STEADY: { homeless: false, housedSituation: 'At home', sleepingSituation: null },
+  LOSING_HOME: { homeless: false, housedSituation: 'At home', sleepingSituation: null },
+  STAYING_SOMEWHERE: { homeless: true, housedSituation: null, sleepingSituation: 'Staying somewhere for now' },
+  LEAVING_INSTITUTION: { homeless: true, housedSituation: null, sleepingSituation: 'Leaving prison or hospital' },
+  NOWHERE_TONIGHT: { homeless: true, housedSituation: null, sleepingSituation: 'Rough sleeping or nowhere tonight' },
+  NOT_SURE: { homeless: null, housedSituation: null, sleepingSituation: null },
+};
+
+function isRoughSleeping(session: SessionState): boolean {
+  return !!session.sleepingSituation?.toLowerCase().includes('rough');
+}
+
+// Housing results at the end of the quick route, with StreetLink first for
+// someone sleeping rough or with nowhere to stay tonight.
+function housingResultsTerminal(session: SessionState): RoutingResult {
+  const result = buildTerminalServices(session);
+  const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
+
+  let text = result.text;
+  if (isRoughSleeping(session)) {
+    const streetlink = getPhrase('STREETLINK_SIGNPOST', session.isSupporter);
+    text = (streetlink?.text || '') + '\n\n' + result.text;
+  }
+
+  return {
+    text: text + '\n' + additionalNeeds?.text,
+    options: additionalNeeds?.options,
+    stateUpdates: {
+      currentGate: 'TERMINAL_ADDITIONAL_NEEDS',
+      sleepingSituation: session.sleepingSituation,
+      housingOptionsInvolvement: session.housingOptionsInvolvement,
+      ...(result.terminalOutcome ? { terminalOutcome: result.terminalOutcome } : {}),
+    },
+    sessionEnded: false
+  };
+}
+
+// After the Housing Options question: prevention for option 1, crisis results
+// for the rest. On the full route, someone about to lose their home skips
+// "how long has this been going on" and goes to the reason question.
+function routeHousingSituation(session: SessionState): RoutingResult {
+  const hoUpdate = { housingOptionsInvolvement: session.housingOptionsInvolvement };
+
+  if (session.housingSituation === 'KEEP_STEADY') {
+    return {
+      ...phrase('B7B_PREVENTION_REASON', session.isSupporter),
+      stateUpdates: { currentGate: 'B7B_PREVENTION_REASON', preventionNeed: true, ...hoUpdate }
+    };
+  }
+
+  if (session.routeType === 'QUICK') {
+    return housingResultsTerminal(session);
+  }
+
+  if (session.housingSituation === 'LOSING_HOME') {
+    return {
+      ...phrase('B9_REASON', session.isSupporter),
+      stateUpdates: { currentGate: 'B9_REASON', ...hoUpdate }
+    };
+  }
+
+  return {
+    ...phrase('B8_DURATION', session.isSupporter),
+    stateUpdates: { currentGate: 'B8_DURATION', ...hoUpdate }
+  };
+}
+
+// An eviction notice, or being told to leave by family or friends, means the
+// loss has materialised while the person is still housed, so they are about
+// to lose their home, not keeping things steady (Managing Director,
+// 3 and 6 November 2026). They go on as if they had chosen that answer.
+function routeNoticeToLeave(session: SessionState, choice: number): RoutingResult {
+  const losing: Partial<SessionState> = {
+    housingSituation: 'LOSING_HOME',
+    ...HOUSING_SITUATION_STATE.LOSING_HOME,
+    preventionNeed: false,
+    preventionReason: choice === 2 ? 'Eviction notice' : 'Family/friends notice',
+  };
+  const result = routeHousingSituation({ ...session, ...losing } as SessionState);
+  return { ...result, stateUpdates: { ...losing, ...result.stateUpdates } };
+}
+
+// ============================================================
 // TERMINAL OUTPUT BUILDER - RESTRUCTURED v7.1
 // Clear hierarchy: First Step -> Outreach -> Local Support -> Specialist -> Youth -> Safety Net
 // ============================================================
@@ -686,8 +786,15 @@ function buildTerminalServices(session: SessionState): TerminalResult {
     text += `They have a legal duty to assess ${possessive} situation. `;
     
     // Contextual advice based on situation
-    if (session.sleepingSituation?.toLowerCase().includes('rough')) {
+    if (session.housingSituation === 'NOWHERE_TONIGHT') {
+      text += `Explain what's happening and ask for a homelessness assessment. Let them know ${theyre} sleeping rough or have nowhere to stay tonight - this is urgent.\n`;
+    } else if (session.sleepingSituation?.toLowerCase().includes('rough')) {
       text += `Explain what's happening and ask for a homelessness assessment. Let them know ${theyre} sleeping rough - this is urgent.\n`;
+    } else if (session.housingSituation === 'LOSING_HOME') {
+      text += `They can help when ${theyre} about to lose ${possessive} home, so it's best to contact them as soon as ${they} can.\n`;
+    } else if (session.housingSituation === 'LEAVING_INSTITUTION') {
+      text += `Explain what's happening and ask for a homelessness assessment.\n`;
+      text += `If ${theyre} still in prison or hospital, ${they} can ask the staff there to refer ${pronoun} to the council's housing team.\n`;
     } else if (session.homeless || session.sleepingSituation) {
       text += `Explain what's happening and ask for a homelessness assessment.\n`;
     } else if (session.preventionNeed) {
@@ -720,9 +827,33 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   }
   
   // ----------------------------------------
-  // LOCAL SUPPORT - Drop-in services and navigator orgs
+  // LOCAL HOUSING ADVICE - someone about to lose their home
+  // Organisations that help at this point, from the platform's housing and
+  // legal advice listings (Managing Director, 3 November 2026)
   // ----------------------------------------
-  const allLocalOrgs = [...localSupportOrgs, ...navigatorOrgs];
+  const losingHome = session.housingSituation === 'LOSING_HOME';
+  if (losingHome) {
+    const housingAdvice = getHousingAdviceServices(profile);
+    if (housingAdvice.length > 0) {
+      text += `LOCAL HOUSING ADVICE\n`;
+      text += `--------------------\n`;
+      for (const svc of housingAdvice) {
+        text += `${svc.name}\n`;
+        if (svc.phone) text += `${svc.phone}\n`;
+        if (svc.website) text += `${svc.website}\n`;
+        if (svc.description) text += `${svc.description}\n`;
+        text += `\n`;
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // LOCAL SUPPORT - Drop-in services and navigator orgs
+  // Someone about to lose their home is not shown the adult housing navigators,
+  // which are for exploring other options. Young people's routes stay.
+  // ----------------------------------------
+  const shownNavigators = losingHome ? navigatorOrgs.filter(n => n.isYouthRoute) : navigatorOrgs;
+  const allLocalOrgs = [...localSupportOrgs, ...shownNavigators];
   if (allLocalOrgs.length > 0) {
     text += `LOCAL SUPPORT\n`;
     text += `-------------\n`;
@@ -1489,17 +1620,32 @@ export function processInput(session: SessionState, input: string): RoutingResul
       const sessionWithChildren = { ...session, hasChildren: childrenValue };
       return routeToNextProfileQuestion(sessionWithChildren, 'children');
     
-    case 'B6_HOMELESSNESS_STATUS':
-      const homeless = choice === 1;
+    case 'B6_HOMELESSNESS_STATUS': {
+      // Housing situation question (Managing Director, 3 November 2026).
+      // Option 1 is prevention. Options 2 to 6 are crisis: for option 2 the loss
+      // has materialised although the person is still in their home.
+      const situation = HOUSING_SITUATION_BY_CHOICE[choice ?? 0];
+      if (!situation) {
+        return phrase('B6_HOMELESSNESS_STATUS', session.isSupporter);
+      }
       return {
         ...phrase('HOUSING_OPTIONS_INVOLVEMENT_ASK', session.isSupporter),
-        stateUpdates: { currentGate: 'HOUSING_OPTIONS_INVOLVEMENT_ASK', homeless }
+        stateUpdates: {
+          currentGate: 'HOUSING_OPTIONS_INVOLVEMENT_ASK',
+          housingSituation: situation,
+          ...HOUSING_SITUATION_STATE[situation],
+        }
       };
+    }
 
     // TODO: Wire housingOptionsInvolvement into buildTerminalServices — when true,
     // deprioritise Housing Options in terminal output and lead with navigator/specialist orgs instead
     case 'HOUSING_OPTIONS_INVOLVEMENT_ASK': {
       const hoInvolvement = choice === 1 ? true : (choice === 2 ? false : null);
+      if (session.housingSituation) {
+        return routeHousingSituation({ ...session, housingOptionsInvolvement: hoInvolvement });
+      }
+      // Sessions started before the housing situation question keep the old route
       if (session.homeless) {
         return {
           ...phrase('B7_HOMELESS_SLEEPING_SITUATION', session.isSupporter),
@@ -1559,22 +1705,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
       
       // Quick route goes to terminal, Full route continues to B8
       if (session.routeType === 'QUICK') {
-        const resultB7 = buildTerminalServices({ ...session, sleepingSituation: sleeping });
-        const additionalNeedsB7 = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-
-        // Add StreetLink for rough sleeping
-        let text = resultB7.text;
-        if (choice === 1) {
-          const streetlink = getPhrase('STREETLINK_SIGNPOST', session.isSupporter);
-          text = (streetlink?.text || '') + '\n\n' + resultB7.text;
-        }
-
-        return {
-          text: text + '\n' + additionalNeedsB7?.text,
-          options: additionalNeedsB7?.options,
-          stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', sleepingSituation: sleeping, ...(resultB7.terminalOutcome ? { terminalOutcome: resultB7.terminalOutcome } : {}) },
-          sessionEnded: false
-        };
+        return housingResultsTerminal({ ...session, sleepingSituation: sleeping });
       } else {
         return {
           ...phrase('B8_DURATION', session.isSupporter),
@@ -1586,6 +1717,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
     // PREVENTION PATHWAY (handlers in lib/handlers/prevention.ts)
     // ========================================
     case 'B7B_PREVENTION_REASON':
+      if (choice === 2 || choice === 4) {
+        return routeNoticeToLeave(session, choice);
+      }
       return handleB7BPreventionReason(session, choice);
 
     case 'B7C_PREVENTION_URGENCY':

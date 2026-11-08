@@ -1382,7 +1382,7 @@ describe('Quick route: age for housing, under-16 exit, Children\'s Services firs
     ['7', '3', areaOption, '2', '2', '1', '5', '2', '1', '1'];
 
   // Homeless, not in touch with Housing Options, sofa surfing
-  const homelessSofaSurfing = ['1', '2', '3'];
+  const homelessSofaSurfing = ['3', '2']; // staying somewhere for now, not in touch with Housing Options
 
   const WOLVERHAMPTON = '1';
 
@@ -1479,7 +1479,7 @@ describe('Quick route: age for housing, under-16 exit, Children\'s Services firs
   });
 
   test('a 16 year old sleeping rough on the quick route still gets StreetLink', () => {
-    const { result } = converse([...quickHousing(WOLVERHAMPTON), '2', '3', '1', '2', '1']); // not sure about social worker; homeless, no Housing Options, rough sleeping
+    const { result } = converse([...quickHousing(WOLVERHAMPTON), '2', '3', '5', '2']); // not sure about social worker; sleeping rough or nowhere tonight, no Housing Options
     expect(result.text).toContain('make a StreetLink alert');
     expect(result.text).toContain('OUTREACH SUPPORT');
     expect(result.text).toContain('https://streetlink.org.uk');
@@ -1554,8 +1554,8 @@ describe('Every housing route: age before the homelessness question', () => {
     expect(session.youthServicesFlag).toBe(true);
   });
 
-  test('a 16 year old at risk of losing their home on the full route is still recognised as 16-17 in the prevention branch', () => {
-    const { session } = converse([...fullHousing, '2', '3', '2']); // not sure about social worker; not currently homeless
+  test('a 16 year old about to lose their home on the full route is still recognised as 16-17', () => {
+    const { session } = converse([...fullHousing, '2', '3', '2']); // not sure about social worker; about to lose their home
     expect(session.ageCategory).toBe('16-17');
     expect(session.homeless).not.toBe(true);
   });
@@ -1600,9 +1600,8 @@ describe('Every housing route: age before the homelessness question', () => {
       ...fullHousing,
       '2', // 16-17
       '3', // not sure about care or a social worker
-      '1', // currently homeless
+      '3', // staying somewhere for now
       '2', // not in touch with Housing Options
-      '3', // sofa surfing
       '1', // duration
       '1', // reason
       '1', // income
