@@ -21,7 +21,7 @@ Within one conversation, it asks questions that change which help a person is sh
 Three things leave the conversation:
 
 - **Typed text the assistant cannot match** goes to its AI provider, Anthropic, to be understood (section 8). Button choices are never sent.
-- **Aggregate counts** are kept: how many conversations reached each outcome, by council area and need, and the other counts in section 9. No record of an individual conversation is kept.
+- **A session record** is kept (section 9), and the counts reported are drawn from it.
 - **A preferred name**, if the person gives one, is used only to address them during the conversation. It is never sent to the AI provider, never counted and never kept.
 
 ## 3. Minimisation by design
@@ -43,8 +43,8 @@ The extra-questions screen that replaced it is a choice about the conversation. 
 The basis is legitimate interests (Article 6(1)(f)), for every field on every pathway.
 
 - **Legitimate interest:** connecting people to support that fits them, and understanding whether the service reaches the people who need it. This is SSN's charitable purpose.
-- **Necessity:** only answers that change the help shown are asked (section 3). Aggregate counts are the least that shows whether the service is reaching people.
-- **Balance:** nothing identifies the person; answers last only as long as the conversation; only aggregate counts are kept; every question can be skipped without losing access to help. A person who prefers to answer nothing can use the website's search and map.
+- **Necessity:** only answers that change the help shown are asked (section 3). A session record without identifiers is the least that shows whether the service is reaching people.
+- **Balance:** nothing identifies the person; answers last only as long as the conversation; only a session record without identifiers is kept; every question can be skipped without losing access to help. A person who prefers to answer nothing can use the website's search and map.
 
 ## 6. Sensitive information: Articles 9 and 10
 
@@ -108,17 +108,17 @@ Typed text can contain anything, including a name or an address. The opening sen
 
 ## 9. What is kept
 
-Only aggregate counts are kept: outcomes by council area, need and route; the operational intelligence fields in section 10; and ethnicity by council area and census group. No record of an individual conversation is kept. Reports leave out any small number that could point to someone.
+What is kept is a **session record**: one line for each conversation, written to the hosting's logs when it ends. It holds a random session id, council area, user type, age band, need, housing status, safeguarding type, escalation level, duration and route. Nothing in it identifies the person, and it is not linked to any other conversation. It is kept for as long as the hosting keeps its logs. While the conversation runs, the hosting also logs each step's gate, the council area found and any advice topic detected; never what the person typed (technical lead, 8 November 2026).
 
-The hosting is set up so that nothing is kept per conversation beyond what the counts need.
+The answers added by this note, including ethnicity, and the operational intelligence fields in section 10 are kept only as counts: outcomes by council area, need and route, and ethnicity by council area and census group. Reports leave out any small number that could point to someone.
 
 ## 10. Operational intelligence fields
 
-Access location, used before and outcome for returning users stay as in version 1.1: enumerated, optional, legitimate interests, not special category. They are now kept only as aggregate counts.
+Access location, used before and outcome for returning users stay as in version 1.1: enumerated, optional, legitimate interests, not special category. They are kept only as counts.
 
 ## 11. Purpose limitation
 
-Answers are used only to find help for the person in that conversation, and to produce the aggregate counts. Nothing is used for any other purpose, shared at individual level, or linked across conversations.
+Answers are used only to find help for the person in that conversation, and to produce the session record and the counts drawn from it. Nothing is used for any other purpose, shared at individual level, or linked across conversations.
 
 ## 12. Risk and proportionality
 
@@ -129,7 +129,7 @@ The data protection impact assessment (pipeline repo, `governance/Data_Protectio
 Implementation checks, none of which changes the design or its risk assessment:
 
 1. The Anthropic account: an API account under the Commercial Terms and data processing addendum, with API inputs not used for training (Managing Director).
-2. The hosting keeps nothing per conversation (technical lead, at build).
+2. The hosting keeps only the session record and step logs in section 9, for as long as it keeps logs, with no IP address or other identifier (technical lead, at the account check in the week of 23 November).
 3. This note's table checked against the built question map before launch.
 4. The Privacy Policy and the other footer documents updated to match (go-live plan, workstream H).
 
