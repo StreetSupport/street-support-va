@@ -8,7 +8,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'ss-primary': '#339378',
+        'ss-primary': '#236c58', // Brand green, 6.25:1 with white (WCAG AA)
         'ss-secondary': '#721b78',
         'ss-accent': '#086049',
         'ss-bg': '#f5f5f5',
