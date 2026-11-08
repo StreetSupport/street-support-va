@@ -564,7 +564,7 @@ Remaining design and decisions close by about 13 November. If the copy of the si
 3. **Where do tags sit in the data the VA will read?** They are on `GroupedProvidedServices`, not the `ProvidedServices` rows the website reads today. Population tags are to become a website search feature (MD, 1 November), so the website will need to read that layer too. The VA's live read (B1) should read it the same way.
 4. **Tags with no question.** People with dogs, sex workers and veterans have no question, so their tags cannot raise anything. Is that intended for each? A veterans question is drafted in the backlog. Older people is kept by Platform Scope v4 and dropped by the Population Factor Note.
 5. **Questions with no route on the quick route.** Immigration, ethnicity and others are not asked there, so their tags have no effect for quick route users. This follows from the quick route's purpose, but should be stated.
-6. **Ask only where it can change the result.** Proposal: a population question is asked only where the person's area and need include services tagged for that group. This applies the pathway principle (principle 3) to tags.
+6. **Ask only where it can change the result.** Proposal: a population question is asked only where the person's area and need include services tagged for that group. This applies the pathway principle (principle 3) to tags. *Superseded 8 November 2026: a question belongs if its answer adds an endpoint or changes the local match, applied by parent nationally and subject to the data protection notes (Service Matching and Questions Design Note, section 3.1).*
 7. **Should the card say why a service was chosen** ("Designed for care leavers")? The old website showed "Suitable for". The live one shows nothing.
 8. **Ethnicity as a routing input.** Using it to raise ethnic minority community services makes it special category data used for routing. That needs its Article 9 basis in the data protection notes (register question 1).
 
@@ -703,7 +703,7 @@ LGBTQ+ becomes one population tag among the rest, under the same rules. The fixe
 
 ### 3.8 Asking
 
-A population question is asked only where the person's area and need include services tagged for that group (plan, section 8, question 6). That keeps the questions to what can change the result.
+A population question is asked only where the person's area and need include services tagged for that group (plan, section 8, question 6). That keeps the questions to what can change the result. *Superseded 8 November 2026: a question belongs if its answer adds an endpoint or changes the local match, applied by parent nationally and subject to the data protection notes (Service Matching and Questions Design Note, section 3.1).*
 
 ---
 
@@ -714,7 +714,7 @@ A population question is asked only where the person's area and need include ser
 | A restriction read wrongly from text | A service is hidden from people it could serve | Only a statement in terms, under an established hard gate, with a clear answer. Anything weaker excludes nothing |
 | A flag set wrongly, if flags are added | As above | Flags record what the provider states. The weekly check can list flagged services whose text does not say "only" |
 | Under-disclosure | Someone who skips the LGBTQ+ question, for example a young person not out, never sees LGBTQ+-only services in the five | They stay available. Fixed national LGBTQ+ contacts stay in Layer 1 for housing, DV, SA and health. The question wording can say why it is asked |
-| Questions asked only to unlock services | More questions, against O3 | Ask only where tagged services exist (3.8) |
+| Questions asked only to unlock services | More questions, against O3 | Superseded 8 November 2026: questions stay optional and ordered by consequence (Service Matching and Questions Design Note, section 3.1) |
 | Exclusive services crowding out | In an area with many services for one group, people outside it get few results | They are excluded only where ineligible; the rest are selected normally. Test this case |
 | No flags at the switch | Only age and gender can be applied | The three-part test on listing text, for the existing hard gates. The current exclusion of services by age tag is removed (plan, A10), so the fallback is stated restrictions only |
 | A restriction on part of a service | A women-only session would exclude men from a mixed service | A restriction applies only where it covers the whole service. In a combined V4 record, a restriction in one section does not exclude the record. Different provision is its own listing (DELIVERY-NOT-A-SERVICE) |
