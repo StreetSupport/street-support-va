@@ -1,7 +1,7 @@
 # Street Support VA: Implementation Backlog
 
 **Purpose:** Track what we should be considering working on next.
-**Last updated:** 16 June 2026
+**Last updated:** 9 November 2026
 
 ---
 
@@ -578,7 +578,8 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 
 ### 41. WCAG 2.1 AA and accessibility fixes — remaining
 **Priority:** Medium
-**Status:** 3 critical fixes merged (PR #13, 28 Mar 2026). Remaining fixes to be addressed before launch — on the list.
+**Status (8 November 2026):** The standard is now WCAG 2.2 AA, across the website and the assistant (Managing Director, 8 November 2026). The remaining fixes are built in #57 (`e31bb83`): focus moves to the newest reply and back to the launcher on close, the website's green `#236c58`, labels, headings, a visible postcode hint, full screen below 640px, 44 by 44 pixel buttons. 172 of 172 tests passed, with no type errors, run locally on 8 November. The rules for every new screen are section 14 of the Service Matching and Questions Design Note (#56). Still to do before launch: the browser and screen reader checks in the accessibility proposal, section 4.
+**Status (earlier):** 3 critical fixes merged (PR #13, 28 Mar 2026). Remaining fixes to be addressed before launch — on the list.
 **Audit scope:** ChatWidget.tsx reviewed against WCAG 2.1 AA, WCAG 2.2 cognitive criteria, W3C COGA, Mencap Easy Read Guidelines, BS 8878:2010.
 **Completed (PR #13):** aria-live on message container, dialog role + focus trap + Escape + focus return, send button aria-label.
 **Remaining implementation:** Next PR: colour contrast (darker teal), focus states (keyboard visibility), structural (touch targets, headings, ARIA roles). Include item 43 (geolocation fallback) in same PR.
@@ -989,6 +990,7 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 
 ### Session analytics, click tracking, and CSV storage (pre-launch)
 **Priority:** High (pre-launch)
+**Status (8 November 2026):** What is kept is the session record: one line per conversation in the hosting's logs, with no identifiers, for as long as Vercel keeps its logs. The answers added on 8 November, including ethnicity, are kept only as counts, not in the session record (Data Minimisation and Lawful Basis Note v2.0, section 9; Analytics Contract Amendment 3; #54).
 Implement analytics event logging per Analytics Contract. CSV storage for aggregate reporting.
 
 **Card expand tracking on terminal outputs (12 Mar 2026 design):**
@@ -1103,6 +1105,16 @@ When enriched eligibility data is in use, confidence levels must influence langu
 
 ## V4 Alignment (new, 23 Oct 2026)
 
+### 83. Quick exit: design
+
+**Source:** Managing Director, 8 November 2026 ("We haven't designed quick exits yet").
+
+**Status:** Not started. Design in the week of 16 November 2026.
+
+**What:** a quick exit on the safety pathway. Where it goes and what it clears are safeguarding decisions, made separately. The accessibility rules for it are already set (Service Matching and Questions Design Note, section 14): a visible button with words; in the same place on every screen of the pathway; reached in one or two presses of Tab; at least 44 by 44 pixels; usable by mouse, touch, keyboard and switch access; no confirmation step and no time limit; any keyboard shortcut is not a single letter and does not clash with Escape, which keeps closing the chat.
+
+**Governance:** safeguarding-adjacent, so James reviews.
+
 ### 82. Report a problem: a route from the assistant for people to say something went wrong
 
 **Source:** Managing Director, 8 November 2026. The chat links to the website's existing "Report an issue" reporter, where Claude examines the report, proposes a fix and submits it to the technical lead for review, rather than building another route (technical lead, 8 November 2026).
@@ -1119,7 +1131,7 @@ When enriched eligibility data is in use, confidence levels must influence langu
 
 **Why:** it is the route for complaints and corrections from the public (the VA Terms and Conditions need one line pointing to it), and it lets the Managing Director, who owns the assistant after launch, see problems in one place, already sorted.
 
-**Governance:** a free-text field from the public, so the feedback rules apply (opt-in, scrubbed, de-linked); the attach-my-answers option is a new choice the Data Minimisation and Lawful Basis Note v2.0 should mention; and the privacy notes cover what a report holds and that it is held on GitHub (technical lead, 8 November 2026). Built to the accessibility rules in the design note.
+**Governance:** a free-text field from the public, so the feedback rules apply (opt-in, scrubbed, de-linked); the attach-my-answers option is a new choice the Data Minimisation and Lawful Basis Note v2.0 should mention; and the privacy notes cover what a report holds and that it is held on GitHub (technical lead, 8 November 2026). **Done, 8 November 2026:** the Note carries it (#54, `679eab6`); the Privacy Policy and the VA Terms carry it in the policy pack for launch. Built to the accessibility rules in the design note.
 
 ### 81. Choose the Claude model the assistant uses, and set it in configuration
 
@@ -1296,3 +1308,4 @@ When enriched eligibility data is in use, confidence levels must influence langu
 | 2026-05-14 (afternoon) | PR #20 (under-16 + DV + SA + self-harm supporter/professional language) work complete on staging, awaiting James review. Six commits: b1f4ee4 (userType propagation through selector), b5e5d49 (buildUnder16Exit refactor to phrasebank composition), fe0fef6 (under-16 v1.1 wording + professional variants, PROFESSIONAL excludes NSPCC/sign-off), a567860 (DV/SA v1.1 wording + professional variants, SA 999 behavioural change), 4185c9e (self-harm entries placed but not wired pending Item 72 decision), a1526ec (orphan cleanup of unsuffixed SELF_HARM_EXIT and UNDER_16_EXIT). Plus 7th commit refreshing this backlog. Test count 96 → 102, all green throughout. Item 57 status updated. Item 72 added (self-harm wiring follow-up — governance decision needed on Mind Infoline and warm sign-off). Item 73 added (UNDER_16_EXIT__SUPPORTER orphan cleanup, low priority). |
 | 2026-06-16 | Recorded PR #20 merge to main (2 June 2026) in changelog. PR #21 raised against main (items 75, 74, 77): 999 line added to the nine SELF DV/SA base exits (behavioural change flagged for James), `session.userType` threaded through the CHILD_AT_RISK_EXIT call site (no behaviour change), four Male/LGBTQ+ professional regression tests for DV and SA. Commits f274f2a, be11c58, bb73d03 plus this backlog refresh. Test count 102 → 110, all green, tsc clean. Items 75, 74, 77 marked Complete (PR #21). Item 79 added (SA supporter 999 test asymmetry, low priority test-only; requested as "Item 78" but renumbered — 78 already taken). |
 | 2026-07-02 | PR #21 merged to main (items 75, 74, 77 confirmed landed, 110 tests). Backlog reconciled to GitHub. Next: Item C1 care leavers. |
+| 2026-11-09 | Close-out for 6 to 8 November. Item 41 brought up to date: WCAG 2.2 AA, fixes built in #57, rules in the design note (#56), browser checks left. The analytics item records the session record (#54). Item 82's privacy notes done. Item 83 added: quick exit design, week of 16 November. Items 80 to 82 sit on stacked PRs behind #25, which the technical lead is reviewing with pipeline #166; `staging` carries the backlog of July until that stack merges. |
