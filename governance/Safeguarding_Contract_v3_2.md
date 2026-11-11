@@ -1,12 +1,12 @@
-> Source copy, converted 2 October 2026 from `Safeguarding_Contract_v3_2.docx` (sha256 21348b88b2ac4a49b9dbaea69bfbf4fa583a348df52ac636e2fa9f6e407615c3), supplied by the Managing Director. This Markdown file is the source under the repository's direction rule; the Word file was the only previous copy and is now a derived record. Content unchanged.
+> **Version 3.3, changes for trustee approval, 11 November 2026.** The pull request shows each change against v3.2. It is built from the Markdown copy of v3.2 (VA `staging`, `6851f79`), itself converted on 2 October 2026 from `Safeguarding_Contract_v3_2.docx`. Changes from v3.2 are listed under "Version history" at the end.
 
 # Safeguarding: Contract
 
 Document type: Governance Contract
 
-Status: Approved Baseline
+Status: Changes for trustee approval
 
-Last updated: April 2026
+Version: 3.3 │ Last updated: November 2026
 
 ## Purpose
 
@@ -49,6 +49,8 @@ This contract applies to:
 • Crisis gate behaviour
 
 • Safeguarding exits (under-16, DV, self-harm, immediate danger)
+
+• The Safety from harm route
 
 • AI behaviour in safeguarding-adjacent contexts
 
@@ -107,11 +109,23 @@ The following routes are prescribed, not inferred. They bypass the service match
 | Immediate danger (option 1)          | 999 signposting                 | Emergency services, full stop                         |
 | Self-harm indication (option 3)      | Samaritans pathway              | 116 123, warm handoff, continued support offered      |
 | Fire/flood displacement (option 6)   | Priority need pathway           | Local council, Shelter                                |
-| Fleeing domestic abuse (option 4)    | DV-specific exit                | Gender-appropriate resources, National DV Helpline    |
+| Fleeing domestic abuse (option 4)    | DV-specific exit                | Gender-appropriate resources where gender is given; a general exit where it is not (below). National DV Helpline |
 | Under-16 disclosure (option 2)       | Children&#x2019;s Services exit | Childline 0800 1111, local Children&#x2019;s Services |
-| Sexual assault disclosure (option 5) | SARC pathway                    | Relevant support services                             |
+| Sexual assault disclosure (option 5) | SARC pathway                    | Relevant support services; a general exit where gender is not given (below) |
 
 *Note: Crisis gate option order updated March 2026 to prioritise Under-16 disclosure (option 2) immediately after immediate danger. Approved by James Cross, 2 March 2026. Implemented in PR \#6, March 2026. Option numbers above reflect the implemented order.*
+
+**Where gender is not given.** Where the person does not give their gender, the VA assumes none (Invariant 3). It shows a general exit: 999 first, the local domestic abuse organisation, and each national line with a note of who it is for and when it is open. The person chooses. A non-binary or trans answer is an answer, and its existing exit is unchanged. LGBTQ+ contacts are otherwise shown where the person has said they are relevant. (Managing Director, 11 November 2026)
+
+**The Safety from harm route**
+
+The Safety from harm route is a hard-coded route outside the crisis gate. It is reached from the main menu and from the housing safety question. It is open to everyone, whatever their immigration status or access to public funds. (Managing Director, 2 November 2026)
+
+| **Trigger** | **Route** | **Key Content** |
+|---|---|---|
+| The person chooses Safety from harm, or describes being unsafe where they live, including being made to work or controlled | Safety pathway, with a question about the type of harm | The Modern Slavery & Exploitation Helpline; the Salvation Army's modern slavery referral helpline; 999 where there is immediate danger; the matching crisis gate exit where the person is not OK to carry on |
+
+The route bypasses the service matcher and AI, like the other hard-coded routes. It adds no option to the crisis gate. Situations are described in plain words without naming the harm; there is a quick exit; help is shown first; nothing stored identifies the person; there is no reporting option. The mid-conversation age check runs on this route as on every other: an explicit under-16 disclosure goes to the under-16 exit (Mid-Conversation Age Detection Design Note v1.3), and a test confirms it. Where a person chooses more than one harm, the exits are specified against this contract and reviewed by the technical lead before release.
 
 ## Crisis Gate Requirement
 
@@ -353,6 +367,10 @@ Verification method: Cross-audited against council websites February 2026. Conso
 
 Change control: Same as above. la-contacts.json no longer exists as a separate file.
 
+**Safety from harm route contacts**
+
+Scope: the national contacts for the Safety from harm route, held in whichever of the two files above the technical lead decides. Verification method: primary source, before launch and at each review. Change control: same as above.
+
 ## Implemented Design Changes
 
 The following changes were approved and implemented. They are documented here as a record of design decisions and governance approvals.
@@ -363,15 +381,22 @@ Approved by James Cross, 2 March 2026. Condition: test assertions around option 
 
 **Mid-Conversation Age Detection**
 
-Direction of travel approved by James Cross, 2 March 2026. Design note produced (“Mid-Conversation Age Detection Design Note v1.2”, March 2026, updated April 2026). Implemented and signed off by James Cross via PR \#16, April 2026. 96/96 tests passing.
+Direction of travel approved by James Cross, 2 March 2026. Design note produced (“Mid-Conversation Age Detection Design Note v1.2”, March 2026, updated April 2026; v1.3, November 2026, for ratification with this contract). Implemented and signed off by James Cross via PR \#16, April 2026. 96/96 tests passing.
 
 Key design decisions: binary (not probabilistic) trigger threshold; explicit disclosure only (numeric age under 16, or school years 7–10 in England/Wales/Northern Ireland); silent escalation with visible explanation; session termination on trigger with no re-entry; deterministic pattern matching (not LLM interpretation); categorical audit logging only (no raw user text retained); contextual qualifiers do not suppress escalation (“I’m 14 but asking for my mum” still triggers).
 
 Trustee-accessible summary: “Trustee Accessible Safeguarding Boundary Summary”, March 2026.
 
+## Version history
+
+| Version | Date | Change |
+|---|---|---|
+| 3.2 | April 2026 | Mid-conversation age detection recorded |
+| 3.3 | November 2026 | Safety from harm route added, open to everyone, outside the crisis gate (Managing Director, 2 November 2026). General exit where gender is not given, in the domestic abuse and sexual assault routes (Managing Director, 11 November 2026). Safety route contacts added to the governed data. Mid-conversation age check confirmed on the Safety route. |
+
 ## Status
 
-Status: Approved Baseline
+Status: Changes for trustee approval
 
 Approved by: \[Name\]
 

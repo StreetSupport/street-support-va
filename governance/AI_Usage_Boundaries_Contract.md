@@ -1,12 +1,14 @@
-> Source copy, converted 11 November 2026 from `governance/AI_Usage_Boundaries_Contract.pdf` in the pipeline repository (sha256 `33f7da254abad282…`). Content unchanged.
+> **Version 1.0, changes for trustee approval, 11 November 2026.** Built from the February 2026 text, a Markdown copy of `governance/AI_Usage_Boundaries_Contract.pdf` in the pipeline repository (sha256 `33f7da254abad282…`). The pull request shows each change against that text, and they are listed under "Version history" at the end. No boundary changes.
 
 # AI Usage Boundaries: Contract
 
 Document type: Governance Contract
 
-Status: Draft
+Status: Changes for trustee approval
 
-Last updated: February 2026
+Version: 1.0
+
+Last updated: November 2026
 
 ## Purpose
 
@@ -49,7 +51,8 @@ This contract does not cover:
 
 - Service matching logic (governed by Service Matching Contract)
 - Analytics and logging (governed by Analytics Contract)
-- Safeguarding exits (hard-coded; bypass AI entirely)
+- Safeguarding exits (hard-coded; bypass AI entirely; governed by the Safeguarding Contract)
+- The data enrichment pipeline outside the VA (governed by the Data Enrichment Contract)
 
 ## Where AI Is Used
 
@@ -145,9 +148,20 @@ Rules:
 Fallback content must include:
 
 - Acknowledgement that the service is temporarily limited
-- Shelter helpline: 0808 800 4444
-- Local council Housing Options signposting
-- Samaritans (if session involved self-harm pathway): 116 123
+- Shelter helpline: 0808 800 4444, with its hours as Shelter publishes them
+- Local council Housing Options contact, where the person's area is known
+- The council's out-of-hours emergency line. Outside office hours, this is the best route for a housing emergency: councils run it for exactly that. Where the area is not yet known, the fallback says plainly to call the local council's out-of-hours line
+- StreetLink, for someone sleeping rough or with nowhere to stay tonight. It alerts the local outreach team, and it is not an emergency service
+- 999 for immediate danger
+- Samaritans (if session involved self-harm pathway): 116 123, available 24/7
+
+Every contact shows its hours where it is not open around the clock, so nobody is sent to a closed line. No national housing helpline is open at evenings or weekends, which is why the council's out-of-hours line carries the out-of-hours route.
+
+Checked at source, 11 November 2026:
+
+- [Shelter](https://england.shelter.org.uk/get_help/helpline): 0808 800 4444, "Open: Mon to Fri, 8am to 5pm"; "Closed: weekends and bank holidays"
+- [StreetLink](https://www.mungos.org/contact-us/streetlink/): alerts are sent online and passed to the local outreach team; StreetLink "is not an emergency response service"
+- Council out-of-hours lines are held in the Housing Pathway Endpoints data. Six of the seven West Midlands councils have one recorded; Solihull's is to be confirmed at source
 
 Rationale: Pretending continuity undermines trust. A safe landing is better than a broken conversation.
 
@@ -223,9 +237,16 @@ AI is a tool for interpretation and comprehension, not decision-making or author
 
 The system is designed so that AI helps users navigate, but humans (through approved content and prescribed logic) determine what users see and are told.
 
+## Version history
+
+| Version | Date | Change |
+|---|---|---|
+| Draft (PDF) | February 2026 | Initial contract |
+| 1.0 | November 2026 | Markdown copy. Scope now names the Safeguarding and Data Enrichment Contracts as governing their own areas. Fallback brought up to date: Shelter's published hours (weekdays only); the council's out-of-hours line as the best route outside office hours; StreetLink and 999 added; hours shown on every contact (checked at source, 11 November 2026). No change to any boundary |
+
 ## Status
 
-Status: Draft
+Status: Changes for trustee approval
 
 Approved by: [Pending]
 

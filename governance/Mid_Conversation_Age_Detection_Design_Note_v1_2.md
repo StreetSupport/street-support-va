@@ -1,17 +1,17 @@
-> Source copy, converted 2 October 2026 from `Mid_Conversation_Age_Detection_Design_Note_v1_2.docx` (sha256 b9871f9690113228301114d62cbfd8dfc334e8ec722057a42442c4e2d650e7ea), supplied by the Managing Director. This Markdown file is the source under the repository's direction rule; the Word file was the only previous copy and is now a derived record. Content unchanged.
+> **Version 1.3, draft for trustee ratification, 11 November 2026.** Built from v1.2 (VA repo, `staging`, blob `f68f8d5`). Status, references and wording brought into line with the Safeguarding Contract v3.3 and the Service Matching Contract v3.0. The trigger list, threshold and override mechanism are unchanged, so section 13 is not engaged. Changes are listed in section 14.4.
 
 **Mid-Conversation Age Detection**
 
-**Design Note v1.2**
+**Design Note v1.3**
 
 |                 |                                                                              |
 |-----------------|------------------------------------------------------------------------------|
-| **Status**      | Approved and implemented. Signed off by James Cross via PR \#16, April 2026. |
+| **Status**      | Draft for trustee ratification. Implementation signed off by James Cross via PR \#16, April 2026. |
 | **Author**      | Matt Lambert, Managing Director, Street Support Network                      |
-| **Date**        | 4 March 2026 (v1.1); 15 April 2026 (v1.2)                                    |
-| **Version**     | v1.2                                                                         |
-| **Governed by** | Safeguarding Contract v3.1                                                   |
-| **Depends on**  | Implemented and signed off. No outstanding dependencies.                     |
+| **Date**        | 4 March 2026 (v1.1); 15 April 2026 (v1.2); 11 November 2026 (v1.3)           |
+| **Version**     | v1.3                                                                         |
+| **Governed by** | Safeguarding Contract v3.3                                                   |
+| **Depends on**  | Trustee ratification. Implementation signed off via PR \#16.                 |
 
 **Purpose**
 
@@ -37,9 +37,9 @@ If any proposed implementation cannot satisfy all five of these positions, it is
 
 **2. The Problem This Solves**
 
-A user may select “25 or over” at the age gate (B3_AGE_CATEGORY) and then, later in the conversation, explicitly state they are under 16. Without this feature, they remain in the adult pathway regardless of what they subsequently say. This is a safeguarding gap.
+A user may give an older age when asked, or may not be asked their age at all, and then, later in the conversation, explicitly state they are under 16. Without this feature, they remain in the adult pathway regardless of what they subsequently say. This is a safeguarding gap.
 
-The existing under-16 gate, triggered at B3_AGE_CATEGORY, is correct and remains unchanged. This feature is a secondary catch for cases where a user does not disclose their age at the gate but does so later.
+The under-16 option at the crisis gate (option 2) and the age question, on the routes that ask it, remain as the Safeguarding Contract specifies. Age is asked only on routes where it changes the help shown, and the quick route asks no population questions (Service Matching Contract v3.0). On a route with no age question, this feature and crisis gate option 2 are the only catch. This feature is a secondary catch for cases where a user does not disclose their age at the gate but does so later.
 
 **3. Risk Decomposition**
 
@@ -222,7 +222,9 @@ The following tests must pass before James’s final sign-off:
 
 - Contextual qualifier alongside explicit trigger does not suppress escalation
 
-- Trigger fires mid-conversation regardless of prior age gate selection
+- Trigger fires mid-conversation regardless of any earlier age answer, and where age was not asked
+
+- Trigger fires on the Safety from harm route (Safeguarding Contract v3.3)
 
 - Session terminates on trigger — no re-entry
 
@@ -279,5 +281,7 @@ To support the LA-aware routing above, the location gate was moved to immediatel
 v1.1 (4 March 2026): Original design document. Governance framing, trigger definition, confidence threshold, ambiguous signal handling, override mechanism, audit logging, scope lock, architectural position, test requirements, and change control.
 
 v1.2 (15 April 2026): Implementation record added (Section 14). Status updated to approved and implemented. LA-aware routing, generic fallback removal, and location gate change documented. PR \#16 reference added.
+
+v1.3 (11 November 2026): Status corrected to draft for trustee ratification, with the implementation sign-off via PR \#16 kept (technical lead, 4 October 2026: "draft pending trustee review"). Governed by Safeguarding Contract v3.3. Section 2 updated for the V4 question flow, where age is asked only on some routes and the quick route asks none. Two tests added: the trigger fires where age was not asked, and on the Safety from harm route. Trigger list, threshold and override mechanism unchanged.
 
 *This document is a governance record. It is version controlled and must not be superseded by informal agreement or developer judgement. Changes require the process set out in Section 13.*
