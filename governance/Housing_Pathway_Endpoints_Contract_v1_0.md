@@ -1,12 +1,12 @@
-> Source copy, converted 2 October 2026 from `Housing_Pathway_Endpoints_Contract_v1.0.docx` (sha256 74b669405e472844e683df8ed7da7cc3d54755a70f051dc9fc94e3fb0d393d07), supplied by the Managing Director. This Markdown file is the source under the repository's direction rule; the Word file was the only previous copy and is now a derived record. Content unchanged.
+> **Version 1.3, changes for trustee approval, 11 November 2026.** The pull request shows each change against v1.2. It is built from v1.2 as it stands on VA #45 (`2ad9121`), which sits on #31 and #25, neither merged yet; if either changes before merging, this text is re-checked against the merged v1.2. The Markdown copy was converted on 2 October 2026 from `Housing_Pathway_Endpoints_Contract_v1.0.docx`.
 
 **Housing Pathway Endpoints: Contract**
 
 Document type: Governance Contract
 
-Status: Draft – Pending trustee review
+Status: Changes for trustee approval
 
-Version: 1.2 │ Last updated: November 2026
+Version: 1.3 │ Last updated: November 2026
 
 **Purpose**
 
@@ -272,7 +272,9 @@ Additional hardcoded endpoints by circumstance:
 
 - Male user: ManKind Initiative (national, hardcoded): 0808 800 1170
 
-- LGBTQ+ user: Galop (national, hardcoded): 0808 800 1170 — confidential LGBTQ+ domestic abuse support
+- LGBTQ+ user: Galop (national, hardcoded): 0800 999 5428 — confidential LGBTQ+ domestic abuse support
+
+- Gender not given: the general domestic abuse exit applies (Safeguarding Contract), and no gender-specific endpoint is assumed. The person receives the endpoints required for all domestic abuse housing queries, and each national line is shown with a note of who it is for and when it is open.
 
 - Children present: children’s services contact included alongside DV endpoints
 
@@ -296,7 +298,7 @@ Additional endpoints:
 
 - Standard housing pathway endpoints
 
-Modern slavery / trafficking: surfaced passively within NRPF pathway output rather than as a separate question. Migrant Help covers trafficking referrals. A direct question creates risk for users who may be under control. This is a deliberate design decision.
+Modern slavery and trafficking are reached through the Safety from harm route (Safeguarding Contract), which is open to everyone, whatever their immigration status. The housing safety question asks, in plain words, whether the person is unsafe where they live, including being made to work or controlled. A yes moves them to the Safety pathway, and their council's Housing Options travels with them. The safeguards decided on 2 November 2026 apply: situations described in plain words without naming the harm; a quick exit; help shown first; nothing stored that identifies the person; no reporting option; immigration questions only where needed, with pointers to regulated immigration advice and no assessment of entitlement. Migrant Help stays in this pathway's output. (Replaces the passive-signposting design decision of v1.0, revisited in "Modern slavery and trafficking in the VA: revisiting the passive-signposting decision", Managing Director, 2 November 2026.)
 
 **NRPF with Dependent Children**
 
@@ -396,11 +398,13 @@ The following national organisations are hardcoded into the VA and cannot be sub
 | StreetLink                               | streetlink.org.uk                                            | Rough sleeping                    |
 | AKT (Albert Kennedy Trust)               | akt.org.uk                                                   | LGBTQ+ housing                    |
 | Stonewall Housing                        | stonewallhousing.org                                         | LGBTQ+ housing                    |
-| Galop                                    | 0808 800 1170 / galop.org.uk                                 | LGBTQ+ domestic violence          |
+| Galop                                    | 0800 999 5428 / galop.org.uk                                 | LGBTQ+ domestic violence          |
 | ManKind Initiative                       | 0808 800 1170 / mankind.org.uk                               | Male domestic violence            |
 | National Domestic Abuse Helpline         | 0808 2000 247 / nationaldahelpline.org.uk                    | Female domestic violence          |
 | Project 17                               | project17.org.uk                                             | NRPF / immigration housing        |
 | Migrant Help                             | 0808 8010 503 / migranthelpuk.org                            | NRPF / immigration / trafficking  |
+| Modern Slavery & Exploitation Helpline   | 08000 121 700 / unseenuk.org                                 | Safety route: modern slavery and trafficking |
+| Salvation Army modern slavery referral helpline | 0800 808 3733 / salvationarmy.org.uk/modern-slavery   | Safety route: modern slavery and trafficking |
 | Childline                                | 0800 1111 / childline.org.uk                                 | Under 16                          |
 | Shelter helpline (England)               | 0808 800 4444 / england.shelter.org.uk                       | All housing pathways (floor)      |
 | Shelter legal page: DV and priority need | england.shelter.org.uk (Priority need due to domestic abuse) | Domestic violence housing pathway |
@@ -455,8 +459,9 @@ Operational changes within existing rules (no governance review required):
 | 1.0         | February 2026 | Initial draft following WatsonX pathway audit and legal review of care leaver entitlements | SSN        |
 | 1.1         | October 2026  | 16–17 currently involved with social services: social worker or Children’s Services duty team surfaced first, matching the VA (PR #30) | SSN        |
 | 1.2         | November 2026 | New pathway for someone about to lose their home; rough sleeping and sofa surfing triggers set by the housing situation question, StreetLink for sleeping rough or nowhere tonight only; leaving prison or hospital as its own trigger, matching the VA (PR #40) | SSN        |
+| 1.3         | November 2026 | Modern slavery and trafficking through the Safety route, open to everyone, replacing passive signposting (MD, 2 November 2026); domestic abuse layer where gender is not given (MD, 11 November 2026); Galop corrected to 0800 999 5428, checked at source; Modern Slavery & Exploitation Helpline and the Salvation Army referral helpline added, checked at source 11 November 2026 | SSN        |
 
-**Status: Draft – Pending trustee review**
+**Status: Changes for trustee approval**
 
 Approved by: \[Pending\]
 
