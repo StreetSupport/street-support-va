@@ -1,4 +1,4 @@
-> Source copy, converted 2 October 2026 from `VA_Analytics_Contract_v2_0.docx` (sha256 8a1b8f7549c9a9c719298238581579f9eedee54b5a825c044d6527e1c2e2d084), supplied by the Managing Director. This Markdown file is the source under the repository's direction rule; the Word file was the only previous copy and is now a derived record. Content unchanged.
+> **Version 2.1, draft for trustee ratification, 11 November 2026.** This is the full text the trustees are asked to ratify. It is built from the Markdown copy of v2.0 (VA `staging`, `6851f79`), converted on 2 October 2026 from `VA_Analytics_Contract_v2_0.docx`, with Amendment 3 (VA #54, Managing Director, 8 November 2026) consolidated into it. No version was ratified, so this is a new version, not an amendment. It depends on the Data Minimisation and Lawful Basis Note v2.0, also in #54.
 
 **Street Support Network Virtual Assistant**
 
@@ -6,11 +6,11 @@
 
 *Document type: Governance Contract*
 
-*Status: Draft*
+*Status: Draft for trustee ratification*
 
-*Version: 2.0*
+*Version: 2.1*
 
-*Last updated: March 2026*
+*Last updated: November 2026*
 
 **Purpose**
 
@@ -57,6 +57,10 @@ Analytics operate at:
 - no cross-session linkage
 
 - no user identification
+
+**Session records and counts** (Amendment 3, consolidated). Analytics stay at session level: one session record for each conversation, with no identifiers, kept in the hosting's logs for as long as it keeps them (Data Minimisation and Lawful Basis Note v2.0, section 9). The answers added by that note are kept only as counts, not in the session record.
+
+A count of ethnicity by council area and census group is permitted, for reach and equity, with the purpose stated to the person when asked (Data Minimisation and Lawful Basis Note v2.0, section 6). Counts that could point to an individual are left out of reports.
 
 **Required Event Types**
 
@@ -261,5 +265,6 @@ Monitoring: quarterly review of feedback volume by LA and terminal type (aggrega
 | 1.1         | February 2026 | Amendment 1: Feedback Collection Exception. Bounded exception for post-session free-text feedback with de-linked storage, PII scrubbing, and access controls. Structured feedback (post-session rating) confirmed as permitted within session data. |
 | 1.2         | March 2026    | Amendment 2: Operational Intelligence Exception. Three enumerated session-level fields (accessLocation, returnUser, returnOutcome) added with documented purpose and lawful basis.                                                                  |
 | 2.0         | March 2026    | Consolidated contract. Baseline and both amendments merged into single document. Service engagement events added (card expand tracking, link click tracking). PII scrubbing appendix absorbed into feedback section.                                |
+| 2.1         | November 2026 | Amendment 3 consolidated: session records and how long they are kept; answers added by the Data Minimisation and Lawful Basis Note v2.0 kept only as counts; ethnicity counted by council area and census group, small counts left out of reports (Managing Director, 8 November 2026) |
 
-*Governance contract │ Version 2.0 │ March 2026*
+*Governance contract │ Version 2.1 │ November 2026*
