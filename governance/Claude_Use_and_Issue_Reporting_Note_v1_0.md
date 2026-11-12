@@ -84,7 +84,7 @@ Virtual assistant issue reports contain no information about the person using th
 | **Item**                     | **Action**                                                                                                                                        |
 |------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
 | Data Protection Policy and DPIA | Confirm Anthropic is named as processor for staff use now, and for the new virtual assistant before it goes live. Neither document is held in this repository. |
-| AI Policy                    | Update the virtual assistant section from IBM WatsonX to the new assistant at launch, not before. |
+| AI Policy                    | AI Policy v3.0 covers the live WatsonX assistant and the new assistant in development. Update it when the new assistant goes live. |
 | Hosting provider             | Confirm the production host is named as a processor. The README describes deployment to Vercel.                                                  |
 | Repository visibility        | This repository is public. Virtual assistant issue reports must not be filed as GitHub issues here. Confirm where tickets from the website form are stored. |
 | Urgent notification          | Agree how URGENT reports are surfaced so they are not left in the queue.                                                                          |
