@@ -1,13 +1,13 @@
 # The Virtual Assistant: the rules it runs on
 
 **Paper for trustees, board meeting 17 November 2026**
-**Draft, 12 November 2026, for James Cross's review.** The full documents are in VA pull requests #61, #62 and #63.
+**For discussion, board meeting 17 November 2026.** Formal ratification follows once James Cross has completed his technical review. The full documents are in VA pull requests #61, #62 and #63.
 
 ---
 
 ## What we are asking you to do
 
-**Ratify eight documents.** There are two assistants to keep apart. The one live on the website today is the earlier assistant, built on IBM watsonx, and it works to the earlier versions of these documents. The new assistant, rebuilt from scratch, is built and tested against the versions in this paper, and starts its West Midlands trial on 30 November. The documents have been developed and reviewed with James Cross as technical lead. Formal ratification completes the record before the new assistant goes live. James suggested in October that they come to the board together for this purpose. Each section below says what the document does and what has changed in it this autumn.
+**Discuss eight documents, ahead of ratification.** There are two assistants to keep apart. The one live on the website today is the earlier assistant, built on IBM watsonx, and it works to the earlier versions of these documents. The new assistant, rebuilt from scratch, is built and tested against the versions in this paper, and starts its West Midlands trial on 30 November. The documents have been developed and reviewed with James Cross as technical lead. Formal ratification completes the record before the new assistant goes live. James suggested in October that they come to the board together for this purpose. Each section below says what the document does and what has changed in it this autumn.
 - the Safeguarding Contract;
 - the Service Matching Contract;
 - the Housing Pathway Endpoints Contract;
@@ -23,7 +23,7 @@
 
 **Why the board.** Under our Governance Decision Framework, changes to governing principles are for trustees. These documents set how the assistant treats people: what it asks, what it shows, what it keeps, and what happens when someone is in danger.
 
-**Technical assurance.** Before this paper goes to the board, James Cross will review the underlying contracts. He will confirm that the technical detail is sound, and that this paper accurately represents the decisions being put to trustees. Trustees are being asked to approve the governing rules and principles, not the implementation detail.
+**Technical assurance.** Before ratification, James Cross will review the underlying contracts. He will confirm that the technical detail is sound, and that this paper accurately represents the decisions being put to trustees. Trustees are being asked to approve the governing rules and principles, not the implementation detail.
 
 ---
 
@@ -247,4 +247,4 @@ These are named honestly in the documents and don't stop you approving them.
 
 ## Recommendation
 
-That the board ratifies the eight documents in section 3. Going live remains subject to the checks in section 5.
+That the board discusses the eight documents in section 3 and raises any concerns. Ratification will be sought once James Cross has completed his review. Going live remains subject to ratification and to the checks in section 5.
