@@ -1,10 +1,10 @@
-> **Version 1.3, changes for trustee approval, 11 November 2026.** The pull request shows each change against v1.2. It is built from v1.2 as it stands on VA #45 (`2ad9121`), which sits on #31 and #25, neither merged yet; if either changes before merging, this text is re-checked against the merged v1.2. The Markdown copy was converted on 2 October 2026 from `Housing_Pathway_Endpoints_Contract_v1.0.docx`.
+> **Version 1.3, for trustee ratification, 11 November 2026.** This is the full text the trustees are asked to ratify. The pull request shows each change against v1.2. It is built from v1.2 as it stands on VA #45 (`2ad9121`), which sits on #31 and #25, neither merged yet; if either changes before merging, this text is re-checked against the merged v1.2. The Markdown copy was converted on 2 October 2026 from `Housing_Pathway_Endpoints_Contract_v1.0.docx`.
 
 **Housing Pathway Endpoints: Contract**
 
 Document type: Governance Contract
 
-Status: Changes for trustee approval
+Status: For trustee ratification
 
 Version: 1.3 │ Last updated: November 2026
 
@@ -461,7 +461,7 @@ Operational changes within existing rules (no governance review required):
 | 1.2         | November 2026 | New pathway for someone about to lose their home; rough sleeping and sofa surfing triggers set by the housing situation question, StreetLink for sleeping rough or nowhere tonight only; leaving prison or hospital as its own trigger, matching the VA (PR #40) | SSN        |
 | 1.3         | November 2026 | Modern slavery and trafficking through the Safety route, open to everyone, replacing passive signposting (MD, 2 November 2026); domestic abuse layer where gender is not given (MD, 11 November 2026); Galop corrected to 0800 999 5428, checked at source; Modern Slavery & Exploitation Helpline and the Salvation Army referral helpline added, checked at source 11 November 2026 | SSN        |
 
-**Status: Changes for trustee approval**
+**Status: For trustee ratification**
 
 Approved by: \[Pending\]
 
