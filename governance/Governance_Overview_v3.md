@@ -215,6 +215,16 @@ Operational refinement within existing boundaries does not require trustee re-ap
 | **Non-Housing Pathway Endpoints**      | Contract        | Approved baseline |
 | **Data Minimisation and Lawful Basis** | Note            | Draft             |
 | **Appropriate Policy Document**        | Policy document | Draft             |
+| **AI Policy v3.0**                     | Policy          | Draft for trustee approval |
+| **Claude Use and Issue Reporting**     | Note            | Draft for technical lead review |
+
+**Update for trustees, November 2026**
+
+Three items for the meeting on Tuesday 17 November 2026. None changes the virtual assistant's safeguarding behaviour.
+
+1. **AI Policy v3.0, for approval.** A full refresh of the October 2025 policy. It covers both the live WatsonX assistant and the new assistant in development, adds how we use AI to build and change our technology, names Claude Team as our approved AI workspace, and removes review commitments that were not proportionate for a small team. The policy is now reviewed when something significant changes, such as the new assistant going live.
+2. **Claude Team, for noting.** Street Support Network is moving its AI use to a Claude Team workspace under Anthropic's commercial terms and data processing agreement. No personal data about people seeking support goes into it.
+3. **Claude Use and Issue Reporting Note, for noting.** Records how Claude is used and how faults in the new assistant are reported and fixed without using conversation content. Proposed as a Tier 2 decision for the technical lead.
 
 **Summary**
 
