@@ -70,7 +70,7 @@ Deliberately excluded: screenshots, conversation references, date and time, and 
 2. Claude Code reads the report and decides whether it is safety-related. Safety-related reports are labelled URGENT.
 3. Claude Code recreates the issue with synthetic input.
 4. Claude Code proposes a fix and a test.
-5. A developer reviews the fix. Changes to the crisis gate or safety wording follow the Safeguarding Contract change control: pull request, review by James Cross, and a backlog entry.
+5. The fix follows the Governance Decision Framework. Changes to the crisis gate or safety wording also follow the Safeguarding Contract change control: pull request, review by James Cross, and a backlog entry.
 6. The fix is deployed and the ticket closed.
 
 The instructions Claude Code follows are in `CLAUDE.md` at the root of this repository.

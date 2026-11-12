@@ -148,7 +148,6 @@ These areas always require people, not machines:
 - Partnership-building and relationship management
 - Strategic service decisions and board-level choices
 - Final approval of all public communications
-- Changes to how our virtual assistant responds to people at risk
 
 # Where AI Helps (With Oversight)
 
@@ -179,8 +178,7 @@ AI adds value in these areas, but always with a human in the loop.
 
 We use Claude Code to help write, test and change the code behind our platform and virtual assistant. The same principles apply: AI drafts, people decide.
 
-- A person reviews every change before it goes live
-- Changes to how the virtual assistant responds to people at risk need review by our technical lead
+- Changes to our technology follow our Governance Decision Framework
 - Code, test data and our repositories never contain real personal data. We test with made-up examples.
 - Passwords, API keys and other credentials are kept out of anything AI tools can read
 - When something goes wrong with the virtual assistant, we describe the problem rather than copying conversations
