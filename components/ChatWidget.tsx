@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { buildFallbackText } from '@/lib/fallbackText';
 import type { ServiceCard } from '@/lib/types';
 
 // ============================================================
@@ -711,7 +712,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   const addErrorMessage = () => {
     setMessages(prev => [...prev, {
       role: 'assistant',
-      content: 'I\'m sorry, something went wrong. Please try again or call Shelter on 0808 800 4444 for immediate help.',
+      content: buildFallbackText(null),
       timestamp: new Date().toISOString(),
       quickReplies: [],
     }]);

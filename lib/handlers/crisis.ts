@@ -63,7 +63,7 @@ function buildFireFloodExit(session: SessionState): RoutingResult {
 
   text += `ADDITIONAL SUPPORT\n`;
   text += `Shelter Emergency Helpline\n`;
-  text += `0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)\n`;
+  text += `0808 800 4444 (free, Monday to Friday 8am to 5pm; closed at weekends and on bank holidays)\n`;
   text += `https://www.shelter.org.uk\n`;
   text += `They can help if ${they} have any trouble getting the council to help.\n\n`;
 
