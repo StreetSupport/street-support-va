@@ -224,8 +224,9 @@ These are checks, not decisions. Each is recorded with a date and evidence.
 6. Every contact is checked at its source.
 7. All safety tests pass, including the new ones.
 8. The West Midlands record of each service's stated restrictions is complete.
-9. The Privacy Policy and the Terms and Conditions match these documents.
+9. The Privacy Policy and the Terms and Conditions match these documents, and say how the assistant meets the ICO's Children's Code, since 16 and 17 year olds use it.
 10. The consent wording is checked against the ICO's guidance on explicit consent.
+11. The assistant's opening sentence is built. It says the assistant uses AI, and that what people type goes to our AI provider, Anthropic.
 
 The Managing Director is accountable for confirming and recording completion of these checks, supported by James's technical assurance, before authorising deployment.
 
@@ -239,8 +240,7 @@ If anything changes in the meantime, or as the checks and open points are resolv
 
 These are named honestly in the documents and don't stop you approving them.
 - A national alcohol helpline for Addiction is not yet chosen and checked.
-- The Managing Director is to decide whether Migrant Help is shown to everyone choosing Immigration, or only to people seeking asylum.
-- Solihull's out-of-hours housing number is to be confirmed.
+- Solihull's out-of-hours housing number has been found at its source and is with our regional coordinator to confirm.
 - How the assistant treats trans and non-binary answers is parked, as described in 3.3.
 
 ---
