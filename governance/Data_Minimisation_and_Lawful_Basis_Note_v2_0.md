@@ -1,10 +1,10 @@
-> **Version 2.0, changes for trustee approval, 11 November 2026.** The pull request shows each change against v2.0 on VA #54. Built from v2.0 on VA #54 (not yet reviewed), with the alignments to the 11 November 2026 decisions listed in the document history. v2.0 is still a draft, so these are made in v2.0 itself rather than as a new version.
+> **Version 2.0, for trustee ratification, 11 November 2026.** This is the full text the trustees are asked to ratify. The pull request shows each change against v2.0 on VA #54. Built from v2.0 on VA #54 (not yet reviewed), with the alignments to the 11 November 2026 decisions listed in the document history. v2.0 is still a draft, so these are made in v2.0 itself rather than as a new version.
 
 # Data Minimisation and Lawful Basis Note
 
 | | |
 |---|---|
-| **Status** | Changes for trustee approval |
+| **Status** | For trustee ratification |
 | **Date** | November 2026 |
 | **Version** | 2.0 |
 | **Author** | Matt Lambert |
