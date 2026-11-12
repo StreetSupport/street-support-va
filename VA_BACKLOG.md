@@ -85,6 +85,18 @@ This log records Tier 2 and Tier 3 governance decisions for trustee visibility. 
 **Status:** Complete. PR #16 merged 15 Apr 2026. Post-merge governance docs updated 15 Apr 2026.
 **Post-merge governance completed:** Design Note v1.2 produced (Section 14 implementation record added). Safeguarding Contract v3.2 produced (test count updated, mid-conversation age detection moved from pending to implemented). Safeguarding Governance Note v3.3 produced (test count updated, mid-conversation age detection row added to test table). Trustee-Accessible Safeguarding Boundary Summary remains a standalone approval paper.
 
+### 84. Anthropic's guidelines for organisations serving minors
+**Priority:** Before go-live (M6 checklist)
+**Status:** Open. Noted 12 November 2026 (Managing Director). No action until the SSN Anthropic account is set up.
+**Source:** Anthropic, "Responsible Use of Anthropic's Models: Guidelines for Organizations Serving Minors", 16 March 2026. They apply because 16 and 17 year olds are an intended user group, and under-16s can reach the VA before it exits them. Anthropic audits accounts against them and may suspend an account that does not implement them when asked. Once the API key moves, they sit with SSN's account.
+**Owner:** Managing Director; technical lead for anything in code.
+
+Three requirements, and where the VA stands:
+
+1. **Additional safety measures.** Largely met by the existing age gate, mid-conversation age detection (item 3), the under-16 exit and crisis routing. Open: whether Anthropic offers a child-safety system prompt, and whether it fits alongside the VA's own prompts (technical lead).
+2. **Regulatory compliance, stated publicly.** For the UK this is UK GDPR and the ICO's Age Appropriate Design Code (the Children's Code), which applies to online services likely to be used by under-18s. A search of `staging` on 12 November 2026 for "age appropriate design", "children's code" and "AADC" found no mention. To be covered in the impact assessment and Terms and Conditions v3, and stated on the Privacy, Data and Responsible AI page.
+3. **Telling users they are talking to an AI.** The opening message on `staging` (`lib/phrasebank.ts`) reads "Hello. I'm here to help you find support in your area." and does not say it is an AI. The website around the VA may say so; cannot establish from the VA code. Proposed: one line in the opening message, wording to be agreed, reviewed by the technical lead as safeguarding-adjacent wording.
+
 ---
 
 ## LGBTQ+ Pathway
