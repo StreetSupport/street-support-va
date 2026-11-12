@@ -1,10 +1,10 @@
-> **Version 3.3, changes for trustee approval, 11 November 2026.** The pull request shows each change against v3.2. It is built from the Markdown copy of v3.2 (VA `staging`, `6851f79`), itself converted on 2 October 2026 from `Safeguarding_Contract_v3_2.docx`. Changes from v3.2 are listed under "Version history" at the end.
+> **Version 3.3, for trustee ratification, 11 November 2026.** This is the full text the trustees are asked to ratify. The pull request shows each change against v3.2. It is built from the Markdown copy of v3.2 (VA `staging`, `6851f79`), itself converted on 2 October 2026 from `Safeguarding_Contract_v3_2.docx`. Changes from v3.2 are listed under "Version history" at the end.
 
 # Safeguarding: Contract
 
 Document type: Governance Contract
 
-Status: Changes for trustee approval
+Status: For trustee ratification
 
 Version: 3.3 │ Last updated: November 2026
 
@@ -396,7 +396,7 @@ Trustee-accessible summary: “Trustee Accessible Safeguarding Boundary Summary�
 
 ## Status
 
-Status: Changes for trustee approval
+Status: For trustee ratification
 
 Approved by: \[Name\]
 

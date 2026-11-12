@@ -1,10 +1,10 @@
-> **Version 1.0, changes for trustee approval, 11 November 2026.** Built from the February 2026 text, a Markdown copy of `governance/AI_Usage_Boundaries_Contract.pdf` in the pipeline repository (sha256 `33f7da254abad282…`). The pull request shows each change against that text, and they are listed under "Version history" at the end. No boundary changes.
+> **Version 1.0, for trustee ratification, 11 November 2026.** This is the full text the trustees are asked to ratify. Built from the February 2026 text, a Markdown copy of `governance/AI_Usage_Boundaries_Contract.pdf` in the pipeline repository (sha256 `33f7da254abad282…`). The pull request shows each change against that text, and they are listed under "Version history" at the end. No boundary changes.
 
 # AI Usage Boundaries: Contract
 
 Document type: Governance Contract
 
-Status: Changes for trustee approval
+Status: For trustee ratification
 
 Version: 1.0
 
@@ -246,7 +246,7 @@ The system is designed so that AI helps users navigate, but humans (through appr
 
 ## Status
 
-Status: Changes for trustee approval
+Status: For trustee ratification
 
 Approved by: [Pending]
 
