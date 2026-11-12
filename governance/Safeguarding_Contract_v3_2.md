@@ -125,7 +125,7 @@ The Safety from harm route is a hard-coded route outside the crisis gate. It is 
 |---|---|---|
 | The person chooses Safety from harm, or describes being unsafe where they live, including being made to work or controlled | Safety pathway, with a question about the type of harm | The Modern Slavery & Exploitation Helpline; the Salvation Army's modern slavery referral helpline; 999 where there is immediate danger; the matching crisis gate exit where the person is not OK to carry on |
 
-The route bypasses the service matcher and AI, like the other hard-coded routes. It adds no option to the crisis gate. Situations are described in plain words without naming the harm; there is a quick exit; help is shown first; nothing stored identifies the person; there is no reporting option. The mid-conversation age check runs on this route as on every other: an explicit under-16 disclosure goes to the under-16 exit (Mid-Conversation Age Detection Design Note v1.3), and a test confirms it. Where a person chooses more than one harm, the exits are specified against this contract and reviewed by the technical lead before release.
+The route bypasses the service matcher and AI, like the other hard-coded routes. It adds no option to the crisis gate. Situations are described in plain words without naming the harm; there is a quick exit; help is shown first; nothing stored identifies the person; there is no reporting option. The mid-conversation age check runs on this route as on every other: an explicit under-16 disclosure goes to the under-16 exit (Mid-Conversation Age Detection Design Note v1.3), and a test confirms it. The person chooses one type of harm (Managing Director, 12 November 2026).
 
 ## Crisis Gate Requirement
 
