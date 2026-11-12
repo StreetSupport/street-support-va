@@ -40,6 +40,20 @@ describe('Preferred name', () => {
     expect(cleanPreferredName("D'Arcy")).toBe("D'Arcy");
   });
 
+  test('words of distress or short replies are never echoed back as a name', () => {
+    for (const input of ["I'm being hurt", 'I’m being hurt', 'kill myself', 'help me please', 'I need help', 'scared', 'nobody']) {
+      expect(cleanPreferredName(input)).toBeNull();
+    }
+    const result = processInput(sessionAt('PREFERRED_NAME_ASK'), "I'm being hurt");
+    expect(result.stateUpdates.preferredName).toBeNull();
+    expect(result.text.startsWith('Thanks,')).toBe(false);
+  });
+
+  test('two-word names still work', () => {
+    expect(cleanPreferredName('Jo Ann')).toBe('Jo Ann');
+    expect(cleanPreferredName('Mr Ahmed')).toBe('Mr Ahmed');
+  });
+
   test('the goodbye uses the name when there is one', () => {
     expect(withNameBeforeFullStop('Take care of yourself. Come back anytime.', 'Sam'))
       .toBe('Take care of yourself, Sam. Come back anytime.');
