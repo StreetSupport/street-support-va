@@ -6,7 +6,7 @@ import endpointsData from '../lib/data/housing-pathway-endpoints.json';
 import { buildFallbackMessage } from '../lib/fallback';
 import { buildFallbackText } from '../lib/fallbackText';
 
-const wolverhampton = (endpointsData as Record<string, { housingOptions: { phone: string; phoneOOH: string } }>).wolverhampton.housingOptions;
+const wolverhampton = (endpointsData as unknown as Record<string, { housingOptions: { phone: string; phoneOOH: string } }>).wolverhampton.housingOptions;
 
 describe('fallback when the assistant cannot carry on', () => {
   test('someone in Wolverhampton sees their council and its out-of-hours line', () => {
