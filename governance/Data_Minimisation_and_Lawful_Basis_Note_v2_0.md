@@ -142,8 +142,11 @@ The assistant does not go live, including for the trial, until each of these is 
 5. **Processing outside the UK.** The safeguard the AI provider and the hosting each rely on for processing outside the UK is confirmed from their terms (Managing Director, with the technical lead).
 6. This note's table checked against the built question map.
 7. The Privacy Policy, the Terms and Conditions (v3 drafted) and the other footer documents updated to match (go-live plan, workstream H).
+8. **The consent wording** checked against the ICO's guidance on explicit consent, as in section 12, with the basis for the confirmation recorded (Managing Director).
 
-One focused legal check: that the consent wording in section 6 and the appendix meets the standard for explicit consent.
+The Managing Director confirms and records each condition before authorising deployment, supported by the technical lead's assurance.
+
+One check before launch, by the Managing Director against the ICO's published guidance: that the consent wording in section 6 and the appendix meets the standard for explicit consent. No separate legal advice is sought.
 
 **No appropriate policy document is needed for the assistant.** Special category answers rest on explicit consent, which needs no Schedule 1 condition. Criminal offence data rests on consent under Schedule 1, paragraph 29, which the ICO lists as not needing an appropriate policy document (ICO, "What are the conditions for processing?", criminal offence data, checked 11 November 2026). This changes if the assistant ever relies on another condition, such as substantial public interest or safeguarding. The pipeline's own document (pipeline repo, `governance/Appropriate_Policy_Document_v1_1.md`) is separate and is not changed by this note.
 
