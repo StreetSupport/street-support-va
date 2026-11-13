@@ -1,4 +1,4 @@
-> **Version 2.0, for trustee ratification, 11 November 2026.** This is the full text the trustees are asked to ratify. The pull request shows each change against v2.0 on VA #54. Built from v2.0 on VA #54 (not yet reviewed), with the alignments to the 11 November 2026 decisions listed in the document history. v2.0 is still a draft, so these are made in v2.0 itself rather than as a new version.
+> **Version 2.1, for trustee ratification, 13 November 2026 (version 2.0, 11 November 2026).** This is the full text the trustees are asked to ratify. The pull request shows each change against v2.0 on VA #54. Built from v2.0 on VA #54 (not yet reviewed), with the alignments to the 11 November 2026 decisions listed in the document history. v2.0 is still a draft, so these are made in v2.0 itself rather than as a new version.
 
 # Data Minimisation and Lawful Basis Note
 
@@ -6,9 +6,9 @@
 |---|---|
 | **Status** | For trustee ratification |
 | **Date** | November 2026 |
-| **Version** | 2.0 |
+| **Version** | 2.1 |
 | **Author** | Matt Lambert |
-| **Related documents** | Service Matching and Questions Design Note v1.0; Service Matching Contract v3.0; Safeguarding Contract v3.3; Data Protection Impact Assessment v1.1; Terms and Conditions v3; VA Analytics Contract v2.1; Privacy Policy; How We Work: Our Governing Principles |
+| **Related documents** | Service Matching and Questions Design Note v1.1; Service Matching Contract v3.1; Safeguarding Contract v3.3; Data Protection Impact Assessment v1.1; Terms and Conditions v3; VA Analytics Contract v2.1; Privacy Policy; How We Work: Our Governing Principles |
 
 ## 1. Purpose
 
@@ -33,7 +33,7 @@ A question is asked only if its answer adds an endpoint or changes the local mat
 
 The population questions are a choice: "Would you like to answer a few more questions so I can find services that fit you better?" A person who skips them still gets the statutory routes, fixed contacts and local services for their need. The quick route asks none of them.
 
-**A skipped or declined answer is treated as not stated** (Service Matching Contract v3.0, section 6; Safeguarding Contract, Invariant 3). The assistant assumes nothing from it: nothing is excluded, and services that depend on it are not selected among the five, but stay available through "See all on Street Support". Not asking is therefore the minimisation default, not a loss of access.
+**A skipped or declined answer is treated as not stated** (Service Matching Contract v3.1, section 6; Safeguarding Contract, Invariant 3). The assistant assumes nothing from it: nothing is excluded, and services that depend on it are not selected among the five, but stay available through "See all on Street Support". Not asking is therefore the minimisation default, not a loss of access.
 
 Collecting data a pathway does not need would breach Article 5(1)(c) whatever the person agreed to. The question test is the minimisation mechanism.
 
@@ -75,7 +75,7 @@ Article 6 basis is legitimate interests throughout. "Consent" means explicit con
 | Field | Pathways asked | Purpose | Category | Article 9 or 10 condition | Declined or skipped |
 |---|---|---|---|---|---|
 | Crisis gate | Every conversation | Safeguarding screening | Ordinary | None | Not skippable |
-| Who it is for | Every conversation | Sets the framing of every question | Ordinary | None | Not sure leads to a place to start |
+| Who it is for | Every conversation | Sets the framing of every question | Ordinary | None | Not sure: the conversation carries on in neutral wording, and the person can explore their need here or with someone in person at a place to start (Managing Director, 13 November 2026) |
 | Preferred name | Every conversation, optional | Addressing the person during the conversation | Ordinary | None | Not used |
 | Council area | Every conversation | Statutory routes and local services | Ordinary | None | Required for local results; the website's map needs nothing. The device's location is tried first, only with the person's permission and only to find the council area; it is not kept (confirmed against the code with the table, section 13), and the person can choose the area instead (Mid-Conversation Age Detection Design Note, section 14.3) |
 | Housing situation | Housing | Sets position and the subcategories matched | Ordinary | None | Housing Options, navigator and Shelter shown |
@@ -99,7 +99,7 @@ Article 6 basis is legitimate interests throughout. "Consent" means explicit con
 
 The population questions on each need follow the Service Matching and Questions Design Note, section 3.7, and are built only once their row here is confirmed against the build.
 
-**No new field.** The West Midlands restriction record (Service Matching Contract v3.0) describes services, not people. It is applied using answers this table already lists, including the housing situation for services for people sleeping rough. It adds no question and keeps nothing about the person.
+**No new field.** The West Midlands restriction record (Service Matching Contract v3.1) describes services, not people. It is applied using answers this table already lists, including the housing situation for services for people sleeping rough. It adds no question and keeps nothing about the person.
 
 ## 8. The AI provider
 
@@ -176,11 +176,12 @@ For the technical lead's review with the build.
 | 1.0 | March 2026 | Initial note |
 | 1.1 | March 2026 | Operational intelligence fields added |
 | 2.0 | November 2026 | 11 November alignments: declined or skipped answers treated as not stated, so dependent services are not selected (Service Matching Contract v3.0); the general domestic abuse and sexual assault exit (Safeguarding Contract v3.3); the quick route asks no population questions; the restriction record adds no field; hosting location noted; the AI provider account and hosting checks set as release conditions. Earlier in this version: brought into line with the Service Matching and Questions Design Note. Sensitive questions state their purpose and rest on explicit consent; substantial public interest no longer relied on, and the paragraph 12 citation corrected. Criminal offence data, pregnancy, ethnicity and information given by choosing help added. The AI provider recorded as a processor. Only aggregate counts kept. Field and pathway table rebuilt for the V4 question map |
+| 2.1 | 13 November 2026 | "Not sure" who the help is for no longer leads straight to a place to start (Managing Director, 13 November 2026; Service Matching and Questions Design Note v1.1) |
 
 ## Sources
 
 - Data Minimisation and Lawful Basis Note v1.1 (VA repo, `docs/va-review-2026-10-31`); Appropriate Policy Document v1.0 and Data Protection Policy v3 (pipeline repo, main); VA Analytics Contract v2.0 (VA repo, `docs/va-review-2026-10-31`).
-- Service Matching and Questions Design Note v1.0 (VA #50).
+- Service Matching and Questions Design Note v1.1 (VA #56).
 - `app/api/chat/route.ts` on VA `staging`: the three API calls and the session-end log.
 - Data Protection Act 2018, Schedule 1, Parts 2 and 3 (legislation.gov.uk, enacted text).
 - Anthropic Privacy Center, "How long do you store commercial API data", checked 8 November 2026.
