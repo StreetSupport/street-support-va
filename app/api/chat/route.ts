@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { buildFallbackMessage } from '@/lib/fallback';
 import type { SessionState } from '@/lib/types';
 import {
   createSession,
@@ -221,10 +222,13 @@ async function interpretWithClaude(input: string, options: string[]): Promise<nu
 }
 
 export async function POST(request: NextRequest) {
+  // The state as it arrived, so the fallback can show the person's council.
+  let incomingState = '';
   try {
     const body = await request.json();
     const message = body.message || '';
     const encodedState = body.s || '';
+    incomingState = encodedState;
     const locationData = body.locationData; // Location result from widget
     
     // Decode or create session
@@ -409,14 +413,11 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('[VA] Error:', error);
     
-    // Graceful fallback
-    return NextResponse.json({ 
-      m: `Something went wrong. Please contact Shelter directly:
-
-Shelter Emergency Helpline
-0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
-https://england.shelter.org.uk`, 
-      e: true 
-    }, { status: 500 });
+    // Fallback: a valid outcome, not an error (AI Usage Boundaries Contract),
+    // so it returns 200 and the widget shows it.
+    return NextResponse.json({
+      m: buildFallbackMessage(decodeState(incomingState)),
+      e: true
+    });
   }
 }

@@ -366,9 +366,9 @@ const nationalFallbacks: Record<string, Array<{name: string; phone?: string; web
   'Training': [
     {
       name: 'National Careers Service',
-      phone: '0800 100 900',
+      phone: '0800 072 0288',
       website: 'https://nationalcareers.service.gov.uk',
-      description: 'Free careers advice, skills assessment and training information'
+      description: 'Free careers advice for adults 18 and over, Monday to Friday 8am to 6pm, plus skills and training information online'
     }
   ],
   'Advice': [
@@ -645,7 +645,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
     text += `---------------------\n`;
     text += `If ${theyre} finding it hard to get through to services, or ${they}'d like to talk through ${possessive} options with someone, Shelter's helpline is there for ${pronoun}:\n\n`;
     text += `${shelter.name}\n`;
-    text += `${shelter.phone} (free, 8am-8pm weekdays, 9am-5pm weekends)\n`;
+    text += `${shelter.phone} (free, Monday to Friday 8am to 5pm; closed at weekends and on bank holidays)\n`;
     text += `${shelter.website}\n\n`;
     text += `They can explain ${possessive} rights, help ${pronoun} prepare for conversations with the council, and support ${pronoun} if things aren't going well.\n\n`;
 
@@ -891,7 +891,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   text += `---------------------\n`;
   text += `If ${theyre} finding it hard to get through to services, or ${they}'d like to talk through ${possessive} options with someone, Shelter's helpline is there for ${pronoun}:\n\n`;
   text += `${shelter.name}\n`;
-  text += `${shelter.phone} (free, 8am-8pm weekdays, 9am-5pm weekends)\n`;
+  text += `${shelter.phone} (free, Monday to Friday 8am to 5pm; closed at weekends and on bank holidays)\n`;
   text += `${shelter.website}\n\n`;
   text += `They can explain ${possessive} rights, help ${pronoun} prepare for conversations with the council, and support ${pronoun} if things aren't going well.\n\n`;
   

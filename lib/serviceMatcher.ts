@@ -693,7 +693,7 @@ export function getShelterInfo(jurisdiction: 'ENGLAND' | 'SCOTLAND' = 'ENGLAND')
     name: "Shelter",
     phone: "0808 800 4444",
     website: "https://england.shelter.org.uk",
-    description: "Free housing advice helpline (8am-8pm weekdays, 9am-5pm weekends)"
+    description: "Free housing advice helpline (Monday to Friday 8am to 5pm; closed at weekends and on bank holidays)"
   };
 }
 
