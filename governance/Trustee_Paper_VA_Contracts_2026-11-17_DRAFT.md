@@ -1,7 +1,6 @@
 # The Virtual Assistant: the rules it runs on
 
-**Paper for trustees, board meeting 17 November 2026**
-**For discussion, board meeting 17 November 2026.** Formal ratification follows once James Cross has completed his technical review. The full documents are in VA pull requests #61, #62 and #63.
+**Paper for trustees, board meeting 17 November 2026. For discussion.** Formal ratification follows once James Cross has completed his technical review. The full documents are attached.
 
 ---
 
@@ -41,7 +40,7 @@ These eight documents are the rules it must follow. The code is built and tested
 
 ## 2. The main decisions, in one place
 
-Six decisions run through the documents. They are the ones a person using the assistant would notice.
+Seven decisions run through the documents. They are the ones a person using the assistant would notice.
 
 **1. If you don't tell us, we don't guess.** If someone skips a question or chooses "Prefer not to say", the assistant assumes nothing. Services that depend on that answer, such as a women-only hostel or a service for veterans, are not picked for the shortlist of five. They stay available: "See all on Street Support" still shows them, with their conditions. This is a deliberate trade-off. A person who chooses not to say may not see a service among the five that could have helped them. It stays one tap away.
 
@@ -53,7 +52,9 @@ Six decisions run through the documents. They are the ones a person using the as
 
 **5. AI plays no part in choosing services.** In this assistant it is used to understand what someone types when it doesn't match a button, by working out which of the options on screen they mean. The contract also allows it to explain approved wording in plainer terms, without adding to it. From there, fixed rules written by people decide what is shown. AI never picks or orders services, never gives advice in its own words and never touches the safety routes.
 
-**6. We keep counts, not people.** The assistant keeps a record of each conversation, with no name, contact details or anything the person typed. Sensitive answers, such as ethnicity, are only ever kept as totals, and small numbers are left out of reports.
+**6. Connection is offered where it helps, shaped to the need.** Someone who comes for one thing can also get help with what sits behind it, but is never made to explain. Someone looking for food is asked one optional question about what else is going on. Someone looking for a shower gets the results first, then one offer of further help. For money, health, drugs and alcohol, and work, the assistant asks whether anything else is putting pressure on them, and they can skip it. Not every route adds a question. Activities are only listed where they already connect people on, and people seeking immigration help are routed by their status to specialist organisations that mostly provide the wider help themselves. If they are not sure where to start, the assistant helps them work it out, and offers the choice of talking it through with someone in person instead. That person is at a place to start early on, or a local housing organisation once housing is the worry. The assistant does not simply pass people on where it can help there and then.
+
+**7. We keep counts, not people.** The assistant keeps a record of each conversation, with no name, contact details or anything the person typed. Sensitive answers, such as ethnicity, are only ever kept as totals, and small numbers are left out of reports.
 
 ---
 
@@ -94,7 +95,7 @@ Each document follows the same shape: what it is, what changes, what a person wo
 
 **What could go wrong.** *A number goes out of date.* Guard: every number is checked at its source before launch and at each review.
 
-### 3.3 Service Matching Contract (version 3.0): ratify
+### 3.3 Service Matching Contract (version 3.1): ratify
 
 **What it is.** The rules for choosing which services a person sees. This version is written for the new V4 categories.
 
@@ -103,6 +104,7 @@ Each document follows the same shape: what it is, what changes, what a person wo
 - A service is only left out altogether on four grounds: age, gender, where it operates, or an access barrier. In each case the service must say so in plain terms and the person must have answered. Anything less clear excludes nothing.
 - How a service describes who it is for decides how it is treated. "Only for women" is a restriction. "Designed for young people" puts it first for someone who has said that fits. "Welcomes everyone" has no limiting effect.
 - The quick route, for people who want results without the questions, shows services that are open to anyone.
+- **Places to start**, the local organisations anyone can walk into or phone without a referral, are offered as a person to talk to early in someone's journey, before housing is the worry. They are offered when the person would rather talk to someone, cannot yet say what is wrong, or has named something the assistant cannot connect them on for. They are never offered in a crisis, to anyone under 16, or simply because a search found nothing nearby. Only those whose own public information clearly shows the role are offered, within the same 5 km as services. For 16 and 17 year olds, the borough's youth organisation comes first where there is one.
 - **Parked:** how the assistant treats trans and non-binary answers. For now, those answers exclude nothing. People are told that services set their own criteria and that every option stays on Street Support.
 
 **How the rules are applied.** Mechanically. The matching is ordinary code with no AI in it, and it runs the same steps every time. The same answers give the same result, apart from the turn-taking order. Every decision can be traced to a rule and to a recorded detail about the service.
@@ -111,30 +113,32 @@ The judgement sits earlier, in those recorded details: which kind of help a serv
 
 **What a person would notice.** A shorter list that fits their situation better, with everything else one tap away.
 
-**What you are agreeing to.** The selection rules, the four grounds for leaving a service out, and the trade-off in decision 1.
+**What you are agreeing to.** The selection rules, the four grounds for leaving a service out, the trade-off in decision 1, and when a place to start is offered.
 
 **What could go wrong.**
 - *A service is wrongly left out.* Guard: only a plain statement, under one of the four grounds, can do it.
 - *A recorded detail is wrong.* Because the rules are applied mechanically, a wrong detail gives the same wrong result every time until it is corrected. Guard: details are checked by people before launch, and a listing whose text changes is flagged for review.
 - *Someone who declines a question misses a service meant for them.* Guard: it stays under "See all". This is the trade-off you are agreeing to.
 - *Thin results.* Guard: the national contacts always show, whatever the local results.
-- *SSN appears to judge organisations.* Guard: we only apply each service's own stated criteria, the same rule for every service, and the turn-taking order.
+- *Street Support appears to judge organisations.* Guard: we only apply each service's own stated criteria, the same rule for every service, and the turn-taking order.
+- *A place to start is offered to someone who needs more urgent help.* Guard: never in a crisis or to anyone under 16; the crisis check comes first, as now.
 
-### 3.4 Non-Housing Pathway Endpoints Contract (version 2.0): ratify
+### 3.4 Non-Housing Pathway Endpoints Contract (version 2.1): ratify
 
 **What it is.** What the assistant always shows for each kind of help other than housing, and what it says when nothing local matches. It is rewritten for the new V4 categories.
 
-**What it does.** Each category has its own minimum.
+**What it does.** Each category has its own minimum, and its own way of offering onward connection.
 - **Health** always shows NHS 111.
 - **Finance** shows Citizens Advice and Turn2us's online tools.
 - **Employment** shows Jobcentre Plus and the National Careers Service.
 - **Addiction** shows FRANK for drugs and the National Gambling Helpline for gambling.
-- **Food, Essentials and Activities** give an honest "we couldn't find anything near you", with a link to browse Street Support. A national number would mislead there, because those services need a local referral.
+- **Food, Essentials and Activities** give an honest "we couldn't find anything near you", with a link to browse Street Support, when nothing local matches. A national number would mislead there, because those services need a local referral.
+- **Onward connection, shaped to the need.** Food and everyday essentials now carry a route on to wider help, as the platform switch update said they would: one optional question for food, and one offer of further help after the results for showers, laundry and similar. Money, health, drugs and alcohol, and work get the same optional question about what else is going on. Activities need none, because an activity is only listed where it already connects people on. People seeking immigration help are routed by their status, to specialist organisations that mostly provide the wider help themselves. Where nothing local fits, someone waiting for an asylum decision is given Migrant Help's helpline, and anyone else a government website for finding a regulated immigration adviser, because only a regulated adviser can give immigration advice.
 - Some contacts show only where they apply. For example, a service for people with no recourse to public funds shows only where the person has said that applies.
 
-**What a person would notice.** Honest answers. Nobody is given a number that won't help them.
+**What a person would notice.** Honest answers, and the chance of help with what sits behind their request. Nobody is given a number that won't help them.
 
-**What you are agreeing to.** The minimum for each category as a principle. The specific contacts are checked and kept up to date under change control.
+**What you are agreeing to.** The minimum for each category, and the onward connection for each, as principles. The specific contacts are checked and kept up to date under change control.
 
 **What could go wrong.** *A contact goes out of date.* This had already happened to two of the seven contacts in the old version: one helpline has closed, and another has a new number. Both are corrected. Guard: a check at source before launch and at each review.
 
@@ -150,7 +154,7 @@ The judgement sits earlier, in those recorded details: which kind of help a serv
 
 **What could go wrong.** *A person is identified from a small number.* Guard: no identifiers, and small numbers left out.
 
-### 3.6 Data Minimisation and Lawful Basis Note (version 2.0): ratify
+### 3.6 Data Minimisation and Lawful Basis Note (version 2.1): ratify
 
 **What it is.** Why each question is asked, the legal basis for asking it, and what is kept. Every question must change the help shown, or it isn't asked.
 
@@ -216,8 +220,8 @@ Every contact shows its hours. No boundary changes.
 ## 5. Before anything goes live
 
 These are checks, not decisions. Each is recorded with a date and evidence.
-1. **The AI provider account is held by Street Support Network,** not by an individual, so our data processing agreement with Anthropic is in SSN's name.
-2. The account is on Anthropic's business terms, which rule out using what people type to train its models.
+1. **The AI provider account is held by Street Support Network,** not by an individual, so our data processing agreement with Anthropic is in Street Support Network's name.
+2. The account is on Anthropic's business terms, which rule out using what people type to train its models, and meets Anthropic's requirements for services used by people under 18.
 3. We record where the assistant runs, and what its hosting logs keep and for how long.
 4. We confirm the protection each provider relies on for processing outside the UK.
 5. The help shown to someone fleeing abuse who doesn't give their gender is confirmed in writing by the Managing Director and the technical lead.
