@@ -2,13 +2,14 @@ name: PR route check
 
 # One PR, one route (governance/pre_pr_check.md). The pull_request job checks a PR
 # whose base carries this workflow. The sweep runs from the default branch, so it
-# also reaches stacked PRs, and sets a pr-route-check status on each PR's head.
+# also reaches stacked PRs, and sets a pr-route-check status on each PR's head where it
+# has changed. A check, not a required one, until after the switch (technical lead, 12 November 2026).
 
 on:
   pull_request:
     types: [opened, reopened, synchronize, labeled, unlabeled]
   schedule:
-    - cron: '17 * * * *'
+    - cron: '17 */6 * * *'  # every six hours; the pull_request job catches label changes as they happen
   workflow_dispatch:
 
 permissions:

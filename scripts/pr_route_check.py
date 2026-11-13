@@ -29,14 +29,21 @@ REVIEW = {'safeguarding', 'platform', 'consequential', 'doctrine'}
 RECORD = 'record'
 
 # Code that runs. Frozen copies of scripts inside run folders are records, so the
-# pipeline's baseline folders are not code; its gate code is.
+# pipeline's baseline and run folders are not code. Its gate code, the code the
+# builder loads, and the live builders that produce the handover file are
+# (technical lead, #203, 12 November 2026). Root-level config such as next.config.*,
+# and middleware.ts, runs too (VA #43, 12 November 2026).
+SF = r'^governance/assurance/source_first/'
 CODE = [
     r'^scripts/.*\.(py|ps1|sh|js|ts)$',
     r'^tests/',
-    r'^governance/assurance/source_first/baseline_gates/.*\.py$',
+    SF + r'(baseline_gates|determination_carriage_gate|sweeps|safety_controls)/.*\.py$',
+    SF + r'v4_carry_over_working_records_[^/]+/.*\.py$',
     r'^lib/', r'^app/', r'^components/', r'^__tests__/',
     r'^\.github/',
     r'^package(-lock)?\.json$',
+    r'^tsconfig\.json$',
+    r'^[^/]+\.(py|ps1|sh|js|mjs|cjs|ts|tsx)$',
 ]
 
 
@@ -77,23 +84,44 @@ def files_of(repo, number):
     return [l for l in out.splitlines() if l]
 
 
+CONTEXT = 'pr-route-check'
+
+
+def current_status(repo, sha):
+    """The pr-route-check status already on the commit, as (state, description), or None."""
+    for s in json.loads(gh(f'repos/{repo}/commits/{sha}/status'))['statuses']:
+        if s['context'] == CONTEXT:
+            return s['state'], s['description']
+    return None
+
+
 def sweep():
+    """Every open PR. A status is posted only where it differs from the one already on the
+    head, since GitHub allows 1,000 statuses per commit and context; a PR that errors is
+    reported and the sweep carries on (technical lead, #203, 12 November 2026)."""
     repo = os.environ['GITHUB_REPOSITORY']
     default = json.loads(gh(f'repos/{repo}'))['default_branch']
     prs = json.loads(gh('--paginate', '--slurp', f'repos/{repo}/pulls?state=open&per_page=100'))
     prs = [p for page in prs for p in page]
-    failed = 0
+    failed, errors = 0, []
     for pr in prs:
-        fails, notes = check([l['name'] for l in pr['labels']], pr['base']['ref'], default,
-                             files_of(repo, pr['number']))
-        state = 'failure' if fails else 'success'
-        text = (fails[0] if fails else (notes[0] if notes else 'One route.'))[:140]
-        gh('-X', 'POST', f'repos/{repo}/statuses/{pr["head"]["sha"]}', '-f', f'state={state}',
-           '-f', 'context=pr-route-check', '-f', f'description={text}')
-        print(f'#{pr["number"]}: {state.upper()}', *(fails + notes))
-        failed += bool(fails)
-    print(f'{failed} of {len(prs)} open PRs fail')
-    return 0
+        try:
+            fails, notes = check([l['name'] for l in pr['labels']], pr['base']['ref'], default,
+                                 files_of(repo, pr['number']))
+            state = 'failure' if fails else 'success'
+            text = (fails[0] if fails else (notes[0] if notes else 'One route.'))[:140]
+            sha = pr['head']['sha']
+            if current_status(repo, sha) != (state, text):
+                gh('-X', 'POST', f'repos/{repo}/statuses/{sha}', '-f', f'state={state}',
+                   '-f', f'context={CONTEXT}', '-f', f'description={text}')
+            print(f'#{pr["number"]}: {state.upper()}', *(fails + notes))
+            failed += bool(fails)
+        except (subprocess.CalledProcessError, KeyError, ValueError) as e:
+            detail = getattr(e, 'stderr', None) or repr(e)
+            errors.append(pr['number'])
+            print(f'#{pr["number"]}: ERROR', str(detail).strip()[:300])
+    print(f'{failed} of {len(prs)} open PRs fail' + (f'; errors on #{", #".join(map(str, errors))}' if errors else ''))
+    return 1 if errors else 0
 
 
 def from_github():
