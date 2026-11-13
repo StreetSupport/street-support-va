@@ -1,8 +1,8 @@
 # Service Matching: Contract
 
 **Document type:** Governance contract
-**Version:** 3.0, draft for trustee ratification
-**Date:** 11 November 2026
+**Version:** 3.1, draft for trustee ratification
+**Date:** 13 November 2026 (version 3.0, 11 November 2026)
 **Replaces:** Service Matching Contract v2.0 (March 2026, Draft, approval pending), read from the VA repository's `staging` branch, last changed in commit `6851f79`
 
 **Sources.** Every rule below traces to one of these, or is marked *Proposed*:
@@ -10,6 +10,7 @@
 - Part 3: Part 3 of *The virtual assistant: design and service matching* (1 November 2026, VA #34).
 - MD, 1 November 2026: the Managing Director's service matching decisions.
 - MD, 11 November 2026: the Managing Director's decisions on declined answers, the quick route and group services.
+- MD, 12 and 13 November 2026: the Managing Director's decisions on places to start, recorded in the Service Matching and Questions Design Note v1.1, 3.4 and 3.5.
 
 ---
 
@@ -181,7 +182,16 @@ The minimum signposting layer is shown first, and matched services follow. A zer
 
 **Fixed contacts for a group** appear only where the person has said the group is relevant. This includes the national LGBTQ+ contacts in housing, domestic abuse, sexual assault and health. (MD, 11 November 2026; v2.0 for the contacts themselves)
 
-**Minimum signposting is set parent by parent** (MD, 11 November 2026). Each V4 parent has its own minimum signposting and zero-match response: national numbers, floors and fallbacks, drawn from that parent's crib. The specifics are set in the Non-Housing Pathway Endpoints Contract v2.0, which re-cuts them by V4 parent (section 13, point 3). Every national contact is confirmed at its primary source before use.
+**Minimum signposting is set parent by parent** (MD, 11 November 2026). Each V4 parent has its own minimum signposting and zero-match response: national numbers, floors and fallbacks, drawn from that parent's crib. The specifics are set in the Non-Housing Pathway Endpoints Contract v2.1, which re-cuts them by V4 parent (section 13, point 3). Every national contact is confirmed at its primary source before use.
+
+**Places to start** (MD, 12 and 13 November 2026; VA V4 Redesign Design Note, Decision 4, 4 November 2026). A place to start is somewhere a person can walk into or phone without a referral, and be welcomed, helped to work out what they need and connected on. It is offered as a person to talk to, not as a matched service:
+- **Where:** early in someone's journey, before housing has come into view. Not once someone has come in through housing, or once housing has come into view: there, the housing route's own contacts apply (Housing Pathway Endpoints Contract).
+- **When:** the person would rather talk to someone; they cannot yet name what is wrong, after the assistant has tried to help them work it out; or they have named something the assistant cannot connect them on for.
+- **Never:** in crisis, at any safeguarding exit or for anyone under 16 (Safeguarding Contract); and not because a search found nothing nearby, where section 10 applies.
+- **16 and 17 year olds:** where the borough has a youth organisation commissioned or established there, that organisation is offered instead.
+- **Which:** only places to start whose own public information clearly shows the role ("show at the switch"). Others are offered once they confirm.
+- **How far:** within the same radius as the service search. The place to start search is not widened.
+- **How many:** places to start count within the five results.
 
 **LGBTQ+.** The v2.0 modifier, which applied only in housing, domestic abuse, sexual assault and health, is replaced. LGBTQ+ becomes one population tag among the rest, under the same rules. (Part 3, 3.7) The fixed national LGBTQ+ contacts stay, under the condition above.
 
@@ -192,7 +202,7 @@ This is carried from v2.0. If no service is selected:
 - the parent's own zero-match response applies, as set in the Non-Housing Pathway Endpoints Contract (an honest acknowledgement and a link to browse Street Support, a national floor, or a national entry point);
 - a zero-match signal is logged by category and local authority.
 
-A zero match in Layer 2 is a valid outcome, not an error. (v2.0)
+A zero match in Layer 2 is a valid outcome, not an error. (v2.0) A zero match does not by itself bring a place to start (section 9; MD, 13 November 2026).
 
 "See all on Street Support" also applies where services are available but none is selected. (Part 3, section 4, which names the see-all link as a launch condition)
 
@@ -264,6 +274,7 @@ Carried from v2.0:
 | Category typology | Types A, B and C | Minimum signposting set parent by parent | MD, 11 Nov |
 | Confidence | High, medium, low | Explicit, stated data only | Part 3, problem 9 |
 | Trans and non-binary answers | Never exclude | Parked; exclude nothing until decided | MD, 11 Nov |
+| Places to start | Not addressed | Offered early in someone's journey as a person to talk to, under the conditions in section 9 (version 3.1) | MD, 12 and 13 Nov |
 
 ---
 

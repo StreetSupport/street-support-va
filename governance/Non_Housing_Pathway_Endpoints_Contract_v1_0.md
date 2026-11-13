@@ -6,7 +6,7 @@ Street Support Network Virtual Assistant
 
 **Non-Housing Pathway Endpoints Contract**
 
-**Status: Draft for trustee ratification** • Date: 11 November 2026 • Version: 2.0
+**Status: Draft for trustee ratification** • Date: 13 November 2026 • Version: 2.1
 
 **Purpose**
 
@@ -83,9 +83,23 @@ The floor for each parent is stated directly. The A, B and C category types of v
 | **Finance** | The Citizens Advice Adviceline. Turn2us's benefits calculator and grants search, as a website only | None | The floor stays |
 | **Food** | None. National food schemes need local referral and collection, so a national number would mislead | None | Honest acknowledgement, a link to browse Street Support, and the zero-match signal |
 | **Health** | NHS 111 | LGBT Foundation, where the person has said LGBTQ+ is relevant. Rationale: documented barriers to mainstream healthcare | NHS 111 stays |
-| **Immigration** | Migrant Help's asylum helpline, for people seeking asylum. *To be confirmed by the Managing Director* | Project 17, where the person has said they have no recourse to public funds (website) | The floor stays |
+| **Immigration** | Migrant Help's asylum helpline, for people waiting for an asylum decision (Managing Director, 12 November 2026; Immigration Questions Redesign, VA #66) | Project 17, where the person has said they have no recourse to public funds (website) | For people waiting for an asylum decision, Migrant Help stays. For everyone else, the Immigration Advice Authority's Adviser Finder: a website for finding a regulated immigration adviser near them, presented as that, not as a helpline or a promise that advice will be available (Managing Director, 8 November 2026; Service Matching and Questions Design Note, section 9). Immigration advice can only come from a regulated adviser, so a national number that gives no advice would be false comfort. Neither contact stands in for the other |
 
 Where an old category's services now sit in more than one parent (Drop In, Advice), the floor follows the parent the person chose.
+
+**Onward connection by V4 parent**
+
+Connection is offered where it helps, and where and how follows the need (Managing Director, 4 and 13 November 2026). The person is never made to explain their circumstances to get the help they asked for. An answer, or a yes to an offer, leads to the assistant's noticing step (Service Matching and Questions Design Note v1.1, 3.5).
+
+| V4 parent | Onward connection |
+|---|---|
+| **Food** | One optional question before results that explores what sits underneath and offers onward connection, unless the person declines ("just show me food near me") |
+| **Essentials** | For dignity provision (showers, laundry, toiletries, period products, emergency clothing): results first, no question, then one offer: "If you need somewhere to stay tonight, or other help, I can help with that too." Other Essentials: the optional question, as for Food. Which items are dignity provision follows the Essentials crib |
+| **Finance, Health, Addiction, Employment** | An optional question before results: is anything else putting pressure on you at the moment? The person can skip it |
+| **Activities** | No separate offer. An activity is listed only where it shows connection, so the onward route is in what surfaces. Most activities sit after homelessness, where the connection is there in case things start to wobble again |
+| **Immigration** | No separate offer. Routing is by immigration status (VA #66). Immigration organisations largely provide wider help themselves, placed under Immigration: that is the nature of the parent |
+
+The floor and the zero-match response above apply whether or not the person takes up the onward offer. Finding nothing nearby does not by itself bring a place to start (Service Matching Contract, section 9).
 
 **Zero-Match Handling**
 
@@ -139,7 +153,8 @@ The following national organisations are referenced in non-housing pathway floor
 | Turn2us | turn2us.org.uk (website only: its helpline has closed) | Finance | Always |
 | Jobcentre Plus | gov.uk/contact-jobcentre-plus | Employment | Always |
 | National Careers Service | 0800 072 0288 (DWP careers adviser, 18 and over in England, 8am to 6pm, Monday to Friday) / nationalcareers.service.gov.uk | Employment | Always; the website for under-18s |
-| Migrant Help | 0808 8010 503 (free, 24/7/365) / migranthelpuk.org | Immigration | For people seeking asylum (*to be confirmed*) |
+| Migrant Help | 0808 8010 503 (free, 24/7/365) / migranthelpuk.org | Immigration | For people waiting for an asylum decision (Managing Director, 12 November 2026) |
+| Immigration Advice Authority Adviser Finder | portal.immigrationadviceauthority.gov.uk/s/adviser-finder (website: a search for regulated advisers, not a helpline) | Immigration | When nothing local matches, for people not waiting for an asylum decision |
 | Project 17 | project17.org.uk | Immigration | Where the person has said they have no recourse to public funds |
 
 Every contact above was checked at its primary source on 11 November 2026, except NHS 111 and Jobcentre Plus. FRANK and the National Gambling Helpline are new. Turn2us is now website only, because its helpline has closed. The National Careers Service number replaces 0800 100 900, which the service's own page no longer gives. Each is re-checked at source before launch.
@@ -178,6 +193,8 @@ Changes that require governance review:
 
 - Changing the zero-match analytics signal specification
 
+- Changing which parents carry an onward offer, or what it is
+
 Authority rests with the Managing Director. Changes affecting user-facing content require phrasebank review. Changes affecting routing logic require a corresponding code change and test update.
 
 Review triggers: at least annually, after any material change to the national organisations listed, or following a pattern of zero-match signals indicating a sustained service gap.
@@ -188,5 +205,6 @@ Review triggers: at least annually, after any material change to the national or
 |---|---|---|
 | 1.0 | February 2026 | Initial contract, over the 11 old support categories. Not ratified |
 | 2.0 | November 2026 | Re-cut by V4 parent; A, B and C types retired; Addiction and Immigration floors added; identity-specific contacts only where the person has said they are relevant; Turn2us website only; National Careers Service number updated; contacts checked at source, 11 November 2026 (Managing Director, 11 November 2026) |
+| 2.1 | 13 November 2026 | Onward connection by V4 parent added; Migrant Help brought into line with the decision of 12 November 2026; the Immigration Advice Authority's Adviser Finder added as the zero-match route for everyone else, aligning the contract with the decision of 8 November 2026. The Adviser Finder's address is from the Immigration Advice Authority's own notice of 8 April 2025 on GOV.UK, read on 13 November 2026, and is rechecked at source before build (Managing Director, 8, 12 and 13 November 2026) |
 
-Street Support Network VA • Non-Housing Pathway Endpoints Contract v2.0 • November 2026
+Street Support Network VA • Non-Housing Pathway Endpoints Contract v2.1 • November 2026
