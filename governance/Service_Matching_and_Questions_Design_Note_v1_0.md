@@ -1,6 +1,8 @@
 # Service Matching and Questions: Design Note
 
-*Version 1.0, draft for review, 8 November 2026. Tracker item I1 (VA #34). From the Managing Director.*
+*Version 1.1, draft for review, 13 November 2026 (version 1.0, 8 November 2026). Tracker item I1 (VA #34). From the Managing Director.*
+
+*Version 1.1 adds when a place to start is offered and when it is not, the onward offer for each need, Employment's noticing step, what "not sure" leads to, the housing-factor specialists for the at-risk route, youth organisations for 16 and 17 year olds, user testing against the narrative, and corrections to earlier records (Managing Director, 12 and 13 November 2026). Section 15 lists the changes.*
 
 This note brings together, in one place, what the virtual assistant asks and how it chooses which local services to show. It gathers decisions already recorded across several documents and pull requests, adds the decisions of 8 November, and corrects earlier records where they now conflict. Section 11 lists what is still open, section 12 the work to complete, and section 13 the review of 8 November.
 
@@ -24,7 +26,7 @@ Matching aims for a good fit, not the single best fit. It is not an exact scienc
 
 **The first question** offers eight grouped options, each with a second screen: Housing; Safety; Food, clothes or everyday things; Money, debt, benefits or work; Health, drugs, alcohol or gambling; Immigration or asylum; Things to do; Not sure where to start. (VA V4 Redesign Design Note, Decision 1, 4 November 2026.) Safety from harm is on the main menu in plain words. (MD, 2 November 2026.)
 
-**Not sure** leads to a place to start. A place to start is a recommendation, not a need or an entry point. Where an area has none, nothing is offered in its place. (MD, 2 November 2026; Design Note, Decision 4.)
+**Not sure** leads first to the assistant helping the person work it out, through the noticing step, with the choice to explore it here or with someone in person at a place to start. The assistant does not simply pass people on where it can help now. (MD, 13 November 2026; Design Note, Decision 4.) A place to start is a recommendation, not a need or an entry point. Where an area has none, nothing is offered in its place. (MD, 2 November 2026.)
 
 **Housing positions** are set by the housing situation question, "Which of these is closest to your housing situation at the moment?" (MD, 3 November 2026; VA #40):
 
@@ -69,7 +71,7 @@ Prevention may ask more than crisis, because understanding the situation is its 
 
 ### 3.2 Before any pathway
 
-- **Who it is for:** asked early because it sets the framing of every question. (MD, 2 November 2026.) "Not sure" is kept and leads to a place to start, not silently turned into "myself" (extract 1.10).
+- **Who it is for:** asked early because it sets the framing of every question. (MD, 2 November 2026.) "Not sure" is kept, not silently turned into "myself" (extract 1.10). The conversation carries on in neutral wording, and the person gets the same choice as in section 2: work it out here, or with someone in person (MD, 13 November 2026).
 - **Preferred name:** kept, for conversational purposes. Never sent to Claude for interpretation; the under-16 check runs first. (MD, 3 November 2026; VA #38.)
 - **Extra questions:** offered as a choice, not a consent gate: "Would you like to answer a few more questions so I can find services that fit you better?" (MD, 3 November 2026; VA #38.)
 - **Prefer not to say** is offered throughout and stores nothing. (VA #38.)
@@ -101,18 +103,24 @@ They stay under safeguarding, in a conversation with choice, not a hard exit. (M
 - Asked: children's services involvement, pregnancy and children, LGBTQ+ and immigration. Not asked: convictions and armed forces. (MD, 2 November 2026.)
 - Where already involved: "If you need something different, or more help alongside that, these can help too." (VA #39.)
 - A young people's prevention route before launch, built around family mediation. (MD, 2 November 2026; C10.)
+- **Who they can talk to depends on the borough** (MD, 13 November 2026). Where a youth organisation is commissioned or holds a significant position in the borough, it is the local person to talk to: the youth navigators in the endpoints file (St Basil's in Birmingham, Coventry and Solihull, the last commissioned by Solihull Housing Options; the Young Persons Team at Wolverhampton Homes). Children's services come first where they are already involved, as above. Where a borough has none (Dudley, Sandwell and Walsall at present; Sandwell has St Basil's family mediation), the gap is recorded as for adults (work item 22).
 
 ### 3.5 Prevention
 
-- **The noticing step:** after the need, the assistant asks what else is putting pressure on the person, holds the pressures they name together and reflects the link back in approved wording. It rests only on what the person states. (MD, 2 November 2026.) The wording (MD, 8 November 2026): "Thanks. Sometimes one thing is tied up with others. Is anything else putting pressure on you at the moment?" Multi-select, leaving out the need already chosen: money, work or bills; health, including how I'm feeling; family or relationships; drink, drugs or gambling; keeping my home or paying rent; I don't have a settled place to live; feeling unsafe; nothing else; I'm not sure. A skip, "Just show me help with [need]", so declining still gets what they came for.
+- **The noticing step:** after the need, the assistant asks what else is putting pressure on the person, keeps the pressures they name in view together and reflects the link back in approved wording. It rests only on what the person states. (MD, 2 November 2026.) The wording (MD, 8 November 2026): "Thanks. Sometimes one thing is tied up with others. Is anything else putting pressure on you at the moment?" Multi-select, leaving out the need already chosen: money, work or bills; health, including how I'm feeling; family or relationships; drink, drugs or gambling; keeping my home or paying rent; I don't have a settled place to live; feeling unsafe; nothing else; I'm not sure. A skip, "Just show me help with [need]", so declining still gets what they came for.
 - **The awareness line** is the Managing Director's wording of 2 November 2026. Until the matcher can find one organisation that fits across pressures (it needs the shape field), it ends with a fallback instead (MD, 8 November 2026):
   - *Area with a place to start:* "Thanks for telling me. When a few things are pressing at once, they can start to affect each other, including impacting your housing situation. Here's help with [their need]. If you'd like someone to look at the wider picture with you, [place to start] is a good place to start."
   - *Area without:* "Thanks for telling me. When a few things are pressing at once, they can start to affect each other, including impacting your housing situation. Here's help with [their need]. When you speak to them, it's worth mentioning the other things going on, so they can see the wider picture too."
 - **"I don't have a settled place to live"** is an option in the noticing step for every need, leading to the housing situation question. Offered among the pressures, never asked of everyone. (MD, 8 November 2026.)
 - **Essentials and Health** run like Food: one optional noticing step, results either way. For dignity items such as showers and laundry, results come first. (MD, 8 November 2026.)
 - **Finance crisis entry:** no separate entry. A person whose home is at risk names it at the noticing step, which leads to the materialisation check and the housing situation question. (MD, 8 November 2026, adopting the proposal of 2 November.)
-- **Once housing is in view:** Housing Options, a housing-factor specialist and Shelter. (MD, 2 November 2026.)
-- **Entries:** Finance goes straight to prevention. Addiction gets a full exploration, and the person can always step out and get the addiction services they came for. Employment and Activities are not prevention entries. Essentials is, where the link is financial difficulty. (MD, 2 November 2026.)
+- **Once housing is in view:** Housing Options, a housing-factor specialist and Shelter. (MD, 2 November 2026.) The housing-factor specialists are the navigator organisations in the endpoints file (`navigatorOrgs`, `lib/data/housing-pathway-endpoints.json`), shown as fixed contacts for each council. Nothing reads organisation shape at run time; matching more widely by shape stays after launch. (MD, 4 and 13 November 2026.) Someone at risk who would rather talk to someone is offered the local specialist first, then Shelter. The list starts with the organisations clearly in for each borough, and completeness is considered only if a need shows up. Showing an organisation for what it exists to do needs no separate agreement. (MD, 13 November 2026.) Where a borough has none, the gap is recorded in the file, as it is for Dudley and Sandwell, and for adults in Solihull. Additions are listed in section 12, work item 19.
+- **Places to start sit on the early side only**, before housing has come into view (places to start crib, section 1, and its rule PTS-PH03, "an accessible crisis way-in is not a place to start"; the crib is not on main: newest copy on the pipeline branch `align/pts-crib-2026-11-10`). They are not offered once someone has come in through housing, or once housing has come into view, because that person has already named the factor that is wobbling (MD, 13 November 2026).
+- **When a place to start is offered** (VA V4 Redesign Design Note, Decision 4, 4 November 2026): the person would rather talk to someone; they cannot yet name what is wrong after the noticing step; or they have named something the assistant cannot connect them on for, early in their journey. The awareness line above is the wording for the last two. Places to start count within the five results.
+- **When it is not:** in crisis, at any safeguarding exit or for anyone under 16 (PTS-PH03, on the crib branch above, not on main); for 16 and 17 year olds where the borough has a youth organisation, which is offered instead (3.4); on the housing route; and because a search found nothing nearby. Someone who asked for food, said nothing else is going on and found none gets the honest acknowledgement (section 9), not a place to start, because they have told us what they need. (MD, 13 November 2026.)
+- **Which places to start:** only those marked "show at the switch" in the handover file (MD, 12 November 2026), read from the places to start collection by organisation and address. Those marked "confirm first" become available as they confirm. The assistant's database login does not yet include the collection (work item 20).
+- **How far:** a place to start is offered only within the search radius the assistant already uses for services (`DEFAULT_RADIUS_KM`, 5 km in the code on `staging`). Beyond it, none is offered, and the search for a place to start is not widened as the service search is (section 4). (MD, 13 November 2026; he is checking the distance with the regional coordinator.) Coventry's nearest is about 28 km away, so Coventry gets the line for an area without one.
+- **Entries:** Finance goes straight to prevention. Addiction gets a full exploration, and the person can always step out and get the addiction services they came for. Activities is not a prevention entry. Essentials is, where the link is financial difficulty. (MD, 2 November 2026.) Employment takes the noticing step, like Finance and Health, because job loss often sits behind money and housing pressure (MD, 13 November 2026: "whatever helps the most with noticing"). This replaces the 2 November line that Employment is not a prevention entry.
 
 ### 3.6 Safety from harm
 
@@ -135,6 +143,19 @@ Reached from the crisis gate, the safety question in housing, the main menu or a
 ### 3.7 Other needs
 
 - **Food:** one optional question, with "Just show me food near me" as a first-class choice. Where a service needs a voucher, show how to get one. (MD, 2 November 2026.)
+- **The onward offer, by need.** Connection is always offered; where and how follows the need. (MD, 4 November 2026; Employment, 13 November 2026.) An answer, or a yes to the offer, hands off to the noticing step in 3.5, so there is one noticing design, not two.
+
+| Need | Onward offer |
+|---|---|
+| Food | The optional question explores what sits underneath and offers onward connection, unless the person declines |
+| Dignity provision: showers, laundry, toiletries, period products, emergency clothing | Results first, no question. After them, one offer: "If you need somewhere to stay tonight, or other help, I can help with that too." |
+| Finance, Health, Addiction, Employment | The noticing step before results, with the skip |
+| Housing | The housing situation question (section 2) |
+| Safety from harm | The Safety route (3.6) |
+| Activities | None. An activity is listed only where it shows connection, so the onward route is in what surfaces. Someone looking for an activity has not said anything else is going on, and most activities sit at Rebuild: the connection is there in case things start to wobble again, not because they already are (MD, 13 November 2026) |
+| Immigration | The specialist organisation's own wider help. Immigration organisations largely provide that help themselves, placed under Immigration (Resettlement and Integration): housing, money and work, food, therapy, English classes. That is the nature of the parent, not of an area (MD, 13 November 2026). Routing is by status first, under the Immigration Questions Redesign (VA #66) |
+
+Which Essentials items count as dignity provision follows the Essentials crib. This is the change the platform switch update told trustees was coming: "so that results for food and everyday essentials can also offer a route on to wider help". It goes into the Non-Housing Pathway Endpoints Contract (work item 9).
 - **Population questions by need,** under the rule in 3.1 (MD, 8 November 2026), subject to D2. Ethnicity is added to each list except Food:
 
 | Need | Questions |
@@ -237,7 +258,7 @@ The person always receives a response: matched services, or the fallback for the
 - **One to four:** show them, then "See all on Street Support".
 - **None, after widening:** depends on the parent. (MD, 8 November 2026.)
 
-The contract's typology (Non-Housing Pathway Endpoints Contract v1.0) carried to V4 (MD, 8 November 2026; tracker B2):
+The contract's typology (Non-Housing Pathway Endpoints Contract v1.0) carried to V4 (MD, 8 November 2026; tracker B2). On 11 November the types A, B and C were dropped as a classification, and what each parent shows when nothing local matches is stated for that parent directly (Non-Housing Pathway Endpoints Contract 2.0). The outcomes below are unchanged; the Type column is kept for traceability. Nothing found nearby does not by itself bring a place to start (3.5).
 
 | V4 parent | Type | When nothing matches |
 |---|---|---|
@@ -269,6 +290,11 @@ Immigration is type C, not B, because immigration advice can only come from a re
 | Question register, Q6 | Orientation as the routing input in domestic abuse and sexual assault: proposal | Confirmed (MD, 8 November 2026); for safeguarding review |
 | Question register, Q7; VA #46 | Care asked as "currently in care" and "in contact with social services" | Wording to become "ever been in care" (MD, 2 and 8 November 2026) |
 | Service Matching Design Note draft v1.0 | Veterans, people with dogs and sex workers have no question | Corrected in sections 3 and 6 |
+| This note, version 1.0, 3.5 | Employment is not a prevention entry (MD, 2 November 2026) | Employment takes the noticing step (MD, 13 November 2026) |
+| This note, version 1.0, section 9 | Types A, B and C carried to V4 | Dropped on 11 November; outcomes unchanged |
+| Early Prevention Pathway Design Note v2.0 (July) | Places to start surfaced first, above the targeted specialists; the at-risk floor includes Citizens Advice | Places to start are the assistant's fallback (Decision 4, 4 November 2026); once housing is in view the floor is Housing Options, a housing-factor specialist and Shelter (MD, 2 November 2026) |
+| VA Pathway Review (31 October), 8.3 | "Would you rather talk to someone?" offered once at the start of prevention, on any entry | Places to start on the early side only; on the at-risk side, the local specialist (3.5; MD, 13 November 2026) |
+| This note, version 1.0, section 2 and 3.2 | "Not sure where to start" and "not sure" who the help is for lead to a place to start | The assistant helps the person work it out first, with the choice of exploring here or with someone in person (MD, 13 November 2026) |
 
 ---
 
@@ -277,6 +303,7 @@ Immigration is type C, not B, because immigration advice can only come from a re
 1. **Quick exit:** not yet designed. It must cover the assistant and any website page it links to, including the advice pages (3.6).
 2. **Rotation of equal fits:** reviewed in practice once the matcher runs.
 3. **Alcohol floor for Addiction:** left open for now; no national alcohol helpline has been verified at source. (MD, 8 November 2026.)
+4. **Leaving prison or hospital: one answer or two.** Section 2 keeps them as one housing answer. The routes paper of 12 November proposes separate options. Prison and hospital routing is parked for its own design work (MD, 12 November 2026), and the final wording is to be confirmed then. Neither document supersedes the other until it is.
 
 **Parked by decision**
 
@@ -299,16 +326,21 @@ Things this design needs that do not yet exist. Rounds are the VA plan's review 
 | 6 | Ethnicity: record the community each tagged listing names (3.1) | MD | Before the ethnicity question is built | 14 WMCA listings recorded | MD |
 | 7 | Four VA contracts for board ratification: Housing Pathway Endpoints, Non-Housing Pathway Endpoints, Service Matching v2 and VA Analytics v2. The VA works to all four, but none has been ratified. The technical lead checks each against the code first, and the VA Governance Overview's "Approved baseline" lines are corrected in the same pass. Already recorded: pipeline `reports/board_preparation/JAMES_VA_CONTRACTS_FOR_RATIFICATION.md` and `PIPELINE_BACKLOG.md`, both on main. Other status lines that read draft are wording not yet updated (MD, 8 November 2026) | James, then MD | As the backlog item sets it: before the board papers | Each contract checked against the code | Board ratification |
 | 8 | Endpoints Contract: endpoints for the rebuilding position; Dogs Trust on a dogs yes | MD | Drafts week of 16 November (extract 2.17) | Endpoints tested per answer | Trustees by email, with the C9 amendments |
-| 9 | Non-Housing Endpoints Contract amended for the V4 typology, including the alcohol floor verified at source | MD | Drafts week of 16 November (extract 2.12, 2.17) | Each floor's source, audience, coverage and wording recorded | Trustees by email, with the C9 amendments |
+| 9 | Non-Housing Endpoints Contract amended for the V4 typology, including the alcohol floor verified at source, and the onward offer for each parent (3.7) | MD | Drafts week of 16 November (extract 2.12, 2.17) | Each floor's source, audience, coverage and wording recorded; the onward offer for each parent stated | Trustees by email, with the C9 amendments |
 | 10 | Service Matching Contract: the already-supporting exclusion (I3b). Not built until approved | MD | With the C9 amendments | Approval recorded | Trustees by email |
 | 11 | Dogs Trust: confirm which West Midlands towns the vet scheme covers | MD | Week of 9 November | Reply from Dogs Trust | None |
 | 12 | Sex work wording tested with the organisations whose listings carry the tag; the option is added only after | MD | After launch | Their responses recorded | MD |
 | 13 | Phrasebank wording: the rebuilding answer, the dogs line, both fallback lines, "I don't have a settled place to live", the sex work option and question, the ethnicity introduction | MD drafts; James reviews | With the build that uses each | Phrasebank entries | James |
 | 14 | Care question worded as "ever been in care" (VA #46 still asks "currently in care") | Claude Code; James | Week of 16 November | Tests for 16 to 24 | Safeguarding review, James |
 | 15 | Route choice screen lists ethnicity (VA #47) | Claude Code; James | With #47 | Screen test | James |
-| 16 | Matcher and question map built in V4 terms, replacing `needProfileRequirements`: the housing situation question's new answer, dogs, ethnicity, organisation fit, rotation. Not the sex work option, which is outside launch scope (work item 12) | Claude Code; James | Week of 23 November, with the matcher (extract 2.13: I1 to I9) | The fixture and repeated-run tests in section 6; zero results, search failure and missing location tested separately (section 9) | James |
+| 16 | Matcher and question map built in V4 terms, replacing `needProfileRequirements`: the housing situation question's new answer, dogs, ethnicity, organisation fit, rotation. Not the sex work option, which is outside launch scope (work item 12) | Claude Code; James | Week of 23 November, with the matcher (extract 2.13: I1 to I9) | The fixture and repeated-run tests in section 6; zero results, search failure and missing location tested separately (section 9); the immigration answers kept apart as the Immigration Questions Redesign sets them (VA #66), including a refused asylum claim as distinct from other no recourse to public funds circumstances | James |
 | 17 | Mark what this note supersedes: the tag-presence rule in the 1 November proposal and the 4 November design note; the reading rule and the no-question tags in the 4 November note; answers to the question register's questions 1, 2, 5, 6 and 7 | Claude Code; James | With this note's PR | Diff | James |
 | 18 | Review the question map against the national baseline, including whether people recognise themselves in the wording | MD | When the national baseline lands | Map compared with national populations and endpoints | MD |
+| 19 | Navigator additions: Crisis Skylight Birmingham (homelessness specialist, self-referral), checked at source. St George's House, Preventing homelessness (Wolverhampton), waits: it is for men only, the Service Matching Contract shows a group's contact only where the person has said the group applies, and the endpoints file records age but not gender. A gender field changes the file's structure, which the Housing Pathway Endpoints Contract reserves for trustees. Read and left out, because housing is not the organisation's specialism: Spitfire Services, Aquarius Settle, Topchurch Training, Kaleidoscope's Independent Living Service (MD, 13 November 2026) | MD; Claude Code | Before launch | Contact checked at source; entry in the file | None: adding a navigator entry is an operational change under the Housing Pathway Endpoints Contract |
+| 20 | The places to start collection added to the assistant's database login, and the assistant reading it, "show at the switch" only (3.5) | James; Claude Code | Week of 16 November, with the live read | A place to start offered in a test area; none for "confirm first" or beyond the radius | James |
+| 21 | Service Matching Contract: the place-to-start fallback, its triggers, the exclusions, "show at the switch" only, the radius, and counting within the five (3.5) | MD | With the C9 amendments | Contract text | Trustees by email |
+| 22 | Youth organisations by borough for 16 and 17 year olds (3.4): confirm the commissioned or established organisation in each borough, and record the gaps | MD; regional coordinator | Before launch | Entry or gap recorded for each borough | None: operational, as for navigator entries |
+| 23 | User testing against the narrative, in the West Midlands trial: can someone start with the problem they recognise, without knowing the homelessness system; can someone helping another person reach a useful next step without knowing everything about them; does the result make the next connection clear, not just show relevant services; do people understand the awareness line (3.5) | MD | Trial, week of 30 November | Findings recorded per question | MD |
 
 ---
 
@@ -333,6 +365,52 @@ An AI-assisted documentary review of this note (draft, not adopted) found the de
 
 ---
 
+## 14. Accessibility
+
+The assistant meets WCAG 2.2 level AA, as the website does, and follows the W3C's cognitive accessibility guidance. The brand green is #236c58 (6.25:1 against white), shared with the website. (Managing Director, 8 November 2026; VA Accessibility Proposal, 8 November 2026.)
+
+**Every screen:**
+
+- Colours come from one shared setting, never a colour typed in.
+- Every control is a real button or link, and its visible words begin its accessible name.
+- Buttons are at least 44 by 44 pixels (good practice for phone use; the AA minimum is 24 by 24), with a visible focus outline.
+- Text at 4.5:1 and control edges at 3:1. Colour is never the only signal.
+- After each answer, focus moves to the new reply, so its question and any context, including crisis numbers, are read in full before the person responds.
+- The person can see how many services were found, move between them easily, and see that more are on Street Support.
+- A request for reduced motion is respected.
+
+**Offer questions** ("Yes, include them" / "No thanks"): the buttons are grouped with the question, so they make sense read alone, and the choice is echoed back as text, not shown by colour.
+
+**"Designed for" on cards:** written words, after the service name and within the same card, worded as who the service is shaped for, never as an exclusion.
+
+**Advice links:** say they open in a new tab, are named after the organisation or page, and are underlined.
+
+**The quick exit, when designed:**
+
+- A visible button with words, in the same place on every screen of the pathway.
+- Reached in one or two presses of Tab, at least 44 by 44 pixels, and usable by mouse, touch, keyboard and switch access.
+- No confirmation step and no time limit.
+- Any keyboard shortcut must not be a single letter and must not use Escape, which closes the chat.
+
+Where the quick exit goes and what it clears are safeguarding decisions, made separately.
+
+**Before launch:** the interface fixes in the VA Accessibility Proposal; checks in a browser and with the main screen readers; contrast of every component in every state; and a few realistic journeys end to end on a phone and by keyboard or screen reader. Testing with people who use assistive technology is recommended where it can be arranged.
+
+---
+
+## 15. Changes in version 1.1 (13 November 2026)
+
+- Section 2 and 3.2: "not sure" leads to the assistant helping, with the choice of exploring here or in person.
+- 3.4: youth organisations by borough for 16 and 17 year olds.
+- 3.5: the noticing step "keeps the pressures they name in view together", in place of "holds", so it is not read as the narrative's holding through a transition; Employment takes the noticing step; the housing-factor specialists named as the navigators in the endpoints file; places to start on the early side only, when they are offered and when not, which ones, and the radius, which is not widened.
+- 3.7: the onward offer for each need, including none for Activities and the organisation's own wider help for Immigration.
+- Section 9: the 11 November change to the typology.
+- Section 10: five corrections.
+- Section 11: leaving prison or hospital, one answer or two, added.
+- Section 12: work items 9 and 16 widened; work items 19 to 23 added.
+
+---
+
 ## Sources
 
 - VA analytics and questions working note, 2 November 2026 (Claude Docs; no repo copy).
@@ -343,3 +421,7 @@ An AI-assisted documentary review of this note (draft, not adopted) found the de
 - Housing Pathway Endpoints Contract 1.2 (VA #45).
 - Service Matching Contract v2.0; Three Test Framework 3.4; Shaping a Service Listing.
 - Managing Director decisions in conversation, 8 November 2026.
+- Managing Director decisions in conversation, 12 and 13 November 2026.
+- Early Prevention Pathway Design Note v2.0 (`staging`); VA Pathway Review, 31 October 2026, section 8.
+- Housing Pathway Endpoints Contract 1.3 (VA #62), Governance; Non-Housing Pathway Endpoints Contract 2.0 (VA #61).
+- Platform switch: update for trustees, November 2026.
