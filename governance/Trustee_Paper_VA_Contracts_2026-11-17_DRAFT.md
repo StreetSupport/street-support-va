@@ -24,7 +24,7 @@ The documents have been developed and reviewed with James Cross as technical lea
 
 **Why the board.** Under our Governance Decision Framework, changes to governing principles are for trustees. These documents set how the assistant treats people: what it asks, what it shows, what it keeps, and what happens when someone is in danger.
 
-**Technical assurance.** Before ratification, James Cross will review the underlying contracts. He will confirm that the technical detail is sound, and that this paper accurately represents the decisions being put to trustees. Trustees are being asked to approve the governing rules and principles, not the implementation detail.
+**Technical assurance.** Before ratification, James Cross will review the underlying contracts. He will confirm that the technical detail is sound, and that this paper accurately represents the decisions being put to trustees. When ratification is sought, trustees will be asked to approve the governing rules and principles, not the implementation detail. This meeting is a discussion of the work, so that James can complete his review properly first.
 
 ---
 
@@ -84,9 +84,9 @@ Seven decisions run through the documents. They are the ones a person using the 
 
 ## 3. Document by document
 
-Each document follows the same shape: what it is, what changes, what a person would notice, what you are agreeing to, and what could go wrong.
+Each document follows the same shape: what it is, what changes, what a person would notice, what ratification would cover, and what could go wrong.
 
-### 3.1 Safeguarding Contract (version 3.3): ratify
+### 3.1 Safeguarding Contract (version 3.3): for discussion
 
 **What it is.** The rules that protect people at risk. It sets the crisis check at the start of every conversation and the fixed safety routes. It also sets seven rules that override everything else. Examples: "if something breaks, the person must still get help", and "the assistant must not assume anything the person has not said".
 
@@ -97,13 +97,13 @@ Each document follows the same shape: what it is, what changes, what a person wo
 
 **What a person would notice.** Someone being harmed or controlled can find help straight from the main menu. Someone fleeing abuse who would rather not give their gender sees every option, with the hours of each, and chooses.
 
-**What you are agreeing to.** The contract as a whole, including the two new routes and the principle behind them. Not the specific numbers, which are checked at source before launch.
+**What ratification would cover.** The contract as a whole, including the two new routes and the principle behind them. Not the specific numbers, which are checked at source before launch.
 
 **What could go wrong.**
 - *Someone controlling the person sees the screen.* Guard: situations are described in plain words without naming the harm, help is shown first, and nothing that identifies the person is kept. A quick exit is being designed, and the Safety route does not go live without it (section 5).
 - *The help for someone who doesn't give their gender is weaker than for those who do.* Guard: it uses only contacts we already hold and have checked, and 999 always comes first. The Managing Director and the technical lead confirm it in writing before launch.
 
-### 3.2 Housing Pathway Endpoints Contract (version 1.3): ratify
+### 3.2 Housing Pathway Endpoints Contract (version 1.3): for discussion
 
 **What it is.** The fixed contacts every housing conversation shows, whatever the local results. The council's Housing Options team is always one of them.
 
@@ -115,11 +115,11 @@ Each document follows the same shape: what it is, what changes, what a person wo
 
 **What a person would notice.** Very little, which is the point. The housing route works as now, with the gaps above closed.
 
-**What you are agreeing to.** The contract as a whole, including the changes above. This version builds on three earlier changes still with James, so it takes effect only once those are agreed.
+**What ratification would cover.** The contract as a whole, including the changes above. This version builds on three earlier changes still with James, so it takes effect only once those are agreed.
 
 **What could go wrong.** *A number goes out of date.* Guard: every number is checked at its source before launch and at each review.
 
-### 3.3 Service Matching Contract (version 3.1): ratify
+### 3.3 Service Matching Contract (version 3.1): for discussion
 
 **What it is.** The rules for choosing which services a person sees. This version is written for the new V4 categories, the groups services are listed under on Street Support from the platform switch.
 
@@ -137,17 +137,17 @@ The judgement sits earlier, in those recorded details: which kind of help a serv
 
 **What a person would notice.** A shorter list that fits their situation better, with everything else one tap away.
 
-**What you are agreeing to.** The selection rules, the four grounds for leaving a service out, the trade-off in decision 1, and when a place to start is offered.
+**What ratification would cover.** The selection rules, the four grounds for leaving a service out, the trade-off in decision 1, and when a place to start is offered.
 
 **What could go wrong.**
 - *A service is wrongly left out.* Guard: only a plain statement, under one of the four grounds, can do it.
 - *A recorded detail is wrong.* Because the rules are applied mechanically, a wrong detail gives the same wrong result every time until it is corrected. Guard: details are checked by people before launch, and a listing whose text changes is flagged for review.
-- *Someone who declines a question misses a service meant for them.* Guard: it stays under "See all". This is the trade-off you are agreeing to.
+- *Someone who declines a question misses a service meant for them.* Guard: it stays under "See all". This is the trade-off ratification would accept.
 - *Thin results.* Guard: the national contacts always show, whatever the local results.
 - *Street Support appears to judge organisations.* Guard: we only apply each service's own stated criteria, the same rule for every service, and the turn-taking order.
 - *A place to start is offered to someone who needs more urgent help.* Guard: never in a crisis or to anyone under 16; the crisis check comes first, as now.
 
-### 3.4 Non-Housing Pathway Endpoints Contract (version 2.1): ratify
+### 3.4 Non-Housing Pathway Endpoints Contract (version 2.1): for discussion
 
 **What it is.** What the assistant always shows for each kind of help other than housing, and what it says when nothing local matches. It is rewritten for the new V4 categories.
 
@@ -162,11 +162,11 @@ The judgement sits earlier, in those recorded details: which kind of help a serv
 
 **What a person would notice.** Honest answers, and the chance of help with what sits behind their request. Nobody is given a number that won't help them.
 
-**What you are agreeing to.** The minimum for each category, and the onward connection for each, as principles. The specific contacts are checked and kept up to date under change control.
+**What ratification would cover.** The minimum for each category, and the onward connection for each, as principles. The specific contacts are checked and kept up to date under change control.
 
 **What could go wrong.** *A contact goes out of date.* This had already happened to two of the seven contacts in the old version: one helpline has closed, and another has a new number. Both are corrected. Guard: a check at source before launch and at each review.
 
-### 3.5 Analytics Contract (version 2.1): ratify
+### 3.5 Analytics Contract (version 2.1): for discussion
 
 **What it is.** What the assistant records about how it is used, and what it must never record.
 
@@ -174,11 +174,11 @@ The judgement sits earlier, in those recorded details: which kind of help a serv
 
 **What a person would notice.** Nothing. Nothing is saved on their device, and closing the page ends the conversation.
 
-**What you are agreeing to.** What may be recorded, and the limits on it.
+**What ratification would cover.** What may be recorded, and the limits on it.
 
 **What could go wrong.** *A person is identified from a small number.* Guard: no identifiers, and small numbers left out.
 
-### 3.6 Data Minimisation and Lawful Basis Note (version 2.1): ratify
+### 3.6 Data Minimisation and Lawful Basis Note (version 2.1): for discussion
 
 **What it is.** Why each question is asked, the legal basis for asking it, and what is kept. Every question must change the help shown, or it isn't asked.
 
@@ -193,11 +193,11 @@ The judgement sits earlier, in those recorded details: which kind of help a serv
 
 **What a person would notice.** Each personal question says why it is asked, and can be skipped without losing the essential help.
 
-**What you are agreeing to.** The questions and their purposes, the consent basis for sensitive ones, and the checks before launch.
+**What ratification would cover.** The questions and their purposes, the consent basis for sensitive ones, and the checks before launch.
 
 **What could go wrong.** *Someone types personal details into the box.* Guard: only that one message goes to the AI provider, which normally deletes it within 30 days, and people are told at the start.
 
-### 3.7 AI Usage Boundaries Contract (version 1.0): ratify
+### 3.7 AI Usage Boundaries Contract (version 1.0): for discussion
 
 **What it is.** Where AI may and may not be used. AI helps understand what someone types and explains approved content. It never decides what someone sees, never gives advice in its own words, never translates safety content on the fly and never overrides a safety route.
 
@@ -213,19 +213,19 @@ Every contact shows its hours. No boundary changes.
 
 **What a person would notice.** If something goes wrong, they are not left stuck or sent to a line that is closed.
 
-**What you are agreeing to.** The contract as a whole, including the updated fallback.
+**What ratification would cover.** The contract as a whole, including the updated fallback.
 
 **What could go wrong.** *A contact is closed when the person needs it.* Guard: hours shown, with 999 and the council's out-of-hours line always included.
 
-### 3.8 Mid-Conversation Age Detection Design Note (version 1.3): ratify
+### 3.8 Mid-Conversation Age Detection Design Note (version 1.3): for discussion
 
 **What it is.** If someone says they are under 16 at any point, for example "I'm 14" or "I'm in Year 9", the assistant moves them straight to the children's safeguarding route. This holds even if they gave an older age earlier. It works on fixed rules, not AI, and it only acts on what the person actually says, never on guesses.
 
-**What changes.** Nothing in how it works. James signed off the build in April. This version brings its references up to date and adds two tests. It comes to you for ratification with the other seven.
+**What changes.** Nothing in how it works. James signed off the build in April. This version brings its references up to date and adds two tests. It comes to you with the other seven.
 
 **What a person would notice.** A young person who says how old they are is taken to the right help, wherever they are in the conversation.
 
-**What you are agreeing to.** The design as it stands. Under the note, any change to what triggers it, the threshold it uses or how it takes over the conversation comes back to the board, however minor.
+**What ratification would cover.** The design as it stands. Under the note, any change to what triggers it, the threshold it uses or how it takes over the conversation comes back to the board, however minor.
 
 **What could go wrong.** *A young person doesn't say their age.* Guard: under 16 is the second option in the crisis check at the start. The design deliberately acts only on what is said, so it does not guess.
 
@@ -256,6 +256,7 @@ These are checks, not decisions. Each is recorded with a date and evidence.
 10. The consent wording is checked against the ICO's guidance on explicit consent.
 11. The assistant's opening sentence is built. It says the assistant uses AI, and that what people type goes to our AI provider, Anthropic.
 12. The quick exit for the Safety route is designed, reviewed for safeguarding, built and tested.
+13. Places to start are offered only once the assistant reads them from the platform, and this has been tested.
 
 The Managing Director is accountable for confirming and recording completion of these checks, supported by James's technical assurance, before authorising deployment.
 
@@ -267,7 +268,7 @@ If anything changes in the meantime, or as the checks and open points are resolv
 
 ## 6. Still open
 
-These are named honestly in the documents and don't stop you approving them.
+These are named honestly in the documents and don't need to be settled before ratification.
 - A national alcohol helpline for Addiction is not yet chosen and checked.
 - Solihull's out-of-hours housing number has been found at its source and is with our regional coordinator to confirm.
 - How the assistant treats trans and non-binary answers is parked, as described in 3.3.
