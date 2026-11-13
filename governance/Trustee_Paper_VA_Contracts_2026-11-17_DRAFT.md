@@ -6,7 +6,9 @@
 
 ## What we are asking you to do
 
-**Discuss eight documents, ahead of ratification.** There are two assistants to keep apart. The one live on the website today is the earlier assistant, built on IBM watsonx, and it works to the earlier versions of these documents. The new assistant, rebuilt from scratch, is built and tested against the versions in this paper, and starts its West Midlands trial on 30 November. The documents have been developed and reviewed with James Cross as technical lead. Formal ratification completes the record before the new assistant goes live. James suggested in October that they come to the board together for this purpose. Each section below says what the document does and what has changed in it this autumn.
+**Discuss eight documents, ahead of ratification.** There are two assistants to keep apart. The one live on the website today is the earlier assistant, built on IBM watsonx, and it works to the earlier versions of these documents. The new assistant, rebuilt from scratch, is built and tested against the versions in this paper, and starts its West Midlands trial on 30 November.
+
+The documents have been developed and reviewed with James Cross as technical lead. Formal ratification completes the record before the new assistant goes live. James suggested in October that they come to the board together for this purpose. Each section below says what the document does and what has changed in it this autumn.
 - the Safeguarding Contract;
 - the Service Matching Contract;
 - the Housing Pathway Endpoints Contract;
@@ -16,13 +18,35 @@
 - the Data Minimisation and Lawful Basis Note;
 - the Mid-Conversation Age Detection Design Note.
 
-**Note that approval is not the same as going live.** The assistant only goes live, including for the West Midlands trial from 30 November, once the checks listed in section 5 are done and recorded.
+**Ratification is not the same as going live.** The assistant only goes live, including for the West Midlands trial from 30 November, once the checks listed in section 5 are done and recorded.
 
-**What you are not being asked to decide.** Phone numbers, the wording on screen and the code are not for the board. The Managing Director and the technical lead handle those under change control, and every contact is checked at its own source before use. Your decision is about the rules the assistant must follow.
+**What you are not being asked to decide.** Phone numbers, the wording on screen and the code are not for the board. The Managing Director and the technical lead handle those under change control, which means each change is recorded and must stay within the rules you ratify. Every contact is checked at its own source before use. Your decision is about the rules the assistant must follow.
 
 **Why the board.** Under our Governance Decision Framework, changes to governing principles are for trustees. These documents set how the assistant treats people: what it asks, what it shows, what it keeps, and what happens when someone is in danger.
 
 **Technical assurance.** Before ratification, James Cross will review the underlying contracts. He will confirm that the technical detail is sound, and that this paper accurately represents the decisions being put to trustees. Trustees are being asked to approve the governing rules and principles, not the implementation detail.
+
+---
+
+## What this paper sets out to show
+
+Two things. It is for trustees to judge whether it does.
+
+**That the assistant treats people safely and with care.** Many of the people who use it are vulnerable, and some are in danger. These are the decisions most shaped around them:
+- On a safety route, help comes first. Someone in danger who would rather not give a detail sees every relevant helpline, and chooses (decision 4).
+- If something breaks, the person still gets help, from contacts that are open at that time of day (3.7).
+- A place to start is never offered in a crisis or to anyone under 16. The crisis check always comes first (3.3).
+- If what someone types as their name is a sentence rather than a name, it is not kept. A name is never sent to the AI and never used on a safety route.
+
+**That we hold ourselves to the tests we ask of others.** Connecting local support, which also comes to this meeting, says we make local support visible and help people connect, whichever door they turn to first. We ask the services we list how they connect people on. The assistant is held to the same test:
+- It offers a route on to wider help, shaped to the need, rather than ending at a list (decision 6).
+- We don't guess about people, and we don't guess about services. Only what a service says in plain terms can leave it out (decision 1, 3.3).
+- Not every route adds a question. Activities and immigration help already connect people on in their own way, so the assistant adds no step there (decision 6).
+- The same rules apply to every organisation, and no organisation always comes first (decision 2).
+
+**Where we are not there yet, and are working on it.**
+- The quick exit on the Safety route is being designed in the week of 16 November. It must be in place before that route goes live (section 5).
+- Places to start are thin in some boroughs, and some are still awaiting confirmation. We are working through the confirmations with our regional coordinator before the switch, starting where cover is thinnest.
 
 ---
 
@@ -52,7 +76,7 @@ Seven decisions run through the documents. They are the ones a person using the 
 
 **5. AI plays no part in choosing services.** In this assistant it is used to understand what someone types when it doesn't match a button, by working out which of the options on screen they mean. The contract also allows it to explain approved wording in plainer terms, without adding to it. From there, fixed rules written by people decide what is shown. AI never picks or orders services, never gives advice in its own words and never touches the safety routes.
 
-**6. Connection is offered where it helps, shaped to the need.** Someone who comes for one thing can also get help with what sits behind it, but is never made to explain. Someone looking for food is asked one optional question about what else is going on. Someone looking for a shower gets the results first, then one offer of further help. For money, health, drugs and alcohol, and work, the assistant asks whether anything else is putting pressure on them, and they can skip it. Not every route adds a question. Activities are only listed where they already connect people on, and people seeking immigration help are routed by their status to specialist organisations that mostly provide the wider help themselves. If they are not sure where to start, the assistant helps them work it out, and offers the choice of talking it through with someone in person instead. That person is at a place to start early on, or a local housing organisation once housing is the worry. The assistant does not simply pass people on where it can help there and then.
+**6. Connection is offered where it helps, shaped to the need.** Someone who comes for one thing can also get help with what sits behind it, but is never made to explain. For food, money, health, drugs and alcohol, and work, the assistant asks one optional question about what else is going on. Someone looking for a shower gets the results first, then one offer of further help. Activities and immigration help add no question, because of how that help already works (3.4). If someone is not sure where to start, the assistant helps them work it out there and then. It also offers the choice of talking to someone in person: at a place to start early on, or at a local housing organisation once housing is the worry.
 
 **7. We keep counts, not people.** The assistant keeps a record of each conversation, with no name, contact details or anything the person typed. Sensitive answers, such as ethnicity, are only ever kept as totals, and small numbers are left out of reports.
 
@@ -76,7 +100,7 @@ Each document follows the same shape: what it is, what changes, what a person wo
 **What you are agreeing to.** The contract as a whole, including the two new routes and the principle behind them. Not the specific numbers, which are checked at source before launch.
 
 **What could go wrong.**
-- *Someone controlling the person sees the screen.* Guard: situations are described in plain words without naming the harm, there is a quick exit, help is shown first, and nothing that identifies the person is kept.
+- *Someone controlling the person sees the screen.* Guard: situations are described in plain words without naming the harm, help is shown first, and nothing that identifies the person is kept. A quick exit is being designed, and the Safety route does not go live without it (section 5).
 - *The help for someone who doesn't give their gender is weaker than for those who do.* Guard: it uses only contacts we already hold and have checked, and 999 always comes first. The Managing Director and the technical lead confirm it in writing before launch.
 
 ### 3.2 Housing Pathway Endpoints Contract (version 1.3): ratify
@@ -97,7 +121,7 @@ Each document follows the same shape: what it is, what changes, what a person wo
 
 ### 3.3 Service Matching Contract (version 3.1): ratify
 
-**What it is.** The rules for choosing which services a person sees. This version is written for the new V4 categories.
+**What it is.** The rules for choosing which services a person sees. This version is written for the new V4 categories, the groups services are listed under on Street Support from the platform switch.
 
 **What it does**
 - Decisions 1 and 2 in section 2: don't guess, and up to five with the rest one tap away.
@@ -162,10 +186,10 @@ The judgement sits earlier, in those recorded details: which kind of help a serv
 - It matches decisions 1 and 4 in section 2.
 - **Sensitive questions rest on the person's consent,** given by choosing to answer a question that explains why it is asked. Examples are ethnicity, sexual orientation and past convictions. People can always choose not to.
 - **It says plainly that typed text goes to our AI provider,** Anthropic, and is processed outside the UK. People are told this in the first sentence of the conversation.
-- **No separate Appropriate Policy Document is needed for the assistant,** because it relies only on consent for this information. The ICO's guidance says consent does not need one.
+- **No separate Appropriate Policy Document is needed for the assistant,** because it relies only on consent for this information. Guidance from the Information Commissioner's Office (ICO) says consent does not need one.
+- **It sets out the checks that must be done before launch** (section 5).
 
 **Where the legal position comes from.** The legal basis in this note is worked from the ICO's published guidance, prepared by the Managing Director. We are not seeking separate legal advice. Before launch, the Managing Director checks the consent wording against the ICO's guidance on explicit consent. James's technical assurance covers how the assistant is built, not the legal basis.
-- **It sets out the checks that must be done before launch** (section 5).
 
 **What a person would notice.** Each personal question says why it is asked, and can be skipped without losing the essential help.
 
@@ -231,6 +255,7 @@ These are checks, not decisions. Each is recorded with a date and evidence.
 9. The Privacy Policy and the Terms and Conditions match these documents, and say how the assistant meets the ICO's Children's Code, since 16 and 17 year olds use it.
 10. The consent wording is checked against the ICO's guidance on explicit consent.
 11. The assistant's opening sentence is built. It says the assistant uses AI, and that what people type goes to our AI provider, Anthropic.
+12. The quick exit for the Safety route is designed, reviewed for safeguarding, built and tested.
 
 The Managing Director is accountable for confirming and recording completion of these checks, supported by James's technical assurance, before authorising deployment.
 
