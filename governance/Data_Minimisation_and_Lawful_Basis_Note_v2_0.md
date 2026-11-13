@@ -1,12 +1,14 @@
+> **Version 2.1, for trustee ratification, 13 November 2026 (version 2.0, 11 November 2026).** This is the full text the trustees are asked to ratify. The pull request shows each change against v2.0 on VA #54. Built from v2.0 on VA #54 (not yet reviewed), with the alignments to the 11 November 2026 decisions listed in the document history. v2.0 is still a draft, so these are made in v2.0 itself rather than as a new version.
+
 # Data Minimisation and Lawful Basis Note
 
 | | |
 |---|---|
-| **Status** | Draft |
+| **Status** | For trustee ratification |
 | **Date** | November 2026 |
-| **Version** | 2.0 |
+| **Version** | 2.1 |
 | **Author** | Matt Lambert |
-| **Related documents** | Service Matching and Questions Design Note v1.0; Service Matching Contract v2; Appropriate Policy Document v1.1; Data Protection Impact Assessment (pipeline repo, `governance/Data_Protection_Impact_Assessment_VA_v1_0.md`); VA Analytics Contract v2.0; Privacy Policy; How We Work: Our Governing Principles |
+| **Related documents** | Service Matching and Questions Design Note v1.1; Service Matching Contract v3.1; Safeguarding Contract v3.3; Data Protection Impact Assessment v1.1; Terms and Conditions v3; VA Analytics Contract v2.1; Privacy Policy; How We Work: Our Governing Principles |
 
 ## 1. Purpose
 
@@ -29,7 +31,9 @@ Three things leave the conversation, and a fourth if the person chooses:
 
 A question is asked only if its answer adds an endpoint or changes the local match (Service Matching and Questions Design Note, section 3.1). A need asks a population question only if its parent category holds services designed for that group, or the answer adds an endpoint. This note then decides, question by question and pathway by pathway, whether that question is asked: a question whose necessity on a pathway cannot be recorded here is not asked there.
 
-The population questions are a choice: "Would you like to answer a few more questions so I can find services that fit you better?" A person who skips them still gets the statutory routes, fixed contacts and local services for their need.
+The population questions are a choice: "Would you like to answer a few more questions so I can find services that fit you better?" A person who skips them still gets the statutory routes, fixed contacts and local services for their need. The quick route asks none of them.
+
+**A skipped or declined answer is treated as not stated** (Service Matching Contract v3.1, section 6; Safeguarding Contract, Invariant 3). The assistant assumes nothing from it: nothing is excluded, and services that depend on it are not selected among the five, but stay available through "See all on Street Support". Not asking is therefore the minimisation default, not a loss of access.
 
 Collecting data a pathway does not need would breach Article 5(1)(c) whatever the person agreed to. The question test is the minimisation mechanism.
 
@@ -71,38 +75,40 @@ Article 6 basis is legitimate interests throughout. "Consent" means explicit con
 | Field | Pathways asked | Purpose | Category | Article 9 or 10 condition | Declined or skipped |
 |---|---|---|---|---|---|
 | Crisis gate | Every conversation | Safeguarding screening | Ordinary | None | Not skippable |
-| Who it is for | Every conversation | Sets the framing of every question | Ordinary | None | Not sure leads to a place to start |
+| Who it is for | Every conversation | Sets the framing of every question | Ordinary | None | Not sure: the conversation carries on in neutral wording, and the person can explore their need here or with someone in person at a place to start (Managing Director, 13 November 2026) |
 | Preferred name | Every conversation, optional | Addressing the person during the conversation | Ordinary | None | Not used |
-| Council area | Every conversation | Statutory routes and local services | Ordinary | None | Required for local results; the website's map needs nothing |
+| Council area | Every conversation | Statutory routes and local services | Ordinary | None | Required for local results; the website's map needs nothing. The device's location is tried first, only with the person's permission and only to find the council area; it is not kept (confirmed against the code with the table, section 13), and the person can choose the area instead (Mid-Conversation Age Detection Design Note, section 14.3) |
 | Housing situation | Housing | Sets position and the subcategories matched | Ordinary | None | Housing Options, navigator and Shelter shown |
 | Safety (unsafe at home, including exploitation) | Crisis housing | Moves the person to the Safety pathway | Ordinary | None | Housing continues |
-| Age | Housing; Finance; Health; Addiction; Employment; Activities; modern slavery | Safeguarding for under 18s; services designed for young people | Ordinary | None | Shown without the age lift |
-| Care (ever been in care, 16 to 24) | Crisis housing; Finance; Health; Employment | Leaving care contacts; services designed for care leavers | Ordinary | None | Standard results |
+| Age | Housing; Finance; Health; Addiction; Employment; Activities; modern slavery | Safeguarding for under 18s; services designed for young people; stated age limits | Ordinary | None | Not stated: age-limited and age-designed services not selected |
+| Care (ever been in care, 16 to 24) | Crisis housing; Finance; Health; Employment | Leaving care contacts; services designed for care leavers | Ordinary | None | Not stated: care leaver services not selected |
 | In care or with a social worker (16 and 17) | Every housing route for 16 and 17 year olds | Whether their worker or duty team comes first | Ordinary | None | Children's Services first |
-| Armed forces | Crisis housing; Finance; Employment | Services designed for veterans | Ordinary | None | No lift |
-| Immigration status | Crisis housing; Finance; Health; Employment; Immigration; Safety (safe accommodation, modern slavery) | Public funds routes; regulated advice; designed-for services | Ordinary | None | Standard results |
-| Household and gender | Crisis housing; Finance; Health; Addiction; Immigration; Employment; Essentials; Activities; sex work option | Stated restrictions; designed-for services | Ordinary | None | Restrictions not applied against the person |
-| Children | Crisis housing; Finance; Health; Employment; Essentials; Safety (safe accommodation) | Household routes; designed-for services | Ordinary | None | Standard results |
+| Armed forces | Crisis housing; Finance; Employment | Services designed for veterans | Ordinary | None | Not stated: veterans' services not selected |
+| Immigration status | Crisis housing; Finance; Health; Employment; Immigration; Safety (safe accommodation, modern slavery) | Public funds routes; regulated advice; designed-for services | Ordinary | None | Not stated: services for a status not selected |
+| Household and gender | Crisis housing; Finance; Health; Addiction; Immigration; Employment; Essentials; Activities; sex work option | Stated restrictions; designed-for services | Ordinary | None | Not stated: nothing excluded; gender-restricted and designed-for services not selected. Trans and non-binary answers exclude nothing (parked, Managing Director, 11 November 2026) |
+| Children | Crisis housing; Finance; Health; Employment; Essentials; Safety (safe accommodation) | Household routes; designed-for services | Ordinary | None | Not stated: family services not selected |
 | Pregnancy, including a partner | Crisis housing | Changes which housing help is right | Health | Consent | Prefer not to say; standard results |
-| Dogs | Crisis housing where the result is accommodation; Essentials | Services that take dogs; Dogs Trust | Ordinary | None | No lift |
+| Dogs | Crisis housing where the result is accommodation; Essentials | Services that take dogs; Dogs Trust | Ordinary | None | No lift. "Accepts dogs" never holds a service back |
 | LGBTQ+ (offer form) | Crisis housing; Health; Addiction; Immigration | Specialist services added | Sexual orientation | Consent | Recorded as nothing |
-| LGBTQ+ or gender (direct, with reason) | Safety: domestic abuse and sexual violence | Changes the organisations and endpoints | Sexual orientation | Consent, after "OK to carry on" | Prefer not to say; helplines and emergency numbers always shown |
-| Ethnicity | Every pathway that asks population questions, except Food | Services run by and for the person's community; reach and equity counts | Racial or ethnic origin | Consent, both purposes stated | Prefer not to say; no lift, not counted |
-| Convictions, and type if yes | Crisis housing (last; not 16 and 17); Health; Employment | Specialist endpoints, including the arson route; designed-for services | Criminal offence data | Consent, Schedule 1 Part 3 paragraph 29 | Prefer not to say; standard results |
+| LGBTQ+ or gender (direct, with reason) | Safety: domestic abuse and sexual violence | Changes the organisations and endpoints | Sexual orientation | Consent, after "OK to carry on" | Prefer not to say: the general exit, with every national line and who it is for (Safeguarding Contract v3.3); 999 always shown |
+| Ethnicity | Every pathway that asks population questions, except Food | Services run by and for the person's community; reach and equity counts | Racial or ethnic origin | Consent, both purposes stated | Prefer not to say: community services not selected; not counted |
+| Convictions, and type if yes | Crisis housing (last; not 16 and 17); Health; Employment | Specialist endpoints, including the arson route; designed-for services | Criminal offence data | Consent, Schedule 1 Part 3 paragraph 29 | Prefer not to say: designed-for services not selected |
 | Need chosen; noticing-step pressures; type of harm | As chosen | The help asked for | Health or sexual information where the option reveals it | Consent, given by choosing after the opening sentence | Not asked; the person chooses |
 | Food question | Food | The noticing step; the voucher route | Ordinary | None | "Just show me food near me" |
 | Access location, used before, outcome | As in section 10 | Reach and accessibility | Ordinary | None | Optional |
 
 The population questions on each need follow the Service Matching and Questions Design Note, section 3.7, and are built only once their row here is confirmed against the build.
 
+**No new field.** The West Midlands restriction record (Service Matching Contract v3.1) describes services, not people. It is applied using answers this table already lists, including the housing situation for services for people sleeping rough. It adds no question and keeps nothing about the person.
+
 ## 8. The AI provider
 
 Typed text that the assistant cannot match to an option is sent to Anthropic's API to be understood: whether a message is about housing at all, whether it is an advice question, and which option the person meant. Only that one message is sent, with a short instruction. No conversation history, no identifier and no button choices are sent. The under-16 check runs on the server before any of these calls.
 
 - **Role:** Anthropic is a processor acting for SSN.
-- **Terms:** SSN's API account is held under Anthropic's Commercial Terms, which incorporate its data processing addendum.
+- **Terms:** the assistant's API account must be held by SSN, under Anthropic's Commercial Terms, which incorporate its data processing addendum. Whether the current key sits in an SSN account is not yet established, so an SSN account is a release condition (section 13).
 - **Retention:** Anthropic deletes API inputs and outputs within 30 days, unless agreed otherwise, required by law, or needed to enforce its usage policy. Where a message is flagged under the usage policy, it may be kept for up to two years (Anthropic Privacy Center, checked 8 November 2026).
-- **Location:** processing takes place outside the UK; the Privacy Policy says so.
+- **Location:** processing takes place outside the UK; the Privacy Policy says so. The assistant's hosting also runs outside the UK (technical lead, 10 November 2026). Where it runs, and what its logs hold, is confirmed before launch (section 13).
 - **Minimising what is sent:** the server matches typed text against the options before anything is sent, so only text it cannot match goes to the API (VA backlog 81).
 
 Typed text can contain anything, including a name or an address. The opening sentence (section 6) tells people that the AI provider reads what they type.
@@ -125,16 +131,24 @@ Answers are used only to find help for the person in that conversation, and to p
 
 The data protection impact assessment (pipeline repo, `governance/Data_Protection_Impact_Assessment_VA_v1_0.md`) weighs each flow. The risk to people from the assistant's processing is low, and the benefit is help that fits their situation. The controls in this note are proportionate to that.
 
-## 13. Outstanding actions
+## 13. Release conditions
 
-Implementation checks, none of which changes the design or its risk assessment:
+The assistant does not go live, including for the trial, until each of these is in place. Each is recorded with its date and a screenshot or written confirmation. They are implementation checks, and none changes the design or its risk assessment. If a check finds something different from this note, the note and the Privacy Policy are corrected before launch, or the setting is changed.
 
-1. The Anthropic account: an API account under the Commercial Terms and data processing addendum, with API inputs not used for training (Managing Director).
-2. The hosting keeps only the session record and step logs in section 9, for as long as it keeps logs, with no IP address or other identifier (technical lead, at the account check in the week of 23 November).
-3. This note's table checked against the built question map before launch.
-4. The Privacy Policy and the other footer documents updated to match (go-live plan, workstream H).
+1. **An SSN account with the AI provider.** The assistant's API key belongs to an Anthropic account held by Street Support Network, not by an individual. That puts the data processing addendum between Anthropic and SSN. The account uses SSN's billing, the Managing Director and the technical lead both have access, and any earlier key is revoked once the new one works (Managing Director; the technical lead swaps the key).
+2. **The account's terms.** It is an API account under the Commercial Terms, which incorporate the data processing addendum, and API inputs are not used for training (Managing Director).
+3. **Where the hosting runs.** The region set for the assistant's functions is recorded, and the Privacy Policy names it accurately (technical lead).
+4. **What the hosting keeps.** The logs hold only the session record and step logs in section 9, never what a person typed. How long logs are kept, and whether they are copied anywhere else, is recorded. The hosting provider's documentation (checked 11 November 2026) shows its logs can be matched by IP address. So whether the logs hold IP addresses is confirmed, and the Privacy Policy says the hosting provider processes them to run the service, though the assistant does not record them (technical lead).
+5. **Processing outside the UK.** The safeguard the AI provider and the hosting each rely on for processing outside the UK is confirmed from their terms (Managing Director, with the technical lead).
+6. This note's table checked against the built question map.
+7. The Privacy Policy, the Terms and Conditions (v3 drafted) and the other footer documents updated to match (go-live plan, workstream H).
+8. **The consent wording** checked against the ICO's guidance on explicit consent, as in section 12, with the basis for the confirmation recorded (Managing Director).
 
-One focused legal check: that the consent wording in section 6 and the appendix meets the standard for explicit consent, and whether consent for criminal offence data needs an appropriate policy document (pipeline repo, `governance/Appropriate_Policy_Document_v1_1.md`).
+The Managing Director confirms and records each condition before authorising deployment, supported by the technical lead's assurance.
+
+One check before launch, by the Managing Director against the ICO's published guidance: that the consent wording in section 6 and the appendix meets the standard for explicit consent. No separate legal advice is sought.
+
+**No appropriate policy document is needed for the assistant.** Special category answers rest on explicit consent, which needs no Schedule 1 condition. Criminal offence data rests on consent under Schedule 1, paragraph 29, which the ICO lists as not needing an appropriate policy document (ICO, "What are the conditions for processing?", criminal offence data, checked 11 November 2026). This changes if the assistant ever relies on another condition, such as substantial public interest or safeguarding. The pipeline's own document (pipeline repo, `governance/Appropriate_Policy_Document_v1_1.md`) is separate and is not changed by this note.
 
 ## 14. Relationship to governing principles
 
@@ -161,12 +175,13 @@ For the technical lead's review with the build.
 |---|---|---|
 | 1.0 | March 2026 | Initial note |
 | 1.1 | March 2026 | Operational intelligence fields added |
-| 2.0 | November 2026 | Brought into line with the Service Matching and Questions Design Note. Sensitive questions state their purpose and rest on explicit consent; substantial public interest no longer relied on, and the paragraph 12 citation corrected. Criminal offence data, pregnancy, ethnicity and information given by choosing help added. The AI provider recorded as a processor. Only aggregate counts kept. Field and pathway table rebuilt for the V4 question map |
+| 2.0 | November 2026 | 11 November alignments: declined or skipped answers treated as not stated, so dependent services are not selected (Service Matching Contract v3.0); the general domestic abuse and sexual assault exit (Safeguarding Contract v3.3); the quick route asks no population questions; the restriction record adds no field; hosting location noted; the AI provider account and hosting checks set as release conditions. Earlier in this version: brought into line with the Service Matching and Questions Design Note. Sensitive questions state their purpose and rest on explicit consent; substantial public interest no longer relied on, and the paragraph 12 citation corrected. Criminal offence data, pregnancy, ethnicity and information given by choosing help added. The AI provider recorded as a processor. Only aggregate counts kept. Field and pathway table rebuilt for the V4 question map |
+| 2.1 | 13 November 2026 | "Not sure" who the help is for no longer leads straight to a place to start (Managing Director, 13 November 2026; Service Matching and Questions Design Note v1.1) |
 
 ## Sources
 
 - Data Minimisation and Lawful Basis Note v1.1 (VA repo, `docs/va-review-2026-10-31`); Appropriate Policy Document v1.0 and Data Protection Policy v3 (pipeline repo, main); VA Analytics Contract v2.0 (VA repo, `docs/va-review-2026-10-31`).
-- Service Matching and Questions Design Note v1.0 (VA #50).
+- Service Matching and Questions Design Note v1.1 (VA #56).
 - `app/api/chat/route.ts` on VA `staging`: the three API calls and the session-end log.
 - Data Protection Act 2018, Schedule 1, Parts 2 and 3 (legislation.gov.uk, enacted text).
 - Anthropic Privacy Center, "How long do you store commercial API data", checked 8 November 2026.
