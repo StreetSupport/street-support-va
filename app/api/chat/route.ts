@@ -13,6 +13,7 @@ import {
   interceptUnder16Age
 } from '@/lib/stateMachine';
 import { getPhrase } from '@/lib/phrasebank';
+import { generalSafetyExit, isSafetyGate, parseSafetyChoice } from '@/lib/handlers/safety';
 import { isLiveReadEnabled, runWithServicePool, type ServicePool } from '@/lib/data/servicePool';
 import { loadServicesNear } from '@/lib/data/platformServices';
 
@@ -326,17 +327,59 @@ export async function POST(request: NextRequest) {
     // above has already run on it.
     const isNameGate = session.currentGate === 'PREFERRED_NAME_ASK';
 
+    // The Safety from harm route bypasses the AI (Safeguarding Contract 3.3).
+    // Only a chosen option counts: no keyword matching, no Claude, and never the
+    // general escalation, which leads to the matcher.
+    const safetyGate = isSafetyGate(session.currentGate);
+
     // Try to parse user input
-    let parsed = isNameGate ? 0 : parseUserInput(message, currentPhrase?.options);
+    let parsed = isNameGate
+      ? 0
+      : safetyGate
+        ? parseSafetyChoice(message, currentPhrase?.options)
+        : parseUserInput(message, currentPhrase?.options);
     
     // If parsing failed and we have options, try Claude interpretation
-    if (parsed === null && currentPhrase?.options) {
+    if (parsed === null && currentPhrase?.options && !safetyGate) {
       parsed = await interpretWithClaude(message, currentPhrase.options);
     }
     
     // If still unclear, handle escalation
     if (parsed === null) {
       session.unclearCount++;
+
+      // On the Safety route: ask once more; after that, show every line on the
+      // route, 999 first, so no one is left without help.
+      if (safetyGate) {
+        if (session.unclearCount >= 2) {
+          const help = generalSafetyExit(session);
+          session = { ...session, ...help.stateUpdates, unclearCount: 0 };
+          console.log('[VA] SESSION END:', JSON.stringify({
+            id: session.sessionId,
+            la: session.localAuthority,
+            userType: session.userType,
+            age: session.ageCategory,
+            need: session.supportNeed,
+            homeless: session.homeless,
+            safeguarding: session.safeguardingType,
+            escalation: session.escalationLevel,
+            duration: session.duration,
+            routeType: session.routeType
+          }));
+          return NextResponse.json({
+            s: encodeState(session),
+            m: help.text,
+            o: help.options,
+            e: help.sessionEnded,
+          });
+        }
+        return NextResponse.json({
+          s: encodeState(session),
+          m: `I didn't quite catch that. Please choose one of the options.\n\n${currentPhrase?.text || ''}`,
+          o: currentPhrase?.options,
+          e: false
+        });
+      }
       
       // Level 1 escalation at 2 unclear
       if (session.unclearCount === 2) {

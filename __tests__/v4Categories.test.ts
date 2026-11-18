@@ -29,8 +29,8 @@ describe('first screen', () => {
     expect(partsFor('safety')).toEqual([]);
   });
 
-  test('not sure where to start leads to places to start, not a category', () => {
-    expect(firstOption('not-sure').route).toBe('places-to-start');
+  test('not sure where to start leads to the VA helping work it out, not a category', () => {
+    expect(firstOption('not-sure').route).toBe('noticing-step');
     expect(partsFor('not-sure')).toEqual([]);
   });
 

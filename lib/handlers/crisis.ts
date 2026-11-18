@@ -150,7 +150,7 @@ function getSAExitKey(gender: string | null): string {
 // Local safeguarding info builders
 // ============================================================================
 
-function buildSARCInfo(session: SessionState): string {
+export function buildSARCInfo(session: SessionState): string {
   const age = session.ageCategory;
   const isYoung = age === 'Under 16' || age === '16-17';
   const sarc = isYoung
@@ -175,7 +175,7 @@ interface DVLocalOrg {
   ooh_fallback?: string;
 }
 
-function buildLocalDVInfo(session: SessionState): string {
+export function buildLocalDVInfo(session: SessionState): string {
   const la = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
   if (!la) return '';
 

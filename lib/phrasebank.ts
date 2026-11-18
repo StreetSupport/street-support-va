@@ -1451,6 +1451,77 @@ What is their gender?
     options: ["Female", "Male", "Non-binary or other", "Prefer not to say"]
   },
 
+  // ============================================================
+  // SAFETY FROM HARM ROUTE (Safeguarding Contract 3.3)
+  // Hard-coded, outside the crisis gate, bypasses the matcher and AI.
+  // One type of harm (Managing Director, 12 November 2026). The situations are
+  // those of the Service Matching and Questions Design Note 3.6.
+  // ============================================================
+
+  // Plain words, without naming the harm (Safeguarding Contract 3.3;
+  // Managing Director, 18 November 2026). Each option starts with different words.
+  SAFETY_TYPE_OF_HARM: {
+    text: `If you are in danger right now, call 999.
+
+Which of these is closest to what is happening?
+
+1. Someone close is hurting, threatening or controlling me
+2. Pressure to marry someone I haven't chosen
+3. My private parts have been cut, or someone plans to cut them
+4. Sexual things were done to me without my agreement
+5. Made to work, money or documents taken, or controlled where I live or go
+6. Paying off a debt by being made to work
+7. Something else`,
+    options: [
+      "Someone close is hurting, threatening or controlling me",
+      "Pressure to marry someone I haven't chosen",
+      "My private parts have been cut, or someone plans to cut them",
+      "Sexual things were done to me without my agreement",
+      "Made to work, money or documents taken, or controlled where I live or go",
+      "Paying off a debt by being made to work",
+      "Something else"
+    ]
+  },
+
+  SAFETY_TYPE_OF_HARM__SUPPORTER: {
+    text: `If they are in danger right now, call 999.
+
+Which of these is closest to what is happening to them?
+
+1. Someone close is hurting, threatening or controlling them
+2. Pressure to marry someone they haven't chosen
+3. Their private parts have been cut, or someone plans to cut them
+4. Sexual things were done to them without their agreement
+5. Made to work, money or documents taken, or controlled where they live or go
+6. Paying off a debt by being made to work
+7. Something else`,
+    options: [
+      "Someone close is hurting, threatening or controlling them",
+      "Pressure to marry someone they haven't chosen",
+      "Their private parts have been cut, or someone plans to cut them",
+      "Sexual things were done to them without their agreement",
+      "Made to work, money or documents taken, or controlled where they live or go",
+      "Paying off a debt by being made to work",
+      "Something else"
+    ]
+  },
+
+  SAFETY_OK_TO_CONTINUE: {
+    text: `Thank you for telling me. Are you OK to carry on?
+
+1. Yes, I'm OK to carry on
+2. No, show me help now`,
+    options: ["Yes, I'm OK to carry on", "No, show me help now"]
+  },
+
+  SAFETY_OK_TO_CONTINUE__SUPPORTER: {
+    text: `Thank you for telling me. Are they OK to carry on?
+
+1. Yes, they're OK to carry on
+2. No, show help now`,
+    options: ["Yes, they're OK to carry on", "No, show help now"]
+  },
+
   CRISIS_UNDER16_LOCATION: {
     text: `Thank you for telling me. You've done the right thing by reaching out. So I can give you the right Children's Services to contact, please tell me which area you're in.
 

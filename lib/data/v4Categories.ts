@@ -3,7 +3,8 @@
 //
 // Sources:
 // - The options and second screens: VA V4 Redesign Design Note, Decision 1
-//   (Managing Director, 4 November 2026).
+//   (Managing Director, 4 November 2026), as carried by the Service Matching
+//   and Questions Design Note v1.1 (13 November 2026).
 // - The taxonomy: Platform Scope and Service Principles v4, consolidated taxonomy.
 // - The keys: read from the platform copy (database streetsupport), 18 November
 //   2026. A key the copy does not yet carry is null here, and is never guessed
@@ -115,7 +116,11 @@ export interface FirstOption {
   // How the option is answered. 'matched': the matcher reads these categories.
   // 'routed': the option leads to a route designed elsewhere, not the matcher.
   kind: 'matched' | 'routed';
-  route?: 'housing-situation' | 'safety' | 'places-to-start';
+  // 'noticing-step': "Not sure" leads first to the VA helping the person work it
+  // out, with the choice of a place to start (Service Matching and Questions
+  // Design Note v1.1, section 2, Managing Director, 13 November 2026, replacing
+  // the 4 November "lead to a place to start").
+  route?: 'housing-situation' | 'safety' | 'noticing-step';
   parents: V4Parent[];
   secondScreen?: Choice[];
 }
@@ -205,7 +210,7 @@ export const FIRST_OPTIONS: FirstOption[] = [
     id: 'not-sure',
     label: "I'm not sure where to start",
     kind: 'routed',
-    route: 'places-to-start',
+    route: 'noticing-step',
     parents: [],
   },
 ];

@@ -33,6 +33,7 @@ import {
   handleDVChildrenAsk,
   handleSAGenderAsk,
 } from './handlers/crisis';
+import { handleSafetyTypeOfHarm, handleSafetyOkToContinue, isSafetyGate, parseSafetyChoice } from './handlers/safety';
 import { buildUnder16Exit, childrenServicesData } from './handlers/shared';
 import { getServicePool } from './data/servicePool';
 import {
@@ -1053,7 +1054,8 @@ export function interceptUnder16Age(session: SessionState, input: string): Routi
 export function processInput(session: SessionState, input: string): RoutingResult {
   const gate = session.currentGate;
   const p = getPhrase(gate, session.isSupporter);
-  const choice = parseUserInput(input, p?.options);
+  // The Safety route reads only a chosen option, never a keyword (safety.ts).
+  const choice = isSafetyGate(gate) ? parseSafetyChoice(input, p?.options) : parseUserInput(input, p?.options);
   
   switch (gate) {
     
@@ -1083,6 +1085,15 @@ export function processInput(session: SessionState, input: string): RoutingResul
     // ========================================
     case 'SA_GENDER_ASK':
       return handleSAGenderAsk(session, choice);
+
+    // ========================================
+    // SAFETY FROM HARM ROUTE (handlers in lib/handlers/safety.ts)
+    // ========================================
+    case 'SAFETY_TYPE_OF_HARM':
+      return handleSafetyTypeOfHarm(session, choice);
+
+    case 'SAFETY_OK_TO_CONTINUE':
+      return handleSafetyOkToContinue(session, choice);
     
     // ========================================
     // GATE 1: INTENT

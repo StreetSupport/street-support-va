@@ -83,6 +83,9 @@ export type GateType =
   | 'DV_GENDER_ASK'
   | 'DV_CHILDREN_ASK'
   | 'SA_GENDER_ASK'
+  // Safety from harm route (Safeguarding Contract 3.3)
+  | 'SAFETY_TYPE_OF_HARM'
+  | 'SAFETY_OK_TO_CONTINUE'
   // Crisis Location Gates
   | 'CRISIS_UNDER16_LOCATION'
   | 'CRISIS_FIRE_FLOOD_LOCATION'
@@ -176,6 +179,9 @@ export interface SessionState {
   // Safeguarding
   safeguardingTriggered: boolean;
   safeguardingType: string | null;
+  // Safety from harm route: the one type of harm the person chose. Not shown
+  // back, not logged; it only selects the exit.
+  safetyHarm?: 'DOMESTIC_ABUSE' | 'SEXUAL_VIOLENCE' | 'MODERN_SLAVERY' | 'OTHER' | null;
   dvGender: string | null;
   dvChildren: boolean | null;
   saGender: string | null;
