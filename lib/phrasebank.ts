@@ -8,6 +8,15 @@ export interface PhraseEntry {
   responseType?: string;
 }
 
+// Quick exit note, option A of "Quick exit: proposal for review" (Managing
+// Director, 19 November 2026). Shown on the Safety from harm route before the
+// first question, and after help on the domestic abuse and sexual violence exits.
+// Works for supporters too: it describes whoever is at the screen. The
+// "staying safer online" link is added once a page is chosen and checked at
+// source; none has been, so none is shown. "It clears our conversation" stands
+// once the technical review has verified what the exit clears.
+export const QUICK_EXIT_NOTE = `Need to leave quickly? Press "Exit this page". On a keyboard you can also press Shift three times. It clears our conversation, but not your browsing history. You can come back and start again at any time.`;
+
 export const phrasebank: Record<string, PhraseEntry> = {
 
   // ============================================================
@@ -342,40 +351,71 @@ Support with Benefits and Grants | Turn2us - https://www.turn2us.org.uk/`
     options: ["Male", "Female", "Non-binary or other", "Prefer not to say"]
   },
 
+  // First question (VA V4 Redesign Design Note, Decision 1, Managing Director,
+  // 4 November 2026). Labels must match lib/data/v4Categories.ts.
   B5_MAIN_SUPPORT_NEED: {
-    text: `What kind of support are you looking for?
+    text: `What would you like help with?
 
-1. Emergency Housing or Other Accommodation
-2. Food
-3. Work
-4. Health Services
-5. Advice Services
-6. Drop In
-7. Financial Help
-8. Personal Items
-9. Personal Services
-10. Communications
-11. Training
-12. Activities`,
-    options: ["Emergency Housing or Other Accommodation", "Food", "Work", "Health Services", "Advice Services", "Drop In", "Financial Help", "Personal Items", "Personal Services", "Communications", "Training", "Activities"]
+1. Somewhere to live, or help to keep my home
+2. Staying safe from abuse, exploitation or harm
+3. Food, clothes or other everyday things
+4. Money, debt, benefits or work
+5. Health, drugs, alcohol or gambling
+6. Immigration or asylum
+7. Things to do and people to meet
+8. I'm not sure where to start`,
+    options: ["Somewhere to live, or help to keep my home", "Staying safe from abuse, exploitation or harm", "Food, clothes or other everyday things", "Money, debt, benefits or work", "Health, drugs, alcohol or gambling", "Immigration or asylum", "Things to do and people to meet", "I'm not sure where to start"]
   },
 
   B5_MAIN_SUPPORT_NEED__SUPPORTER: {
-    text: `What kind of support are they looking for?
+    text: `What would they like help with?
 
-1. Emergency Housing or Other Accommodation
-2. Food
-3. Work
-4. Health Services
-5. Advice Services
-6. Drop In
-7. Financial Help
-8. Personal Items
-9. Personal Services
-10. Communications
-11. Training
-12. Activities`,
-    options: ["Emergency Housing or Other Accommodation", "Food", "Work", "Health Services", "Advice Services", "Drop In", "Financial Help", "Personal Items", "Personal Services", "Communications", "Training", "Activities"]
+1. Somewhere to live, or help to keep their home
+2. Staying safe from abuse, exploitation or harm
+3. Food, clothes or other everyday things
+4. Money, debt, benefits or work
+5. Health, drugs, alcohol or gambling
+6. Immigration or asylum
+7. Things to do and people to meet
+8. Not sure where to start`,
+    options: ["Somewhere to live, or help to keep their home", "Staying safe from abuse, exploitation or harm", "Food, clothes or other everyday things", "Money, debt, benefits or work", "Health, drugs, alcohol or gambling", "Immigration or asylum", "Things to do and people to meet", "Not sure where to start"]
+  },
+
+  // Second screens (Decision 1). Labels must match lib/data/v4Categories.ts.
+  B5_SECOND_EVERYDAY: {
+    text: `Which of these?
+
+1. A hot meal
+2. Food to take home
+3. Clothes
+4. Toiletries or period products
+5. A phone or getting online
+6. Something else`,
+    options: ["A hot meal", "Food to take home", "Clothes", "Toiletries or period products", "A phone or getting online", "Something else"]
+  },
+
+  B5_SECOND_MONEY_WORK: {
+    text: `Which of these?
+
+1. Debt
+2. Benefits
+3. Bills and energy
+4. Grants
+5. Work or training
+6. Something else`,
+    options: ["Debt", "Benefits", "Bills and energy", "Grants", "Work or training", "Something else"]
+  },
+
+  B5_SECOND_HEALTH: {
+    text: `Which of these?
+
+1. Mental health
+2. Physical health
+3. Sexual health
+4. Drugs or alcohol
+5. Gambling
+6. Something else`,
+    options: ["Mental health", "Physical health", "Sexual health", "Drugs or alcohol", "Gambling", "Something else"]
   },
 
   // ============================================================
@@ -1463,6 +1503,8 @@ What is their gender?
   SAFETY_TYPE_OF_HARM: {
     text: `If you are in danger right now, call 999.
 
+${QUICK_EXIT_NOTE}
+
 Which of these is closest to what is happening?
 
 1. Someone close is hurting, threatening or controlling me
@@ -1485,6 +1527,8 @@ Which of these is closest to what is happening?
 
   SAFETY_TYPE_OF_HARM__SUPPORTER: {
     text: `If they are in danger right now, call 999.
+
+${QUICK_EXIT_NOTE}
 
 Which of these is closest to what is happening to them?
 

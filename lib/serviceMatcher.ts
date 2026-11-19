@@ -6,6 +6,7 @@
 // - Database-driven service lookup by category
 
 import servicesData from './data/wmca_services_v7.json';
+import { partsFor, type FirstOptionId } from './data/v4Categories';
 import orgsData from './data/wmca_organizations_v7.json';
 import endpointsData from './data/housing-pathway-endpoints.json';
 import type { MatchedService, DefaultOrg, UserProfile } from './types';
@@ -558,6 +559,27 @@ export function rankServices(services: Service[], profile: UserProfile, limit: n
  * Main function: Get matched services for a non-housing need
  */
 export function getServicesForNeed(need: string, profile: UserProfile): MatchedService[] {
+  // V4: the first question in V4 terms (Decision 1). Reads V4 keys only: at the
+  // switch every area moves to V4 together. Safety from harm is never matched:
+  // the Safety option goes to the Safety route, and partsFor returns nothing.
+  if (profile.v4Option) {
+    const parts = partsFor(profile.v4Option as FirstOptionId, profile.v4Choice ?? undefined);
+    if (parts.length === 0) return [];
+    const v4Categories = [...new Set(parts.map(p => p.parent))];
+    const v4Constraints: Record<string, string[]> = {};
+    for (const p of parts) {
+      if (!p.subs) continue;
+      v4Constraints[p.parent] = [...(v4Constraints[p.parent] ?? []), ...p.subs];
+    }
+    // A parent asked for whole by one part and by subcategory in another is whole.
+    for (const p of parts) if (!p.subs) delete v4Constraints[p.parent];
+    const v4Services = filterByProfile(
+      getServicesByCategory(profile.localAuthority, v4Categories, undefined, v4Constraints),
+      profile,
+    );
+    return rankServices(v4Services, profile, 5);
+  }
+
   const categories = needToCategoryMap[need] || [];
   if (categories.length === 0) return [];
 

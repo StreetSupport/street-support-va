@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { EXIT_URL, createShiftCounter, performExit, shouldReloadOnPageShow } from '@/lib/quickExit';
 import type { ServiceCard } from '@/lib/types';
 
 // ============================================================
@@ -474,6 +475,11 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<Element | null>(null);
+  // Requests in progress can be cancelled, and a reply from before the
+  // conversation was cleared is ignored, so it cannot bring it back.
+  const abortRef = useRef<AbortController>(new AbortController());
+  const epochRef = useRef(0);
+  const closeRef = useRef<() => void>(() => onClose());
 
   useEffect(() => {
     if (lastMessageRef.current && messagesContainerRef.current) {
@@ -487,16 +493,19 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   const handleFocusTrap = useCallback((e: KeyboardEvent) => {
     if (!dialogRef.current) return;
 
-    if (e.key === 'Escape') {
-      onClose();
+    // Escape closes, and so clears, the chat (decision 5), but not while an
+    // input method is composing text: that Escape belongs to the input method.
+    if (e.key === 'Escape' && !e.isComposing) {
+      closeRef.current();
       return;
     }
 
     if (e.key !== 'Tab') return;
 
-    const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+    // Only elements actually shown: the phone-only Exit bar is hidden on larger screens.
+    const focusable: HTMLElement[] = Array.from(dialogRef.current.querySelectorAll<HTMLElement>(
       'button:not([disabled]), input:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
-    );
+    ) as NodeListOf<HTMLElement>).filter((el: HTMLElement) => el.getClientRects().length > 0);
     if (focusable.length === 0) return;
 
     const first = focusable[0];
@@ -509,7 +518,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       e.preventDefault();
       first.focus();
     }
-  }, [onClose]);
+  }, []);
 
   // Manage focus on open/close and attach focus trap
   useEffect(() => {
@@ -543,6 +552,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     try {
       const response = await fetch('/api/location', {
         method: 'POST',
+        signal: abortRef.current.signal,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
@@ -563,10 +573,12 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     isScotland?: boolean;
     error?: string;
   }) => {
+    const epoch = epochRef.current;
     setIsLoading(true);
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
+        signal: abortRef.current.signal,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           s: sessionState, 
@@ -576,12 +588,14 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       });
       if (!response.ok) throw new Error('Failed');
       const data = await response.json();
+      if (epoch !== epochRef.current) return;
       
       if (data.s) setSessionState(data.s);
       setLocationMode('none');
       setAwaitingPostcode(false);
       addAssistantMessage(data);
     } catch (error) {
+      if (epoch !== epochRef.current) return;
       console.error('Error sending location result:', error);
       addErrorMessage();
     }
@@ -601,6 +615,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       return;
     }
 
+    const epoch = epochRef.current;
     setIsLoading(true);
     setLocationMode('geolocation');
 
@@ -614,9 +629,11 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       });
 
       const { latitude, longitude } = position.coords;
+      if (epoch !== epochRef.current) return;
       
       // Call location API to reverse geocode
       const locationData = await callLocationApi({ latitude, longitude });
+      if (epoch !== epochRef.current) return;
       
       if (locationData.success) {
         setMessages(prev => [...prev, {
@@ -629,6 +646,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       await sendLocationResult(locationData);
       
     } catch (error) {
+      if (epoch !== epochRef.current) return;
       console.error('Geolocation error:', error);
       setIsLoading(false);
       setLocationMode('none');
@@ -654,7 +672,9 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     setIsLoading(true);
     setInputValue('');
     
+    const epoch = epochRef.current;
     const locationData = await callLocationApi({ postcode });
+    if (epoch !== epochRef.current) return;
     await sendLocationResult(locationData);
   };
 
@@ -666,6 +686,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
+        signal: abortRef.current.signal,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ s: sessionState, message: text }),
       });
@@ -729,7 +750,9 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     setInputValue('');
     setIsLoading(true);
 
+    const epoch = epochRef.current;
     const data = await callApi(text);
+    if (epoch !== epochRef.current) return;
     
     if (data) {
       if (data.s) setSessionState(data.s);
@@ -764,7 +787,9 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     setMessages(prev => [...prev, { role: 'user', content: reply.label, timestamp: new Date().toISOString() }]);
     setIsLoading(true);
 
+    const epoch = epochRef.current;
     const data = await callApi(reply.value);
+    if (epoch !== epochRef.current) return;
     
     if (data) {
       if (data.s) setSessionState(data.s);
@@ -778,14 +803,75 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
   const handleStarterClick = () => { void sendMessage('hi', true); };
 
-  const handleRestart = () => {
+  // Clears the conversation, any half-typed message and any request in
+  // progress. Used when the chat is closed (decision 5, Managing Director,
+  // 19 November 2026) and by the quick exit.
+  const clearConversation = useCallback(() => {
+    abortRef.current.abort();
+    abortRef.current = new AbortController();
+    epochRef.current += 1;
     setMessages([]);
+    setInputValue('');
     setSessionState(null);
     setSessionEnded(false);
     setConversationStarted(false);
     setLocationMode('none');
     setAwaitingPostcode(false);
-  };
+    setIsLoading(false);
+  }, []);
+
+  // Starting a new conversation clears everything too, so a late reply from the
+  // old one cannot bring it back.
+  const handleRestart = () => clearConversation();
+
+  // Closing the chat clears the conversation; reopening starts at the crisis gate.
+  const handleClose = useCallback(() => {
+    clearConversation();
+    onClose();
+  }, [clearConversation, onClose]);
+  useEffect(() => { closeRef.current = handleClose; }, [handleClose]);
+
+  // Exit this page: cover, clear, cancel, leave. See lib/quickExit.ts.
+  const exitNow = useCallback(() => {
+    performExit({
+      cover: () => {
+        const cover = document.createElement('div');
+        cover.setAttribute('aria-hidden', 'true');
+        cover.style.cssText = 'position:fixed;inset:0;background:#ffffff;z-index:2147483647';
+        document.body.appendChild(cover);
+      },
+      cancelRequests: () => abortRef.current.abort(),
+      clear: clearConversation,
+      navigate: (url, replaceHistory) => {
+        if (replaceHistory) { window.location.replace(url); return; }
+        // A link with rel="noreferrer", as GOV.UK's, so the destination is not told where the person came from.
+        const a = document.createElement('a');
+        a.href = url;
+        a.rel = 'nofollow noreferrer';
+        document.body.appendChild(a);
+        a.click();
+      },
+    });
+  }, [clearConversation]);
+
+  // Shift pressed three times within five seconds, anywhere on the page.
+  useEffect(() => {
+    const counter = createShiftCounter();
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (counter.onKeyDown(e.key, Date.now(), e.repeat)) exitNow();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [exitNow]);
+
+  // A page restored from the back-forward cache reloads empty.
+  useEffect(() => {
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (shouldReloadOnPageShow(e.persisted)) window.location.reload();
+    };
+    window.addEventListener('pageshow', onPageShow);
+    return () => window.removeEventListener('pageshow', onPageShow);
+  }, []);
 
   const renderMessageContent = (content: string) => {
     const parsed = parseServiceContent(content);
@@ -831,6 +917,18 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       className="fixed bottom-4 right-4 w-full max-w-[480px] h-[640px] max-h-[90vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden z-50"
       style={{ border: `1px solid ${SSN_COLORS.grayBorder}` }}
     >
+      {/* Exit this page: a hidden link first in the tab order, for screen reader and
+          speech recognition users; it shows when it has focus (GOV.UK pattern). */}
+      <a
+        href={EXIT_URL}
+        rel="nofollow noreferrer"
+        onClick={(e) => { e.preventDefault(); exitNow(); }}
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-2 focus:bg-white focus:font-bold focus:rounded"
+        style={{ color: '#b10e1e' }}
+      >
+        Exit this page
+      </a>
+
       {/* Header - SSN teal */}
       <div 
         className="text-white px-4 py-3 flex items-center justify-between flex-shrink-0"
@@ -838,6 +936,14 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       >
         <h2 className="font-bold text-lg">Street Support Assistant</h2>
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={exitNow}
+            className="hidden sm:inline-flex items-center px-3 py-1.5 rounded-lg font-bold text-sm bg-white border-2 focus:outline-none focus-visible:ring-4 focus-visible:ring-yellow-400"
+            style={{ color: '#b10e1e', borderColor: '#0b0c0c' }}
+          >
+            Exit this page
+          </button>
           <button
             onClick={handleRestart}
             className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
@@ -849,7 +955,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
             </svg>
           </button>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
             title="Close"
             aria-label="Close assistant"
@@ -992,6 +1098,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
             <input
               ref={inputRef}
               type="text"
+              autoComplete="off"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder={sessionEnded ? 'Conversation ended' : awaitingPostcode ? 'Enter your postcode (e.g. WV1 1AA)...' : 'Type a message...'}
@@ -1018,6 +1125,19 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
           </div>
         </form>
       )}
+
+      {/* Exit this page on phones: a bar along the bottom (GOV.UK found the top
+          too prominent on small screens), kept clear of the message box. */}
+      <div className="sm:hidden px-3 pb-3 pt-2 bg-white flex-shrink-0 border-t" style={{ borderColor: SSN_COLORS.grayBorder }}>
+        <button
+          type="button"
+          onClick={exitNow}
+          className="w-full py-2.5 rounded-lg font-bold text-white focus:outline-none focus-visible:ring-4 focus-visible:ring-yellow-400"
+          style={{ backgroundColor: '#b10e1e' }}
+        >
+          Exit this page
+        </button>
+      </div>
     </div>
   );
 }

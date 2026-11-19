@@ -818,19 +818,9 @@ describe('NRPF Family Support', () => {
 // ADVICE SUBCATEGORY ROUTING - Advice bypasses housing profiling
 // =============================================================================
 
-describe('Advice Subcategory Routing', () => {
-
-  test('selecting Advice at B5 routes to B5A_ADVICE_TYPE, not housing profiling', () => {
-    const session = sessionAt('B5_MAIN_SUPPORT_NEED', {
-      routeType: 'FULL',
-      localAuthority: 'Birmingham',
-    });
-    const result = select(session, 5); // Advice is option 5
-    expect(result.stateUpdates.currentGate).toBe('B5A_ADVICE_TYPE');
-    expect(result.options).toHaveLength(7);
-  });
-
-});
+// The old Advice option has gone from the first question: in V4, advice sits
+// within each parent (Housing, Housing advice; Immigration; Finance). The
+// first question's routing is tested in v4Menu.test.ts.
 
 // =============================================================================
 // DETAILED AGE/GENDER PRIORITY - detailedAge/detailedGender override basics
@@ -1437,8 +1427,9 @@ describe('Quick route: age for housing, under-16 exit, Children\'s Services firs
 
   test('a 15 year old asking for Health on the quick route gets the under-16 exit', () => {
     const inputs = quickHousing(WOLVERHAMPTON);
-    inputs[9] = '4'; // Health
-    const { session, result } = converse([...inputs, '1']);
+    inputs[9] = '5'; // Health, drugs, alcohol or gambling
+    // Mental health on the second screen, then under 16 at the age question
+    const { session, result } = converse([...inputs.slice(0, 10), '1', '1']);
     expect(result.sessionEnded).toBe(true);
     expect(session.safeguardingType).toBe('UNDER_16');
   });

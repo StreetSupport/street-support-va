@@ -10,7 +10,7 @@
 //   2026. A key the copy does not yet carry is null here, and is never guessed
 //   (design note, "unknown codes are logged, not guessed").
 //
-// Pure data and functions. Nothing here is wired into the conversation yet.
+// Pure data and functions, used by the first question (stateMachine.ts) and the matcher.
 
 export const V4_PARENTS = [
   'housing',

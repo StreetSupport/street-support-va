@@ -33,7 +33,8 @@ import {
   handleDVChildrenAsk,
   handleSAGenderAsk,
 } from './handlers/crisis';
-import { handleSafetyTypeOfHarm, handleSafetyOkToContinue, isSafetyGate, parseSafetyChoice } from './handlers/safety';
+import { handleSafetyTypeOfHarm, handleSafetyOkToContinue, isSafetyGate, parseSafetyChoice, startSafetyRoute } from './handlers/safety';
+import { FIRST_OPTIONS, firstOption, partsFor, type FirstOptionId } from './data/v4Categories';
 import { buildUnder16Exit, childrenServicesData } from './handlers/shared';
 import { getServicePool } from './data/servicePool';
 import {
@@ -230,14 +231,86 @@ const needProfileRequirements: Record<string, string[]> = {
  * and what profile data has already been collected.
  * Returns terminal output when all required fields are collected.
  */
+// Profile questions by V4 parent: the Service Matching and Questions Design
+// Note, 3.7 (Managing Director, 8 November 2026), limited to the questions the
+// VA already asks. Care, armed forces, dogs and ethnicity are added when built,
+// and every question needs its data protection row (D2) before launch.
+const v4ParentRequirements: Record<string, string[]> = {
+  food: [],
+  essentials: ['gender', 'children'],
+  finance: ['age', 'gender', 'nrpf', 'children'],
+  employment: ['age', 'gender', 'convictions', 'nrpf', 'children'],
+  health: ['age', 'gender', 'lgbtq', 'convictions', 'nrpf', 'children'],
+  addiction: ['age', 'gender', 'lgbtq'],
+  immigration: ['gender', 'lgbtq', 'nrpf'],
+  activities: ['age', 'gender'],
+};
+const PROFILE_ORDER = ['age', 'gender', 'lgbtq', 'convictions', 'nrpf', 'children'];
+
+// The phrase shown at B5_SECOND_SCREEN depends on the first-question option.
+export function secondScreenPhraseKey(v4Option: string | null | undefined): string {
+  return v4Option === 'everyday' ? 'B5_SECOND_EVERYDAY' : v4Option === 'money-work' ? 'B5_SECOND_MONEY_WORK' : 'B5_SECOND_HEALTH';
+}
+
+function v4Parents(session: SessionState): string[] {
+  if (!session.v4Option) return [];
+  return [...new Set(partsFor(session.v4Option as FirstOptionId, session.v4Choice ?? undefined).map(p => p.parent))];
+}
+
+function v4Requirements(session: SessionState): string[] {
+  const wanted = new Set(v4Parents(session).flatMap(p => v4ParentRequirements[p] ?? []));
+  return PROFILE_ORDER.filter(f => wanted.has(f));
+}
+
+// National floors by V4 parent. Until the Non-Housing Pathway Endpoints
+// Contract is amended for the V4 typology (design note, work item 9), each
+// parent uses the floor its old category had.
+function v4Fallbacks(session: SessionState) {
+  const parents = v4Parents(session);
+  const out: typeof nationalFallbacks[string] = [];
+  const add = (k: string) => { for (const f of nationalFallbacks[k] ?? []) if (!out.some(o => o.name === f.name)) out.push(f); };
+  if (parents.includes('health')) add('Health');
+  if (parents.includes('finance')) { add('Financial'); add('Advice'); }
+  if (parents.includes('immigration')) add('Advice');
+  if (parents.includes('employment')) { add('Work'); add('Training'); }
+  return out;
+}
+
+function v4DisplayName(session: SessionState): string {
+  const option = session.v4Option ? firstOption(session.v4Option as FirstOptionId) : null;
+  const label = session.v4Choice && session.v4Choice !== 'Something else' ? session.v4Choice : option?.label ?? 'support';
+  return `services for ${label.toLowerCase()}`;
+}
+
+// Each profile answer is carried forward with whichever question comes next,
+// so no answer is lost when questions come in a different order for
+// different needs.
 function routeToNextProfileQuestion(session: SessionState, after?: 'age' | 'gender' | 'lgbtq' | 'convictions' | 'nrpf' | 'children'): RoutingResult {
+  const asked = [...new Set([...(session.profileAsked ?? []), ...(after ? [after] : [])])];
+  const result = nextProfileQuestion({ ...session, profileAsked: asked }, after);
+  const carried: Partial<SessionState> = {
+    profileAsked: asked,
+    ageCategory: session.ageCategory,
+    gender: session.gender,
+    lgbtq: session.lgbtq,
+    criminalConvictions: session.criminalConvictions,
+    immigrationStatus: session.immigrationStatus,
+    publicFunds: session.publicFunds,
+    hasChildren: session.hasChildren,
+  };
+  return { ...result, stateUpdates: { ...carried, ...result.stateUpdates } };
+}
+
+function nextProfileQuestion(session: SessionState, after?: 'age' | 'gender' | 'lgbtq' | 'convictions' | 'nrpf' | 'children'): RoutingResult {
   const need = session.supportNeed || '';
-  const required = needProfileRequirements[need] || [];
+  const required = session.v4Option ? v4Requirements(session) : (needProfileRequirements[need] || []);
 
   // Check each required field in order
   for (const field of required) {
     // Skip the field we just answered — prevents re-triggering on null PNTS values
     if (after && field === after) continue;
+    // Skip any field already asked, so "prefer not to say" is not asked again
+    if (session.profileAsked?.includes(field)) continue;
 
     // Age
     if (field === 'age' && !session.ageCategory) {
@@ -460,13 +533,15 @@ function buildLocalResultsUnavailableTerminal(
 function buildNonHousingTerminal(session: SessionState): TerminalResult {
   const need = session.supportNeed || 'support';
   const la = session.localAuthority || 'your area';
-  const displayName = needDisplayNames[need] || need.toLowerCase();
-  const categoryKey = getPrimaryCategoryKey(need);
+  const v4 = !!session.v4Option;
+  const displayName = v4 ? v4DisplayName(session) : (needDisplayNames[need] || need.toLowerCase());
+  // The "see all" link moves to the V4 category with the matcher (design note, 4.6).
+  const categoryKey = v4 ? (v4Parents(session)[0] ?? '') : getPrimaryCategoryKey(need);
 
   // Build profile for service matching
   const profile = toUserProfile(session);
 
-  const fallbacks = nationalFallbacks[need] || [];
+  const fallbacks = v4 ? v4Fallbacks(session) : (nationalFallbacks[need] || []);
 
   // Live read unavailable: say so, do not fall back to the January file
   if (getServicePool()?.status === 'unavailable') {
@@ -485,7 +560,7 @@ function buildNonHousingTerminal(session: SessionState): TerminalResult {
   let text = '';
 
   // Opening line - personalised if profile was used
-  if (isProfileRelevantNeed(need)) {
+  if (v4 ? v4Requirements(session).length > 0 : isProfileRelevantNeed(need)) {
     text += `Based on what you have told me, here are some ${displayName} in ${la} that may be able to help.\n\n`;
   } else {
     text += `Here are some ${displayName} in ${la}.\n\n`;
@@ -520,7 +595,7 @@ function buildNonHousingTerminal(session: SessionState): TerminalResult {
   }
 
   // LGBT Foundation for LGBTQ+ users on Health need
-  if (session.lgbtq === true && need === 'Health') {
+  if (session.lgbtq === true && (need === 'Health' || v4Parents(session).includes('health'))) {
     const lgbtPhrase = getPhrase('TERMINAL_LGBT_FOUNDATION_HEALTH', session.isSupporter);
     if (!fallbacks.length) text += `---\n\n`;
     text += `LGBT Foundation\n`;
@@ -1319,23 +1394,14 @@ export function processInput(session: SessionState, input: string): RoutingResul
         stateUpdates: { currentGate: 'B5_MAIN_SUPPORT_NEED', gender }
       };
     
-    case 'B5_MAIN_SUPPORT_NEED':
-      const needOptions = ['Emergency Housing', 'Food', 'Work', 'Health', 'Advice', 'Drop In', 'Financial', 'Items', 'Services', 'Comms', 'Training', 'Activities'];
-      const need = choice ? needOptions[choice - 1] : null;
+    case 'B5_MAIN_SUPPORT_NEED': {
+      // The first question in V4 terms (Decision 1, Managing Director, 4 November 2026).
+      const option = choice && choice >= 1 && choice <= FIRST_OPTIONS.length ? FIRST_OPTIONS[choice - 1] : null;
+      if (!option) return phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter);
+      const needCount = session.needCount + 1;
 
-      // Advice routes to subcategory selection
-      if (need === 'Advice') {
-        return {
-          ...phrase('B5A_ADVICE_TYPE', session.isSupporter),
-          stateUpdates: { currentGate: 'B5A_ADVICE_TYPE', supportNeed: need, needCount: session.needCount + 1 }
-        };
-      }
-
-      // Housing needs require full profiling
-      const housingRelatedNeeds = ['Emergency Housing'];
-      const needsFullProfiling = housingRelatedNeeds.includes(need || '');
-
-      if (needsFullProfiling) {
+      if (option.id === 'housing') {
+        const need = 'Emergency Housing';
         // Every housing route asks age before B6. Age decides the under-16 exit
         // and the 16-17 route, so it cannot wait for Section C: the full route
         // reaches Section C only with consent, the prevention branch never
@@ -1343,20 +1409,56 @@ export function processInput(session: SessionState, input: string): RoutingResul
         if (!session.ageCategory) {
           return {
             ...phrase('B5_PROFILE_AGE', session.isSupporter),
-            stateUpdates: { currentGate: 'B5_PROFILE_AGE', supportNeed: need, needCount: session.needCount + 1 }
+            stateUpdates: { currentGate: 'B5_PROFILE_AGE', supportNeed: need, needCount, v4Option: 'housing', v4Choice: null }
           };
         }
 
         // Continue to homelessness status question
         return {
           ...phrase('B6_HOMELESSNESS_STATUS', session.isSupporter),
-          stateUpdates: { currentGate: 'B6_HOMELESSNESS_STATUS', supportNeed: need, needCount: session.needCount + 1 }
+          stateUpdates: { currentGate: 'B6_HOMELESSNESS_STATUS', supportNeed: need, needCount, v4Option: 'housing', v4Choice: null }
         };
-      } else {
-        // Non-housing need - route to category-specific profiling
-        const updatedSession = { ...session, supportNeed: need, needCount: session.needCount + 1 };
-        return routeToNextProfileQuestion(updatedSession);
       }
+
+      if (option.id === 'safety') {
+        // Hard-coded Safety route (Safeguarding Contract 3.3): bypasses the matcher and AI.
+        const r = startSafetyRoute(session);
+        return { ...r, stateUpdates: { ...r.stateUpdates, v4Option: 'safety', v4Choice: null, supportNeed: 'V4:safety', needCount } };
+      }
+
+      if (option.id === 'not-sure') {
+        // Leads to the noticing step (design note v1.1, section 2), built next.
+        // Until then this branch is not reachable in a release.
+        return {
+          text: 'Not built yet: the noticing step for "not sure where to start".',
+          stateUpdates: { v4Option: 'not-sure', v4Choice: null, supportNeed: 'V4:not-sure', needCount },
+        };
+      }
+
+      if (option.secondScreen) {
+        const key = secondScreenPhraseKey(option.id);
+        const r = phrase(key, session.isSupporter);
+        return { ...r, stateUpdates: { ...r.stateUpdates, currentGate: 'B5_SECOND_SCREEN', v4Option: option.id, v4Choice: null, supportNeed: `V4:${option.id}`, needCount } };
+      }
+
+      const updated = { ...session, v4Option: option.id, v4Choice: null, supportNeed: `V4:${option.id}`, needCount };
+      const next = routeToNextProfileQuestion(updated);
+      return { ...next, stateUpdates: { v4Option: option.id, v4Choice: null, supportNeed: `V4:${option.id}`, needCount, ...next.stateUpdates } };
+    }
+
+    case 'B5_SECOND_SCREEN': {
+      const option = session.v4Option ? firstOption(session.v4Option as FirstOptionId) : null;
+      const choices = option?.secondScreen ?? [];
+      const picked = choice && choice >= 1 && choice <= choices.length ? choices[choice - 1] : null;
+      if (!option || !picked) {
+        const key = secondScreenPhraseKey(option?.id);
+        return { ...phrase(key, session.isSupporter), stateUpdates: { currentGate: 'B5_SECOND_SCREEN' } };
+      }
+      const supportNeed = `V4:${option.id}:${picked.label}`;
+      const updated = { ...session, v4Choice: picked.label, supportNeed };
+      const next = routeToNextProfileQuestion(updated);
+      return { ...next, stateUpdates: { v4Choice: picked.label, supportNeed, ...next.stateUpdates } };
+    }
 
     case 'B5A_ADVICE_TYPE':
       const adviceOptions = ['Advice:Benefits', 'Advice:Debt', 'Advice:Employment', 'Advice:Immigration', 'Advice:Health', 'Advice:Legal', 'Advice:General'];

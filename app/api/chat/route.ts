@@ -10,7 +10,8 @@ import {
   getFirstMessage,
   parseUserInput,
   processLocationInput,
-  interceptUnder16Age
+  interceptUnder16Age,
+  secondScreenPhraseKey
 } from '@/lib/stateMachine';
 import { getPhrase } from '@/lib/phrasebank';
 import { generalSafetyExit, isSafetyGate, parseSafetyChoice } from '@/lib/handlers/safety';
@@ -21,6 +22,7 @@ import { loadServicesNear } from '@/lib/data/platformServices';
 // runs only from these, so a slow or failed read never delays other turns.
 const MATCHING_GATES = new Set<string>([
   'B5_MAIN_SUPPORT_NEED',
+  'B5_SECOND_SCREEN',
   'B5A_ADVICE_TYPE',
   'B5_PROFILE_AGE',
   'B5_PROFILE_GENDER',
@@ -284,7 +286,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Get current phrase for option parsing
-    const currentPhrase = getPhrase(session.currentGate, session.isSupporter);
+    const currentPhrase = getPhrase(
+      session.currentGate === 'B5_SECOND_SCREEN' ? secondScreenPhraseKey(session.v4Option) : session.currentGate,
+      session.isSupporter,
+    );
 
     // Check for out-of-scope requests at early gates
     const earlyGates = ['GATE0_CRISIS_DANGER', 'GATE1_INTENT', 'B4_ADVICE_TOPIC_SELECTION', 'ADVICE_BRIDGE'];
@@ -331,13 +336,19 @@ export async function POST(request: NextRequest) {
     // Only a chosen option counts: no keyword matching, no Claude, and never the
     // general escalation, which leads to the matcher.
     const safetyGate = isSafetyGate(session.currentGate);
+    // The first question and its second screens: a number or the option's own
+    // words only. The loose first-word match would read "a" on "A hot meal",
+    // or "staying" on the Safety option, into unrelated text.
+    const menuGate = session.currentGate === 'B5_MAIN_SUPPORT_NEED' || session.currentGate === 'B5_SECOND_SCREEN';
 
     // Try to parse user input
     let parsed = isNameGate
       ? 0
       : safetyGate
         ? parseSafetyChoice(message, currentPhrase?.options)
-        : parseUserInput(message, currentPhrase?.options);
+        : menuGate
+          ? parseSafetyChoice(message, currentPhrase?.options)
+          : parseUserInput(message, currentPhrase?.options);
     
     // If parsing failed and we have options, try Claude interpretation
     if (parsed === null && currentPhrase?.options && !safetyGate) {

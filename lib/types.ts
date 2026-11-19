@@ -34,6 +34,7 @@ export type GateType =
   | 'B3_AGE_CATEGORY'
   | 'B4_GENDER'
   | 'B5_MAIN_SUPPORT_NEED'
+  | 'B5_SECOND_SCREEN'
   | 'B5A_ADVICE_TYPE'
   | 'B5_PROFILE_AGE'
   | 'B5_YOUTH_SOCIAL_SERVICES'
@@ -128,6 +129,13 @@ export interface SessionState {
   gender: string | null;
   supportNeed: string | null;
   adviceSubcategory: string | null;
+  // First question in V4 terms (lib/data/v4Categories.ts): the option chosen,
+  // and the second-screen choice where the option has one.
+  v4Option?: string | null;
+  v4Choice?: string | null;
+  // Profile questions already asked this session, answered or not, so a
+  // "prefer not to say" (stored as null) is not asked again.
+  profileAsked?: string[];
   additionalNeeds: string[];
   needCount: number;
 
@@ -259,6 +267,8 @@ export interface UserProfile {
   lgbtqServicePreference?: string | null;
   dv?: boolean;
   adviceSubcategory?: string | null;
+  v4Option?: string | null;
+  v4Choice?: string | null;
 }
 
 export interface ServiceCard {
@@ -297,5 +307,7 @@ export function toUserProfile(session: SessionState): UserProfile {
     lgbtqServicePreference: session.lgbtqServicePreference,
     dv: session.safeguardingType === 'DOMESTIC_ABUSE',
     adviceSubcategory: session.adviceSubcategory,
+    v4Option: session.v4Option ?? null,
+    v4Choice: session.v4Choice ?? null,
   };
 }

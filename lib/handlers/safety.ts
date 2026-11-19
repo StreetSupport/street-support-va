@@ -22,9 +22,11 @@
  * contract requires where gender is not given (Managing Director, 11 November
  * 2026); that is a gap in the crisis gate flows, not added here.
  *
- * NOT YET REACHABLE. The quick exit the contract requires is not designed yet
- * (design note, work item 1, a release gate), so no entry point calls
- * startSafetyRoute until it is.
+ * Reached from the first question's Safety option (B5). The quick exit the
+ * contract requires is in lib/quickExit.ts. The route must not go live until
+ * its release conditions are met: the quick exit verified, the strict reading
+ * at the crisis gate (Safety from harm proposal, decision 6) and the new
+ * helpline numbers and hours confirmed by a person.
  *
  * Changes require safeguarding test coverage.
  */
@@ -32,6 +34,7 @@
 import type { SessionState, RoutingResult } from '../types';
 import { phrase } from './shared';
 import { buildLocalDVInfo, buildSARCInfo } from './crisis';
+import { QUICK_EXIT_NOTE } from '../phrasebank';
 import safeguardingEndpoints from '../data/safeguarding-endpoints.json';
 
 type Harm = 'DOMESTIC_ABUSE' | 'SEXUAL_VIOLENCE' | 'MODERN_SLAVERY' | 'OTHER';
@@ -185,7 +188,9 @@ function domesticAbuseHelpNow(session: SessionState): RoutingResult {
     `DOMESTIC ABUSE SUPPORT\nGalop\n0800 999 5428\nhttps://galop.org.uk\nNational helpline for LGBTQ+ people affected by abuse or violence`,
   ].join('\n\n') + buildLocalDVInfo(session) +
     `\n\nHOUSING ADVICE\nShelter - Domestic Violence Advice\nhttps://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse` +
-    '\n\n' + wayBack(supporter);
+    // How to leave quickly, after the help, with no question or delay before it
+    // (Managing Director, 19 November 2026).
+    '\n\n' + QUICK_EXIT_NOTE + '\n\n' + wayBack(supporter);
   return endSafety(text, 'DOMESTIC_ABUSE');
 }
 
@@ -197,7 +202,7 @@ function sexualViolenceHelpNow(session: SessionState): RoutingResult {
     `SEXUAL VIOLENCE SUPPORT\nRape Crisis England & Wales\n0808 500 2222 (Free, confidential, 24/7)\nhttps://rapecrisis.org.uk`,
     `SEXUAL VIOLENCE SUPPORT\nSurvivorsUK\n020 3598 3898\nhttps://survivorsuk.org\nSpecialist, confidential support for men and boys aged 16 and over`,
     `SEXUAL VIOLENCE SUPPORT\nGalop\n0800 999 5428\nhttps://galop.org.uk\nNational helpline for LGBTQ+ people affected by abuse or violence`,
-  ].join('\n\n') + buildSARCInfo(session) + '\n\n' + wayBack(supporter);
+  ].join('\n\n') + buildSARCInfo(session) + '\n\n' + QUICK_EXIT_NOTE + '\n\n' + wayBack(supporter);
   return endSafety(text, 'SEXUAL_VIOLENCE');
 }
 
