@@ -1,9 +1,9 @@
 # Safety Disclosure Check: Design Note
 
-Status: draft design • 19 November 2026 • Version 0.11
+Status: draft design • 19 November 2026 • Version 1.0
 
 - **Decided:** the design decisions, taken by the Managing Director on 19 November 2026, pending the technical lead's review (section 10).
-- **Awaiting the Managing Director:** line-by-line approval of the trigger list (Appendix A).
+- **The trigger list (Appendix A):** approved by the Managing Director, 19 November 2026, pending the technical lead's review.
 - **Awaiting the technical lead:** confirmation of four contract readings, and the checks listed in section 11.
 - **Technical feasibility review may proceed.**
 
@@ -82,7 +82,7 @@ The contract prohibits the AI from inferring "crisis, abuse, or diagnosis withou
 
 The families follow the Safety route's own situations. A (feeling unsafe) and G (threats to life) have no option of their own on the route; they lead to its "Something else" option and the general help it gives.
 
-**The full draft list is in Appendix A, for the Managing Director to approve line by line.** The table below summarises it.
+**The full list is in Appendix A, approved by the Managing Director, 19 November 2026, pending the technical lead's review.** The table below summarises it.
 
 | Family | Examples that trigger | Examples that do not |
 |---|---|---|
@@ -183,7 +183,7 @@ Approved by the Managing Director, 19 November 2026, pending the technical lead'
 - **Past statements.** These trigger as well as present ones (section 4).
 - **The quick exit note** goes after the clarifying question (section 3).
 
-Outstanding: **the trigger list.** The Managing Director approves it line by line, including what does not trigger. The technical lead then checks feasibility, the processing order and the tests in the pull request.
+**The trigger list (Appendix A)** is approved by the Managing Director, 19 November 2026, pending the technical lead's review. The technical lead checks feasibility, the processing order and the tests in the pull request.
 
 ## 11. Contract consistency, for the technical lead
 
@@ -242,7 +242,7 @@ Its generic trigger list and response template are in a "Useful Resources folder
 - **Scottish Government, "Responding to Female Genital Mutilation (FGM) in Scotland: multi-agency guidance".** Used for family D: traditional terms for FGM.
 - **Franklin et al., RANLP 2023, safeguarding concerns in schoolchildren's messages.** Used for the matching rules: the kinds of false positive in keyword libraries, namely words inside other words ("gunna"), polysemy, positive sentiment and other languages.
 
-## Appendix A. Draft trigger list, for approval line by line
+## Appendix A. Trigger list (approved by the Managing Director, 19 November 2026, pending the technical lead's review)
 
 ### How a line matches (all families)
 
