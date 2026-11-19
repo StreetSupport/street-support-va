@@ -300,7 +300,7 @@ Immigration is type C, not B, because immigration advice can only come from a re
 
 ## 11. Left to explore (Managing Director)
 
-1. **Quick exit:** not yet designed. It must cover the assistant and any website page it links to, including the advice pages (3.6).
+1. **Quick exit:** designed, 19 November 2026 ("Quick exit: proposal for review", Managing Director). It is on every screen of the assistant and every page of the website, which covers the pages the assistant links to, including the advice pages (3.6).
 2. **Rotation of equal fits:** reviewed in practice once the matcher runs.
 3. **Alcohol floor for Addiction:** left open for now; no national alcohol helpline has been verified at source. (MD, 8 November 2026.)
 4. **Leaving prison or hospital: one answer or two.** Section 2 keeps them as one housing answer. The routes paper of 12 November proposes separate options. Prison and hospital routing is parked for its own design work (MD, 12 November 2026), and the final wording is to be confirmed then. Neither document supersedes the other until it is.
@@ -392,7 +392,7 @@ The assistant meets WCAG 2.2 level AA, as the website does, and follows the W3C'
 - No confirmation step and no time limit.
 - Any keyboard shortcut must not be a single letter and must not use Escape, which closes the chat.
 
-Where the quick exit goes and what it clears are safeguarding decisions, made separately.
+Where the quick exit goes and what it clears are safeguarding decisions, made separately. They were made on 19 November 2026: it goes to BBC Weather, and it clears the conversation and any half-typed message (Managing Director).
 
 **Before launch:** the interface fixes in the VA Accessibility Proposal; checks in a browser and with the main screen readers; contrast of every component in every state; and a few realistic journeys end to end on a phone and by keyboard or screen reader. Testing with people who use assistive technology is recommended where it can be arranged.
 
