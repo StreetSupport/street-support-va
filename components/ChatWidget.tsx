@@ -313,7 +313,6 @@ function parseServiceContent(text: string): ParsedContent {
       currentService = { 
         name: trimmed, 
         category: currentCategory,
-        isDropIn: currentCategory === 'LOCAL SUPPORT',
         isVerified: currentCategory === 'YOUR FIRST STEP'
       };
     } else if (trimmed.startsWith('http')) {
@@ -325,7 +324,6 @@ function parseServiceContent(text: string): ParsedContent {
       currentService = { 
         name: trimmed, 
         category: currentCategory,
-        isDropIn: currentCategory === 'LOCAL SUPPORT',
         isVerified: currentCategory === 'YOUR FIRST STEP'
       };
     } else {

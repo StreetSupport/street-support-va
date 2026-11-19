@@ -24,6 +24,7 @@ import {
   getServicesForNeed,
   isProfileRelevantNeed,
   getPrimaryCategoryKey,
+  appointmentNote,
 } from './serviceMatcher';
 import {
   handleCrisisDanger,
@@ -502,13 +503,8 @@ function buildNonHousingTerminal(session: SessionState): TerminalResult {
     if (svc.website) {
       text += `${svc.website}\n`;
     }
-    // Description with access note
-    let desc = svc.description;
-    if (svc.isDropIn) {
-      desc += ` No appointment needed.`;
-    } else if (svc.appointmentOnly) {
-      desc += ` Appointment required.`;
-    }
+    // Description with access note (VA #34, A9)
+    const desc = svc.description + appointmentNote(svc);
     text += `${desc}\n\n`;
   }
 
