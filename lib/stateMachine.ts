@@ -37,6 +37,7 @@ import { handleSafetyTypeOfHarm, handleSafetyOkToContinue, isSafetyGate, parseSa
 import { FIRST_OPTIONS, firstOption, partsFor, type FirstOptionId } from './data/v4Categories';
 import { buildUnder16Exit, childrenServicesData } from './handlers/shared';
 import { getServicePool } from './data/servicePool';
+import { DIGNITY_OFFER, HOUSING_OFFER_OPTIONS, NOTICING_UNCLEAR, awarenessLine, housingOfferText, isDignityChoice, noticingOptions, noticingOutcome, noticingText, parseNoticing, takesNoticingStep } from './noticing';
 import {
   handleLocationConsent,
   handleLocationPostcode,
@@ -519,11 +520,31 @@ function nextProfileQuestion(session: SessionState, after?: 'age' | 'gender' | '
     }
   }
   
-  // All required fields collected - go to terminal
+  // All required fields collected. The noticing step comes before the
+  // results, once a session, where the need takes it (design note 3.5).
+  if (takesNoticingStep(session)) {
+    return {
+      text: noticingText(session),
+      options: noticingOptions(session),
+      stateUpdates: { currentGate: 'B5_NOTICING', noticingAsked: true, unclearCount: 0 },
+    };
+  }
+  return finishWithResults(session);
+}
+
+// The results for the person's need, then the question about other needs.
+// `lead` is shown before the results (the noticing step's awareness line).
+// The awareness line says "Here's help with ...", so it leads only where local
+// services are listed; it is not shown above a zero-match or "can't load" result
+// (Safeguarding Contract, invariant 5: confidence matches the data). After
+// dignity items, the one onward offer follows the results (design note 3.7).
+function finishWithResults(session: SessionState, lead?: string): RoutingResult {
   const result = buildTerminalServices(session);
   const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
+  const shownLead = lead && result.hasLocal ? lead + '\n\n' : '';
+  const offer = isDignityChoice(session) ? '\n' + DIGNITY_OFFER + '\n' : '';
   return {
-    text: result.text + '\n' + additionalNeeds?.text,
+    text: shownLead + result.text + '\n' + offer + additionalNeeds?.text,
     options: additionalNeeds?.options,
     stateUpdates: {
       currentGate: 'TERMINAL_ADDITIONAL_NEEDS' as const,
@@ -745,7 +766,7 @@ function buildNonHousingTerminal(session: SessionState): TerminalResult {
     text += buildSSNBrowseLink(displayName, la, categoryKey) + '\n';
   }
 
-  return { text: text.trim() };
+  return { text: text.trim(), hasLocal: true };
 }
 
 // ============================================================
@@ -1592,6 +1613,66 @@ export function processInput(session: SessionState, input: string): RoutingResul
       const updated = { ...session, v4Choice: picked.label, supportNeed };
       const next = routeToNextProfileQuestion(updated);
       return { ...next, stateUpdates: { v4Choice: picked.label, supportNeed, ...next.stateUpdates } };
+    }
+
+    case 'B5_NOTICING': {
+      // Read as option numbers or one option's exact words only (lib/noticing.ts).
+      const picked = parseNoticing(input, noticingOptions(session));
+      if (!picked) {
+        // Ask once more; after that, show their results, so no one is held here.
+        if (session.unclearCount >= 1) {
+          const done = finishWithResults(session);
+          return { ...done, stateUpdates: { ...done.stateUpdates, unclearCount: 0 } };
+        }
+        return { text: `${NOTICING_UNCLEAR}\n\n${noticingText(session)}`, options: noticingOptions(session), stateUpdates: { currentGate: 'B5_NOTICING', unclearCount: session.unclearCount + 1 } };
+      }
+      const { outcome } = noticingOutcome(session, picked);
+      if (outcome === 'safety') {
+        const r = startSafetyRoute(session);
+        return { ...r, stateUpdates: { ...r.stateUpdates, v4Option: 'safety', v4Choice: null, supportNeed: 'V4:safety', unclearCount: 0 } };
+      }
+      if (outcome === 'housing') {
+        // Results for what they came for first, then housing offered as a
+        // choice, never entered automatically (Managing Director, 19 November 2026).
+        const { named } = noticingOutcome(session, picked);
+        const which = named.includes('no-settled-place') ? 'no-settled-place' : 'keep-home';
+        const others = named.some(id => !['no-settled-place', 'keep-home', 'nothing-else', 'not-sure'].includes(id));
+        const result = buildTerminalServices(session);
+        const lead = others && result.hasLocal ? awarenessLine(session) + '\n\n' : '';
+        return {
+          text: `${lead}${result.text}\n\n${housingOfferText(which)}`,
+          options: HOUSING_OFFER_OPTIONS,
+          stateUpdates: {
+            currentGate: 'B5_HOUSING_OFFER', noticingHousing: which, unclearCount: 0,
+            ...(result.terminalOutcome ? { terminalOutcome: result.terminalOutcome } : {}),
+          },
+        };
+      }
+      const done = finishWithResults(session, outcome === 'aware' ? awarenessLine(session) : undefined);
+      return { ...done, stateUpdates: { ...done.stateUpdates, unclearCount: 0 } };
+    }
+
+    case 'B5_HOUSING_OFFER': {
+      const pick = parseNoticing(input, HOUSING_OFFER_OPTIONS);
+      const one = pick && pick.length === 1 ? pick[0] : null;
+      if (one === 1) {
+        const housing = { supportNeed: 'Emergency Housing', v4Option: 'housing', v4Choice: null, unclearCount: 0, needCount: session.needCount + 1 };
+        if (!session.ageCategory) {
+          return { ...phrase('B5_PROFILE_AGE', session.isSupporter), stateUpdates: { currentGate: 'B5_PROFILE_AGE', ...housing } };
+        }
+        return { ...phrase('B6_HOMELESSNESS_STATUS', session.isSupporter), stateUpdates: { currentGate: 'B6_HOMELESSNESS_STATUS', ...housing } };
+      }
+      if (one === null && session.unclearCount < 1) {
+        return {
+          text: `${NOTICING_UNCLEAR}\n\n${housingOfferText(session.noticingHousing === 'keep-home' ? 'keep-home' : 'no-settled-place')}`,
+          options: HOUSING_OFFER_OPTIONS,
+          stateUpdates: { currentGate: 'B5_HOUSING_OFFER', unclearCount: session.unclearCount + 1 },
+        };
+      }
+      // Staying with these results (or a second unclear answer): the usual
+      // question about anything else, so no one is left without a next step.
+      const more = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
+      return { text: more?.text ?? '', options: more?.options, stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', unclearCount: 0 } };
     }
 
     case 'B5A_ADVICE_TYPE':

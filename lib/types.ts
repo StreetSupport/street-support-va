@@ -35,6 +35,8 @@ export type GateType =
   | 'B4_GENDER'
   | 'B5_MAIN_SUPPORT_NEED'
   | 'B5_SECOND_SCREEN'
+  | 'B5_NOTICING'
+  | 'B5_HOUSING_OFFER'
   | 'B5A_ADVICE_TYPE'
   | 'B5_PROFILE_AGE'
   | 'B5_YOUTH_SOCIAL_SERVICES'
@@ -136,6 +138,10 @@ export interface SessionState {
   // Profile questions already asked this session, answered or not, so a
   // "prefer not to say" (stored as null) is not asked again.
   profileAsked?: string[];
+  // The noticing step (design note 3.5) is offered once a session.
+  noticingAsked?: boolean;
+  // Which housing answer was given there, for the offer after the results.
+  noticingHousing?: 'no-settled-place' | 'keep-home' | null;
   additionalNeeds: string[];
   needCount: number;
 
@@ -222,6 +228,8 @@ export interface RoutingResult {
 export interface TerminalResult {
   text: string;
   terminalOutcome?: string;
+  // True where local services are listed in the text.
+  hasLocal?: boolean;
 }
 
 // ============================================================
