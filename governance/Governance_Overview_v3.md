@@ -123,7 +123,7 @@ Each pathway receives controls proportionate to its harm level:
 | **Mandatory user confirmation** | AI may reflect emotion but must not assign cause or diagnosis. High-risk routing only occurs after explicit user confirmation.             |
 | **No AI authority**             | AI cannot override safeguarding routing, generate safeguarding advice, or bypass escalation thresholds.                                    |
 | **Automated testing**           | 53 safeguarding tests across 19 critical paths run on every code commit and deployment. Hard stop failures block deployment automatically. |
-| **Governing contract**          | Safeguarding Contract (approved baseline)                                                                                                  |
+| **Governing contract**          | Safeguarding Contract (draft baseline, awaiting trustee ratification)                                                                                                  |
 
 **Medium harm: enrichment and service matching preparation**
 
@@ -135,7 +135,7 @@ Each pathway receives controls proportionate to its harm level:
 | **Human review**             | Safeguarding-adjacent fields (accepts under-18s, DV specialism, mental health) require human verification before use.                                                  |
 | **Normalisation standards**  | Varied language in service descriptions must map to standardised criteria values, preventing language quality from becoming a bias factor. (In development.)           |
 | **Deterministic matching**   | Final matching is rule-based and auditable. AI prepares data; algorithm decides. Match scoring is derived from explicit criteria, not AI interpretation at match time. |
-| **Governing contract**       | Data Enrichment Contract v2.0 (draft), Service Matching Contract v2.0 (approved baseline)                                                                              |
+| **Governing contract**       | Data Enrichment Contract v2.0 (draft), Service Matching Contract v2.0 (draft baseline, awaiting trustee ratification)                                                                              |
 
 **Low harm: conversational navigation**
 
@@ -199,20 +199,20 @@ Operational refinement within existing boundaries does not require trustee re-ap
 |                                        |                 |                   |
 |----------------------------------------|-----------------|-------------------|
 | **Document**                           | **Type**        | **Status**        |
-| **Safeguarding**                       | Contract        | Approved baseline |
+| **Safeguarding**                       | Contract        | Draft baseline, awaiting trustee ratification |
 | **Safeguarding**                       | Note            | Complete          |
 | **AI Usage Boundaries**                | Contract        | Draft             |
 | **AI Usage Boundaries**                | Note            | Complete          |
-| **Service Matching**                   | Contract        | Approved baseline |
+| **Service Matching**                   | Contract        | Draft baseline, awaiting trustee ratification |
 | **Service Matching**                   | Note            | Complete          |
-| **Analytics**                          | Contract        | Approved baseline |
+| **Analytics**                          | Contract        | Draft baseline, awaiting trustee ratification |
 | **Analytics**                          | Note            | Complete          |
 | **Data Enrichment**                    | Contract        | DRAFT             |
 | **Data Enrichment**                    | Note            | DRAFT             |
 | **Governance Review Triggers**         | Note            | Complete          |
 | **Data Management Plan**               | Plan            | Draft             |
-| **Housing Pathway Endpoints**          | Contract        | Approved baseline |
-| **Non-Housing Pathway Endpoints**      | Contract        | Approved baseline |
+| **Housing Pathway Endpoints**          | Contract        | Draft baseline, awaiting trustee ratification |
+| **Non-Housing Pathway Endpoints**      | Contract        | Draft baseline, awaiting trustee ratification |
 | **Data Minimisation and Lawful Basis** | Note            | Draft             |
 | **Appropriate Policy Document**        | Policy document | Draft             |
 
