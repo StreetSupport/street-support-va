@@ -85,7 +85,7 @@ describe('First question: eight options', () => {
 
 describe('Second screen: what is shown', () => {
   test('someone wanting a hot meal is shown hot meals, not food to take home', () => {
-    let { s } = step(sessionAt('B5_MAIN_SUPPORT_NEED'), '3');
+    const { s } = step(sessionAt('B5_MAIN_SUPPORT_NEED'), '3');
     const r = runWithServicePool(v4Pool(), () => processInput(s, '1'));
     expect(r.text).toContain('Org hot');
     expect(r.text).not.toContain('Org groc');
@@ -105,13 +105,13 @@ describe('Second screen: what is shown', () => {
   });
 
   test('a domestic abuse listing is never shown through the matcher from another option', () => {
-    let { s } = step(sessionAt('B5_MAIN_SUPPORT_NEED'), '3');
+    const { s } = step(sessionAt('B5_MAIN_SUPPORT_NEED'), '3');
     const r = runWithServicePool(v4Pool(), () => processInput(s, '6')); // Something else
     expect(r.text).not.toContain('Org dv');
   });
 
   test('an answer outside the second screen asks again, and keeps the screen', () => {
-    let { s } = step(sessionAt('B5_MAIN_SUPPORT_NEED'), '5');
+    const { s } = step(sessionAt('B5_MAIN_SUPPORT_NEED'), '5');
     const r = processInput(s, '9');
     expect(r.stateUpdates.currentGate).toBe('B5_SECOND_SCREEN');
     expect(r.options).toHaveLength(6);
