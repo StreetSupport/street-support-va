@@ -939,7 +939,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
           <button
             type="button"
             onClick={exitNow}
-            className="hidden sm:inline-flex items-center px-3 py-1.5 rounded-lg font-bold text-sm bg-white border-2 focus:outline-none focus-visible:ring-4 focus-visible:ring-yellow-400"
+            className="hidden sm:inline-flex items-center min-h-[44px] min-w-[44px] px-3 py-1.5 rounded-lg font-bold text-sm bg-white border-2 focus:outline-none focus-visible:ring-4 focus-visible:ring-yellow-400"
             style={{ color: '#b10e1e', borderColor: '#0b0c0c' }}
           >
             Exit this page
