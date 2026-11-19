@@ -262,17 +262,156 @@ function v4Requirements(session: SessionState): string[] {
   return PROFILE_ORDER.filter(f => wanted.has(f));
 }
 
-// National floors by V4 parent. Until the Non-Housing Pathway Endpoints
-// Contract is amended for the V4 typology (design note, work item 9), each
-// parent uses the floor its old category had.
-function v4Fallbacks(session: SessionState) {
-  const parents = v4Parents(session);
-  const out: typeof nationalFallbacks[string] = [];
-  const add = (k: string) => { for (const f of nationalFallbacks[k] ?? []) if (!out.some(o => o.name === f.name)) out.push(f); };
-  if (parents.includes('health')) add('Health');
-  if (parents.includes('finance')) { add('Financial'); add('Advice'); }
-  if (parents.includes('immigration')) add('Advice');
-  if (parents.includes('employment')) { add('Work'); add('Training'); }
+// The national contacts for each V4 need: which ones, from the design note's
+// table (Service Matching and Questions Design Note v1.1, section 9; Managing
+// Director, 8 November 2026) and bills and energy (Managing Director,
+// 19 November 2026); names, numbers, hours and framing from the Non-Housing
+// Pathway Endpoints Contract's national table (2.2, contacts checked at source
+// 11, 13 and 19 November 2026). Where the two documents differ, see the PR.
+type Floor = { name: string; phone?: string; website: string; description: string };
+const V4_FLOORS: Record<string, Floor> = {
+  nhs111: {
+    name: 'NHS 111',
+    phone: '111',
+    website: 'https://111.nhs.uk',
+    description: 'For urgent medical help when it is not an emergency. Free, 24 hours a day',
+  },
+  lgbtFoundation: {
+    name: 'LGBT Foundation',
+    phone: '0345 3 30 30 30',
+    website: 'https://lgbt.foundation',
+    description: 'The LGBT Foundation can provide specialist health advice and support. Monday to Friday, 9am to 6pm',
+  },
+  citizensAdvice: {
+    name: 'Citizens Advice Adviceline',
+    phone: '0800 144 8848',
+    website: 'https://www.citizensadvice.org.uk',
+    description: 'Best for debt and money advice. Free and confidential. Usually 9am to 5pm, Monday to Friday',
+  },
+  jobcentrePlus: {
+    name: 'Jobcentre Plus',
+    website: 'https://www.gov.uk/contact-jobcentre-plus',
+    description: 'Your local Jobcentre can connect you with employment support',
+  },
+  nationalCareersAdult: {
+    name: 'National Careers Service',
+    phone: '0800 072 0288',
+    website: 'https://nationalcareers.service.gov.uk',
+    description: 'Free careers advice from a careers adviser, for people aged 18 and over in England. 8am to 6pm, Monday to Friday. The website can help you find local training',
+  },
+  nationalCareersYoung: {
+    name: 'National Careers Service',
+    website: 'https://nationalcareers.service.gov.uk',
+    description: 'Free careers advice and help to find local training',
+  },
+  frank: {
+    name: 'FRANK',
+    phone: '0300 123 6600',
+    website: 'https://www.talktofrank.com',
+    description: 'Confidential advice about drugs, any time. You can also text 82111',
+  },
+  gamblingHelpline: {
+    name: 'National Gambling Helpline (GamCare)',
+    phone: '0808 8020 133',
+    website: 'https://www.gamcare.org.uk',
+    description: 'Free support with gambling, 24 hours a day, every day. Live chat on the website',
+  },
+  migrantHelp: {
+    name: 'Migrant Help asylum helpline',
+    phone: '0808 8010 503',
+    website: 'https://www.migranthelpuk.org',
+    description: 'Free helpline for people waiting for an asylum decision',
+  },
+  adviserFinder: {
+    // Direct link (Managing Director, 19 November 2026); the address is the
+    // Immigration Advice Authority's own, from its notice of 8 April 2025.
+    name: "Immigration Advice Authority's Adviser Finder",
+    website: 'https://portal.immigrationadviceauthority.gov.uk/s/adviser-finder',
+    description: 'A search for regulated immigration advisers near you. Not a helpline',
+  },
+  project17: {
+    // Website only (contract). For families with no recourse to public funds
+    // (Lambeth NRPF directory and Turn2us Advice Finder, read 19 November 2026).
+    name: 'Project 17',
+    website: 'https://www.project17.org.uk',
+    description: 'Support for families with no recourse to public funds',
+  },
+  turn2usBenefits: {
+    name: 'Turn2us Benefits Calculator',
+    website: 'https://www.turn2us.org.uk/get-support',
+    description: 'Best for benefits: check which benefits could help you. Website only',
+  },
+  turn2usGrants: {
+    name: 'Turn2us Grants Search',
+    website: 'https://grants-search.turn2us.org.uk',
+    description: 'Best for grants: search for charitable grants you may be eligible for. Website only',
+  },
+  nea: {
+    name: "National Energy Action's Energy Advice and Support Service",
+    phone: '0800 304 7159',
+    website: 'https://www.nea.org.uk/advice/',
+    description: 'Free energy advice, including help with energy bills. Open Monday to Thursday 10am to 4pm, Friday 10am to 12.30pm',
+  },
+  citizensAdviceEnergy: {
+    name: 'Citizens Advice energy line',
+    phone: '0808 223 1133',
+    website: 'https://www.citizensadvice.org.uk/energyadvice',
+    description: 'Advice on energy. 9am to 5pm, Monday to Friday, not on public holidays',
+  },
+};
+
+// `zeroMatch`: nothing local matched, or local results could not be loaded.
+// The energy pair and the Adviser Finder are for that case only (decision of
+// 19 November 2026; the contract's national table).
+function v4Fallbacks(session: SessionState, zeroMatch: boolean): Floor[] {
+  if (!session.v4Option) return [];
+  const parts = partsFor(session.v4Option as FirstOptionId, session.v4Choice ?? undefined);
+  const out: Floor[] = [];
+  const push = (f: Floor | undefined) => { if (f && !out.some(o => o.name === f.name)) out.push(f); };
+  for (const part of parts) {
+    const subs = part.subs ?? [];
+    const has = (k: string) => subs.length === 0 || subs.includes(k);
+    switch (part.parent) {
+      case 'health':
+        push(V4_FLOORS.nhs111);
+        if (session.lgbtq === true) push(V4_FLOORS.lgbtFoundation);
+        break;
+      case 'finance': {
+        // Citizens Advice and Turn2us for every money need, each saying what it
+        // is best for, the one for the person's question first (Managing
+        // Director, 19 November 2026).
+        const all = [V4_FLOORS.citizensAdvice, V4_FLOORS.turn2usBenefits, V4_FLOORS.turn2usGrants];
+        const first = subs.includes('benefits') ? V4_FLOORS.turn2usBenefits
+          : subs.includes('grants') ? V4_FLOORS.turn2usGrants
+          : subs.includes('debt-and-money-management') ? V4_FLOORS.citizensAdvice : undefined;
+        // Bills and energy with nothing local: National Energy Action first (decision of 19 November 2026).
+        if (zeroMatch && subs.includes('bills-and-energy')) { push(V4_FLOORS.nea); push(V4_FLOORS.citizensAdviceEnergy); }
+        push(first);
+        for (const f of all) push(f);
+        break;
+      }
+      case 'employment':
+        push(V4_FLOORS.jobcentrePlus);
+        // The phone line is for 18 and over; the website for under-18s (contract).
+        push(session.ageCategory === '16-17' ? V4_FLOORS.nationalCareersYoung : V4_FLOORS.nationalCareersAdult);
+        break;
+      case 'addiction':
+        // No national alcohol line has been verified at source (design note, section 11).
+        // FRANK is the drugs floor; "Drugs or alcohol" carries both keys.
+        if (has('drugs')) push(V4_FLOORS.frank);
+        if (has('gambling')) push(V4_FLOORS.gamblingHelpline);
+        break;
+      case 'immigration':
+        if (session.immigrationStatus === 'Asylum seeker') push(V4_FLOORS.migrantHelp);
+        else if (session.immigrationStatus && session.immigrationStatus !== 'Prefer not to say') { if (zeroMatch) push(V4_FLOORS.adviserFinder); }
+        else { push(V4_FLOORS.migrantHelp); if (zeroMatch) push(V4_FLOORS.adviserFinder); }
+        // Where the person has said they have no recourse to public funds
+        // (contract; Managing Director, 19 November 2026): the status answer
+        // "Leave to remain with no recourse to public funds (NRPF)".
+        if (session.immigrationStatus === 'Leave to remain' && session.publicFunds === 'No') push(V4_FLOORS.project17);
+        break;
+    }
+  }
   return out;
 }
 
@@ -411,11 +550,6 @@ const nationalFallbacks: Record<string, Array<{name: string; phone?: string; web
       phone: '111',
       website: 'https://111.nhs.uk',
       description: 'For urgent medical help when it is not an emergency'
-    },
-    {
-      name: 'Find NHS Services',
-      website: 'https://www.nhs.uk/service-search',
-      description: 'Find GPs, pharmacies, hospitals and other NHS services'
     }
   ],
   'Financial': [
@@ -440,7 +574,7 @@ const nationalFallbacks: Record<string, Array<{name: string; phone?: string; web
   'Training': [
     {
       name: 'National Careers Service',
-      phone: '0800 100 900',
+      phone: '0800 072 0288', // adults 18+ (nationalcareers.service.gov.uk/contact-us, 19 November 2026); 0800 100 900 is retired
       website: 'https://nationalcareers.service.gov.uk',
       description: 'Free careers advice, skills assessment and training information'
     }
@@ -541,16 +675,16 @@ function buildNonHousingTerminal(session: SessionState): TerminalResult {
   // Build profile for service matching
   const profile = toUserProfile(session);
 
-  const fallbacks = v4 ? v4Fallbacks(session) : (nationalFallbacks[need] || []);
-
   // Live read unavailable: say so, do not fall back to the January file
   if (getServicePool()?.status === 'unavailable') {
-    return buildLocalResultsUnavailableTerminal(la, fallbacks, categoryKey, displayName);
+    const shown = v4 ? v4Fallbacks(session, true) : (nationalFallbacks[need] || []);
+    return buildLocalResultsUnavailableTerminal(la, shown, categoryKey, displayName);
   }
 
   // Get matched local services
   const localServices = getServicesForNeed(need, profile);
   const hasLocalServices = localServices.length > 0;
+  const fallbacks = v4 ? v4Fallbacks(session, !hasLocalServices) : (nationalFallbacks[need] || []);
 
   // Zero-match path
   if (!hasLocalServices) {
@@ -594,8 +728,8 @@ function buildNonHousingTerminal(session: SessionState): TerminalResult {
     text += buildNationalFallbacksBlock(fallbacks);
   }
 
-  // LGBT Foundation for LGBTQ+ users on Health need
-  if (session.lgbtq === true && (need === 'Health' || v4Parents(session).includes('health'))) {
+  // LGBT Foundation for LGBTQ+ users on Health need (V4: among the national contacts above)
+  if (!v4 && session.lgbtq === true && need === 'Health') {
     const lgbtPhrase = getPhrase('TERMINAL_LGBT_FOUNDATION_HEALTH', session.isSupporter);
     if (!fallbacks.length) text += `---\n\n`;
     text += `LGBT Foundation\n`;
