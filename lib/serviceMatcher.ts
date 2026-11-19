@@ -336,29 +336,39 @@ function matchesGender(service: Service, gender: string | null): boolean {
   return true;
 }
 
+// The age bands the VA asks about, as [youngest, oldest].
+const AGE_BANDS: Record<string, [number, number]> = {
+  '16-17': [16, 17],
+  '18-20': [18, 20],
+  '21-24': [21, 24],
+  '18-24': [18, 24],
+  '25+': [25, Infinity],
+  '50+': [50, Infinity],
+};
+
+const STATED_AGE_LIMIT = /^\s*(\d{1,2})\s*[-\u2013]\s*(\d{1,2})\s+only\s*$/i;
+
 /**
- * Check if service matches age filter
+ * Whether a person's age band is compatible with a service's stated age limit.
+ *
+ * A tag such as "Young People" or "Older people" says who a service is
+ * designed for, not who it is only for, so it never hides a service. Only an
+ * explicit label such as "16-25 only" is a stated limit (Service Matching
+ * Contract, hard gate A: limits must be explicit; inferred or implied age
+ * groups do not qualify). The service is hidden only when the person's whole
+ * band falls outside the limit. Where they overlap, as "25+" does with
+ * "16-25 only", it is unclear, so the service is shown (VA #34, A10).
  */
-function matchesAge(clientGroups: string[], ageCategory: string | null): boolean {
-  if (!ageCategory) return true;
-  
-  const isYouthService = clientGroups.some(g => 
-    clientGroupKeywords.youth.some(k => g.includes(k))
-  );
-  const isElderlyService = clientGroups.some(g => 
-    clientGroupKeywords.elderly.some(k => g.includes(k))
-  );
-  
-  // Youth services: only show to young people
-  if (isYouthService) {
-    return ['16-17', '18-24', '18-20', '21-24'].includes(ageCategory);
+export function matchesStatedAgeLimit(clientGroups: string[], ageCategory: string | null): boolean {
+  const band = ageCategory ? AGE_BANDS[ageCategory] : undefined;
+  if (!band) return true;
+  for (const group of clientGroups) {
+    const limit = STATED_AGE_LIMIT.exec(group);
+    if (!limit) continue;
+    const youngest = Number(limit[1]);
+    const oldest = Number(limit[2]);
+    if (band[1] < youngest || band[0] > oldest) return false;
   }
-  
-  // Elderly services: only show to older people
-  if (isElderlyService) {
-    return ageCategory === '25+' || ageCategory === '50+';
-  }
-  
   return true;
 }
 
@@ -482,15 +492,13 @@ export function getServicesByCategory(
  */
 export function filterByProfile(services: Service[], profile: UserProfile): Service[] {
   return services.filter(s => {
-    const groups = s.client_groups || [];
-    
     // Gender filter - pass full service for name/description checking
     if (!matchesGender(s, profile.gender)) {
       return false;
     }
     
-    // Age filter
-    if (!matchesAge(groups, profile.ageCategory)) {
+    // Age: only an explicit "only" label hides a service (VA #34, A10)
+    if (!matchesStatedAgeLimit(s.client_groups || [], profile.ageCategory)) {
       return false;
     }
     
