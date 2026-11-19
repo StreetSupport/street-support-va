@@ -18,7 +18,7 @@ This note sets out what personal data the virtual assistant handles, why, on wha
 
 The assistant does not ask for anything that identifies a person: no address, date of birth or contact details. There is no account, no login and no link between one conversation and another.
 
-Within one conversation, it asks questions that change which help a person is shown. The answers are held only while the conversation runs, in the page's memory and on the server. Nothing is saved in the browser; closing the page clears it.
+Within one conversation, it asks questions that change which help a person is shown. The answers are held only while the conversation runs, in the page's memory and on the server. Nothing is saved in the browser; closing the chat, using Exit this page or closing the page clears it.
 
 Three things leave the conversation, and a fourth if the person chooses:
 
