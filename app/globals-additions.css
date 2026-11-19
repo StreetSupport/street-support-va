@@ -1,4 +1,6 @@
 /* Add these to your globals.css or tailwind config */
+/* NOTE: this file is not imported anywhere (app/layout.tsx imports ./globals.css only),
+   so nothing here takes effect. The live colour tokens are in tailwind.config.js. */
 
 /* Animation for typing dots */
 @keyframes bounce {
@@ -33,9 +35,9 @@
   theme: {
     extend: {
       colors: {
-        'ss-primary': '#38ae8e',    // Main brand teal
-        'ss-secondary': '#2d8a70',  // Darker teal for contrast
-        'ss-accent': '#38ae8e',     // Same as primary
+        'ss-primary': '#236c58',    // Main brand green (6.25:1 with white)
+        'ss-secondary': '#2d8a70',  // Not for text: 4.25:1 on white fails AA
+        'ss-accent': '#236c58',     // Same as primary
         'ss-mint': '#b0dccf',       // Light teal
         'ss-yellow': '#ffec83',     // Yellow
         'ss-purple': '#5f3f77',     // Purple

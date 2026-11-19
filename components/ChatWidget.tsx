@@ -7,15 +7,25 @@ import type { ServiceCard } from '@/lib/types';
 // SSN BRAND COLORS (Official)
 // ============================================================
 const SSN_COLORS = {
-  primary: '#38ae8e',      // Main brand teal
-  primaryDark: '#2d8a70',  // Darker teal for text contrast
+  primary: '#236c58',      // Main brand green (6.25:1 with white, WCAG AA for text)
+  primaryDark: '#2d8a70',  // Not for text: 4.25:1 on white fails AA. Use primary.
   mint: '#b0dccf',         // Light teal
   yellow: '#ffec83',       // Yellow (solid badges)
   purple: '#5f3f77',       // Purple (solid badges)
   text: '#333333',
   grayBorder: '#dedede',
   grayLight: '#f5f5f5',
+  inputBorder: '#767676',  // 4.54:1 on white, meets 3:1 for control boundaries
 };
+
+// Stable id for the launcher button, so focus can return to it after close
+// (ChatLauncher unmounts while the widget is open).
+const LAUNCHER_ID = 'ssn-va-launcher';
+
+// Visible keyboard focus ring (2px, 3:1). 'ss-primary' is #236c58 in tailwind.config.js.
+const FOCUS_RING = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ss-primary';
+// White ring for controls sitting on the green header
+const FOCUS_RING_ON_PRIMARY = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white';
 
 // ============================================================
 // TYPES
@@ -61,14 +71,15 @@ function LinkifiedText({ text }: { text: string }) {
     if (match[1]) {
       parts.push(
         <a key={`url-${match.index}`} href={matchedText} target="_blank" rel="noopener noreferrer" 
-           className="font-medium hover:underline break-all" style={{ color: SSN_COLORS.primary }}>
+           className={`font-medium underline break-all rounded-sm ${FOCUS_RING}`} style={{ color: SSN_COLORS.primary }}>
           {matchedText}
+          <span className="sr-only"> (opens in new tab)</span>
         </a>
       );
     } else {
       parts.push(
         <a key={`phone-${match.index}`} href={`tel:${matchedText.replace(/[\s-]/g, '')}`} 
-           className="font-semibold hover:underline" style={{ color: SSN_COLORS.primary }}>
+           className={`font-semibold underline rounded-sm ${FOCUS_RING}`} style={{ color: SSN_COLORS.primary }}>
           {matchedText}
         </a>
       );
@@ -87,10 +98,17 @@ function LinkifiedText({ text }: { text: string }) {
 // TEXT PROCESSING
 // ============================================================
 
-function stripInstructionsAndOptions(text: string): string {
+function stripInstructionsAndOptions(text: string, optionLabels: string[] = []): string {
   if (!text) return '';
   
+  const numberedLineRegex = /^\d+[.)]\s*(.+)$/;
+  const optionSet = new Set(optionLabels.map(label => label.trim().toLowerCase()));
   const lines = text.split('\n');
+  // If the message has exactly as many numbered lines as there are quick-reply
+  // options, they are the option list and are all removed. Otherwise only lines
+  // that repeat a quick-reply label are removed.
+  const numberedCount = lines.filter(l => numberedLineRegex.test(l.trim())).length;
+  const numberedAreOptionList = optionLabels.length > 0 && numberedCount === optionLabels.length;
   const cleanedLines: string[] = [];
   
   for (const line of lines) {
@@ -106,7 +124,8 @@ function stripInstructionsAndOptions(text: string): string {
       continue;
     }
     
-    if (/^\d+[.)]\s*.+/.test(line.trim())) {
+    const numbered = numberedLineRegex.exec(line.trim());
+    if (numbered && (numberedAreOptionList || optionSet.has(numbered[1].trim().toLowerCase()))) {
       continue;
     }
     
@@ -367,11 +386,11 @@ function ServiceCardComponent({ service }: { service: ServiceCard }) {
             className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
             style={{ 
               backgroundColor: '#e8f5e9',
-              color: '#2e7d32',
+              color: '#256b29', // 5.81:1 on #e8f5e9 (was #2e7d32, 4.56:1)
               border: '1px solid #4caf50'
             }}
           >
-            <svg className="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+            <svg aria-hidden="true" className="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
             Start Here
@@ -402,19 +421,19 @@ function ServiceCardComponent({ service }: { service: ServiceCard }) {
       </div>
       
       {/* Org name - larger, bolder for readability */}
-      <h4 className="font-bold text-base mb-3" style={{ color: SSN_COLORS.text }}>
+      <h3 className="font-bold text-base mb-3" style={{ color: SSN_COLORS.text }}>
         {service.name}
-      </h4>
+      </h3>
       
       {/* Contact details - clear tappable buttons */}
       <div className="space-y-2 mb-3">
         {service.phone && (
           <a 
             href={`tel:${service.phone.replace(/[^\d+]/g, '')}`} 
-            className="flex items-center font-semibold text-sm bg-white rounded-lg px-3 py-2.5 transition-colors hover:bg-gray-50"
+            className={`flex items-center min-h-[44px] font-semibold text-sm bg-white rounded-lg px-3 py-2.5 transition-colors hover:bg-gray-50 ${FOCUS_RING}`}
             style={{ color: SSN_COLORS.primary, border: `1px solid ${SSN_COLORS.grayBorder}` }}
           >
-            <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
             </svg>
             {service.phone}
@@ -425,13 +444,14 @@ function ServiceCardComponent({ service }: { service: ServiceCard }) {
             href={service.website} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center font-medium text-sm bg-white rounded-lg px-3 py-2.5 transition-colors hover:bg-gray-50"
+            className={`flex items-center min-h-[44px] font-medium text-sm bg-white rounded-lg px-3 py-2.5 transition-colors hover:bg-gray-50 ${FOCUS_RING}`}
             style={{ color: SSN_COLORS.primary, border: `1px solid ${SSN_COLORS.grayBorder}` }}
           >
-            <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
-            <span className="truncate">{service.website.replace('https://', '').replace('http://', '')}</span>
+            <span>{service.name} website</span>
+            <span className="sr-only"> (opens in new tab)</span>
           </a>
         )}
       </div>
@@ -473,12 +493,17 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   const lastMessageRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<Element | null>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
+  const latestAssistantRef = useRef<HTMLDivElement>(null);
+  const wasOpenRef = useRef(false);
+  const wasLoadingRef = useRef(false);
 
   useEffect(() => {
     if (lastMessageRef.current && messagesContainerRef.current) {
       setTimeout(() => {
-        lastMessageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const reduceMotion = typeof window !== 'undefined' &&
+          window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+        lastMessageRef.current?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
       }, 100);
     }
   }, [messages]);
@@ -501,39 +526,76 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
+    const active = document.activeElement;
 
-    if (e.shiftKey && document.activeElement === first) {
+    // Focus is on the dialog container itself, on <body>, or outside the dialog
+    // (e.g. after a focused control was disabled or removed): wrap into the dialog.
+    if (!active || active === dialogRef.current || !dialogRef.current.contains(active)) {
+      e.preventDefault();
+      (e.shiftKey ? last : first).focus();
+      return;
+    }
+
+    if (e.shiftKey && active === first) {
       e.preventDefault();
       last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
+    } else if (!e.shiftKey && active === last) {
       e.preventDefault();
       first.focus();
     }
   }, [onClose]);
 
-  // Manage focus on open/close and attach focus trap
+  // Attach focus trap while open
   useEffect(() => {
-    if (isOpen) {
-      triggerRef.current = document.activeElement;
-      // Focus the dialog itself initially; input focus follows when conversation starts
+    if (!isOpen) return;
+    document.addEventListener('keydown', handleFocusTrap);
+    return () => document.removeEventListener('keydown', handleFocusTrap);
+  }, [isOpen, handleFocusTrap]);
+
+  // Manage focus on the open and close transitions only
+  useEffect(() => {
+    if (isOpen && !wasOpenRef.current) {
+      const active = document.activeElement;
+      triggerRef.current = active instanceof HTMLElement && active !== document.body ? active : null;
+      // Focus the input if a conversation is in progress, otherwise the dialog itself
       setTimeout(() => {
-        if (conversationStarted && inputRef.current) {
+        if (inputRef.current && !inputRef.current.disabled) {
           inputRef.current.focus();
-        } else if (dialogRef.current) {
-          dialogRef.current.focus();
+        } else {
+          dialogRef.current?.focus();
         }
       }, 0);
-      document.addEventListener('keydown', handleFocusTrap);
-    } else {
-      document.removeEventListener('keydown', handleFocusTrap);
-      // Return focus to the element that opened the widget
-      if (triggerRef.current && triggerRef.current instanceof HTMLElement) {
-        triggerRef.current.focus();
-        triggerRef.current = null;
-      }
+    } else if (!isOpen && wasOpenRef.current) {
+      // Return focus to the opener. The launcher unmounts while the widget is
+      // open, so fall back to its stable id once it has re-rendered.
+      const trigger = triggerRef.current;
+      triggerRef.current = null;
+      setTimeout(() => {
+        const target = trigger?.isConnected ? trigger : document.getElementById(LAUNCHER_ID);
+        target?.focus();
+      }, 0);
     }
-    return () => document.removeEventListener('keydown', handleFocusTrap);
-  }, [isOpen, conversationStarted, handleFocusTrap]);
+    wasOpenRef.current = isOpen;
+  }, [isOpen]);
+
+  // After a reply arrives, move focus to the newest assistant message so a screen
+  // reader reads all of it (including any phone numbers) before Tab reaches the
+  // options. Fall back to the input, then the panel.
+  useEffect(() => {
+    const finishedLoading = wasLoadingRef.current && !isLoading;
+    wasLoadingRef.current = isLoading;
+    if (!finishedLoading || !isOpen) return;
+    setTimeout(() => {
+      if (latestAssistantRef.current) {
+        latestAssistantRef.current.focus();
+      } else if (inputRef.current && !inputRef.current.disabled) {
+        inputRef.current.focus();
+      } else {
+        // Session ended or input unavailable: keep focus inside the dialog
+        dialogRef.current?.focus();
+      }
+    }, 0);
+  }, [isLoading, isOpen]);
 
   // ============================================================
   // LOCATION HANDLING
@@ -683,7 +745,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       : [];
 
     const messageText = quickReplies.length > 0 
-      ? stripInstructionsAndOptions(data.m || '')
+      ? stripInstructionsAndOptions(data.m || '', quickReplies.map(reply => reply.label))
       : (data.m || '');
 
     // Only add message if there's content
@@ -799,9 +861,13 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
             </p>
           )}
           
-          {parsed.services.map((service, idx) => (
-            <ServiceCardComponent key={idx} service={service} />
-          ))}
+          <ul role="list" className="space-y-3">
+            {parsed.services.map((service, idx) => (
+              <li key={idx}>
+                <ServiceCardComponent service={service} />
+              </li>
+            ))}
+          </ul>
           
           {parsed.outro && (
             <p className="text-sm leading-relaxed mt-4 pt-3" style={{ color: '#555555', borderTop: `1px solid ${SSN_COLORS.grayBorder}` }}>
@@ -828,7 +894,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       aria-modal="true"
       aria-label="Street Support assistant"
       tabIndex={-1}
-      className="fixed bottom-4 right-4 w-full max-w-[480px] h-[640px] max-h-[90vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden z-50"
+      className="fixed inset-0 bg-white shadow-2xl flex flex-col overflow-hidden z-50 sm:inset-auto sm:bottom-4 sm:right-4 sm:w-full sm:max-w-[480px] sm:h-[640px] sm:max-h-[90vh] sm:rounded-xl"
       style={{ border: `1px solid ${SSN_COLORS.grayBorder}` }}
     >
       {/* Header - SSN teal */}
@@ -840,21 +906,21 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
         <div className="flex items-center gap-2">
           <button
             onClick={handleRestart}
-            className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+            className={`p-3 hover:bg-white/20 rounded-lg transition-colors ${FOCUS_RING_ON_PRIMARY}`}
             title="Start new conversation"
             aria-label="Start new conversation"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </button>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+            className={`p-3 hover:bg-white/20 rounded-lg transition-colors ${FOCUS_RING_ON_PRIMARY}`}
             title="Close"
             aria-label="Close assistant"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -872,16 +938,16 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
         {/* Welcome Screen */}
         {!conversationStarted && (
           <div className="flex flex-col items-center justify-center h-full px-4">
-            <h1 className="text-2xl font-bold text-center mb-8 leading-relaxed" style={{ color: SSN_COLORS.text }}>
+            <p className="text-2xl font-bold text-center mb-8 leading-relaxed" style={{ color: SSN_COLORS.text }}>
               Hello, I'm Street Support Network's assistant! How can I help you today?
-            </h1>
+            </p>
             <div className="flex flex-col gap-3 w-full max-w-sm">
               {conversationStarters.map((label, index) => (
                 <button
                   key={index}
                   onClick={handleStarterClick}
                   disabled={isLoading}
-                  className="px-5 py-4 text-base font-semibold rounded-lg bg-white text-left disabled:opacity-50 shadow-sm hover:shadow-md transition-all"
+                  className={`px-5 py-4 text-base font-semibold rounded-lg bg-white text-left disabled:opacity-50 shadow-sm hover:shadow-md transition-all ${FOCUS_RING}`}
                   style={{ 
                     color: SSN_COLORS.text, 
                     border: `1px solid ${SSN_COLORS.grayBorder}`,
@@ -916,10 +982,18 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                         boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
                       }}
                     >
-                      {message.role === 'assistant' 
-                        ? renderMessageContent(message.content)
-                        : <p className="text-sm font-medium">{message.content}</p>
-                      }
+                      <div
+                        id={`ssn-va-msg-${index}`}
+                        ref={isLastMessage && message.role === 'assistant' ? latestAssistantRef : null}
+                        tabIndex={message.role === 'assistant' ? -1 : undefined}
+                        className={`relative rounded-sm ${FOCUS_RING}`}
+                      >
+                        <span className="sr-only">{message.role === 'user' ? 'You said: ' : 'Assistant: '}</span>
+                        {message.role === 'assistant'
+                          ? renderMessageContent(message.content)
+                          : <p className="text-sm font-medium">{message.content}</p>
+                        }
+                      </div>
                     </div>
                   </div>
 
@@ -929,13 +1003,17 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                    message.quickReplies.length > 0 && 
                    isLastMessage && 
                    !sessionEnded && (
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    <div
+                      role="group"
+                      aria-labelledby={`ssn-va-msg-${index}`}
+                      className="mt-3 flex flex-wrap gap-2"
+                    >
                       {message.quickReplies.map((reply, idx) => (
                         <button
                           key={idx}
                           onClick={() => { void handleQuickReply(reply); }}
                           disabled={isLoading}
-                          className="px-4 py-2.5 text-sm font-semibold rounded-full bg-white disabled:opacity-50 shadow-sm hover:shadow-md transition-all"
+                          className={`min-h-[44px] px-4 py-2.5 text-sm font-semibold rounded-full bg-white disabled:opacity-50 shadow-sm hover:shadow-md transition-all ${FOCUS_RING}`}
                           style={{ 
                             color: SSN_COLORS.text, 
                             border: `1px solid ${SSN_COLORS.grayBorder}`,
@@ -957,10 +1035,11 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                   className="bg-white rounded-xl px-4 py-3"
                   style={{ border: `1px solid ${SSN_COLORS.grayBorder}`, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
                 >
-                  <div className="flex gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full animate-bounce" style={{ backgroundColor: SSN_COLORS.primary, animationDelay: '0ms' }}></div>
-                    <div className="w-2.5 h-2.5 rounded-full animate-bounce" style={{ backgroundColor: SSN_COLORS.primary, animationDelay: '150ms' }}></div>
-                    <div className="w-2.5 h-2.5 rounded-full animate-bounce" style={{ backgroundColor: SSN_COLORS.primary, animationDelay: '300ms' }}></div>
+                  <span className="sr-only">Assistant is typing</span>
+                  <div className="flex gap-1.5" aria-hidden="true">
+                    <div className="w-2.5 h-2.5 rounded-full motion-safe:animate-bounce" style={{ backgroundColor: SSN_COLORS.primary, animationDelay: '0ms' }}></div>
+                    <div className="w-2.5 h-2.5 rounded-full motion-safe:animate-bounce" style={{ backgroundColor: SSN_COLORS.primary, animationDelay: '150ms' }}></div>
+                    <div className="w-2.5 h-2.5 rounded-full motion-safe:animate-bounce" style={{ backgroundColor: SSN_COLORS.primary, animationDelay: '300ms' }}></div>
                   </div>
                 </div>
               </div>
@@ -971,12 +1050,12 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
       {/* Session Ended */}
       {sessionEnded && (
-        <div className="px-4 py-3 bg-gray-100 border-t border-gray-200 text-center">
+        <div role="status" className="px-4 py-3 bg-gray-100 border-t border-gray-200 text-center">
           <p className="text-sm font-medium" style={{ color: '#555555' }}>
             This conversation has ended.{' '}
             <button 
               onClick={handleRestart} 
-              className="font-bold hover:underline"
+              className={`font-bold underline rounded-sm ${FOCUS_RING}`}
               style={{ color: SSN_COLORS.primary }}
             >
               Start a new conversation
@@ -988,27 +1067,38 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       {/* Input */}
       {conversationStarted && (
         <form onSubmit={handleSubmit} className="p-3 bg-white border-t flex-shrink-0" style={{ borderColor: SSN_COLORS.grayBorder }}>
+          {awaitingPostcode && !sessionEnded && (
+            <p id="ssn-va-postcode-hint" className="text-sm font-medium mb-2" style={{ color: '#555555' }}>
+              Enter your postcode, for example WV1 1AA
+            </p>
+          )}
           <div className="flex items-center gap-2">
+            <label htmlFor="ssn-va-input" className="sr-only">
+              {awaitingPostcode ? 'Postcode' : 'Message'}
+            </label>
             <input
               ref={inputRef}
+              id="ssn-va-input"
               type="text"
+              autoComplete={awaitingPostcode ? 'postal-code' : 'off'}
+              aria-describedby={awaitingPostcode && !sessionEnded ? 'ssn-va-postcode-hint' : undefined}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder={sessionEnded ? 'Conversation ended' : awaitingPostcode ? 'Enter your postcode (e.g. WV1 1AA)...' : 'Type a message...'}
+              placeholder={sessionEnded ? 'Conversation ended' : awaitingPostcode ? 'Postcode' : 'Type a message...'}
               disabled={isLoading || sessionEnded}
-              className="flex-1 px-4 py-2.5 rounded-lg disabled:bg-gray-50 disabled:text-gray-400 font-medium focus:outline-none"
+              className={`flex-1 px-4 py-2.5 rounded-lg disabled:bg-gray-50 disabled:text-gray-400 font-medium ${FOCUS_RING}`}
               style={{ 
                 color: SSN_COLORS.text, 
-                border: `1px solid ${SSN_COLORS.grayBorder}`,
+                border: `1px solid ${SSN_COLORS.inputBorder}`,
               }}
               onFocus={(e) => e.currentTarget.style.borderColor = SSN_COLORS.primary}
-              onBlur={(e) => e.currentTarget.style.borderColor = SSN_COLORS.grayBorder}
+              onBlur={(e) => e.currentTarget.style.borderColor = SSN_COLORS.inputBorder}
             />
             <button
               type="submit"
               disabled={!inputValue?.trim() || isLoading || sessionEnded}
               aria-label="Send message"
-              className="p-2.5 text-white rounded-lg disabled:bg-gray-300 transition-colors"
+              className={`p-3 text-white rounded-lg disabled:bg-gray-300 transition-colors ${FOCUS_RING}`}
               style={{ backgroundColor: SSN_COLORS.primary }}
             >
               <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
