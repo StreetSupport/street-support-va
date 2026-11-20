@@ -232,7 +232,7 @@ describe('which turns read live', () => {
   // Sessions on the housing route, across both routes, ages and situations.
   const variants: Partial<SessionState>[] = [];
   for (const routeType of ['QUICK', 'FULL'] as const)
-    for (const ageCategory of ['25 or over', '18-20', '16-17'])
+    for (const ageCategory of ['25 or over', '18-24', '16-17'])
       for (const housingSituation of [null, 'KEEP_STEADY', 'LOSING_HOME', 'LEAVING_PRISON'] as SessionState['housingSituation'][])
         variants.push({ routeType, ageCategory, housingSituation, localAuthority: 'Wolverhampton', youthSocialServicesAsked: ageCategory === '16-17' });
   const ANSWERS = ['1', '2', '3', '4', '5', '6', '7'];
@@ -250,10 +250,10 @@ describe('which turns read live', () => {
     expect(reads).toBeGreaterThan(0);
   });
 
-  test('every answer there that shows housing results reads live, except the 16 and 17 social services question', () => {
+  test('every answer there that shows housing results reads live, except the 16 and 17 care questions', () => {
     for (const gate of HOUSING_RESULT_GATES) for (const v of variants) for (const answer of ANSWERS) {
       const s = at(gate, v);
-      const exempt = gate === 'C3Q12_SOCIAL_SERVICES' && v.ageCategory === '16-17';
+      const exempt = gate === 'C3Q11_EVER_IN_CARE_16_17' || (gate.startsWith('C3Q11') && v.ageCategory === '16-17');
       if (showsResults(processInput(s, answer)) && !exempt) {
         expect([gate, v.routeType, v.ageCategory, v.housingSituation, answer, readsLiveAt(s, answer)])
           .toEqual([gate, v.routeType, v.ageCategory, v.housingSituation, answer, true]);
@@ -277,9 +277,12 @@ describe('which turns read live', () => {
     expect(processInput(at('ESCALATION_LEVEL_1'), '3').stateUpdates?.currentGate).toBe('GATE0_CRISIS_DANGER');
   });
 
-  test('the 16 and 17 social services question never calls the read', () => {
-    for (const answer of ['1', '2', '3']) {
-      expect(calls(at('C3Q12_SOCIAL_SERVICES', { ageCategory: '16-17', routeType: 'FULL' }), answer)).toBe(0);
+  test('the 16 and 17 care questions never call the read', () => {
+    for (const answer of ['1', '2', '3', '4', '5', '6']) {
+      expect(calls(at('C3Q11_EVER_IN_CARE_16_17', { ageCategory: '16-17', routeType: 'FULL' }), answer)).toBe(0);
+    }
+    for (const answer of ['1', '2', '8', '9', '10']) {
+      expect(calls(at('C3Q11A_CARE_COUNCIL', { ageCategory: '16-17', routeType: 'FULL', careExperience: 'LEFT_CARE' }), answer)).toBe(0);
     }
   });
 
@@ -429,7 +432,6 @@ const shownFor = (s: SessionState) =>
 
 describe('a gender answer lifts services designed for that gender', () => {
   const gates: [string, Record<string, string>][] = [
-    ['B4_GENDER', { Male: '1', Female: '2', 'Non-binary or other': '3', 'Prefer not to say': '4' }],
     ['B5_PROFILE_GENDER', { Male: '1', Female: '2', 'Non-binary or other': '3', 'Prefer not to say': '4' }],
     ['C3Q4_GENDER', { Male: '1', Female: '2', 'Trans Female': '3', 'Trans Male': '4' }],
   ];
@@ -516,7 +518,7 @@ describe('a typed gender answer is read on whole words', () => {
     return runWithServicePool(pool, () => getServicesForNeed('Drop In', toUserProfile(s))).some(x => x.organizationId === 'org-wo');
   };
 
-  for (const isSupporter of [false, true]) for (const gate of ['B4_GENDER', 'B5_PROFILE_GENDER', 'C3Q4_GENDER']) {
+  for (const isSupporter of [false, true]) for (const gate of ['B5_PROFILE_GENDER', 'C3Q4_GENDER']) {
     const who = `${isSupporter ? 'a supporter' : 'the person'} at ${gate}`;
     const options = getPhrase(gate, isSupporter)?.options;
 
@@ -586,7 +588,7 @@ describe('a trans answer typed where there is no trans option', () => {
   const shown = (s: SessionState) =>
     runWithServicePool(pool(), () => getServicesForNeed('Drop In', toUserProfile(s))).map(x => x.organizationId);
 
-  for (const isSupporter of [false, true]) for (const gate of ['B4_GENDER', 'B5_PROFILE_GENDER']) {
+  for (const isSupporter of [false, true]) for (const gate of ['B5_PROFILE_GENDER']) {
     const who = `${isSupporter ? 'a supporter' : 'the person'} at ${gate}`;
     const options = getPhrase(gate, isSupporter)?.options;
 
@@ -619,7 +621,7 @@ describe('a trans answer typed where there is no trans option', () => {
   });
 
   test('a word that only starts with trans, such as transport, is not held', () => {
-    expect(heldTransAnswer('B4_GENDER', 'transport')).toBe(false);
+    expect(heldTransAnswer('B5_PROFILE_GENDER', 'transport')).toBe(false);
   });
 });
 
@@ -640,7 +642,7 @@ describe('every trans phrase is read as trans before anything else', () => {
   for (const isSupporter of [false, true]) {
     const who = isSupporter ? 'a supporter' : 'the person';
 
-    for (const gate of ['B4_GENDER', 'B5_PROFILE_GENDER']) {
+    for (const gate of ['B5_PROFILE_GENDER']) {
       for (const typed of [...TRANS_PHRASES, 'MtF', 'FtM']) {
         test(`${who} at ${gate}: "${typed}" is held as Trans, hides nothing and lifts nothing`, () => {
           const s = answered(gate, typed, isSupporter);

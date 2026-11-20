@@ -311,46 +311,6 @@ Support with Benefits and Grants | Turn2us - https://www.turn2us.org.uk/`
     options: ["Myself", "Someone I'm supporting", "I'm a professional or organisation", "Not sure / just trying to find the right place"]
   },
 
-  B3_AGE_CATEGORY: {
-    text: `Which age group are you in?
-
-1. Under 16
-2. 16-17
-3. 18-24
-4. 25 or over`,
-    options: ["Under 16", "16-17", "18-24", "25 or over"]
-  },
-
-  B3_AGE_CATEGORY__SUPPORTER: {
-    text: `Which age group are they in?
-
-1. Under 16
-2. 16-17
-3. 18-24
-4. 25 or over`,
-    options: ["Under 16", "16-17", "18-24", "25 or over"]
-  },
-
-  B4_GENDER: {
-    text: `I need to ask about gender because some services are specifically for particular genders. I know these options don't fit everyone perfectly - please choose whichever feels closest, or 'Prefer not to say' if you'd rather skip this.
-
-1. Male
-2. Female
-3. Non-binary or other
-4. Prefer not to say`,
-    options: ["Male", "Female", "Non-binary or other", "Prefer not to say"]
-  },
-
-  B4_GENDER__SUPPORTER: {
-    text: `I need to ask about gender because some services are specifically for particular genders. These options might not fit everyone perfectly.
-
-1. Male
-2. Female
-3. Non-binary or other
-4. Prefer not to say`,
-    options: ["Male", "Female", "Non-binary or other", "Prefer not to say"]
-  },
-
   // First question (VA V4 Redesign Design Note, Decision 1, Managing Director,
   // 4 November 2026). Labels must match lib/data/v4Categories.ts.
   B5_MAIN_SUPPORT_NEED: {
@@ -453,8 +413,8 @@ Support with Benefits and Grants | Turn2us - https://www.turn2us.org.uk/`
   // Asked based on which support need was selected
   // ============================================================
 
-  // AGE - Asked for: Health, Work, Training, Activities, Drop In, and Emergency Housing on the quick route
-  // Under 16 takes the same under-16 exit as B3_AGE_CATEGORY
+  // AGE - Asked for: Health, Work, Training, Activities, Drop In, and Emergency Housing on either route
+  // Under 16 takes the under-16 exit
   B5_YOUTH_SOCIAL_SERVICES: {
     text: `Do you have a social worker or a personal adviser, or are you living somewhere the council arranged, like foster care, a children's home or supported accommodation?`,
     options: ["Yes", "No", "Not sure", "Prefer not to say"]
@@ -1211,10 +1171,9 @@ Would they like to answer a few more questions so I can find services that fit t
 
 1. Under 16
 2. 16-17
-3. 18-20
-4. 21-24
-5. 25+`,
-    options: ["Under 16", "16-17", "18-20", "21-24", "25+"]
+3. 18-24
+4. 25+`,
+    options: ["Under 16", "16-17", "18-24", "25+"]
   },
 
   C3Q3_AGE__SUPPORTER: {
@@ -1222,10 +1181,9 @@ Would they like to answer a few more questions so I can find services that fit t
 
 1. Under 16
 2. 16-17
-3. 18-20
-4. 21-24
-5. 25+`,
-    options: ["Under 16", "16-17", "18-20", "21-24", "25+"]
+3. 18-24
+4. 25+`,
+    options: ["Under 16", "16-17", "18-24", "25+"]
   },
 
   C3Q4_GENDER: {
@@ -1426,38 +1384,91 @@ For any concerns about disclosing convictions when looking for housing, they can
     options: ["Yes, show LGBTQ+ specialist services first", "No, just show local services", "Show both"]
   },
 
-  C3Q11_CURRENTLY_IN_CARE: {
-    text: `Are you currently being looked after by social services under the Children's Act 1989?
+  // Care leavers (VA Pathway Review 5.2; Managing Director, 20 November 2026).
+  // Asked at 16 to 24 on the full route only. Never how long, at what age or
+  // under which section: the leaving care team applies those tests.
+  C3Q11_EVER_IN_CARE_16_17: {
+    text: `Have you ever been in care?
 
-1. Yes
-2. No`,
-    options: ["Yes", "No"]
+Being in care means living in foster care, a children's home, or a placement the council arranged.
+
+1. In care now
+2. Was in care but I've left
+3. No, but I have a social worker
+4. No
+5. Not sure
+6. Prefer not to say`,
+    options: ["In care now", "Was in care but I've left", "No, but I have a social worker", "No", "Not sure", "Prefer not to say"]
   },
 
-  C3Q11_CURRENTLY_IN_CARE__SUPPORTER: {
-    text: `Are they currently being looked after by social services under the Children's Act 1989?
+  C3Q11_EVER_IN_CARE_16_17__SUPPORTER: {
+    text: `Have they ever been in care?
 
-1. Yes
-2. No`,
-    options: ["Yes", "No"]
+Being in care means living in foster care, a children's home, or a placement the council arranged.
+
+1. In care now
+2. Was in care but they've left
+3. No, but they have a social worker
+4. No
+5. Not sure
+6. Prefer not to say`,
+    options: ["In care now", "Was in care but they've left", "No, but they have a social worker", "No", "Not sure", "Prefer not to say"]
   },
 
-  C3Q12_SOCIAL_SERVICES: {
-    text: `Are you currently in contact with social services or a social worker?
+  C3Q11_EVER_IN_CARE: {
+    text: `Have you ever been in care?
+
+Being in care means living in foster care, a children's home, or a placement the council arranged.
 
 1. Yes
 2. No
-3. Prefer not to say`,
-    options: ["Yes", "No", "Prefer not to say"]
+3. Not sure
+4. Prefer not to say`,
+    options: ["Yes", "No", "Not sure", "Prefer not to say"]
   },
 
-  C3Q12_SOCIAL_SERVICES__SUPPORTER: {
-    text: `Are they currently in contact with social services or a social worker?
+  C3Q11_EVER_IN_CARE__SUPPORTER: {
+    text: `Have they ever been in care?
+
+Being in care means living in foster care, a children's home, or a placement the council arranged.
 
 1. Yes
 2. No
-3. Prefer not to say`,
-    options: ["Yes", "No", "Prefer not to say"]
+3. Not sure
+4. Prefer not to say`,
+    options: ["Yes", "No", "Not sure", "Prefer not to say"]
+  },
+
+  C3Q11A_CARE_COUNCIL: {
+    text: `Which council looked after you?
+
+1. Wolverhampton
+2. Birmingham
+3. Coventry
+4. Dudley
+5. Sandwell
+6. Solihull
+7. Walsall
+8. Somewhere else
+9. Not sure
+10. Prefer not to say`,
+    options: ["Wolverhampton", "Birmingham", "Coventry", "Dudley", "Sandwell", "Solihull", "Walsall", "Somewhere else", "Not sure", "Prefer not to say"]
+  },
+
+  C3Q11A_CARE_COUNCIL__SUPPORTER: {
+    text: `Which council looked after them?
+
+1. Wolverhampton
+2. Birmingham
+3. Coventry
+4. Dudley
+5. Sandwell
+6. Solihull
+7. Walsall
+8. Somewhere else
+9. Not sure
+10. Prefer not to say`,
+    options: ["Wolverhampton", "Birmingham", "Coventry", "Dudley", "Sandwell", "Solihull", "Walsall", "Somewhere else", "Not sure", "Prefer not to say"]
   },
 
   // ============================================================
@@ -2434,6 +2445,122 @@ In the meantime, keep chatting with me. I can help you look for more support now
 
   TERMINAL_YOUTH_16_17_CHILDRENS_SERVICES__SUPPORTER: {
     text: `For people aged 16 or 17, housing support is usually arranged through Children's Services or a social worker. They can call their duty team directly, or ask someone they trust to help them make contact.`
+  },
+
+  // Care leaver results (lib/handlers/careLeavers.ts). Facts only: never what
+  // the person is owed.
+  CARE_E1_SOCIAL_WORKER: {
+    text: `If you have a social worker or personal adviser, you can talk to them about where you are living.`
+  },
+
+  CARE_E1_SOCIAL_WORKER__SUPPORTER: {
+    text: `If they have a social worker or personal adviser, they can talk to them about where they are living.`
+  },
+
+  CARE_E1_LINE: {
+    text: `If you have a personal adviser, you can talk to them about your housing.`
+  },
+
+  CARE_E1_LINE__SUPPORTER: {
+    text: `If they have a personal adviser, they can talk to them about their housing.`
+  },
+
+  CARE_LEAVING_CARE_FACTS: {
+    text: `Leaving care teams support young people who have been in care. Help with housing is part of what they do. They will look at your situation with you.`
+  },
+
+  CARE_LEAVING_CARE_FACTS__SUPPORTER: {
+    text: `Leaving care teams support young people who have been in care. Help with housing is part of what they do. They will look at their situation with them.`
+  },
+
+  // One wording for 18 to 24 (Homelessness Code of Guidance, Chapter 22,
+  // paragraph 22.3: a Personal Adviser supports a care leaver until their 25th
+  // birthday). The fact only.
+  CARE_SUPPORT_AGE_18_24: {
+    text: `Support from a leaving care team can continue until your 25th birthday.`
+  },
+
+  CARE_SUPPORT_AGE_18_24__SUPPORTER: {
+    text: `Support from a leaving care team can continue until their 25th birthday.`
+  },
+
+  CARE_E3_ASK_COUNCIL: {
+    text: `The council that looked after you: ask for the leaving care team.`
+  },
+
+  CARE_E3_ASK_COUNCIL__SUPPORTER: {
+    text: `The council that looked after them: ask for the leaving care team.`
+  },
+
+  CARE_ASK_LOCAL_COUNCIL: {
+    text: `Ask your local council for the leaving care team.`
+  },
+
+  CARE_ASK_LOCAL_COUNCIL__SUPPORTER: {
+    text: `Ask their local council for the leaving care team.`
+  },
+
+  CARE_LA_FIND_RESPONSIBLE: {
+    text: `The leaving care team where you are now can help you find who is responsible.`
+  },
+
+  CARE_LA_FIND_RESPONSIBLE__SUPPORTER: {
+    text: `The leaving care team where they are now can help them find who is responsible.`
+  },
+
+  CARE_LA_CAN_CHECK: {
+    text: `If you're not sure whether you have been in care, the leaving care team where you are now can check for you.`
+  },
+
+  CARE_LA_CAN_CHECK__SUPPORTER: {
+    text: `If they're not sure whether they have been in care, the leaving care team where they are now can check for them.`
+  },
+
+  // Caveat lines under the local leaving care team, for the two not-sure care
+  // answers (Managing Director, 20 November 2026). {council} is where they are now.
+  CARE_LA_NOT_SURE_COUNCIL_CAVEAT: {
+    text: `If {council} looked after you, this team can support you. If it was a different council, they may be able to help you work out which one, or give you some support in the meantime.`
+  },
+
+  CARE_LA_NOT_SURE_COUNCIL_CAVEAT__SUPPORTER: {
+    text: `If {council} looked after them, this team can support them. If it was a different council, they may be able to help work out which one, or give some support in the meantime.`
+  },
+
+  CARE_LA_NOT_SURE_CARE_CAVEAT: {
+    text: `If you're not sure whether you were in care, this team may be able to check whether {council} looked after you. If it was a different council, that council's leaving care team can help.`
+  },
+
+  CARE_LA_NOT_SURE_CARE_CAVEAT__SUPPORTER: {
+    text: `If they're not sure whether they were in care, this team may be able to check whether {council} looked after them. If it was a different council, that council's leaving care team can help.`
+  },
+
+  CARE_LA_LOCAL_INFO: {
+    text: `The leaving care team where you are now can tell you what is available locally.`
+  },
+
+  CARE_LA_LOCAL_INFO__SUPPORTER: {
+    text: `The leaving care team where they are now can tell them what is available locally.`
+  },
+
+  CARE_16_17_NOT_SURE_NOTE: {
+    text: `If you're not sure whether you have been in care, Children's Services can check this with you.`
+  },
+
+  CARE_16_17_NOT_SURE_NOTE__SUPPORTER: {
+    text: `If they're not sure whether they have been in care, Children's Services can check this with them.`
+  },
+
+  // Safety from harm results (lib/handlers/safetyLocal.ts).
+  SAFETY_16_17_CHILDRENS_SERVICES: {
+    text: `For people aged 16 or 17, Children's Services can help with staying safe. You can call their duty team directly, or ask someone you trust to help you make contact.`
+  },
+
+  SAFETY_16_17_CHILDRENS_SERVICES__SUPPORTER: {
+    text: `For people aged 16 or 17, Children's Services can help with staying safe. They can call their duty team directly, or ask someone they trust to help them make contact.`
+  },
+
+  SAFETY_LOCAL_SERVICES_INTRO: {
+    text: `These local services also work with people in this situation.`
   },
 
   TERMINAL_YOUTH_16_17_NAVIGATOR_INTRO: {
