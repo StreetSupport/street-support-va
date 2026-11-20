@@ -170,17 +170,11 @@ export function careSections(session: SessionState): CareSections {
     const e1 = `${p('CARE_E1_LINE', supporter)}\n\n`;
     if (isCouncil(council)) return { first: e1 + e2OrFallback(session, council, supporter, false) };
     if (council === 'ELSEWHERE') {
-      // E3 block (one heading, one link) first; then, after Housing Options,
-      // the leaving care team where they are now as local information: the
-      // team where held, otherwise "Ask <council> council for the leaving
-      // care team". No second heading or link.
-      const lc = here ? leavingCareFor(here) : null;
-      const name = here ? councilName(here) : null;
-      const ask = name ? `Ask ${name} council for the leaving care team.` : p('CARE_ASK_LOCAL_COUNCIL', supporter);
-      return {
-        first: e1 + e3(supporter).replace(/\n\n$/, '\n') + `${facts(session, supporter)}\n\n`,
-        afterHousing: `${p('CARE_LA_LOCAL_INFO', supporter)}\n` + (lc ? e2Lines(lc) : `${ask}\n\n`),
-      };
+      // Looked after outside the area (Managing Director, 20 November 2026):
+      // the E3 block (one heading, one link), then today's Housing Options,
+      // E6 and E7. The local council's leaving care team is not shown, neither
+      // its number nor "Ask <council> council for the leaving care team".
+      return { first: e1 + e3(supporter).replace(/\n\n$/, '\n') + `${facts(session, supporter)}\n\n` };
     }
     // Council not stated (prefer not to say, Managing Director, 11 November
     // 2026): the route for being in care with no council named, E1 line and

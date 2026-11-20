@@ -72,6 +72,11 @@ const CHILDREN_PHONES = ['0121 303 1888', '024 7678 8555', '0300 555 0050', '012
 // E6 for 18-24 in Sandwell: the young people's section (Sandwell has no navigator).
 const NAVIGATOR_OR_YOUTH = "YOUNG PEOPLE'S SUPPORT";
 const count = (text: string, part: string) => text.split(part).length - 1;
+// Every leaving care number held, and their out of hours numbers.
+const LEAVING_CARE_PHONES = Object.values(endpoints).flatMap(e => {
+  const lc = (e as { leavingCare?: { phone?: string; phoneOOH?: string } }).leavingCare;
+  return lc ? [lc.phone, lc.phoneOOH].filter((x): x is string => !!x).map(x => x.replace(/ \(.*\)$/, '')) : [];
+});
 
 // A test entry in place of a council's leaving care entry, and a council with
 // none, for the routes that need them. The entry held in the data is restored
@@ -271,38 +276,23 @@ describe('18 to 24', () => {
     });
   });
 
-  test('Yes, somewhere else, where the local leaving care team is held: it follows Housing Options as local information', () => {
-    withLeavingCare('sandwell', () => {
-      const text = results(twentyTwo(), ['1', ELSEWHERE]);
-      inOrder(text, E1_LINE, 'LEAVING CARE TEAM', E3, FIND, SANDWELL_HO, 'The leaving care team where you are now can tell you what is available locally.', 'sandwell leaving care team (test entry)', NAVIGATOR_OR_YOUTH, SHELTER);
-      expect(count(text, 'LEAVING CARE TEAM')).toBe(1);
-      expect(count(text, FIND)).toBe(1);
-      expect(text).not.toContain('Ask Sandwell council for the leaving care team.');
-    });
+  // Looked after outside the area (Managing Director, 20 November 2026): the
+  // local council's leaving care team is not shown, neither its number nor the
+  // "Ask <council> council" line.
+  test.each([false, true])('a Sandwell 22 year old looked after somewhere else (supporter %s): E1 line, the E3 block, Sandwell Housing Options, E6 and E7, and no leaving care number', isSupporter => {
+    expect(endpoints.sandwell.leavingCare).toBeTruthy();
+    const text = results(twentyTwo({ isSupporter }), ['1', ELSEWHERE]);
+    const e1 = isSupporter ? 'If they have a personal adviser, they can talk to them about their housing.' : E1_LINE;
+    const e3 = isSupporter ? 'The council that looked after them: ask for the leaving care team.' : E3;
+    inOrder(text, e1, 'LEAVING CARE TEAM', e3, FIND, SANDWELL_HO, NAVIGATOR_OR_YOUTH, SHELTER);
+    expect(count(text, 'LEAVING CARE TEAM')).toBe(1);
+    expect(count(text, FIND)).toBe(1);
+    for (const phone of LEAVING_CARE_PHONES) expect([phone, text.includes(phone)]).toEqual([phone, false]);
+    expect(text).not.toContain('Care Experienced Team');
+    expect(text).not.toMatch(/Ask \w+ council for the leaving care team/);
+    expect(text).not.toContain('can tell you what is available locally');
+    expect(text).not.toContain('can tell them what is available locally');
   });
-
-  test('Yes, somewhere else, supporter, where the local leaving care team is held: it follows Housing Options, with one heading and one link', () => {
-    withLeavingCare('sandwell', () => {
-      const text = results(twentyTwo({ isSupporter: true }), ['1', ELSEWHERE]);
-      inOrder(text, 'If they have a personal adviser, they can talk to them about their housing.', 'LEAVING CARE TEAM',
-        'The council that looked after them: ask for the leaving care team.', FIND, SANDWELL_HO,
-        'The leaving care team where they are now can tell them what is available locally.', 'sandwell leaving care team (test entry)', NAVIGATOR_OR_YOUTH, SHELTER);
-      expect(count(text, 'LEAVING CARE TEAM')).toBe(1);
-      expect(count(text, FIND)).toBe(1);
-    });
-  });
-
-  test.each([[false, 'The leaving care team where you are now can tell you what is available locally.'], [true, 'The leaving care team where they are now can tell them what is available locally.']])(
-    'Yes, somewhere else, with no local leaving care entry (supporter %s): E1 line, the E3 block, Housing Options, then the local fallback line', (isSupporter, line) => withoutLeavingCare('sandwell', () => {
-      const text = results(twentyTwo({ isSupporter }), ['1', ELSEWHERE]);
-      const e1 = isSupporter ? 'If they have a personal adviser, they can talk to them about their housing.' : E1_LINE;
-      inOrder(text, e1, 'LEAVING CARE TEAM', E3.replace(isSupporter ? 'you:' : '#', 'them:'), FIND, SANDWELL_HO, line, 'Ask Sandwell council for the leaving care team.', NAVIGATOR_OR_YOUTH, SHELTER);
-      expect(count(text, 'Ask Sandwell council for the leaving care team.')).toBe(1);
-      expect(count(text, 'LEAVING CARE TEAM')).toBe(1);
-      expect(count(text, FIND)).toBe(1);
-      expect(count(text, line)).toBe(1);
-      for (const phone of CHILDREN_PHONES) expect(text).not.toContain(phone);
-    }));
 
   test('Yes, not sure which council, where no local leaving care team is held: the leaving care team where they are now can help find who is responsible', () => {
     withoutLeavingCare('sandwell', () => {
@@ -423,18 +413,6 @@ describe('confirmed leaving care teams', () => {
         for (const [k, phone] of Object.entries(TEAM_PHONES)) if (k !== council) expect([council, k, text.includes(phone)]).toEqual([council, k, false]);
       }
     }
-  });
-
-  test.each(both)('a 22 year old looked after somewhere else (supporter %s): the find-your-council line, and no number for the council that looked after them or any other council', isSupporter => {
-    const text = results(twentyTwo({ isSupporter }), ['1', ELSEWHERE]);
-    const e3 = isSupporter ? 'The council that looked after them: ask for the leaving care team.' : E3;
-    inOrder(text, e1Line(isSupporter), 'LEAVING CARE TEAM', e3, FIND, SANDWELL_HO, 'Care Experienced Team', SHELTER);
-    expect(count(text, FIND)).toBe(1);
-    expect(text).not.toContain("CHILDREN'S SERVICES");
-    // The only leaving care number is Sandwell's, where they are now, after Housing Options.
-    for (const [k, phone] of Object.entries(TEAM_PHONES)) if (k !== 'sandwell') expect([k, text.includes(phone)]).toEqual([k, false]);
-    expect(text.indexOf(TEAM_PHONES.sandwell)).toBeGreaterThan(text.indexOf(SANDWELL_HO));
-    for (const phone of CHILDREN_PHONES.filter(p => p !== '0121 569 3100')) expect(text).not.toContain(phone);
   });
 
   test.each(both)('Wolverhampton shows the Duty Worker note after the number (supporter %s)', isSupporter => {
