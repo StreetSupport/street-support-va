@@ -171,7 +171,7 @@ describe('Fixes from the independent review', () => {
   });
 });
 
-describe('National contacts when nothing local matches (design note, section 9; bills and energy, Managing Director, 19 November 2026)', () => {
+describe('National contacts (design note, section 9; bills and energy, 19 November 2026; immigration, 20 November 2026)', () => {
   // Walk a route to its results, answering each profile question; the immigration
   // status question gets `status`, the age question "25 or over", others option 2.
   function resultsFor(path: string[], status = '10', over: Partial<SessionState> = {}, pool?: ServicePool): string {
@@ -267,13 +267,48 @@ describe('National contacts when nothing local matches (design note, section 9; 
   test('someone seeking asylum is pointed to the Migrant Help asylum helpline', () => {
     const t = resultsFor(['6'], '8');
     expect(t).toContain('Migrant Help');
-    expect(t).not.toContain('Adviser Finder');
+    expect(t).not.toContain('JCWI');
+    expect(t).not.toContain('Citizens Advice Adviceline');
   });
 
-  test('someone with another immigration question is pointed to regulated advice', () => {
+  test('someone with another immigration status has someone to speak to: Citizens Advice', () => {
     const t = resultsFor(['6'], '4');
-    expect(t).toContain('Adviser Finder');
+    expect(t).toContain('Citizens Advice Adviceline');
+    expect(t).toContain('0800 144 8848');
+    expect(t).toContain('registered with the immigration regulator');
     expect(t).not.toContain('Migrant Help');
+  });
+
+  test('someone without status is also given the JCWI helpline, with its hours', () => {
+    const t = resultsFor(['6'], '9');
+    expect(t).toContain('Citizens Advice Adviceline');
+    expect(t).toContain('0800 160 1004');
+    expect(t).toContain('Mondays, Tuesdays and Thursdays, 10am to 1pm');
+    expect(t).not.toContain('Migrant Help');
+  });
+
+  test('someone with refugee status or settled status has Citizens Advice to speak to', () => {
+    for (const status of ['2', '6']) {
+      const t = resultsFor(['6'], status);
+      expect(t).toContain('Citizens Advice Adviceline');
+      expect(t).not.toContain('Migrant Help');
+    }
+  });
+
+  test('someone with an immigration question still has someone to speak to when a local service matches', () => {
+    const pool = {
+      status: 'ready', radiusKm: 5,
+      services: [mapServiceRow(row('imm', 'immigration', 'asylum-immigration-and-entitlements', 100))!],
+      contacts: mapProviderRows([{ Key: 'org-imm', Name: 'Org imm', Telephone: null, Website: null }]),
+    } as ServicePool;
+    const t = resultsFor(['6'], '9', { localAuthority: 'Wolverhampton' }, pool);
+    expect(t).toContain('Org imm');
+    expect(t).toContain('Citizens Advice Adviceline');
+    expect(t).toContain('0800 160 1004');
+  });
+
+  test('the Adviser Finder is not offered while it is unavailable', () => {
+    for (const status of ['4', '8', '9', '10']) expect(resultsFor(['6'], status)).not.toContain('Adviser Finder');
   });
 
   test('someone with leave to remain and no recourse to public funds is also shown Project 17', () => {
@@ -282,17 +317,26 @@ describe('National contacts when nothing local matches (design note, section 9; 
     expect(t).toContain('project17.org.uk');
   });
 
+  test('Project 17 is described as being for families with children', () => {
+    expect(resultsFor(['6'], '5')).toContain('For families with children who have no recourse to public funds');
+  });
+
+  test('someone without status, or who did not give one, is also shown Project 17', () => {
+    expect(resultsFor(['6'], '9')).toContain('Project 17');
+    expect(resultsFor(['6'], '10')).toContain('Project 17');
+  });
+
+  test('someone waiting for an asylum decision, or with settled status or refugee status, is not shown Project 17', () => {
+    for (const status of ['8', '2', '6']) expect(resultsFor(['6'], status)).not.toContain('Project 17');
+  });
+
   test('someone with leave to remain and access to public funds is not shown Project 17', () => {
     expect(resultsFor(['6'], '4')).not.toContain('Project 17');
   });
 
-  test('the adviser search links straight to the Immigration Advice Authority', () => {
-    expect(resultsFor(['6'], '4')).toContain('https://portal.immigrationadviceauthority.gov.uk/s/adviser-finder');
-  });
-
-  test('someone who prefers not to give their status sees both', () => {
+  test('someone who prefers not to give their status sees Migrant Help and Citizens Advice', () => {
     const t = resultsFor(['6'], '10');
     expect(t).toContain('Migrant Help');
-    expect(t).toContain('Adviser Finder');
+    expect(t).toContain('Citizens Advice Adviceline');
   });
 });

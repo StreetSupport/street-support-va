@@ -322,19 +322,34 @@ const V4_FLOORS: Record<string, Floor> = {
     website: 'https://www.migranthelpuk.org',
     description: 'Free helpline for people waiting for an asylum decision',
   },
-  adviserFinder: {
-    // Direct link (Managing Director, 19 November 2026); the address is the
-    // Immigration Advice Authority's own, from its notice of 8 April 2025.
-    name: "Immigration Advice Authority's Adviser Finder",
-    website: 'https://portal.immigrationadviceauthority.gov.uk/s/adviser-finder',
-    description: 'A search for regulated immigration advisers near you. Not a helpline',
+  citizensAdviceImmigration: {
+    // Someone to speak to for everyone not waiting for an asylum decision
+    // (Managing Director, 20 November 2026). "All Citizens Advice advisers are
+    // registered with the IAA" (citizensadvice.org.uk, immigration, read
+    // 20 November 2026). The Adviser Finder is left out while it is unavailable
+    // (GOV.UK notice, updated 18 November 2026) and adds little we do not list.
+    name: 'Citizens Advice Adviceline',
+    phone: '0800 144 8848',
+    website: 'https://www.citizensadvice.org.uk/immigration/',
+    description: 'Free, confidential advice from advisers registered with the immigration regulator. Usually 9am to 5pm, Monday to Friday',
+  },
+  jcwi: {
+    // For people without status (Managing Director, 20 November 2026);
+    // number and hours from jcwi.org.uk/our-helplines, read 20 November 2026.
+    name: 'JCWI Irregular Migrants Helpline',
+    phone: '0800 160 1004',
+    website: 'https://jcwi.org.uk/our-helplines',
+    description: 'Free, confidential legal advice if you are in the UK without status. Mondays, Tuesdays and Thursdays, 10am to 1pm',
   },
   project17: {
-    // Website only (contract). For families with no recourse to public funds
-    // (Lambeth NRPF directory and Turn2us Advice Finder, read 19 November 2026).
+    // Website only (contract): its only published number is a mobile with no
+    // hours. Its speciality is families with children (Charity Commission,
+    // 1152621; Tower Hamlets and Cumberland directories, read 20 November 2026),
+    // so the line says so and people decide whether it fits them
+    // (Managing Director, 20 November 2026).
     name: 'Project 17',
     website: 'https://www.project17.org.uk',
-    description: 'Support for families with no recourse to public funds',
+    description: 'For families with children who have no recourse to public funds',
   },
   turn2usBenefits: {
     name: 'Turn2us Benefits Calculator',
@@ -361,13 +376,15 @@ const V4_FLOORS: Record<string, Floor> = {
 };
 
 // `zeroMatch`: nothing local matched, or local results could not be loaded.
-// The energy pair and the Adviser Finder are for that case only (decision of
-// 19 November 2026; the contract's national table).
+// The energy pair is for that case only (decision of 19 November 2026; the
+// contract's national table).
 function v4Fallbacks(session: SessionState, zeroMatch: boolean): Floor[] {
   if (!session.v4Option) return [];
   const parts = partsFor(session.v4Option as FirstOptionId, session.v4Choice ?? undefined);
   const out: Floor[] = [];
-  const push = (f: Floor | undefined) => { if (f && !out.some(o => o.name === f.name)) out.push(f); };
+  // Deduped by entry, not by name: two entries share the name "Citizens Advice
+  // Adviceline" with different lines on what each is for, and neither may be lost.
+  const push = (f: Floor | undefined) => { if (f && !out.includes(f)) out.push(f); };
   for (const part of parts) {
     const subs = part.subs ?? [];
     const has = (k: string) => subs.length === 0 || subs.includes(k);
@@ -402,13 +419,17 @@ function v4Fallbacks(session: SessionState, zeroMatch: boolean): Floor[] {
         if (has('gambling')) push(V4_FLOORS.gamblingHelpline);
         break;
       case 'immigration':
+        // Someone to speak to, every time (Managing Director, 20 November 2026).
         if (session.immigrationStatus === 'Asylum seeker') push(V4_FLOORS.migrantHelp);
-        else if (session.immigrationStatus && session.immigrationStatus !== 'Prefer not to say') { if (zeroMatch) push(V4_FLOORS.adviserFinder); }
-        else { push(V4_FLOORS.migrantHelp); if (zeroMatch) push(V4_FLOORS.adviserFinder); }
-        // Where the person has said they have no recourse to public funds
-        // (contract; Managing Director, 19 November 2026): the status answer
-        // "Leave to remain with no recourse to public funds (NRPF)".
-        if (session.immigrationStatus === 'Leave to remain' && session.publicFunds === 'No') push(V4_FLOORS.project17);
+        else if (session.immigrationStatus && session.immigrationStatus !== 'Prefer not to say') push(V4_FLOORS.citizensAdviceImmigration);
+        else { push(V4_FLOORS.migrantHelp); push(V4_FLOORS.citizensAdviceImmigration); }
+        if (session.immigrationStatus === 'No status') push(V4_FLOORS.jcwi);
+        // Anyone who may have no recourse to public funds, except people waiting
+        // for an asylum decision: leave to remain with no recourse, no status, or no status given
+        // (Managing Director, 20 November 2026).
+        if ((session.immigrationStatus === 'Leave to remain' && session.publicFunds === 'No')
+          || session.immigrationStatus === 'No status'
+          || !session.immigrationStatus || session.immigrationStatus === 'Prefer not to say') push(V4_FLOORS.project17);
         break;
     }
   }
@@ -1007,10 +1028,14 @@ function buildTerminalServices(session: SessionState): TerminalResult {
     }
     text += (nrpfFamilyPhrase?.text || '') + '\n\n';
 
-    // Project 17
-    text += `Project 17\n`;
-    text += `https://project17.org.uk\n`;
-    text += `Specialist support for families with no recourse to public funds\n\n`;
+    // Project 17, only if not already shown in the specialist section, as for
+    // Migrant Help below; one description everywhere (Managing Director,
+    // 20 November 2026).
+    if (!allSpecialistOrgs.some(o => o.name === 'Project 17')) {
+      text += `Project 17\n`;
+      text += `https://www.project17.org.uk\n`;
+      text += `For families with children who have no recourse to public funds\n\n`;
+    }
 
     // Migrant Help — only if not already shown in specialist section
     const migrantHelpInSpecialist = allSpecialistOrgs.some(o => o.name === 'Migrant Help');
