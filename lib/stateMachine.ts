@@ -1,7 +1,7 @@
 // Street Support VA v7.1 State Machine - COMPLETE VERSION
 // Full routing logic from CHAR_VA_RoutingLogic_v7.md
 // UPDATES v7.1:
-// - Social services questions (C3Q11/C3Q12) only for 16-17 and 18-20
+// - Care questions (C3Q11, C3Q11A) at 16 to 24 on the full route (20 November 2026)
 // - Restructured terminal output with clear hierarchy
 // - Trauma-informed language, Shelter as safety net
 
@@ -81,9 +81,10 @@ import {
   handleC3Q9CriminalConvictions,
   handleC3Q10Lgbtq,
   handleC3Q10ALgbtqServicePreference,
-  handleC3Q11CurrentlyInCare,
-  handleC3Q12SocialServices,
+  handleCareEverInCare,
+  handleCareCouncil,
 } from './handlers/sectionC';
+import { careSections } from './handlers/careLeavers';
 import {
   handleTerminalAdditionalNeeds,
   handleEscalationLevel1,
@@ -151,6 +152,8 @@ export function createSession(sessionId: string): SessionState {
     inCare: null,
     socialServices: null,
     youthSocialServicesAsked: false,
+    careExperience: null,
+    careCouncil: null,
     servedInArmedForces: null,
     isSupporter: false,
     youthServicesFlag: false,
@@ -976,6 +979,10 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   const effectiveAge = session.detailedAge || session.ageCategory;
   const is16_17 = effectiveAge === '16-17';
   const hasSocialServices = session.socialServices === 'Yes';
+  // Care leavers (VA Pathway Review 5.2; Managing Director, 20 November 2026).
+  // Where the care answers lead to a care route, it replaces the first step;
+  // otherwise today's layouts, with the 16 and 17 "not sure" note.
+  const care = careSections(session);
 
   // Children's Services framing and LA duty team contact, shown first for every 16-17 year old
   const childrensServicesFirstStep = (): string => {
@@ -993,10 +1000,11 @@ function buildTerminalServices(session: SessionState): TerminalResult {
       cs += `\n`;
       cs += `${childServices.website}\n\n`;
     }
+    if (care.notSureNote) cs += `${care.notSureNote}\n\n`;
     return cs;
   };
 
-  if (is16_17 && hasSocialServices) {
+  if (is16_17 && hasSocialServices && !care.first) {
     text += `I've found some services that can help with ${possessive} situation.\n\n`;
 
     // Children's Services as primary route
@@ -1045,6 +1053,10 @@ function buildTerminalServices(session: SessionState): TerminalResult {
       text += `\n`;
     }
 
+    // 16 and 17, Prefer not to say at the care question: the leaving care
+    // team where they are now, after Housing Options.
+    if (care.afterHousing) text += care.afterHousing;
+
     // Shelter safety net
     text += `IF YOU NEED MORE HELP\n`;
     text += `---------------------\n`;
@@ -1077,7 +1089,11 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   text += `YOUR FIRST STEP\n`;
   text += `---------------\n`;
 
-  if (is16_17) {
+  if (care.first) {
+    text += care.first;
+    text += `HOUSING OPTIONS\n`;
+    text += `---------------\n`;
+  } else if (is16_17) {
     text += childrensServicesFirstStep();
     text += `HOUSING OPTIONS\n`;
     text += `---------------\n`;
@@ -1120,6 +1136,10 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   }
   
   text += `\n`;
+
+  // Care leavers: the leaving care team where they are now, after Housing
+  // Options, where the care answers call for it.
+  if (care.afterHousing) text += care.afterHousing;
 
   // 16 and 17 year olds: after Children's Services and Housing Options.
   if (is16_17) text += prisonLeaverSection();
@@ -1333,7 +1353,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   // ----------------------------------------
   const showSocialServicesGuidance = 
     (session.ageCategory === '16-17' || session.detailedAge === '16-17' || session.detailedAge === '18-20' || session.inCare) 
-    && session.socialServices === 'No';
+    && session.socialServices === 'No' && !care.first;
     
   if (showSocialServicesGuidance) {
     text += `IMPORTANT FOR YOUNG PEOPLE\n`;
@@ -2362,11 +2382,12 @@ export function processInput(session: SessionState, input: string): RoutingResul
     case 'C3Q10A_LGBTQ_SERVICE_PREFERENCE':
       return handleC3Q10ALgbtqServicePreference(session, choice, buildTerminalServices);
     
-    case 'C3Q11_CURRENTLY_IN_CARE':
-      return handleC3Q11CurrentlyInCare(session, choice);
-    
-    case 'C3Q12_SOCIAL_SERVICES':
-      return handleC3Q12SocialServices(session, choice, buildTerminalServices);
+    case 'C3Q11_EVER_IN_CARE_16_17':
+    case 'C3Q11_EVER_IN_CARE':
+      return handleCareEverInCare(session, choice, buildTerminalServices);
+
+    case 'C3Q11A_CARE_COUNCIL':
+      return handleCareCouncil(session, choice, buildTerminalServices);
     
     // ========================================
     // TERMINAL & ADDITIONAL NEEDS

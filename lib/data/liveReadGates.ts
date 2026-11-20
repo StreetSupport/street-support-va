@@ -2,16 +2,19 @@
 // chat route so it can be tested without a server or a database.
 //
 // A read runs only where the answer can lead to matched results, so a slow or
-// failed read never delays any other turn. Crisis, safety and under-16 turns
-// never read: their contacts are fixed in code and data, not in the database.
+// failed read never delays any other turn. Crisis and under-16 turns never
+// read: their contacts are fixed in code and data, not in the database. The
+// Safety from harm results screen reads for its local listings only, alongside
+// fixed contacts that show whatever the read does (SAFETY_RESULT_GATES).
 
 import type { SessionState } from '../types';
 import type { ServicePool } from './servicePool';
 import { noticingLeadsToResults } from '../noticing';
 import { parseUserInput } from '../stateMachine';
 import { getPhrase } from '../phrasebank';
-import { shouldAskSocialServicesQuestions } from '../handlers/sectionC';
+import { careAnswerAsksCouncil, shouldAskCareQuestion } from '../handlers/sectionC';
 import { FIRST_OPTIONS } from './v4Categories';
+import { parseSafetyChoice } from '../handlers/safety';
 
 // Gates whose answer can lead to a matched (non-housing) result.
 export const MATCHING_GATES = new Set<string>([
@@ -45,7 +48,9 @@ export const HOUSING_RESULT_GATES = new Set<string>([
   'C2_CONSENT_GATE',
   'C3Q10_LGBTQ',
   'C3Q10A_LGBTQ_SERVICE_PREFERENCE',
-  'C3Q12_SOCIAL_SERVICES',
+  'C3Q11_EVER_IN_CARE_16_17',
+  'C3Q11_EVER_IN_CARE',
+  'C3Q11A_CARE_COUNCIL',
   'ESCALATION_LEVEL_1',
   'ESCALATION_LEVEL_2',
 ]);
@@ -53,8 +58,8 @@ export const HOUSING_RESULT_GATES = new Set<string>([
 // Whether this answer, at one of the housing results gates, shows the housing
 // results. Mirrors the state machine's own branches, so other answers there
 // (the escalation phone number, starting again at the crisis question, the
-// next question) never wait on the database. The 16 and 17 social services
-// question never reads. Where this says no and results do show, they come from
+// next question) never wait on the database. The 16 and 17 care questions
+// never read. Where this says no and results do show, they come from
 // the fixed file, so a mismatch costs local results, never a wait.
 export function housingResultsThisTurn(session: SessionState, input: string): boolean {
   const gate = session.currentGate;
@@ -77,11 +82,19 @@ export function housingResultsThisTurn(session: SessionState, input: string): bo
     case 'C2_CONSENT_GATE':
       return choice !== 1;
     case 'C3Q10_LGBTQ':
-      return choice !== 1 && !shouldAskSocialServicesQuestions({ ...session, lgbtq: false });
+      return choice !== 1 && !shouldAskCareQuestion({ ...session, lgbtq: false });
     case 'C3Q10A_LGBTQ_SERVICE_PREFERENCE':
-      return !shouldAskSocialServicesQuestions(session);
-    case 'C3Q12_SOCIAL_SERVICES':
-      return age !== '16-17';
+      return !shouldAskCareQuestion(session);
+    case 'C3Q11_EVER_IN_CARE_16_17':
+      return false;
+    case 'C3Q11_EVER_IN_CARE': {
+      const options = getPhrase(gate, session.isSupporter)?.options ?? [];
+      return age !== '16-17' && choice !== null && choice <= options.length && !careAnswerAsksCouncil(gate, choice);
+    }
+    case 'C3Q11A_CARE_COUNCIL': {
+      const options = getPhrase(gate, session.isSupporter)?.options ?? [];
+      return age !== '16-17' && choice !== null && choice <= options.length;
+    }
     case 'ESCALATION_LEVEL_1':
       return choice === 2;
     case 'ESCALATION_LEVEL_2':
@@ -103,6 +116,26 @@ export function safeguardingExitThisTurn(session: SessionState, input: string): 
   return false;
 }
 
+// The Safety from harm results screen (Managing Director, 20 November 2026):
+// read where this answer shows it, for its local listings. Never at the first
+// question or the type of harm question, and never at the crisis gate: the
+// immediate danger and under-16 exits never start the read. The domestic abuse
+// and sexual violence questions read only when reached from the Safety route.
+export const SAFETY_RESULT_GATES = new Set<string>(['SAFETY_OK_TO_CONTINUE', 'DV_CHILDREN_ASK', 'SA_GENDER_ASK']);
+
+export function safetyResultsThisTurn(session: SessionState, input: string): boolean {
+  const gate = session.currentGate;
+  if (session.v4Option !== 'safety' || !session.safetyHarm) return false;
+  if (gate === 'SAFETY_OK_TO_CONTINUE') {
+    const choice = parseSafetyChoice(input, getPhrase(gate, session.isSupporter)?.options);
+    if (choice !== 1 && choice !== 2) return false;
+    // "Yes, I'm OK to carry on" for domestic abuse or sexual violence asks the
+    // next question; every other answer shows help.
+    return !(choice === 1 && (session.safetyHarm === 'DOMESTIC_ABUSE' || session.safetyHarm === 'SEXUAL_VIOLENCE'));
+  }
+  return gate === 'DV_CHILDREN_ASK' || gate === 'SA_GENDER_ASK';
+}
+
 // `input` is what the state machine is given for this turn.
 export function readsLiveAt(session: SessionState, input: string): boolean {
   // Distance needs a point. Without one (council chosen from the list), the
@@ -112,6 +145,7 @@ export function readsLiveAt(session: SessionState, input: string): boolean {
   if (HOUSING_RESULT_GATES.has(session.currentGate)) {
     return session.supportNeed === 'Emergency Housing' && housingResultsThisTurn(session, input);
   }
+  if (SAFETY_RESULT_GATES.has(session.currentGate)) return safetyResultsThisTurn(session, input);
   if (!MATCHING_GATES.has(session.currentGate)) return false;
   if (safeguardingExitThisTurn(session, input)) return false;
   // At the noticing step, read only when the answer leads to results, so the

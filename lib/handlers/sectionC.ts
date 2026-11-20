@@ -17,24 +17,48 @@
  * - C3Q9_CRIMINAL_CONVICTIONS
  * - C3Q10_LGBTQ
  * - C3Q10A_LGBTQ_SERVICE_PREFERENCE
- * - C3Q11_CURRENTLY_IN_CARE
- * - C3Q12_SOCIAL_SERVICES
+ * - C3Q11_EVER_IN_CARE_16_17, C3Q11_EVER_IN_CARE
+ * - C3Q11A_CARE_COUNCIL
  *
  * These handlers collect detailed profile information for service matching.
  * C3Q3_AGE includes safeguarding routing for under-16s.
  */
 
 import { getPhrase } from '../phrasebank';
-import type { SessionState, RoutingResult, TerminalResult } from '../types';
+import type { SessionState, RoutingResult, TerminalResult, CareExperience } from '../types';
 import { phrase, buildUnder16Exit } from './shared';
 
-// Check if social services questions should be asked
-// Only for 16-17 and 18-20 age groups (priority need assessment)
-export function shouldAskSocialServicesQuestions(session: SessionState): boolean {
+// "Have you ever been in care?" is asked at 16 to 24, on the full route only
+// (VA Pathway Review 5.2; Managing Director, 20 November 2026). It replaces the
+// "currently looked after" and "social services" questions. 25 and over are
+// never asked: the answer would not change what they are shown. The 16 and 17
+// question on every housing route (B5_YOUTH_SOCIAL_SERVICES) is unchanged.
+const CARE_AGES = ['16-17', '18-20', '21-24', '18-24'];
+
+export function shouldAskCareQuestion(session: SessionState): boolean {
   const age = session.detailedAge || session.ageCategory;
-  // 16 and 17 year olds are asked once, before the homelessness question
-  if (age === '16-17' && session.youthSocialServicesAsked) return false;
-  return age === '16-17' || age === '18-20';
+  return session.routeType === 'FULL' && CARE_AGES.includes(age ?? '');
+}
+
+function careQuestionGate(session: SessionState): 'C3Q11_EVER_IN_CARE_16_17' | 'C3Q11_EVER_IN_CARE' {
+  const age = session.detailedAge || session.ageCategory;
+  return age === '16-17' ? 'C3Q11_EVER_IN_CARE_16_17' : 'C3Q11_EVER_IN_CARE';
+}
+
+// Option order at the care questions.
+const CARE_16_17: CareExperience[] = ['IN_CARE_NOW', 'LEFT_CARE', 'SOCIAL_WORKER', 'NO', 'NOT_SURE', 'PREFER_NOT'];
+const CARE_18_24: CareExperience[] = ['YES', 'NO', 'NOT_SURE', 'PREFER_NOT'];
+// The council keys of housing-pathway-endpoints.json, in the order the
+// council question lists them, then the three other answers.
+export const CARE_COUNCILS = ['wolverhampton', 'birmingham', 'coventry', 'dudley', 'sandwell', 'solihull', 'walsall'];
+const CARE_COUNCIL_ANSWERS = [...CARE_COUNCILS, 'ELSEWHERE', 'NOT_SURE', 'PREFER_NOT'];
+
+// Whether this care answer goes on to "Which council looked after you?".
+export function careAnswerAsksCouncil(gate: string, choice: number | null): boolean {
+  if (!choice) return false;
+  if (gate === 'C3Q11_EVER_IN_CARE_16_17') return choice === 1 || choice === 2;
+  if (gate === 'C3Q11_EVER_IN_CARE') return choice === 1;
+  return false;
 }
 
 // The armed forces question is asked only in the crisis housing conversation:
@@ -160,8 +184,8 @@ export function handleC3Q2DependentChildren(session: SessionState, choice: numbe
   const hasChildren = choice === 1;
 
   // Age is asked before B6 on every housing route. Section C asks it again
-  // only to split 18-24 into 18-20 and 21-24, which decides whether the
-  // social services questions (C3Q11, C3Q12) are asked.
+  // only to split 18-24 into 18-20 and 21-24, and to find whether someone is
+  // 25 or over, who is not asked about care.
   if (session.ageCategory && session.ageCategory !== '18-24') {
     return {
       ...phrase('C3Q4_GENDER', session.isSupporter),
@@ -279,15 +303,15 @@ export function handleC3Q10Lgbtq(
     };
   }
 
-  // UPDATED v7.1: Only ask social services questions for 16-17 and 18-20
   const updatedSession = { ...session, lgbtq: false };
-  if (shouldAskSocialServicesQuestions(updatedSession)) {
+  if (shouldAskCareQuestion(updatedSession)) {
+    const gate = careQuestionGate(updatedSession);
     return {
-      ...phrase('C3Q11_CURRENTLY_IN_CARE', session.isSupporter),
-      stateUpdates: { currentGate: 'C3Q11_CURRENTLY_IN_CARE', lgbtq: false }
+      ...phrase(gate, session.isSupporter),
+      stateUpdates: { currentGate: gate, lgbtq: false }
     };
   } else {
-    // Skip to terminal for 21-24 and 25+
+    // 25 and over: results
     const result = buildTerminalServices(updatedSession);
     const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
     return {
@@ -307,15 +331,15 @@ export function handleC3Q10ALgbtqServicePreference(
   const lgbtqPrefOptions = ['Specialist first', 'Local only', 'Show both'];
   const lgbtqPref = choice ? lgbtqPrefOptions[choice - 1] : null;
 
-  // UPDATED v7.1: Only ask social services questions for 16-17 and 18-20
   const updatedSession = { ...session, lgbtqServicePreference: lgbtqPref };
-  if (shouldAskSocialServicesQuestions(updatedSession)) {
+  if (shouldAskCareQuestion(updatedSession)) {
+    const gate = careQuestionGate(updatedSession);
     return {
-      ...phrase('C3Q11_CURRENTLY_IN_CARE', session.isSupporter),
-      stateUpdates: { currentGate: 'C3Q11_CURRENTLY_IN_CARE', lgbtqServicePreference: lgbtqPref }
+      ...phrase(gate, session.isSupporter),
+      stateUpdates: { currentGate: gate, lgbtqServicePreference: lgbtqPref }
     };
   } else {
-    // Skip to terminal for 21-24 and 25+
+    // 25 and over: results
     const result = buildTerminalServices(updatedSession);
     const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
     return {
@@ -327,30 +351,58 @@ export function handleC3Q10ALgbtqServicePreference(
   }
 }
 
-export function handleC3Q11CurrentlyInCare(session: SessionState, choice: number | null): RoutingResult {
-  const inCare = choice === 1;
-
-  return {
-    ...phrase('C3Q12_SOCIAL_SERVICES', session.isSupporter),
-    stateUpdates: { currentGate: 'C3Q12_SOCIAL_SERVICES', inCare }
-  };
-}
-
-export function handleC3Q12SocialServices(
+function careResults(
   session: SessionState,
-  choice: number | null,
+  updates: Partial<SessionState>,
   buildTerminalServices: (session: SessionState) => TerminalResult
 ): RoutingResult {
-  const ssOptions = ['Yes', 'No', 'Prefer not to say'];
-  const ss = choice ? ssOptions[choice - 1] : null;
-
-  // Terminal with full profile
-  const result = buildTerminalServices({ ...session, socialServices: ss });
+  const result = buildTerminalServices({ ...session, ...updates } as SessionState);
   const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
   return {
     text: result.text + '\n' + additionalNeeds?.text,
     options: additionalNeeds?.options,
-    stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', socialServices: ss, ...(result.terminalOutcome ? { terminalOutcome: result.terminalOutcome } : {}) },
+    stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', ...updates, ...(result.terminalOutcome ? { terminalOutcome: result.terminalOutcome } : {}) },
     sessionEnded: false
   };
+}
+
+// "Have you ever been in care?" In care now, left care, or Yes go on to the
+// council question; every other answer shows results. At 16 and 17, "No, but
+// I have a social worker" keeps the "already involved" layout and No the
+// standard one, as the B5_YOUTH_SOCIAL_SERVICES answers do; Not sure and
+// Prefer not to say leave the answer given there as it was.
+export function handleCareEverInCare(
+  session: SessionState,
+  choice: number | null,
+  buildTerminalServices: (session: SessionState) => TerminalResult
+): RoutingResult {
+  const gate = session.currentGate;
+  const answers = gate === 'C3Q11_EVER_IN_CARE_16_17' ? CARE_16_17 : CARE_18_24;
+  const careExperience = choice && choice >= 1 && choice <= answers.length ? answers[choice - 1] : null;
+  if (!careExperience) return phrase(gate, session.isSupporter);
+
+  if (careAnswerAsksCouncil(gate, choice)) {
+    return {
+      ...phrase('C3Q11A_CARE_COUNCIL', session.isSupporter),
+      stateUpdates: { currentGate: 'C3Q11A_CARE_COUNCIL', careExperience }
+    };
+  }
+
+  const updates: Partial<SessionState> = { careExperience, careCouncil: null };
+  if (gate === 'C3Q11_EVER_IN_CARE_16_17') {
+    if (careExperience === 'SOCIAL_WORKER') updates.socialServices = 'Yes';
+    if (careExperience === 'NO') updates.socialServices = 'No';
+  }
+  return careResults(session, updates, buildTerminalServices);
+}
+
+// "Which council looked after you?" Then results.
+export function handleCareCouncil(
+  session: SessionState,
+  choice: number | null,
+  buildTerminalServices: (session: SessionState) => TerminalResult
+): RoutingResult {
+  const careCouncil = choice && choice >= 1 && choice <= CARE_COUNCIL_ANSWERS.length ? CARE_COUNCIL_ANSWERS[choice - 1] : null;
+  if (!careCouncil) return phrase('C3Q11A_CARE_COUNCIL', session.isSupporter);
+  return careResults(session, { careCouncil }, buildTerminalServices);
 }

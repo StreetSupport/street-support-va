@@ -96,8 +96,9 @@ export type GateType =
   | 'C3Q9_CRIMINAL_CONVICTIONS'
   | 'C3Q10_LGBTQ'
   | 'C3Q10A_LGBTQ_SERVICE_PREFERENCE'
-  | 'C3Q11_CURRENTLY_IN_CARE'
-  | 'C3Q12_SOCIAL_SERVICES'
+  | 'C3Q11_EVER_IN_CARE_16_17'
+  | 'C3Q11_EVER_IN_CARE'
+  | 'C3Q11A_CARE_COUNCIL'
   // Safeguarding Routing
   | 'DV_GENDER_ASK'
   | 'DV_CHILDREN_ASK'
@@ -203,6 +204,14 @@ export interface SessionState {
   inCare: boolean | null;
   socialServices: string | null;
   youthSocialServicesAsked: boolean;
+  // "Have you ever been in care?" and "Which council looked after you?" (VA
+  // Pathway Review 5.2; Managing Director, 20 November 2026). Full route, 16 to
+  // 24 only. Never how long, at what age or under which section. Kept in the
+  // session only; not logged.
+  careExperience?: CareExperience | null;
+  // A council key (as in housing-pathway-endpoints.json), or ELSEWHERE,
+  // NOT_SURE, PREFER_NOT.
+  careCouncil?: string | null;
   // "Have you ever served in the armed forces?" Crisis housing only, not asked
   // of 16 and 17 year olds (Managing Director, 2 and 20 November 2026).
   // Yes true, No false, Prefer not to say or not asked null.
@@ -282,6 +291,11 @@ export interface DefaultOrg {
   isYouthRoute?: boolean;
 }
 
+// 16-17: IN_CARE_NOW, LEFT_CARE, SOCIAL_WORKER, NO, NOT_SURE, PREFER_NOT.
+// 18-24: YES, NO, NOT_SURE, PREFER_NOT.
+export type CareExperience =
+  | 'IN_CARE_NOW' | 'LEFT_CARE' | 'SOCIAL_WORKER' | 'YES' | 'NO' | 'NOT_SURE' | 'PREFER_NOT';
+
 export interface UserProfile {
   localAuthority: string | null;
   supportNeed: string | null;
@@ -302,6 +316,8 @@ export interface UserProfile {
   v4Choice?: string | null;
   servedInArmedForces?: boolean | null;
   ethnicity?: string | null;
+  // Yes, in care now or left care: lifts services tagged care-leavers.
+  careExperienced?: boolean;
 }
 
 export interface ServiceCard {
@@ -344,5 +360,6 @@ export function toUserProfile(session: SessionState): UserProfile {
     v4Choice: session.v4Choice ?? null,
     servedInArmedForces: session.servedInArmedForces ?? null,
     ethnicity: session.ethnicity ?? null,
+    careExperienced: ['YES', 'IN_CARE_NOW', 'LEFT_CARE'].includes(session.careExperience ?? ''),
   };
 }

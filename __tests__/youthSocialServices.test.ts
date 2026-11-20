@@ -45,21 +45,23 @@ describe('16 and 17: in care or a social worker, asked on every housing route', 
     expect(processInput(at(), '1').stateUpdates.currentGate).toBe('B6_HOMELESSNESS_STATUS');
   });
 
-  test('the full route does not ask the old social services questions again', () => {
+  // Replaced 20 November 2026: the full route asks "Have you ever been in
+  // care?" at 16 to 24 (careLeavers.test.ts). The question above is unchanged.
+  test('on the full route a 16 or 17 year old is then asked whether they have ever been in care', () => {
     const session = sessionAt('C3Q10_LGBTQ', housing16({
       routeType: 'FULL', ageCategory: '16-17', detailedAge: '16-17', homeless: true,
       socialServices: 'Yes', youthSocialServicesAsked: true,
     }));
     const result = processInput(session, '2'); // not LGBTQ+
-    expect(result.stateUpdates.currentGate).toBe('TERMINAL_ADDITIONAL_NEEDS');
+    expect(result.stateUpdates.currentGate).toBe('C3Q11_EVER_IN_CARE_16_17');
   });
 
-  test('an 18-20 year old on the full route is still asked the care questions', () => {
+  test('an 18-20 year old on the full route is asked whether they have ever been in care', () => {
     const session = sessionAt('C3Q10_LGBTQ', housing16({
       routeType: 'FULL', ageCategory: '18-24', detailedAge: '18-20', homeless: true,
     }));
     const result = processInput(session, '2');
-    expect(result.stateUpdates.currentGate).toBe('C3Q11_CURRENTLY_IN_CARE');
+    expect(result.stateUpdates.currentGate).toBe('C3Q11_EVER_IN_CARE');
   });
 
   test('the supporter variant exists for the question', () => {

@@ -250,10 +250,10 @@ describe('which turns read live', () => {
     expect(reads).toBeGreaterThan(0);
   });
 
-  test('every answer there that shows housing results reads live, except the 16 and 17 social services question', () => {
+  test('every answer there that shows housing results reads live, except the 16 and 17 care questions', () => {
     for (const gate of HOUSING_RESULT_GATES) for (const v of variants) for (const answer of ANSWERS) {
       const s = at(gate, v);
-      const exempt = gate === 'C3Q12_SOCIAL_SERVICES' && v.ageCategory === '16-17';
+      const exempt = gate === 'C3Q11_EVER_IN_CARE_16_17' || (gate.startsWith('C3Q11') && v.ageCategory === '16-17');
       if (showsResults(processInput(s, answer)) && !exempt) {
         expect([gate, v.routeType, v.ageCategory, v.housingSituation, answer, readsLiveAt(s, answer)])
           .toEqual([gate, v.routeType, v.ageCategory, v.housingSituation, answer, true]);
@@ -277,9 +277,12 @@ describe('which turns read live', () => {
     expect(processInput(at('ESCALATION_LEVEL_1'), '3').stateUpdates?.currentGate).toBe('GATE0_CRISIS_DANGER');
   });
 
-  test('the 16 and 17 social services question never calls the read', () => {
-    for (const answer of ['1', '2', '3']) {
-      expect(calls(at('C3Q12_SOCIAL_SERVICES', { ageCategory: '16-17', routeType: 'FULL' }), answer)).toBe(0);
+  test('the 16 and 17 care questions never call the read', () => {
+    for (const answer of ['1', '2', '3', '4', '5', '6']) {
+      expect(calls(at('C3Q11_EVER_IN_CARE_16_17', { ageCategory: '16-17', routeType: 'FULL' }), answer)).toBe(0);
+    }
+    for (const answer of ['1', '2', '8', '9', '10']) {
+      expect(calls(at('C3Q11A_CARE_COUNCIL', { ageCategory: '16-17', routeType: 'FULL', careExperience: 'LEFT_CARE' }), answer)).toBe(0);
     }
   });
 
