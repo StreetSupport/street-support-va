@@ -115,9 +115,12 @@ function leftOut(session: SessionState): Set<PressureId> {
   if (session.v4Option === 'money-work') out.add('money');
   if (session.v4Option === 'health') {
     const c = session.v4Choice;
+    // Health, including how I'm feeling, is left out only for someone who came
+    // about mental health: a physical or sexual health need is not the same need
+    // as how someone is feeling (MD, 20 November 2026).
     if (c === 'Drugs or alcohol' || c === 'Gambling') out.add('addiction');
-    else if (c === 'Something else' || !c) { out.add('health'); out.add('addiction'); }
-    else out.add('health');
+    else if (c === 'Something else' || !c) out.add('addiction');
+    else if (c === 'Mental health') out.add('health');
   }
   return out;
 }

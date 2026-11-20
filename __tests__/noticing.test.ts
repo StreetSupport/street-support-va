@@ -77,6 +77,22 @@ describe('Noticing step: who is asked, and what they see', () => {
     expect(opts).toContain("Health, including how I'm feeling");
   });
 
+  test('someone who came about mental health is not offered health again', () => {
+    const opts = noticingOptions(toNoticing('5', '1'));
+    expect(opts).not.toContain("Health, including how I'm feeling");
+  });
+
+  test('someone who came about a physical or sexual health need can still say how they are feeling', () => {
+    expect(noticingOptions(toNoticing('5', '2'))).toContain("Health, including how I'm feeling");
+    expect(noticingOptions(toNoticing('5', '3'))).toContain("Health, including how I'm feeling");
+  });
+
+  test('someone who came about something else in health can still say how they are feeling, but not drink, drugs or gambling', () => {
+    const opts = noticingOptions(toNoticing('5', '6'));
+    expect(opts).toContain("Health, including how I'm feeling");
+    expect(opts).not.toContain('Drink, drugs or gambling');
+  });
+
   test('someone who came about food can decline with "Just show me food near me"', () => {
     const opts = noticingOptions(toNoticing('3', '1'));
     expect(opts[opts.length - 1]).toBe('Just show me food near me');
