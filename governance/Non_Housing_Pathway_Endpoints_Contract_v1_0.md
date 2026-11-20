@@ -1,4 +1,4 @@
-> Source copy, converted 2 October 2026 from `Non-Housing-Pathway-Endpoints-Contract-v1.0.docx` (sha256 148dbcd3b398d7d1cae1419913ed1794c0ad19dbfd9b9193e3d80df6b699bd76), supplied by the Managing Director. This Markdown file is the source under the repository's direction rule; the Word file was the only previous copy and is now a derived record. Content unchanged.
+> **Version 2.0, draft for trustee ratification, 11 November 2026.** This is the full text the trustees are asked to ratify. It is built from the Markdown copy of v1.0 (VA `staging`, `6851f79`), converted on 2 October 2026 from `Non-Housing-Pathway-Endpoints-Contract-v1.0.docx`. v1.0 was never ratified, so this is a new version, not an amendment. The specifications are re-cut by V4 parent (Managing Director, 11 November 2026). Contacts were checked at their primary sources on 11 November 2026.
 
 Street Support Network Virtual Assistant
 
@@ -6,7 +6,7 @@ Street Support Network Virtual Assistant
 
 **Non-Housing Pathway Endpoints Contract**
 
-**Status: Accepted — Pending trustee ratification** • Date: 28 February 2026 • Version: 1.0
+**Status: Draft for trustee ratification** • Date: 13 November 2026 • Version: 2.1
 
 **Purpose**
 
@@ -26,15 +26,15 @@ It specifies:
 
 - how service gaps are reported to the WMCA partnership
 
-This contract governs all B5 non-housing category routing in the VA codebase. It is the companion document to the Housing Pathway Endpoints Contract v1.0, which governs housing-specific routing.
+This contract governs routing for every V4 parent outside Housing and Safety from harm. It is the companion document to the Housing Pathway Endpoints Contract, which governs housing routing, and to the Safeguarding Contract, which governs the Safety from harm route.
 
 **Scope**
 
 This contract applies to:
 
-- All non-housing B5 category routing within the Virtual Assistant
+- Routing for the V4 parents Activities, Addiction, Employment, Essentials, Finance, Food, Health and Immigration
 
-- The floor content for each of the 11 non-housing support categories
+- The floor content for each of those parents
 
 - Dynamic service matching for non-housing categories
 
@@ -67,133 +67,39 @@ This contract does not cover:
 | National floors where genuinely useful  | Categories where a national resource provides real, remote value — advice, financial navigation, health triage, employment support — have a verified national floor that is always shown, regardless of local match results.                      |
 | Dynamic matching surfaces what is there | The SSN catalogue is the source of local service results. Results surface automatically as the database grows. The VA does not curate or hardcode local service results for non-housing categories.                                               |
 | Identity-aware where relevant           | LGBTQ+ identity modifies routing where the nature of the need is materially affected. It does not modify routing for categories where identity is irrelevant to what the service provides.                                                        |
-| Gaps are signals, not failures          | A zero-match outcome for a Type A category is a commissioning signal. The VA acknowledges the gap honestly to the user and generates an analytics event that informs WMCA partnership reporting.                                                  |
+| Gaps are signals, not failures          | A zero-match outcome where no national floor exists is a commissioning signal. The VA acknowledges the gap honestly to the user and generates an analytics event that informs WMCA partnership reporting.                                                  |
 | Connector, not assessor                 | The VA connects people to services. It does not assess eligibility, make recommendations about which service to use, or advise on entitlements.                                                                                                   |
 
-**Category Typology**
+**Floors by V4 parent**
 
-Each of the 11 non-housing B5 categories is classified as one of three types:
+The floor for each parent is stated directly. The A, B and C category types of v1.0 are retired. **The parent sets the minimum.** A contact that depends on the kind of need, or on the person's circumstances, is shown only where that need or circumstance applies, in line with the Service Matching Contract's rule on fixed contacts. Identity-specific contacts are shown only where the person has said they are relevant. Each floor shows its hours where it is not open around the clock.
 
-|          |                                                                                                                                                    |                                                                                                                               |                                                                              |
-|----------|----------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
-| **Type** | **Definition**                                                                                                                                     | **Floor**                                                                                                                     | **Categories**                                                               |
-| **A**    | Inherently physical. The need can only be met by physical access to a local resource. A national reference would create false hope.                | Honest acknowledgement of the gap. Zero-match analytics signal. Invitation for the user to tell SSN about the gap.            | Food, Personal Items, Personal Services, Drop In, Activities, Communications |
-| **B**    | Nationally navigable. A remote national resource provides genuine value regardless of the user’s location.                                         | Verified national resource always shown. Local dynamic results above it. Zero-match in local layer does not remove the floor. | Health, Financial Help, Advice Services                                      |
-| **C**    | National navigation. A national entry point exists but resolution requires local engagement. The national resource navigates, it does not resolve. | National entry point shown with explicit framing that it will connect to local support. Local dynamic results above it.       | Work / Employment, Training                                                  |
+| V4 parent | Always shown, whatever the local results | Shown only where it applies | When nothing local matches |
+|---|---|---|---|
+| **Activities** | None: activities are local by nature | None | Honest acknowledgement, a link to browse Street Support, and the zero-match signal |
+| **Addiction** | By subcategory: FRANK for drugs; the National Gambling Helpline for gambling. Alcohol: no floor until a national contact is verified | None | The subcategory's national line stays, and the zero-match signal is logged |
+| **Employment** | Jobcentre Plus, framed as the local entry point: "Your local Jobcentre can connect you with employment support". The National Careers Service, framed as navigation to local training | None | The entry points stay, and the zero-match signal is logged |
+| **Essentials** | None: items, showers, laundry, drop-ins and phone or internet access need physical access | None | Honest acknowledgement, a link to browse Street Support, and the zero-match signal |
+| **Finance** | The Citizens Advice Adviceline. Turn2us's benefits calculator and grants search, as a website only | None | The floor stays |
+| **Food** | None. National food schemes need local referral and collection, so a national number would mislead | None | Honest acknowledgement, a link to browse Street Support, and the zero-match signal |
+| **Health** | NHS 111 | LGBT Foundation, where the person has said LGBTQ+ is relevant. Rationale: documented barriers to mainstream healthcare | NHS 111 stays |
+| **Immigration** | Migrant Help's asylum helpline, for people waiting for an asylum decision (Managing Director, 12 November 2026; Immigration Questions Redesign, VA #66) | Project 17, where the person has said they have no recourse to public funds (website) | For people waiting for an asylum decision, Migrant Help stays. For everyone else, the Immigration Advice Authority's Adviser Finder: a website for finding a regulated immigration adviser near them, presented as that, not as a helpline or a promise that advice will be available (Managing Director, 8 November 2026; Service Matching and Questions Design Note, section 9). Immigration advice can only come from a regulated adviser, so a national number that gives no advice would be false comfort. Neither contact stands in for the other |
 
-**Category Specifications**
+Where an old category's services now sit in more than one parent (Drop In, Advice), the floor follows the parent the person chose.
 
-Each category is specified below with its type, guaranteed floor, national organisations (where applicable), dynamic layer, and LGBTQ+ modifier status.
+**Onward connection by V4 parent**
 
-**Health Services B — Nationally navigable**
+Connection is offered where it helps, and where and how follows the need (Managing Director, 4 and 13 November 2026). The person is never made to explain their circumstances to get the help they asked for. An answer, or a yes to an offer, leads to the assistant's noticing step (Service Matching and Questions Design Note v1.1, 3.5).
 
-|                        |                                                                                                                                                                                                                            |
-|------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Guaranteed floor       | NHS 111 is always shown as the floor for Health. It provides free remote triage, advice, and referral for non-emergency health needs, and is genuine national infrastructure available to everyone regardless of location. |
-| National organisations | NHS 111: 111 (free, 24/7) or 111.nhs.uk LGBT Foundation: 0345 3 30 30 30 / lgbt.foundation — shown additionally for LGBTQ+ users (see LGBTQ+ modifier section)                                                             |
-| Dynamic layer          | SSN catalogue health results for the user’s LA. Includes GP registration support, mental health services, sexual health clinics, specialist health services.                                                               |
-| LGBTQ+ modifier        | Yes. LGBT Foundation surfaces alongside NHS 111 for users who have confirmed LGBTQ+ identity. Rationale: documented barriers to mainstream healthcare for LGBTQ+ people make specialist navigation genuinely useful.       |
-| Zero-match handling    | Zero-match in local layer: NHS 111 floor remains. No separate zero-match acknowledgement required — NHS 111 is a real referral pathway.                                                                                    |
+| V4 parent | Onward connection |
+|---|---|
+| **Food** | One optional question before results that explores what sits underneath and offers onward connection, unless the person declines ("just show me food near me") |
+| **Essentials** | For dignity provision (showers, laundry, toiletries, period products, emergency clothing): results first, no question, then one offer: "If you need somewhere to stay tonight, or other help, I can help with that too." Other Essentials: the optional question, as for Food. Which items are dignity provision follows the Essentials crib |
+| **Finance, Health, Addiction, Employment** | An optional question before results: is anything else putting pressure on you at the moment? The person can skip it |
+| **Activities** | No separate offer. An activity is listed only where it shows connection, so the onward route is in what surfaces. Most activities sit after homelessness, where the connection is there in case things start to wobble again |
+| **Immigration** | No separate offer. Routing is by immigration status (VA #66). Immigration organisations largely provide wider help themselves, placed under Immigration: that is the nature of the parent |
 
-**Financial Help B — Nationally navigable**
-
-|                        |                                                                                                                                                                               |
-|------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Guaranteed floor       | Turn2Us is always shown as the floor for Financial Help. Its benefit calculator and emergency grants search are genuinely useful remotely and have no geographic restriction. |
-| National organisations | Turn2Us: 0808 802 2000 / turn2us.org.uk — benefit entitlement calculator, emergency grants search                                                                             |
-| Dynamic layer          | SSN catalogue financial and benefits results for the user’s LA.                                                                                                               |
-| LGBTQ+ modifier        | No. Turn2Us serves everyone. LGBTQ+ identity is not a relevant modifier for financial navigation.                                                                             |
-| Zero-match handling    | Zero-match in local layer: Turn2Us floor remains.                                                                                                                             |
-
-**Advice Services B — Nationally navigable**
-
-|                        |                                                                                                                                                                                  |
-|------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Guaranteed floor       | Citizens Advice is always shown as the floor for Advice. The national helpline provides real advice remotely on benefits, housing rights, debt, employment, and consumer issues. |
-| National organisations | Citizens Advice: 0800 144 8848 / citizensadvice.org.uk                                                                                                                           |
-| Dynamic layer          | SSN catalogue advice and legal results for the user’s LA.                                                                                                                        |
-| LGBTQ+ modifier        | No. Citizens Advice serves everyone.                                                                                                                                             |
-| Zero-match handling    | Zero-match in local layer: Citizens Advice floor remains.                                                                                                                        |
-
-**Work / Employment C — National navigation**
-
-|                        |                                                                                                                                                                                                                                                                                                                                               |
-|------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Guaranteed floor       | Jobcentre Plus is shown as the national entry point for employment support. It is the gateway to Universal Credit claims, work coaches, and job search support. Every LA has a Jobcentre. The VA frames it as a navigation entry point, not a resolution: “Your local Jobcentre can connect you with employment support and benefits advice.” |
-| National organisations | Jobcentre Plus: gov.uk/contact-jobcentre-plus — framed as local entry point                                                                                                                                                                                                                                                                   |
-| Dynamic layer          | SSN catalogue employment results for the user’s LA.                                                                                                                                                                                                                                                                                           |
-| LGBTQ+ modifier        | No. Jobcentre Plus serves everyone.                                                                                                                                                                                                                                                                                                           |
-| Zero-match handling    | Zero-match in local layer: Jobcentre Plus navigation floor remains. Zero-match signal emitted for the category and LA.                                                                                                                                                                                                                        |
-
-**Training C — National navigation**
-
-|                        |                                                                                                                                                                                                                                                                                                                                                                   |
-|------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Guaranteed floor       | National Careers Service is shown as the national entry point for training and skills. It provides free, remote skills guidance and navigates to local training provision including Skills Bootcamps and adult education. The VA frames it as navigation: “The National Careers Service can help you explore training options and find what’s available locally.” |
-| National organisations | National Careers Service: 0800 100 900 / nationalcareers.service.gov.uk — framed as navigation to local provision                                                                                                                                                                                                                                                 |
-| Dynamic layer          | SSN catalogue training and education results for the user’s LA.                                                                                                                                                                                                                                                                                                   |
-| LGBTQ+ modifier        | No.                                                                                                                                                                                                                                                                                                                                                               |
-| Zero-match handling    | Zero-match in local layer: National Careers Service floor remains. Zero-match signal emitted.                                                                                                                                                                                                                                                                     |
-
-**Food A — Inherently physical**
-
-|                        |                                                                                                                                                                                                                                                                                                                                                                      |
-|------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Guaranteed floor       | Honest acknowledgement. No national resource can provide food remotely. The VA acknowledges the gap directly and generates a zero-match signal. Language: “We’re not finding food support showing up for \[LA\] right now. That’s something we want to know about — if you’re able to, you can let us know and we’ll try to fill the gap.” SSN browse link included. |
-| National organisations | None. Trussell Trust and similar organisations require local referral and physical collection. Surfacing a national number would be misleading.                                                                                                                                                                                                                      |
-| Dynamic layer          | SSN catalogue food and meals results for the user’s LA.                                                                                                                                                                                                                                                                                                              |
-| LGBTQ+ modifier        | No.                                                                                                                                                                                                                                                                                                                                                                  |
-| Zero-match handling    | Full zero-match experience: honest acknowledgement + SSN browse link + NO_SUITABLE_PATHWAY analytics signal.                                                                                                                                                                                                                                                         |
-
-**Personal Items A — Inherently physical**
-
-|                        |                                                                                                                   |
-|------------------------|-------------------------------------------------------------------------------------------------------------------|
-| Guaranteed floor       | Honest acknowledgement. Clothing, sleeping bags, and similar items require physical access. Same pattern as Food. |
-| National organisations | None.                                                                                                             |
-| Dynamic layer          | SSN catalogue personal items results for the user’s LA.                                                           |
-| LGBTQ+ modifier        | No.                                                                                                               |
-| Zero-match handling    | Full zero-match experience: honest acknowledgement + SSN browse link + NO_SUITABLE_PATHWAY signal.                |
-
-**Personal Services A — Inherently physical**
-
-|                        |                                                                                                                 |
-|------------------------|-----------------------------------------------------------------------------------------------------------------|
-| Guaranteed floor       | Honest acknowledgement. Showers, laundry, and similar services require physical presence. Same pattern as Food. |
-| National organisations | None.                                                                                                           |
-| Dynamic layer          | SSN catalogue personal services results for the user’s LA.                                                      |
-| LGBTQ+ modifier        | No.                                                                                                             |
-| Zero-match handling    | Full zero-match experience: honest acknowledgement + SSN browse link + NO_SUITABLE_PATHWAY signal.              |
-
-**Drop In A — Inherently physical**
-
-|                        |                                                                                                    |
-|------------------------|----------------------------------------------------------------------------------------------------|
-| Guaranteed floor       | Honest acknowledgement. Drop-in services are definitionally local. Same pattern as Food.           |
-| National organisations | None.                                                                                              |
-| Dynamic layer          | SSN catalogue drop-in results for the user’s LA.                                                   |
-| LGBTQ+ modifier        | No.                                                                                                |
-| Zero-match handling    | Full zero-match experience: honest acknowledgement + SSN browse link + NO_SUITABLE_PATHWAY signal. |
-
-**Activities A — Inherently physical**
-
-|                        |                                                                                                    |
-|------------------------|----------------------------------------------------------------------------------------------------|
-| Guaranteed floor       | Honest acknowledgement. Activities are local by nature. Same pattern as Food.                      |
-| National organisations | None.                                                                                              |
-| Dynamic layer          | SSN catalogue activities results for the user’s LA.                                                |
-| LGBTQ+ modifier        | No.                                                                                                |
-| Zero-match handling    | Full zero-match experience: honest acknowledgement + SSN browse link + NO_SUITABLE_PATHWAY signal. |
-
-**Communications A — Inherently physical**
-
-|                        |                                                                                                                                                                              |
-|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Guaranteed floor       | Honest acknowledgement. Access to phones, computers, and internet requires physical access to a device and location. No remote service can substitute. Same pattern as Food. |
-| National organisations | None. Digital inclusion schemes (e.g. Good Things Foundation) are locally delivered and cannot be signposted nationally without a local referral point.                      |
-| Dynamic layer          | SSN catalogue communications and digital access results for the user’s LA.                                                                                                   |
-| LGBTQ+ modifier        | No.                                                                                                                                                                          |
-| Zero-match handling    | Full zero-match experience: honest acknowledgement + SSN browse link + NO_SUITABLE_PATHWAY signal.                                                                           |
+The floor and the zero-match response above apply whether or not the person takes up the onward offer. Finding nothing nearby does not by itself bring a place to start (Service Matching Contract, section 9).
 
 **Zero-Match Handling**
 
@@ -217,11 +123,11 @@ Approved language pattern:
 
 **Analytics Signal**
 
-Every zero-match outcome — including zero-match in the local dynamic layer for Type B and C categories — must emit a NO_SUITABLE_PATHWAY analytics event containing:
+Every zero-match outcome, including a zero-match in the local layer where a national floor is shown, must emit a NO_SUITABLE_PATHWAY analytics event containing:
 
 - terminalOutcome: 'NO_SUITABLE_PATHWAY'
 
-- supportNeed: the B5 category selected
+- supportNeed: the V4 parent selected
 
 - localAuthority: the user’s LA
 
@@ -229,7 +135,7 @@ These three fields are already permitted under the Analytics Contract (enumerate
 
 **WMCA Gap Reporting**
 
-Zero-match signals for Type A categories represent genuine commissioning intelligence — they identify where physical services are absent from the WMCA area. This data should route to SSN and WMCA partnership reporting.
+Zero-match signals for parents with no national floor (Activities, Essentials, Food) represent genuine commissioning intelligence — they identify where physical services are absent from the WMCA area. This data should route to SSN and WMCA partnership reporting.
 
 Pending: the routing for gap reports — whether directly to a named contact, a dedicated inbox, or a periodic digest — is to be confirmed with Eliz at WMCA before implementation. A separate inbox (e.g. gaps@streetsupport.net) with a weekly digest is the recommended model to prevent volume overwhelming a personal inbox. This decision is parked pending that conversation.
 
@@ -237,27 +143,33 @@ Pending: the routing for gap reports — whether directly to a named contact, a 
 
 The following national organisations are referenced in non-housing pathway floors. They are hardcoded and cannot be substituted by service matching results.
 
-|                          |                                               |                   |                         |
-|--------------------------|-----------------------------------------------|-------------------|-------------------------|
-| **Organisation**         | **Contact / URL**                             | **Category**      | **LGBTQ+ modifier**     |
-| NHS 111                  | 111 (phone) / 111.nhs.uk                      | Health            | No (universal)          |
-| LGBT Foundation          | 0345 3 30 30 30 / lgbt.foundation             | Health            | Yes — LGBTQ+ users only |
-| Turn2Us                  | 0808 802 2000 / turn2us.org.uk                | Financial Help    | No                      |
-| Citizens Advice          | 0800 144 8848 / citizensadvice.org.uk         | Advice Services   | No                      |
-| Jobcentre Plus           | gov.uk/contact-jobcentre-plus                 | Work / Employment | No                      |
-| National Careers Service | 0800 100 900 / nationalcareers.service.gov.uk | Training          | No                      |
+| Organisation | Contact / URL | Parent | Shown |
+|---|---|---|---|
+| NHS 111 | 111 (free, 24/7) / 111.nhs.uk | Health | Always |
+| LGBT Foundation | 0345 3 30 30 30 (Monday to Friday, 9am to 6pm) / lgbt.foundation | Health | Where the person has said LGBTQ+ is relevant |
+| FRANK | 0300 123 6600 (24/7); text 82111 / talktofrank.com | Addiction: drugs | For drugs |
+| National Gambling Helpline | 0808 8020 133 (24/7) | Addiction: gambling | For gambling |
+| Citizens Advice Adviceline (England) | 0800 144 8848 (usually 9am to 5pm, Monday to Friday) / citizensadvice.org.uk | Finance | Always |
+| Turn2us | turn2us.org.uk (website only: its helpline has closed) | Finance | Always |
+| Jobcentre Plus | gov.uk/contact-jobcentre-plus | Employment | Always |
+| National Careers Service | 0800 072 0288 (DWP careers adviser, 18 and over in England, 8am to 6pm, Monday to Friday) / nationalcareers.service.gov.uk | Employment | Always; the website for under-18s |
+| Migrant Help | 0808 8010 503 (free, 24/7/365) / migranthelpuk.org | Immigration | For people waiting for an asylum decision (Managing Director, 12 November 2026) |
+| Immigration Advice Authority Adviser Finder | portal.immigrationadviceauthority.gov.uk/s/adviser-finder (website: a search for regulated advisers, not a helpline) | Immigration | When nothing local matches, for people not waiting for an asylum decision |
+| Project 17 | project17.org.uk | Immigration | Where the person has said they have no recourse to public funds |
+
+Every contact above was checked at its primary source on 11 November 2026, except NHS 111 and Jobcentre Plus. FRANK and the National Gambling Helpline are new. Turn2us is now website only, because its helpline has closed. The National Careers Service number replaces 0800 100 900, which the service's own page no longer gives. Each is re-checked at source before launch.
 
 **What the VA Must Not Do**
 
 Within non-housing category pathways, the VA must not:
 
-- Surface a national phone number for a Type A category — this creates false hope for a need that requires physical access
+- Surface a national phone number for Activities, Essentials or Food: this creates false hope for a need that requires physical access
 
-- Omit the honest acknowledgement for a Type A category zero-match
+- Omit the honest acknowledgement for a zero-match in a parent with no national floor
 
 - Frame the national floor as a guarantee that support will be provided — it navigates, it does not promise
 
-- Apply the LGBTQ+ modifier to categories where it is marked as not applicable
+- Show an identity-specific contact where the person has not said it is relevant
 
 - Generate category-specific advice or information in its own words — all signposting uses phrasebank content
 
@@ -273,16 +185,26 @@ Changes that require governance review:
 
 - Adding or removing a national floor organisation
 
-- Reclassifying a category between types A, B, and C
+- Changing which parents have a national floor
 
 - Changing the honest acknowledgement language pattern
 
-- Adding or removing an LGBTQ+ modifier for any category
+- Adding or removing an identity-specific contact for any parent
 
 - Changing the zero-match analytics signal specification
+
+- Changing which parents carry an onward offer, or what it is
 
 Authority rests with the Managing Director. Changes affecting user-facing content require phrasebank review. Changes affecting routing logic require a corresponding code change and test update.
 
 Review triggers: at least annually, after any material change to the national organisations listed, or following a pattern of zero-match signals indicating a sustained service gap.
 
-Street Support Network VA • Non-Housing Pathway Endpoints Contract v1.0 • 28 February 2026
+**Version history**
+
+| Version | Date | Change |
+|---|---|---|
+| 1.0 | February 2026 | Initial contract, over the 11 old support categories. Not ratified |
+| 2.0 | November 2026 | Re-cut by V4 parent; A, B and C types retired; Addiction and Immigration floors added; identity-specific contacts only where the person has said they are relevant; Turn2us website only; National Careers Service number updated; contacts checked at source, 11 November 2026 (Managing Director, 11 November 2026) |
+| 2.1 | 13 November 2026 | Onward connection by V4 parent added; Migrant Help brought into line with the decision of 12 November 2026; the Immigration Advice Authority's Adviser Finder added as the zero-match route for everyone else, aligning the contract with the decision of 8 November 2026. The Adviser Finder's address is from the Immigration Advice Authority's own notice of 8 April 2025 on GOV.UK, read on 13 November 2026, and is rechecked at source before build (Managing Director, 8, 12 and 13 November 2026) |
+
+Street Support Network VA • Non-Housing Pathway Endpoints Contract v2.1 • November 2026
