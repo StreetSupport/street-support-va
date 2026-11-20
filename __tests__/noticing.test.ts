@@ -212,7 +212,7 @@ describe('Noticing step: what follows the answer', () => {
     const s = toNoticing('4', '1');
     const r = answer(s, optionNumber(s, 'Keeping my home or paying rent'));
     expect(r.text).toContain('Org debt');
-    expect(r.text).toContain('You also mentioned keeping your home or paying rent. Would you like to look at housing support too?');
+    expect(r.text).toContain('You also mentioned that keeping your home or paying rent is putting pressure on you. Would you like to look at housing support too?');
   });
 
   test('feeling unsafe comes first, even alongside a housing answer', () => {

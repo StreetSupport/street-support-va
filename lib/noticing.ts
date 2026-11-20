@@ -54,10 +54,11 @@ export const NOTICING_QUESTION = 'Thanks. Sometimes one thing is tied up with ot
 export const NOTICING_UNCLEAR = "I didn't quite catch that. Please reply with a number from the options.";
 
 // A housing answer: results first, then housing offered as a choice
-// (Managing Director, 19 November 2026).
+// (Managing Director, 19 November 2026); the keeping-your-home wording,
+// Managing Director, 20 November 2026.
 export const HOUSING_OFFER_OPTIONS = ['Look at housing support', 'Stay with these results'];
 export function housingOfferText(which: 'no-settled-place' | 'keep-home'): string {
-  const said = which === 'no-settled-place' ? "that you don't have a settled place to live" : 'keeping your home or paying rent';
+  const said = which === 'no-settled-place' ? "that you don't have a settled place to live" : 'that keeping your home or paying rent is putting pressure on you';
   return `You also mentioned ${said}. Would you like to look at housing support too?`;
 }
 
