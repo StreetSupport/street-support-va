@@ -132,6 +132,7 @@ The full guided route asks about things that change which services can help you:
 - a criminal conviction
 - being LGBTQ+
 - having been in care, if you're 16 to 24
+- having served in the armed forces
 
 The quicker route asks fewer questions, and assumes none of those apply to you.
 

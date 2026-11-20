@@ -1625,6 +1625,7 @@ describe('Route choice screen', () => {
     'a criminal conviction',
     'being LGBTQ+',
     "having been in care, if you're 16 to 24",
+    'having served in the armed forces',
   ])('names "%s"', item => {
     expect(getPhrase('GATE2_ROUTE_SELECTION', false)?.text).toContain(item);
   });
