@@ -150,7 +150,12 @@ export function careSections(session: SessionState): CareSections {
       return { first: e1Block(supporter) + e4(council, supporter) };
     }
     if (answer === 'LEFT_CARE' && isCouncil(council)) {
-      return { first: e1Block(supporter) + e2OrFallback(session, council, supporter, true) };
+      // Where the leaving care team is held, Children's Services where they
+      // are now follows it, before Housing Options (Managing Director, 20
+      // November 2026; statutory guidance on 16 and 17 year olds, paras 3.4,
+      // 3.51 and 4.5). The fallback already carries E4 for the named council.
+      const e4Here = leavingCareFor(council) && here ? e4(here, supporter) : '';
+      return { first: e1Block(supporter) + e2OrFallback(session, council, supporter, true) + e4Here };
     }
     if (answer === 'IN_CARE_NOW' || answer === 'LEFT_CARE') {
       // Somewhere else, not sure, or council not stated (prefer not to say):

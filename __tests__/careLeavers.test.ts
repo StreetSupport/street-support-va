@@ -179,6 +179,16 @@ describe('16 and 17', () => {
     });
   });
 
+  test.each([false, true])('a Sandwell 17 year old who left Birmingham\'s care (supporter %s): Birmingham\'s leaving care team, then Sandwell Children\'s Services with out of hours, then Sandwell Housing Options, and no Birmingham Children\'s Services number', isSupporter => {
+    const text = results(sixteen({ isSupporter, localAuthority: 'Sandwell' }), ['2', BIRMINGHAM]);
+    inOrder(text, 'LEAVING CARE TEAM', '18+ Care Leavers Service\n0121 464 1229', "CHILDREN'S SERVICES",
+      "Sandwell Children's Trust\n0121 569 3100 (out of hours: 0121 569 2355)", SANDWELL_HO);
+    expect(count(text, "CHILDREN'S SERVICES")).toBe(1);
+    expect(text).not.toContain('0121 303 1888');
+    expect(text).not.toContain("Birmingham Children's Trust");
+    expect(text).not.toContain(E3);
+  });
+
   test.each([['somewhere else', ELSEWHERE], ['not sure which council', NOT_SURE_COUNCIL], ['prefer not to say which council', PREFER_NOT_COUNCIL]])(
     'in care or left, %s: their worker, ask the council that looked after them, then Children\'s Services where they are now', (_l, council) => {
       for (const inCare of ['1', '2']) {
