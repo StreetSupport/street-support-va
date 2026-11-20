@@ -1421,6 +1421,91 @@ export function parseUserInput(input: string, options?: string[]): number | null
 // "coming". They are reached only by their number or by the leaving phrase.
 const LEAVING_PHRASE = String.raw`\b(?:leaving|coming out of|getting out of|released from|discharged from|just out of|out of)\s+(?:the\s+)?`;
 
+// The gender questions: B4_GENDER, B5_PROFILE_GENDER and C3Q4_GENDER, and the
+// DV and SA gender questions. Buttons and numbers read as before. A typed
+// answer is read on whole words, in this order (20 November 2026):
+// 1. An answer naming trans (trans, transgender, trans man or woman, male to
+//    female, female to male, MtF, FtM) is read as trans before anything else.
+//    At C3Q4 it goes to Trans Female or Trans Male where it says which, and to
+//    the AI reading where it does not. At DV and SA it goes to the AI reading.
+//    At B4 and B5, which have no trans option, it is held (below).
+// 2. A negation ("not male", "not a woman") names nothing.
+// 3. Female or woman is Female; male or man is Male. Naming both names nothing.
+// 4. The other options by their own words.
+// Anything else falls through to the usual matcher, unless it holds "male" or
+// "man" inside a word, which goes to the AI reading instead. Under hard gate B
+// only an explicitly stated Male may hide women-only services.
+export const GENDER_GATES = new Set<string>(['B4_GENDER', 'B5_PROFILE_GENDER', 'C3Q4_GENDER', 'DV_GENDER_ASK', 'SA_GENDER_ASK']);
+
+// B4_GENDER and B5_PROFILE_GENDER have no trans option. There, a typed answer
+// naming trans is never read as Male or Female, by the parser or the AI: hard
+// gate B lets women-only services be hidden only on an explicitly stated Male,
+// and a trans answer never meets that (October trans paper). It is held as
+// "Trans", kept in the session only and never logged: it hides nothing and
+// lifts nothing.
+export const TRANS_HELD_GATES = new Set<string>(['B4_GENDER', 'B5_PROFILE_GENDER']);
+export const HELD_TRANS_GENDER = 'Trans';
+
+const genderWords = (t: string): string =>
+  ` ${t.toLowerCase().replace(/\([^)]*\)/g, ' ').replace(/[^a-z]+/g, ' ').trim()} `;
+
+const TRANS_FEMALE = / (?:trans(?:gender)? (?:woman|women|female)|transwoman|transfemale|mtf|m2f|male to female) /;
+const TRANS_MALE = / (?:trans(?:gender)? (?:man|men|male)|transman|transmale|ftm|f2m|female to male) /;
+const TRANS_ANY = / (?:trans|transgender|transsexual) /;
+const NEGATED = / (?:not|isn t|aren t|never|no) (?:an? )?(?:female|females|woman|women|male|males|man|men) /;
+const FEMALE_WORD = / (?:female|females|woman|women) /;
+const MALE_WORD = / (?:male|males|man|men) /;
+
+export function isTransAnswer(input: string): boolean {
+  const said = genderWords(input);
+  return TRANS_FEMALE.test(said) || TRANS_MALE.test(said) || TRANS_ANY.test(said);
+}
+
+export function heldTransAnswer(gate: string, input: string): boolean {
+  return TRANS_HELD_GATES.has(gate) && isTransAnswer(input);
+}
+
+export function parseGenderInput(input: string, options?: string[], gate?: string): number | null {
+  const trimmed = input.trim();
+  if (!options || /^\d+$/.test(trimmed)) return parseUserInput(input, options);
+
+  const said = genderWords(trimmed);
+  const optionNamed = (name: string): number | null => {
+    const i = options.findIndex(o => genderWords(o) === ` ${name} `);
+    return i >= 0 ? i + 1 : null;
+  };
+
+  // 1. Trans, before anything else.
+  if (isTransAnswer(trimmed)) {
+    if (gate !== 'C3Q4_GENDER') return null; // held at B4 and B5; the AI reading at DV and SA
+    const female = TRANS_FEMALE.test(said);
+    const male = TRANS_MALE.test(said);
+    if (female && !male) return optionNamed('trans female');
+    if (male && !female) return optionNamed('trans male');
+    return null;
+  }
+
+  // 2. A negation names nothing.
+  if (NEGATED.test(said)) return null;
+
+  // 3. Female or Male, on whole words.
+  const female = FEMALE_WORD.test(said);
+  const male = MALE_WORD.test(said);
+  if (female && male) return null;
+  if (female) return optionNamed('female');
+  if (male) return optionNamed('male');
+
+  // 4. The other options by their own words.
+  for (let i = 0; i < options.length; i++) {
+    const name = genderWords(options[i]);
+    if (name.trim() && said.includes(name)) return i + 1;
+  }
+
+  // "male" or "man" inside another word is never matched by substring.
+  if (/male|man/i.test(trimmed)) return null;
+  return parseUserInput(input, options);
+}
+
 export function parseHousingSituationInput(input: string, options?: string[]): number | null {
   const trimmed = input.trim();
   if (options && !/^\d+$/.test(trimmed)) {
@@ -1550,6 +1635,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
   // The Safety route reads only a chosen option, never a keyword (safety.ts).
   const choice = isSafetyGate(gate) ? parseSafetyChoice(input, p?.options)
     : gate === 'B6_HOMELESSNESS_STATUS' ? parseHousingSituationInput(input, p?.options)
+    : GENDER_GATES.has(gate) ? parseGenderInput(input, p?.options, gate)
     : parseUserInput(input, p?.options);
   
   switch (gate) {
@@ -1807,7 +1893,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
     
     case 'B4_GENDER':
       const genderOptions = ['Male', 'Female', 'Non-binary or other', 'Prefer not to say'];
-      const gender = choice ? genderOptions[choice - 1] : null;
+      const gender = choice ? genderOptions[choice - 1] : (heldTransAnswer(gate, input) ? HELD_TRANS_GENDER : null);
       
       return {
         ...phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter),
@@ -2003,7 +2089,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
 
     case 'B5_PROFILE_GENDER':
       const profGenderOptions = ['Male', 'Female', 'Non-binary or other', 'Prefer not to say'];
-      const profGender = choice ? profGenderOptions[choice - 1] : null;
+      const profGender = choice ? profGenderOptions[choice - 1] : (heldTransAnswer(gate, input) ? HELD_TRANS_GENDER : null);
       
       const sessionWithGender = { ...session, gender: profGender };
       return routeToNextProfileQuestion(sessionWithGender, 'gender');
