@@ -1275,6 +1275,8 @@ We fully respect and support all gender identities. We know this question might 
   C3Q6_ETHNICITY: {
     text: `What is your ethnicity?
 
+Some services are run by and for particular communities. If you tell us your ethnicity, we can show you those, and it helps us check we're reaching every community. It's up to you.
+
 1. White (British)
 2. White (Other)
 3. Black (African)
@@ -1287,6 +1289,8 @@ We fully respect and support all gender identities. We know this question might 
 
   C3Q6_ETHNICITY__SUPPORTER: {
     text: `What is their ethnicity?
+
+Some services are run by and for particular communities. If you tell us their ethnicity, we can show you those, and it helps us check we're reaching every community. It's up to you.
 
 1. White (British)
 2. White (Other)
