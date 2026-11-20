@@ -969,7 +969,9 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 ### 65. Hospital/Prison/Rehab: sleeping situation pathway
 **Priority:** Medium (pre-launch)
 **Status:** Not started. Identified during WatsonX audit 15 Apr 2026.
+**Update:** Hospital and prison designed 20 November 2026 (Endpoints Contract): two answers, each its own pathway. Rehab is not part of this decision and stays open.
 **Issue:** WatsonX had "Hospital/Prison/Rehab" as a named sleeping situation option. The new system has no equivalent — these users would currently select "Other temp" and receive generic output. Each sub-population has specific needs and specific provision: prison leavers have through-the-gate services and a housing duty under the Homelessness Reduction Act 2017; hospital discharge has specific local provision (P3 hospital discharge service); rehab has specific recovery housing needs. These warrant dedicated routing and terminal content.
+**Update, 20 November 2026:** the housing duty is background, not VA wording (MD, 2 November 2026).
 **Required:** Design decision needed on whether this is one option or three. Add as named sleeping situation option(s). Design routing and terminal content for each pathway. P3 is a confirmed local provider for hospital discharge — verify current referral details before adding to endpoints file. Prison leavers and rehab need equivalent endpoint research.
 **Files:** stateMachine.ts, lib/phrasebank.ts, housing-pathway-endpoints.json
 **Source:** WatsonX audit 15 Apr 2026 — restoration and extension of WatsonX option.
@@ -1046,8 +1048,9 @@ When the service matcher returns results from enriched data, terminal outputs sh
 **Depends on:** Pipeline integration, service matcher wiring.
 
 ### Veterans / ex-forces housing pathway
-**Priority:** Medium (blocked on platform listings)
+**Priority:** Medium
 **Status:** Org research complete 25 Mar 2026. Platform listings review sent to Eliz. Blocked on her response before VA pathway can be built.
+**Update, 20 November 2026:** Question decided 2 November 2026: "Have you ever served in the armed forces?" (the March wording, which included family, is superseded). Op FORTITUDE is the national route, always shown (MD, 20 November 2026; Endpoints Contract). No longer blocked on platform listings.
 **Profiling question:** "Have you, or a close family member, served in the UK Armed Forces?" Family included because Armed Forces Covenant covers families and services (SSAFA, Haig Housing) accept family referrals. Asked only on housing pathway where the answer changes services shown.
 
 **Platform audit (25 Mar 2026):** Searched all 936 enriched services. Only one dedicated veteran org on SSN: Royal British Legion covering Solihull and Wolverhampton. No SSAFA, no Op FORTITUDE, no Stoll, no Haig Housing.
@@ -1061,14 +1064,16 @@ When the service matcher returns results from enriched data, terminal outputs sh
 **Orgs for platform listing (pending Eliz review):** Op FORTITUDE, SSAFA (0800 260 6767), Stoll (supported housing + Veterans' Nomination Scheme), Haig Housing (1,500+ properties). RBL to expand from 2 LAs to all 7.
 
 **VA pathway routing (when listings confirmed):** Op FORTITUDE as primary referral, SSAFA, council Housing Options with veteran-specific framing (local connection exemption, priority need factors), local veteran orgs from service matcher, Shelter as floor.
+**Update, 20 November 2026:** the veteran-specific framing (local connection exemption, priority need factors) is superseded for the VA by the no duty, must or entitlement rule (MD, 2 November 2026). The advice content below is kept as possible website advice page content, not VA wording (MD, 20 November 2026).
 
 **Advice content:** One advice listing covering veteran housing rights — Armed Forces Covenant, priority need, local connection exemption, Defence Transition Service, Veterans' Nomination Scheme. Enough for someone in crisis to know their rights and reach the right channels.
 
 **Research foundation (1 Mar 2026):** WMCA "Designing Out Veterans' Homelessness" report (2020). 21,661 working age veterans across seven WMCA LAs. North Warwickshire case study: 3 to 36 veteran housing cases in 4 months when dedicated worker introduced (suppressed demand).
 
 ### Prison / custody release housing pathway
-**Priority:** Medium (blocked on platform listings)
+**Priority:** Medium
 **Status:** Org research complete 25 Mar 2026. Platform listings review sent to Eliz. Blocked on her response before VA pathway can be built. Some orgs may be affected by exempt accommodation regulatory concerns.
+**Update:** Designed 20 November 2026 (Endpoints Contract). The March profiling question is superseded by the housing situation trigger (MD, 3 November 2026; Endpoints Contract 1.2) and the question order in Design Note 3.3, which has no probation question. No longer blocked on platform listings.
 **Profiling question:** "Are you currently on probation, or have you recently been released from prison or custody?" Asked only on housing pathway where the answer changes services shown.
 
 **Platform audit (25 Mar 2026):** Searched all 936 enriched services. Found 7 dedicated ex-offender services: Anawim (Birmingham, women), Birmingham Mind (Birmingham, all), WAITS (Birmingham, women), St Giles Trust Reflections (Coventry, women), Black Country Women's Aid New Chance (Dudley/Sandwell, women), Dudley Youth Justice (Dudley, young people), Coventry City Council (Coventry, all). Coverage gaps: 5 of 7 services are women-only; no dedicated provision for men in Walsall, Wolverhampton or Solihull.
@@ -1078,6 +1083,7 @@ When the service matcher returns results from enriched data, terminal outputs sh
 **VA pathway routing (when listings confirmed):** Dedicated ex-offender services from service matcher (category support > ex-offender), council Housing Options, Shelter as floor. Key complicating factor to surface (not assess): licence conditions may restrict where someone can live.
 
 **Advice content:** One advice listing covering prison release housing rights — duty to refer, council obligations, maintaining tenancy during sentence, CAS-3 temporary accommodation. Enough for someone to know what to do and who to contact.
+**Update, 20 November 2026:** kept as possible website advice page content, not VA wording; the VA does not use duty, must or entitlement language (MD, 2 and 20 November 2026).
 
 ### Care leavers: extend pathway from 20 to 24
 **Background:** Legal check (Feb 2026) confirmed care leaver housing entitlements continue beyond 20 but weaken:
