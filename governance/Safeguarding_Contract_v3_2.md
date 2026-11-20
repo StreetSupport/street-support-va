@@ -209,7 +209,12 @@ Safeguarding behaviour is tested through 96 defined test cases across 21 critica
 | LGBTQ+ Specialist Follow-up             | 3         | Specialist preference routing                             |
 | Null-Check Gate Fix                     | 3         | Boolean gate progression, infinite loop prevention        |
 | Housing Options Involvement             | 9         | Housing options question routing and storage              |
-| **Total**                               | **73**    |                                                           |
+| 16-17 Left Care, Council Named (VA #82)  | 2         | Leaving care team, then Children's Services where they are now with out of hours, then Housing Options. For safeguarding review, not for release |
+| Safety Results Screen (VA #82)          | 16        | Local Safety listings shown beside the contacts; every contact still shown when the read fails, is empty or is not made; no read on the immediate danger or under-16 exits |
+| 16-17 on the Safety Route (VA #82)      | 8         | Children's Services where they are, with out of hours, on every Safety result, after the OK to carry on flow and when the read fails; none for adults or an unknown age |
+| **Total**                               | **99**    |                                                           |
+
+*Proposed (20 November 2026): the three rows marked VA #82 align this table to `__tests__/careLeavers.test.ts` and `__tests__/safetyLocal.test.ts` at `f5e2647`. Counts are taken from the test files, not from a run.*
 
 **Test Layers**
 
