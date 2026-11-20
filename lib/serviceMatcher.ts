@@ -6,7 +6,7 @@
 // - Database-driven service lookup by category
 
 import servicesData from './data/wmca_services_v7.json';
-import { partsFor, type FirstOptionId } from './data/v4Categories';
+import { partsFor, V4_SUBCATEGORIES, type CategoryPart, type FirstOptionId } from './data/v4Categories';
 import orgsData from './data/wmca_organizations_v7.json';
 import endpointsData from './data/housing-pathway-endpoints.json';
 import type { MatchedService, DefaultOrg, UserProfile } from './types';
@@ -565,19 +565,7 @@ export function getServicesForNeed(need: string, profile: UserProfile): MatchedS
   if (profile.v4Option) {
     const parts = partsFor(profile.v4Option as FirstOptionId, profile.v4Choice ?? undefined);
     if (parts.length === 0) return [];
-    const v4Categories = [...new Set(parts.map(p => p.parent))];
-    const v4Constraints: Record<string, string[]> = {};
-    for (const p of parts) {
-      if (!p.subs) continue;
-      v4Constraints[p.parent] = [...(v4Constraints[p.parent] ?? []), ...p.subs];
-    }
-    // A parent asked for whole by one part and by subcategory in another is whole.
-    for (const p of parts) if (!p.subs) delete v4Constraints[p.parent];
-    const v4Services = filterByProfile(
-      getServicesByCategory(profile.localAuthority, v4Categories, undefined, v4Constraints),
-      profile,
-    );
-    return rankServices(v4Services, profile, 5);
+    return rankServices(v4ServicesForParts(parts, profile), profile, 5);
   }
 
   const categories = needToCategoryMap[need] || [];
@@ -613,15 +601,58 @@ export function getServicesForNeed(need: string, profile: UserProfile): MatchedS
 }
 
 /**
- * Local housing and legal advice for someone about to lose their home
- * (Managing Director, 3 November 2026). Current categories: support > housing
- * and support > legal. To be replaced by Housing, Advice in the V4 redesign.
+ * Services in the person's area for V4 category parts, filtered by profile.
+ * Reads V4 keys only, as every V4 lookup does: at the switch every area moves
+ * to V4 together.
+ */
+function v4ServicesForParts(parts: CategoryPart[], profile: UserProfile): Service[] {
+  const v4Categories = [...new Set(parts.map(p => p.parent))];
+  const v4Constraints: Record<string, string[]> = {};
+  for (const p of parts) {
+    if (!p.subs) continue;
+    v4Constraints[p.parent] = [...(v4Constraints[p.parent] ?? []), ...p.subs];
+  }
+  // A parent asked for whole by one part and by subcategory in another is whole.
+  for (const p of parts) if (!p.subs) delete v4Constraints[p.parent];
+  return filterByProfile(
+    getServicesByCategory(profile.localAuthority, v4Categories, undefined, v4Constraints),
+    profile,
+  );
+}
+
+/**
+ * Local housing advice for someone about to lose their home (Managing
+ * Director, 3 November 2026; Housing Pathway Endpoints Contract, local housing
+ * and legal advice). The V4 equivalent of the old support > housing and
+ * support > legal: Housing, Advice.
  */
 export function getHousingAdviceServices(profile: UserProfile): MatchedService[] {
-  const services = getServicesByCategory(
+  const parts: CategoryPart[] = [{ parent: 'housing', subs: [V4_SUBCATEGORIES.housing.Advice!] }];
+  const v4 = v4ServicesForParts(parts, profile);
+  if (v4.length > 0) return rankServices(v4, profile, 5);
+  // Temporary fallback, so the section keeps listing services wherever it did
+  // before: the old support > housing and support > legal. Remove once housing
+  // gets the live read with V4 keys (plan B1b/B3).
+  const old = getServicesByCategory(
     profile.localAuthority, ['support'], undefined, { support: ['housing', 'legal'] }
   );
-  return rankServices(filterByProfile(services, profile), profile, 5);
+  return rankServices(filterByProfile(old, profile), profile, 5);
+}
+
+/**
+ * Housing services in the person's area carrying a V4 population tag
+ * (lib/data/v4Categories.ts, V4_POPULATION_TAGS), read from the service's
+ * client groups as the plain key. Structured tag only: no keyword or
+ * description matching. Used for the leaving prison and veterans pathways
+ * (Housing Pathway Endpoints Contract 1.4).
+ */
+export function getHousingServicesForPopulation(
+  tag: 'people-with-criminal-records' | 'veterans',
+  profile: UserProfile,
+): MatchedService[] {
+  const tagged = v4ServicesForParts([{ parent: 'housing' }], profile)
+    .filter(s => (s.client_groups || []).includes(tag));
+  return rankServices(tagged, profile, 5);
 }
 
 /**
@@ -737,6 +768,21 @@ export function getStreetLinkInfo(): DefaultOrg {
     phone: "0300 500 0914",
     website: "https://streetlink.org.uk",
     description: "Alert local outreach teams to help someone sleeping rough"
+  };
+}
+
+// Op FORTITUDE, national and hardcoded (Housing Pathway Endpoints Contract
+// 1.4, Veterans, and hardcoded organisations table; Managing Director,
+// 20 November 2026). Details as gov.uk/support-for-veterans/op-fortitude gives
+// them, checked 20 November 2026. No hours are stated here.
+export function getOpFortitudeInfo(isSupporter: boolean): DefaultOrg {
+  return {
+    name: "Op FORTITUDE",
+    phone: "0800 9520 774",
+    website: "https://www.gov.uk/support-for-veterans/op-fortitude",
+    description: isSupporter
+      ? "The government-backed referral route for veterans who are homeless or at risk of homelessness. They can contact Op FORTITUDE themselves."
+      : "The government-backed referral route for veterans who are homeless or at risk of homelessness. You can contact them yourself."
   };
 }
 

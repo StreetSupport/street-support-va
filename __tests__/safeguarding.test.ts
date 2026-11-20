@@ -1486,7 +1486,7 @@ describe('Quick route: age for housing, under-16 exit, Children\'s Services firs
   });
 
   test('a 16 year old sleeping rough on the quick route still gets StreetLink', () => {
-    const { result } = converse([...quickHousing(WOLVERHAMPTON), '2', '3', '5', '2']); // not sure about social worker; sleeping rough or nowhere tonight, no Housing Options
+    const { result } = converse([...quickHousing(WOLVERHAMPTON), '2', '3', '6', '2']); // not sure about social worker; sleeping rough or nowhere tonight, no Housing Options
     expect(result.text).toContain('make a StreetLink alert');
     expect(result.text).toContain('OUTREACH SUPPORT');
     expect(result.text).toContain('https://streetlink.org.uk');
