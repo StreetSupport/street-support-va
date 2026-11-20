@@ -1,12 +1,12 @@
-> **Version 1.3, for trustee ratification, 11 November 2026.** This is the full text the trustees are asked to ratify. The pull request shows each change against v1.2. It is built from v1.2 as it stands on VA #45 (`2ad9121`), which sits on #31 and #25, neither merged yet; if either changes before merging, this text is re-checked against the merged v1.2. The Markdown copy was converted on 2 October 2026 from `Housing_Pathway_Endpoints_Contract_v1.0.docx`.
+> **Version 1.5, November 2026 (proposed).** Aligns the care leaver pathways to the build: one pathway for 16 to 24 (Pathway Review 5.2). Version 1.4 added the leaving prison, leaving hospital and veterans pathways to 1.3. Trustees are informed of the pathways and asked by email to approve one addition to the hardcoded national organisations, Op FORTITUDE.
 
 **Housing Pathway Endpoints: Contract**
 
 Document type: Governance Contract
 
-Status: For trustee ratification
+Status: For trustee approval of one addition; pathways for information
 
-Version: 1.3 │ Last updated: November 2026
+Version: 1.5 │ Last updated: November 2026
 
 **Purpose**
 
@@ -124,17 +124,45 @@ Required endpoints:
 
 StreetLink is offered, not required. The user is told what it does and given the option. It does not replace other endpoints. Someone staying somewhere for now receives the standard housing pathway endpoints without StreetLink.
 
-**Leaving Prison or Hospital**
+**Leaving Prison**
 
-Trigger: user confirms at the housing situation question that they are leaving prison or hospital with nowhere to go (Managing Director, 3 November 2026).
+Trigger: user confirms at the housing situation question that they are leaving prison with nowhere to go (Managing Director, 3 and 20 November 2026).
 
 Required endpoints:
 
+- Local services that work specifically with people leaving prison (Street Support service catalogue matching results), where there are any. A service that takes referrals only is shown with the line that the referral comes through the person's probation officer, or the team in the prison that deals with release and housing
+
 - Standard housing pathway endpoints as above, with Housing Options signposted for a homelessness assessment
 
-- The statement that someone still in prison or hospital can ask the staff there to refer them to the council's housing team
+- The statement that someone still in prison can ask the staff there to refer them to the council's housing team
 
-StreetLink is not offered. The fuller prison and hospital discharge pathways in the VA backlog will amend this section when they are built.
+**Leaving Hospital**
+
+Trigger: user confirms at the housing situation question that they are leaving hospital with nowhere to go (Managing Director, 3 and 20 November 2026).
+
+Required endpoints:
+
+- Local services that work specifically with people leaving hospital (Street Support service catalogue matching results), where there are any. A service that takes referrals only is shown with the line that the referral comes through the staff looking after them at the hospital (Managing Director, 20 November 2026)
+
+- Standard housing pathway endpoints as above, with Housing Options signposted for a homelessness assessment
+
+- The statement that someone still in hospital can ask the staff there to refer them to the council's housing team
+
+For both: StreetLink is not offered. Self, supporter and professional see the same endpoints, with wording adapted to the reader (Managing Director, 20 November 2026). No duty, must or entitlement language (Managing Director, 2 November 2026).
+
+**Veterans**
+
+Trigger: user answers yes to "Have you ever served in the armed forces?" in the crisis housing conversation (Managing Director, 2 November 2026). Not asked of 16 and 17 year olds (Managing Director, 2 November 2026).
+
+Required endpoints:
+
+- Op FORTITUDE (national, hardcoded), always shown (Managing Director, 20 November 2026): the government-backed centralised referral pathway for veterans who are homeless or at risk of homelessness; veterans can refer themselves; 0800 9520 774 (gov.uk/support-for-veterans/op-fortitude, checked 20 November 2026). Riverside's Op FORTITUDE page gives it as available 24 hours a day, 365 days a year, and as supporting single veterans (riverside.org.uk, checked 20 November 2026)
+
+- Local services designed for veterans (Street Support service catalogue matching results, Veterans tag), where there are any
+
+- Standard housing pathway endpoints as above
+
+The wording does not state that a user qualifies for any housing provision (What the VA Does Not Do; Managing Director, 2 November 2026).
 
 **Fire or Flood Displacement**
 
@@ -194,43 +222,68 @@ Required endpoints:
 
 A young person already involved with social services is pointed back to them first (Managing Director, 30 October 2026, agreeing the routing for PR #30). Children’s Services’ duty to a homeless 16 or 17 year old takes precedence (Statutory Homelessness Duties paper). The other endpoints follow as additional support.
 
-**Care Leavers: 18–20**
+**Care Leavers: 16 to 24**
 
-Trigger: user confirms they are 18, 19, or 20 AND confirms they were previously in local authority care.
+*Alignment to the build on `feat/care-leavers-safety-local-2026-11-20`, head `f5e2647` (Pathway Review 5.2; VA #46, carried).*
 
-Legal position: automatic priority need under Housing Act 1996. Children’s Services have a duty to accommodate under s.23C Children Act 1989.
+Trigger: on the full route, the age question has four bands (Under 16, 16-17, 18-24, 25+), and everyone aged 16 to 24 is asked "Have you ever been in care?" (VA #46, 6 November 2026). One line explains: "Being in care means living in foster care, a children's home, or a placement the council arranged." It replaces the earlier "are you currently looked after" and "social services" questions.
 
-Required endpoints:
+- 16 and 17: In care now / Was in care but I've left / No, but I have a social worker / No / Not sure / Prefer not to say
 
-- Children’s Services contact (LA-specific, from housing-pathway-endpoints.json)
+- 18 to 24: Yes / No / Not sure / Prefer not to say
 
-- Housing navigator organisation (e.g. St Basil’s, which specialises in this age group)
+Asked only after In care now, Was in care but I've left, or Yes: "Which council looked after you?" The choices are the seven councils, Somewhere else, Not sure and Prefer not to say.
 
-- Council Housing Options contact
+Never asked: how long they were in care, at what age or under which section. People aged 25 or over are not asked about care.
 
-- Shelter helpline
+Prefer not to say, at either question, counts as not stated (Managing Director, 11 November 2026): nothing is selected on the strength of it.
 
-Language: reflects the stronger entitlement without stating what any organisation must do. Frames Children’s Services as the primary route.
+Endpoints:
 
-**Care Leavers: 21–24**
+| **Code** | **Endpoint** | **Source** |
+|---|---|---|
+| E1 | "If you have a social worker or personal adviser, you can talk to them about where you are living." At 18 to 24: "If you have a personal adviser, you can talk to them about your housing." | Text |
+| E2 | The leaving care team of a council | `leavingCare` entry per council, housing-pathway-endpoints.json |
+| E3 | "The council that looked after you: ask for the leaving care team.", with the find-your-council link | Text |
+| E4 | Children’s Services, with out of hours | housing-pathway-endpoints.json |
+| E5 | Council Housing Options where they are now | housing-pathway-endpoints.json |
+| E6 | Housing navigator organisation, filtered by age | housing-pathway-endpoints.json |
+| E7 | Shelter helpline | Hardcoded |
 
-Trigger: user confirms they are 21–24 AND confirms they were previously in local authority care.
+E1 to E4 come first. E5, E6 and E7 follow, as in the standard housing results.
 
-Legal position: entitlement to advice, support, and a Personal Adviser on request (s.23CZB Children and Social Work Act 2017). Duty to accommodate only if in full-time education or training (s.23CA) or assessed as vulnerable. No automatic accommodation right.
+Leaving care data: an entry for each of the seven councils, confirmed by the Managing Director on 20 November 2026 from the councils' and trusts' own pages. An entry is shown only where it carries its source and verified date. A council with no such entry falls back to E3, plus E4 for that council at 16 and 17. Never an unverified number.
 
-Required endpoints:
+Routing (LA is where they are now; x is the council named at the second question):
 
-- Children’s Services contact (LA-specific) — framed as ‘may be entitled to support and a Personal Adviser’
+| **Age** | **Answer** | **Shown first, before E5 to E7** |
+|---|---|---|
+| 16 and 17 | In care now, x one of the seven | E1, E4[x] with out of hours |
+| 16 and 17 | Left care, x one of the seven | E1, E2[x], then E4[LA] with out of hours (Managing Director, 20 November 2026; for James's safeguarding review on #82) |
+| 16 and 17 | In care now or left care, council somewhere else, not sure or not stated | E1, E3, E4[LA] |
+| 16 and 17 | No, but I have a social worker / No | The 16 and 17 year old pathways above |
+| 16 and 17 | Not sure | The 16 and 17 year old pathways above, with "If you're not sure whether you have been in care, Children's Services can check this with you." |
+| 16 and 17 | Prefer not to say | The 16 and 17 year old pathways above |
+| 18 to 24 | Yes, x one of the seven | E1 line, E2[x] |
+| 18 to 24 | Yes, somewhere else | E1 line, E3. No local leaving care team; local Housing Options instead. Decided by the Managing Director, 20 November 2026. |
+| 18 to 24 | Yes, council not stated | E1 line, E3 |
+| 18 to 24 | Yes, not sure which council | E2[LA] with "The leaving care team where you are now can help you find who is responsible." and the caveat "If <Council> looked after you, this team can support you. If it was a different council, they may be able to help you work out which one, or give you some support in the meantime." Decided by the Managing Director, 20 November 2026. The caveat lines are in #82 (a93f7d3) |
+| 18 to 24 | Not sure if in care | E2[LA] with "If you're not sure whether you have been in care, the leaving care team where you are now can check for you." and the caveat "If you're not sure whether you were in care, this team may be able to check whether <Council> looked after you. If it was a different council, that council's leaving care team can help." Decided by the Managing Director, 20 November 2026. The caveat lines are in #82 (a93f7d3) |
+| 18 to 24 | No / Prefer not to say | Standard housing pathway endpoints |
 
-- Housing navigator organisation
+Where E2[LA] has no entry, the line is followed by "Ask [council] council for the leaving care team." and the find-your-council link.
 
-- Council Housing Options contact
+Wording: E2 and E3 carry "Leaving care teams support young people who have been in care. Help with housing is part of what they do. They will look at your situation with you." At 18 to 24 they add one line: "Support from a leaving care team can continue until your 25th birthday." There is one wording for 18 to 24, with no split at 21. The wording states what services do. It never says what a person may be entitled to or what any organisation has to do. Supporter wording uses "they" and "their".
 
-- Shelter helpline
+**Open, and with whom**
 
-Language: age-differentiated from 18–20. Does not imply automatic accommodation entitlement. Uses ‘explore your options with Children’s Services’ framing.
+- 18 to 24, looked after somewhere else: whether to show the local leaving care team as optional extra support. Open, for the Managing Director. The reasoning is recorded in "Care leavers living in a different area".
+- 16 and 17, left care, council named: Children's Services where they are now, after the leaving care team. For James's safeguarding review on #82.
+- 16 and 17, left care, council named, living outside the seven councils: no Children's Services is shown, because none is held for where they are now. A gap found in review (VA backlog C1c).
 
-**Pending legislation:** The Children’s Wellbeing and Schools Bill (progressing through Parliament at February 2026) will prevent certain care leavers from being classed as intentionally homeless and introduce a Staying Close duty to age 25. When enacted, this pathway requires review.
+**Basis** (background, not VA wording): Homelessness Code of Guidance for Local Authorities, Chapter 22. Para 22.3: a Personal Adviser supports a care leaver until their 25th birthday, and they can decline one after 21. Para 22.34: from 30 September 2026, care leavers under 25 cannot be found intentionally homeless. https://www.gov.uk/guidance/homelessness-code-of-guidance-for-local-authorities/chapter-22-young-people-including-those-with-care-experience (page last updated 15 October 2026; read 20 November 2026). For Children's Services for 16 and 17 year olds who have left care: the statutory guidance on 16 and 17 year olds, paras 3.4, 3.51 and 4.5, as cited in the build.
+
+**Legislation:** the Children’s Wellbeing and Schools Act 2026 received Royal Assent on 29 April 2026, which fired this contract's care leaver review trigger. This pathway is that review (Pathway Review 5.2; Basis above).
 
 **LGBTQ+ Housing Need**
 
@@ -405,6 +458,7 @@ The following national organisations are hardcoded into the VA and cannot be sub
 | Migrant Help                             | 0808 8010 503 / migranthelpuk.org                            | NRPF / immigration / trafficking  |
 | Modern Slavery & Exploitation Helpline   | 08000 121 700 / unseenuk.org                                 | Safety route: modern slavery and trafficking |
 | Salvation Army modern slavery referral helpline | 0800 808 3733 / salvationarmy.org.uk/modern-slavery   | Safety route: modern slavery and trafficking |
+| Op FORTITUDE                             | 0800 9520 774 / gov.uk/support-for-veterans/op-fortitude     | Veterans housing                  |
 | Childline                                | 0800 1111 / childline.org.uk                                 | Under 16                          |
 | Shelter helpline (England)               | 0808 800 4444 / england.shelter.org.uk                       | All housing pathways (floor)      |
 | Shelter legal page: DV and priority need | england.shelter.org.uk (Priority need due to domestic abuse) | Domestic violence housing pathway |
@@ -460,11 +514,13 @@ Operational changes within existing rules (no governance review required):
 | 1.1         | October 2026  | 16–17 currently involved with social services: social worker or Children’s Services duty team surfaced first, matching the VA (PR #30) | SSN        |
 | 1.2         | November 2026 | New pathway for someone about to lose their home; rough sleeping and sofa surfing triggers set by the housing situation question, StreetLink for sleeping rough or nowhere tonight only; leaving prison or hospital as its own trigger, matching the VA (PR #40) | SSN        |
 | 1.3         | November 2026 | Modern slavery and trafficking through the Safety route, open to everyone, replacing passive signposting (MD, 2 November 2026); domestic abuse layer where gender is not given (MD, 11 November 2026); Galop corrected to 0800 999 5428, checked at source; Modern Slavery & Exploitation Helpline and the Salvation Army referral helpline added, checked at source 11 November 2026 | SSN        |
+| 1.4         | November 2026 | Leaving prison and leaving hospital as separate pathways, surfacing local specialist services, with the referral route named for services that take referrals only; a veterans pathway with Op FORTITUDE as the national route, added to the hardcoded national organisations (MD, 20 November 2026); Op FORTITUDE's addition for trustees' explicit approval by email | Street Support Network |
+| 1.5         | November 2026 | Proposed. Care leavers: the 18–20 and 21–24 pathways become one pathway for 16 to 24, with one 18 to 24 band (Code of Guidance Chapter 22), the care and council questions, endpoints E1 to E7 and the routing as built (Pathway Review 5.2; VA #46 carried; seven leaving care contacts confirmed); decisions and open points recorded; the legal-position lines and "may be entitled" framing retired; the pending legislation paragraph replaced. Alignment to the build on `feat/care-leavers-safety-local-2026-11-20` (`f5e2647`) | Street Support Network |
 
-**Status: For trustee ratification**
+**Status: For trustee approval of one addition; pathways for information**
 
 Approved by: \[Pending\]
 
 Date: \[Pending\]
 
-Governance contract │ Version 1.0 │ February 2026
+Governance contract │ Version 1.5 │ November 2026
