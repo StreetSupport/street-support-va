@@ -218,8 +218,8 @@ const immigrationOrgs: DefaultOrg[] = [
   {
     name: "Project 17",
     phone: null,
-    website: "https://project17.org.uk",
-    description: "Advice for families with No Recourse to Public Funds"
+    website: "https://www.project17.org.uk",
+    description: "For families with children who have no recourse to public funds"
   }
 ];
 

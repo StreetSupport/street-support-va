@@ -812,6 +812,22 @@ describe('NRPF Family Support', () => {
     expect(result.text).toContain('FAMILY & IMMIGRATION SUPPORT');
   });
 
+  test('a family with no recourse to public funds sees Project 17 once, described as for families with children', () => {
+    const session = sessionAt('B5_PROFILE_CHILDREN', {
+      supportNeed: 'Emergency Housing',
+      localAuthority: 'Birmingham',
+      ageCategory: '25+',
+      gender: 'Female',
+      lgbtq: false,
+      criminalConvictions: 'No',
+      publicFunds: 'No',
+      homeless: true,
+    });
+    const text = select(session, 1).text;
+    expect(text.split('Project 17').length - 1).toBe(1);
+    expect(text).toContain('For families with children who have no recourse to public funds');
+  });
+
 });
 
 // =============================================================================
