@@ -35,8 +35,10 @@ const fullRoute = (p: Partial<SessionState>): SessionState => sessionAt('C3Q10_L
 });
 
 const sixteen = (p: Partial<SessionState> = {}) => fullRoute({ ageCategory: '16-17', detailedAge: '16-17', youthSocialServicesAsked: true, ...p });
-const nineteen = (p: Partial<SessionState> = {}) => fullRoute({ ageCategory: '18-24', detailedAge: '18-20', localAuthority: 'Sandwell', ...p });
-const twentyTwo = (p: Partial<SessionState> = {}) => fullRoute({ ageCategory: '18-24', detailedAge: '21-24', localAuthority: 'Sandwell', ...p });
+// Age is asked once, in four bands (6 November 2026): a 19 and a 22 year old
+// both answer 18-24. The two names are kept for the design's scenarios.
+const nineteen = (p: Partial<SessionState> = {}) => fullRoute({ ageCategory: '18-24', detailedAge: '18-24', localAuthority: 'Sandwell', ...p });
+const twentyTwo = (p: Partial<SessionState> = {}) => fullRoute({ ageCategory: '18-24', detailedAge: '18-24', localAuthority: 'Sandwell', ...p });
 
 // Answers at the council question.
 const WOLVERHAMPTON = '1', BIRMINGHAM = '2', ELSEWHERE = '8', NOT_SURE_COUNCIL = '9', PREFER_NOT_COUNCIL = '10';
@@ -84,8 +86,8 @@ function withLeavingCare(council: string, fn: () => void) {
 describe('who is asked', () => {
   test.each([
     ['16 or 17', sixteen(), 'C3Q11_EVER_IN_CARE_16_17'],
-    ['18 to 20', nineteen(), 'C3Q11_EVER_IN_CARE'],
-    ['21 to 24', twentyTwo(), 'C3Q11_EVER_IN_CARE'],
+    ['18 to 24', nineteen(), 'C3Q11_EVER_IN_CARE'],
+    ['18 to 24, from an older session carrying 21-24', fullRoute({ ageCategory: '18-24', detailedAge: '21-24' }), 'C3Q11_EVER_IN_CARE'],
   ])('%s on the full route is asked whether they have ever been in care', (_l, start, gate) => {
     const r = processInput(start, '2');
     expect(r.stateUpdates.currentGate).toBe(gate);
@@ -344,7 +346,7 @@ describe('18 to 24', () => {
 describe('one wording for how long leaving care support can continue, 18 to 24', () => {
   const SELF = 'Support from a leaving care team can continue until your 25th birthday.';
   const SUPPORTER = 'Support from a leaving care team can continue until their 25th birthday.';
-  test.each([['18-20', nineteen], ['21-24', twentyTwo]] as const)('%s, self and supporter, every Yes route that shows it', (_l, start) => {
+  test.each([['18-24', nineteen], ['21-24 (older session)', (p: Partial<SessionState> = {}) => twentyTwo({ detailedAge: '21-24', ...p })]] as const)('%s, self and supporter, every Yes route that shows it', (_l, start) => {
     for (const council of [BIRMINGHAM, ELSEWHERE]) {
       const self = results(start(), ['1', council]);
       const sup = results(start({ isSupporter: true }), ['1', council]);

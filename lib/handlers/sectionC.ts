@@ -33,11 +33,16 @@ import { phrase, buildUnder16Exit } from './shared';
 // "currently looked after" and "social services" questions. 25 and over are
 // never asked: the answer would not change what they are shown. The 16 and 17
 // question on every housing route (B5_YOUTH_SOCIAL_SERVICES) is unchanged.
-const CARE_AGES = ['16-17', '18-20', '21-24', '18-24'];
+// Everyone aged 16 to 24 (Managing Director, 6 November 2026): leaving care
+// support runs to 25. Age is asked once, in four bands; 18-20 and 21-24 are
+// read too, for sessions that carry the older split.
+export function isAged16To24(session: SessionState): boolean {
+  const age = session.detailedAge || session.ageCategory;
+  return ['16-17', '18-24', '18-20', '21-24'].includes(age || '');
+}
 
 export function shouldAskCareQuestion(session: SessionState): boolean {
-  const age = session.detailedAge || session.ageCategory;
-  return session.routeType === 'FULL' && CARE_AGES.includes(age ?? '');
+  return session.routeType === 'FULL' && isAged16To24(session);
 }
 
 function careQuestionGate(session: SessionState): 'C3Q11_EVER_IN_CARE_16_17' | 'C3Q11_EVER_IN_CARE' {
@@ -183,13 +188,13 @@ export function handleC3Q1BPublicFundsFollowup(session: SessionState, choice: nu
 export function handleC3Q2DependentChildren(session: SessionState, choice: number | null): RoutingResult {
   const hasChildren = choice === 1;
 
-  // Age is asked before B6 on every housing route. Section C asks it again
-  // only to split 18-24 into 18-20 and 21-24, and to find whether someone is
-  // 25 or over, who is not asked about care.
-  if (session.ageCategory && session.ageCategory !== '18-24') {
+  // Age is asked once, before B6, on every housing route. Section C asks it
+  // only if it is somehow missing.
+  const knownAge = session.detailedAge || session.ageCategory;
+  if (knownAge) {
     return {
       ...phrase('C3Q4_GENDER', session.isSupporter),
-      stateUpdates: { currentGate: 'C3Q4_GENDER', hasChildren, detailedAge: session.ageCategory }
+      stateUpdates: { currentGate: 'C3Q4_GENDER', hasChildren, detailedAge: knownAge }
     };
   }
 
@@ -200,7 +205,7 @@ export function handleC3Q2DependentChildren(session: SessionState, choice: numbe
 }
 
 export function handleC3Q3Age(session: SessionState, choice: number | null): RoutingResult {
-  const detailedAgeOptions = ['Under 16', '16-17', '18-20', '21-24', '25+'];
+  const detailedAgeOptions = ['Under 16', '16-17', '18-24', '25+'];
   const detailedAge = choice ? detailedAgeOptions[choice - 1] : null;
 
   // Under 16 safeguarding — exit directly if LA known, otherwise ask for area first
@@ -303,6 +308,7 @@ export function handleC3Q10Lgbtq(
     };
   }
 
+  // Ask the care question of everyone aged 16 to 24, on the full route
   const updatedSession = { ...session, lgbtq: false };
   if (shouldAskCareQuestion(updatedSession)) {
     const gate = careQuestionGate(updatedSession);
@@ -331,6 +337,7 @@ export function handleC3Q10ALgbtqServicePreference(
   const lgbtqPrefOptions = ['Specialist first', 'Local only', 'Show both'];
   const lgbtqPref = choice ? lgbtqPrefOptions[choice - 1] : null;
 
+  // Ask the care question of everyone aged 16 to 24, on the full route
   const updatedSession = { ...session, lgbtqServicePreference: lgbtqPref };
   if (shouldAskCareQuestion(updatedSession)) {
     const gate = careQuestionGate(updatedSession);

@@ -56,9 +56,9 @@ describe('16 and 17: in care or a social worker, asked on every housing route', 
     expect(result.stateUpdates.currentGate).toBe('C3Q11_EVER_IN_CARE_16_17');
   });
 
-  test('an 18-20 year old on the full route is asked whether they have ever been in care', () => {
+  test('an 18-24 year old on the full route is asked whether they have ever been in care', () => {
     const session = sessionAt('C3Q10_LGBTQ', housing16({
-      routeType: 'FULL', ageCategory: '18-24', detailedAge: '18-20', homeless: true,
+      routeType: 'FULL', ageCategory: '18-24', detailedAge: '18-24', homeless: true,
     }));
     const result = processInput(session, '2');
     expect(result.stateUpdates.currentGate).toBe('C3Q11_EVER_IN_CARE');

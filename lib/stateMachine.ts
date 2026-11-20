@@ -1,7 +1,8 @@
 // Street Support VA v7.1 State Machine - COMPLETE VERSION
 // Full routing logic from CHAR_VA_RoutingLogic_v7.md
 // UPDATES v7.1:
-// - Care questions (C3Q11, C3Q11A) at 16 to 24 on the full route (20 November 2026)
+// - Care questions (C3Q11, C3Q11A) for everyone aged 16 to 24 on the full route
+//   (6 and 20 November 2026); age asked once, in four bands
 // - Restructured terminal output with clear hierarchy
 // - Trauma-informed language, Shelter as safety net
 
@@ -73,6 +74,7 @@ import {
   handleC3Q1BPublicFundsFollowup,
   handleC3Q2DependentChildren,
   handleC3Q3Age,
+  isAged16To24,
   handleC3Q4Gender,
   handleC3Q5Pregnancy,
   handleC3Q6Ethnicity,
@@ -694,7 +696,7 @@ function buildZeroMatchTerminal(
 
 // Live read failed: say so plainly. Never tell the person there is no local
 // support when the VA simply could not load it. National floors still show.
-// Wording proposed, 2 November 2026, for approval.
+// Wording approved, 4 November 2026.
 function buildLocalResultsUnavailableTerminal(
   la: string,
   fallbacks: Array<{name: string; phone?: string; website: string; description: string}>,
@@ -1319,12 +1321,9 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   // ----------------------------------------
   // YOUTH SERVICES - for 16-24
   // ----------------------------------------
-  const showYouth = session.youthServicesFlag || 
-    session.ageCategory === '16-17' || 
-    session.ageCategory === '18-24' || 
-    session.detailedAge === '16-17' || 
-    session.detailedAge === '18-20' ||
-    session.detailedAge === '21-24';
+  // Age is asked once, in four bands (6 November 2026); isAged16To24 also
+  // reads the older 18-20 and 21-24 values.
+  const showYouth = session.youthServicesFlag || isAged16To24(session);
     
   if (showYouth && youthOrgs.length > 0) {
     text += `YOUNG PEOPLE'S SUPPORT\n`;
@@ -1351,8 +1350,10 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   // ----------------------------------------
   // SOCIAL SERVICES GUIDANCE - for care leavers / young people not engaged
   // ----------------------------------------
+  // 16 to 24: leaving care support, and the protection from being found
+  // intentionally homeless, run to 25 (Children's Wellbeing and Schools Act 2026, s.9, in force 30 September 2026; Managing Director, 6 November 2026).
   const showSocialServicesGuidance = 
-    (session.ageCategory === '16-17' || session.detailedAge === '16-17' || session.detailedAge === '18-20' || session.inCare) 
+    (isAged16To24(session) || session.inCare) 
     && session.socialServices === 'No' && !care.first;
     
   if (showSocialServicesGuidance) {
@@ -1441,29 +1442,29 @@ export function parseUserInput(input: string, options?: string[]): number | null
 // "coming". They are reached only by their number or by the leaving phrase.
 const LEAVING_PHRASE = String.raw`\b(?:leaving|coming out of|getting out of|released from|discharged from|just out of|out of)\s+(?:the\s+)?`;
 
-// The gender questions: B4_GENDER, B5_PROFILE_GENDER and C3Q4_GENDER, and the
+// The gender questions: B5_PROFILE_GENDER and C3Q4_GENDER, and the
 // DV and SA gender questions. Buttons and numbers read as before. A typed
 // answer is read on whole words, in this order (20 November 2026):
 // 1. An answer naming trans (trans, transgender, trans man or woman, male to
 //    female, female to male, MtF, FtM) is read as trans before anything else.
 //    At C3Q4 it goes to Trans Female or Trans Male where it says which, and to
 //    the AI reading where it does not. At DV and SA it goes to the AI reading.
-//    At B4 and B5, which have no trans option, it is held (below).
+//    At B5, which has no trans option, it is held (below).
 // 2. A negation ("not male", "not a woman") names nothing.
 // 3. Female or woman is Female; male or man is Male. Naming both names nothing.
 // 4. The other options by their own words.
 // Anything else falls through to the usual matcher, unless it holds "male" or
 // "man" inside a word, which goes to the AI reading instead. Under hard gate B
 // only an explicitly stated Male may hide women-only services.
-export const GENDER_GATES = new Set<string>(['B4_GENDER', 'B5_PROFILE_GENDER', 'C3Q4_GENDER', 'DV_GENDER_ASK', 'SA_GENDER_ASK']);
+export const GENDER_GATES = new Set<string>(['B5_PROFILE_GENDER', 'C3Q4_GENDER', 'DV_GENDER_ASK', 'SA_GENDER_ASK']);
 
-// B4_GENDER and B5_PROFILE_GENDER have no trans option. There, a typed answer
+// B5_PROFILE_GENDER has no trans option. There, a typed answer
 // naming trans is never read as Male or Female, by the parser or the AI: hard
 // gate B lets women-only services be hidden only on an explicitly stated Male,
 // and a trans answer never meets that (October trans paper). It is held as
 // "Trans", kept in the session only and never logged: it hides nothing and
 // lifts nothing.
-export const TRANS_HELD_GATES = new Set<string>(['B4_GENDER', 'B5_PROFILE_GENDER']);
+export const TRANS_HELD_GATES = new Set<string>(['B5_PROFILE_GENDER']);
 export const HELD_TRANS_GENDER = 'Trans';
 
 const genderWords = (t: string): string =>
@@ -1555,7 +1556,7 @@ export function parseHousingSituationInput(input: string, options?: string[]): n
 // Intercepts free-text user input at every gate and looks for explicit
 // disclosure of under-16 age. Triggers an immediate safeguarding exit
 // regardless of where in the conversation the user currently is, even if
-// they previously declared an adult age at B3_AGE_CATEGORY.
+// they previously declared an adult age at an earlier age question.
 //
 // Trigger patterns are intentionally narrow:
 //   1. First-person numeric statement of ages 10-15 ("I'm 14", "I am 13").
@@ -1880,46 +1881,6 @@ export function processInput(session: SessionState, input: string): RoutingResul
         stateUpdates: { currentGate: 'B5_MAIN_SUPPORT_NEED', userType, isSupporter }
       };
     
-    case 'B3_AGE_CATEGORY':
-      const ageOptions = ['Under 16', '16-17', '18-24', '25 or over'];
-      const age = choice ? ageOptions[choice - 1] : null;
-
-      // Under 16 safeguarding — exit directly if LA known, otherwise ask for area first
-      if (choice === 1) {
-        if (session.localAuthority) {
-          return buildUnder16Exit(session);
-        }
-        return {
-          ...phrase('CRISIS_UNDER16_LOCATION', session.userType),
-          stateUpdates: { currentGate: 'CRISIS_UNDER16_LOCATION' }
-        };
-      }
-      
-      // Youth flag for 16-17
-      const youthFlag = choice === 2;
-      
-      // Full route asks gender, quick route skips to B5
-      if (session.routeType === 'FULL') {
-        return {
-          ...phrase('B4_GENDER', session.isSupporter),
-          stateUpdates: { currentGate: 'B4_GENDER', ageCategory: age, youthServicesFlag: youthFlag }
-        };
-      } else {
-        return {
-          ...phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter),
-          stateUpdates: { currentGate: 'B5_MAIN_SUPPORT_NEED', ageCategory: age, youthServicesFlag: youthFlag }
-        };
-      }
-    
-    case 'B4_GENDER':
-      const genderOptions = ['Male', 'Female', 'Non-binary or other', 'Prefer not to say'];
-      const gender = choice ? genderOptions[choice - 1] : (heldTransAnswer(gate, input) ? HELD_TRANS_GENDER : null);
-      
-      return {
-        ...phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter),
-        stateUpdates: { currentGate: 'B5_MAIN_SUPPORT_NEED', gender }
-      };
-    
     case 'B5_MAIN_SUPPORT_NEED': {
       // The first question in V4 terms (Decision 1, Managing Director, 4 November 2026).
       const option = choice && choice >= 1 && choice <= FIRST_OPTIONS.length ? FIRST_OPTIONS[choice - 1] : null;
@@ -2060,7 +2021,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
       const profAgeOptions = ['Under 16', '16-17', '18-24', '25 or over'];
       const profAge = choice ? profAgeOptions[choice - 1] : null;
 
-      // Under 16 safeguarding — same exit as B3_AGE_CATEGORY
+      // Under 16 safeguarding — the under-16 exit
       if (choice === 1) {
         if (session.localAuthority) {
           return buildUnder16Exit(session);
@@ -2086,7 +2047,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
         };
       }
 
-      // Emergency Housing continues to the homelessness status question
+      // Emergency Housing continues to the homelessness status question, on either route
       if (session.supportNeed === 'Emergency Housing') {
         return {
           ...phrase('B6_HOMELESSNESS_STATUS', session.isSupporter),

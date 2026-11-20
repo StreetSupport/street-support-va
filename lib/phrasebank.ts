@@ -311,46 +311,6 @@ Support with Benefits and Grants | Turn2us - https://www.turn2us.org.uk/`
     options: ["Myself", "Someone I'm supporting", "I'm a professional or organisation", "Not sure / just trying to find the right place"]
   },
 
-  B3_AGE_CATEGORY: {
-    text: `Which age group are you in?
-
-1. Under 16
-2. 16-17
-3. 18-24
-4. 25 or over`,
-    options: ["Under 16", "16-17", "18-24", "25 or over"]
-  },
-
-  B3_AGE_CATEGORY__SUPPORTER: {
-    text: `Which age group are they in?
-
-1. Under 16
-2. 16-17
-3. 18-24
-4. 25 or over`,
-    options: ["Under 16", "16-17", "18-24", "25 or over"]
-  },
-
-  B4_GENDER: {
-    text: `I need to ask about gender because some services are specifically for particular genders. I know these options don't fit everyone perfectly - please choose whichever feels closest, or 'Prefer not to say' if you'd rather skip this.
-
-1. Male
-2. Female
-3. Non-binary or other
-4. Prefer not to say`,
-    options: ["Male", "Female", "Non-binary or other", "Prefer not to say"]
-  },
-
-  B4_GENDER__SUPPORTER: {
-    text: `I need to ask about gender because some services are specifically for particular genders. These options might not fit everyone perfectly.
-
-1. Male
-2. Female
-3. Non-binary or other
-4. Prefer not to say`,
-    options: ["Male", "Female", "Non-binary or other", "Prefer not to say"]
-  },
-
   // First question (VA V4 Redesign Design Note, Decision 1, Managing Director,
   // 4 November 2026). Labels must match lib/data/v4Categories.ts.
   B5_MAIN_SUPPORT_NEED: {
@@ -453,8 +413,8 @@ Support with Benefits and Grants | Turn2us - https://www.turn2us.org.uk/`
   // Asked based on which support need was selected
   // ============================================================
 
-  // AGE - Asked for: Health, Work, Training, Activities, Drop In, and Emergency Housing on the quick route
-  // Under 16 takes the same under-16 exit as B3_AGE_CATEGORY
+  // AGE - Asked for: Health, Work, Training, Activities, Drop In, and Emergency Housing on either route
+  // Under 16 takes the under-16 exit
   B5_YOUTH_SOCIAL_SERVICES: {
     text: `Do you have a social worker or a personal adviser, or are you living somewhere the council arranged, like foster care, a children's home or supported accommodation?`,
     options: ["Yes", "No", "Not sure", "Prefer not to say"]
@@ -1211,10 +1171,9 @@ Would they like to answer a few more questions so I can find services that fit t
 
 1. Under 16
 2. 16-17
-3. 18-20
-4. 21-24
-5. 25+`,
-    options: ["Under 16", "16-17", "18-20", "21-24", "25+"]
+3. 18-24
+4. 25+`,
+    options: ["Under 16", "16-17", "18-24", "25+"]
   },
 
   C3Q3_AGE__SUPPORTER: {
@@ -1222,10 +1181,9 @@ Would they like to answer a few more questions so I can find services that fit t
 
 1. Under 16
 2. 16-17
-3. 18-20
-4. 21-24
-5. 25+`,
-    options: ["Under 16", "16-17", "18-20", "21-24", "25+"]
+3. 18-24
+4. 25+`,
+    options: ["Under 16", "16-17", "18-24", "25+"]
   },
 
   C3Q4_GENDER: {
