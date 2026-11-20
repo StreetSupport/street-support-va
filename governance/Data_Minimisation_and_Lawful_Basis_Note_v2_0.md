@@ -91,13 +91,15 @@ Article 6 basis is legitimate interests throughout. "Consent" means explicit con
 | Dogs | Crisis housing where the result is accommodation; Essentials | Services that take dogs; Dogs Trust | Ordinary | None | No lift. "Accepts dogs" never holds a service back |
 | LGBTQ+ (offer form) | Crisis housing; Health; Addiction; Immigration | Specialist services added | Sexual orientation | Consent | Recorded as nothing |
 | LGBTQ+ or gender (direct, with reason) | Safety: domestic abuse and sexual violence | Changes the organisations and endpoints | Sexual orientation | Consent, after "OK to carry on" | Prefer not to say: the general exit, with every national line and who it is for (Safeguarding Contract v3.3); 999 always shown |
-| Ethnicity | Every pathway that asks population questions, except Food | Services run by and for the person's community; reach and equity counts | Racial or ethnic origin | Consent, both purposes stated | Prefer not to say: community services not selected; not counted |
+| Ethnicity | Every pathway that asks population questions, except Food | Services designed for ethnic minority communities: any answer except White British lifts them (Managing Director, 9 November 2026); reach and equity counts (section 9) | Racial or ethnic origin | Consent, both purposes stated, given at the question (section 6) | Prefer not to say at the question, or Skip these at the extra-questions screen: nothing lifted, nothing excluded; not counted |
 | Convictions, and type if yes | Crisis housing (last; not 16 and 17); Health; Employment | Specialist endpoints, including the arson route; designed-for services | Criminal offence data | Consent, Schedule 1 Part 3 paragraph 29 | Prefer not to say: designed-for services not selected |
 | Need chosen; noticing-step pressures; type of harm | As chosen | The help asked for | Health or sexual information where the option reveals it | Consent, given by choosing after the opening sentence | Not asked; the person chooses |
 | Food question | Food | The noticing step; the voucher route | Ordinary | None | "Just show me food near me" |
 | Access location, used before, outcome | As in section 10 | Reach and accessibility | Ordinary | None | Optional |
 
 The population questions on each need follow the Service Matching and Questions Design Note, section 3.7, and are built only once their row here is confirmed against the build.
+
+**Proposed, for the Managing Director (20 November 2026): the Ethnicity row.** It records the 9 November rule. The build (VA #81) does not currently log the answer; the section 9 counts apply when analytics is built. The condition follows this note's own pattern (sections 4 and 6): consent is given at the question, which states both purposes in the appendix wording, not at the extra-questions screen. Sources: VA #81 description; `lib/serviceMatcher.ts` and `lib/phrasebank.ts` on VA #81; VA Question Purpose Register Q1 and VA Design and Service Matching Proposal question 8 (`align/population-asking-proposal-2026-11-08`).
 
 **No new field.** The West Midlands restriction record (Service Matching Contract v3.1) describes services, not people. It is applied using answers this table already lists, including the housing situation for services for people sleeping rough. It adds no question and keeps nothing about the person.
 
