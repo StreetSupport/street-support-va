@@ -150,5 +150,23 @@
     "dv_male": "ManKind Initiative (hardcoded) is primary male route. BCWA office line accepts male referrals in Sandwell/Dudley/Walsall. Valley House Coventry and The Haven Wolverhampton explicitly include all genders.",
     "dv_lgbtq": "Galop (hardcoded) is primary LGBTQ+ route. Valley House Coventry and The Haven Wolverhampton explicitly include LGBTQ+ users.",
     "coventry_sarc": "Blue Sky Centre entry is marked NEEDS VERIFICATION. Do not surface until confirmed. Horizon SARC covers Coventry and is safe default."
+  },
+  "safety_from_harm_national": {
+    "_note": "National contacts for the Safety from harm route (Safeguarding Contract 3.3). Which file holds them is the technical lead's decision; held here for review. Read at primary source on 18 November 2026 by Claude in a Street Support Network working session, for confirmation by a person before merge. Hours are shown only where the primary source states them.",
+    "modern_slavery_helpline": {
+      "name": "UK Modern Slavery & Exploitation Helpline",
+      "phone": "08000 121 700",
+      "availability": "free, confidential, open 365 days a year, not overnight",
+      "url": "https://unseenuk.org",
+      "source": "https://unseenuk.org (page modified 10 November 2026), read 18 November 2026, for the name and number. https://www.unseenuk.org/faqs-potential-victims/ (modified 1 October 2026): \"The Modern Slavery & Exploitation Helpline is free, confidential, and available 365 days a year\". https://www.unseenuk.org/helpline-day-in-the-life/ (4 July 2022): \"The Helpline closes for the night\" and \"from 8am, our dedicated advisors are ready to respond\"",
+      "availability_note": "Exact daily hours not found at source. Shown as not overnight (Managing Director, 18 November 2026); the Salvation Army line, open 24/7, is listed first."
+    },
+    "salvation_army_referral": {
+      "name": "The Salvation Army modern slavery referral helpline",
+      "phone": "0800 808 3733",
+      "availability": "24/7",
+      "url": "https://www.salvationarmy.org.uk/modern-slavery",
+      "source": "https://www.salvationarmy.org.uk/modern-slavery, read 18 November 2026: \"run a confidential referral helpline (0800 808 3733) that's available 24/7\""
+    }
   }
 }

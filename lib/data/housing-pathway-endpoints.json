@@ -217,6 +217,7 @@
     "childrenServices": {
       "name": "Solihull Children's Services",
       "phone": "0121 788 4300",
+      "phoneOOH": "0121 605 6060",
       "website": "https://www.solihull.gov.uk/children-and-family-support"
     },
     "navigatorOrgs": [
@@ -255,7 +256,7 @@
     "childrenServices": {
       "name": "Walsall Children's Services",
       "phone": "0300 555 2866",
-      "phoneOption": "option 2",
+      "phoneOOH": "0300 555 2922",
       "website": "https://www.walsall.gov.uk/children-and-families"
     },
     "navigatorOrgs": [

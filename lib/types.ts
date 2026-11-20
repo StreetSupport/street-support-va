@@ -34,6 +34,7 @@ export type GateType =
   | 'B3_AGE_CATEGORY'
   | 'B4_GENDER'
   | 'B5_MAIN_SUPPORT_NEED'
+  | 'B5_SECOND_SCREEN'
   | 'B5A_ADVICE_TYPE'
   | 'B5_PROFILE_AGE'
   | 'B5_YOUTH_SOCIAL_SERVICES'
@@ -83,6 +84,9 @@ export type GateType =
   | 'DV_GENDER_ASK'
   | 'DV_CHILDREN_ASK'
   | 'SA_GENDER_ASK'
+  // Safety from harm route (Safeguarding Contract 3.3)
+  | 'SAFETY_TYPE_OF_HARM'
+  | 'SAFETY_OK_TO_CONTINUE'
   // Crisis Location Gates
   | 'CRISIS_UNDER16_LOCATION'
   | 'CRISIS_FIRE_FLOOD_LOCATION'
@@ -125,6 +129,13 @@ export interface SessionState {
   gender: string | null;
   supportNeed: string | null;
   adviceSubcategory: string | null;
+  // First question in V4 terms (lib/data/v4Categories.ts): the option chosen,
+  // and the second-screen choice where the option has one.
+  v4Option?: string | null;
+  v4Choice?: string | null;
+  // Profile questions already asked this session, answered or not, so a
+  // "prefer not to say" (stored as null) is not asked again.
+  profileAsked?: string[];
   additionalNeeds: string[];
   needCount: number;
 
@@ -176,6 +187,9 @@ export interface SessionState {
   // Safeguarding
   safeguardingTriggered: boolean;
   safeguardingType: string | null;
+  // Safety from harm route: the one type of harm the person chose. Not shown
+  // back, not logged; it only selects the exit.
+  safetyHarm?: 'DOMESTIC_ABUSE' | 'SEXUAL_VIOLENCE' | 'MODERN_SLAVERY' | 'OTHER' | null;
   dvGender: string | null;
   dvChildren: boolean | null;
   saGender: string | null;
@@ -253,6 +267,8 @@ export interface UserProfile {
   lgbtqServicePreference?: string | null;
   dv?: boolean;
   adviceSubcategory?: string | null;
+  v4Option?: string | null;
+  v4Choice?: string | null;
 }
 
 export interface ServiceCard {
@@ -291,5 +307,7 @@ export function toUserProfile(session: SessionState): UserProfile {
     lgbtqServicePreference: session.lgbtqServicePreference,
     dv: session.safeguardingType === 'DOMESTIC_ABUSE',
     adviceSubcategory: session.adviceSubcategory,
+    v4Option: session.v4Option ?? null,
+    v4Choice: session.v4Choice ?? null,
   };
 }

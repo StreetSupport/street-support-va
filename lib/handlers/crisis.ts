@@ -17,6 +17,7 @@ import { phrase, safeguardingExit, buildUnder16Exit } from './shared';
 import { getPronouns } from '../utils/pronouns';
 import endpointsData from '../data/housing-pathway-endpoints.json';
 import safeguardingEndpoints from '../data/safeguarding-endpoints.json';
+import { QUICK_EXIT_NOTE } from '../phrasebank';
 
 interface EndpointEntry {
   housingOptions: { name: string; phone: string; phoneOOH?: string; website: string };
@@ -150,7 +151,7 @@ function getSAExitKey(gender: string | null): string {
 // Local safeguarding info builders
 // ============================================================================
 
-function buildSARCInfo(session: SessionState): string {
+export function buildSARCInfo(session: SessionState): string {
   const age = session.ageCategory;
   const isYoung = age === 'Under 16' || age === '16-17';
   const sarc = isYoung
@@ -175,7 +176,7 @@ interface DVLocalOrg {
   ooh_fallback?: string;
 }
 
-function buildLocalDVInfo(session: SessionState): string {
+export function buildLocalDVInfo(session: SessionState): string {
   const la = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
   if (!la) return '';
 
@@ -273,6 +274,18 @@ export function handleCrisisFireFloodLocation(session: SessionState, choice: num
   }
 }
 
+// Help first, then how to leave quickly (quick exit proposal, Managing Director,
+// 19 November 2026). Where an exit closes on its 999 line, that line stays last
+// (Supporter Professional Language Review v1.1), so the note goes just before it.
+export function withQuickExitNote(text: string): string {
+  const lines = text.replace(/\s+$/, '').split('\n');
+  const last = lines[lines.length - 1] ?? '';
+  if (/call 999\.?$/.test(last.trim())) {
+    return [...lines.slice(0, -1), QUICK_EXIT_NOTE, '', last].join('\n');
+  }
+  return `${lines.join('\n')}\n\n${QUICK_EXIT_NOTE}`;
+}
+
 export function handleDVGenderAsk(session: SessionState, choice: number | null): RoutingResult {
   const dvGenders = ['Female', 'Male', 'Non-binary or other', 'Prefer not to say'];
   const dvGender = choice ? dvGenders[choice - 1] : null;
@@ -287,7 +300,7 @@ export function handleDVChildrenAsk(session: SessionState, choice: number | null
   const dvExitKey = getDVExitKey(session.dvGender, dvChildren);
   const result = safeguardingExit(dvExitKey, session.userType, 'DOMESTIC_ABUSE');
   const localDV = buildLocalDVInfo(session);
-  return { ...result, text: result.text + localDV };
+  return { ...result, text: withQuickExitNote(result.text + localDV) };
 }
 
 export function handleSAGenderAsk(session: SessionState, choice: number | null): RoutingResult {
@@ -296,5 +309,5 @@ export function handleSAGenderAsk(session: SessionState, choice: number | null):
   const saExitKey = getSAExitKey(saGender);
   const result = safeguardingExit(saExitKey, session.userType, 'SEXUAL_VIOLENCE');
   const sarcInfo = buildSARCInfo(session);
-  return { ...result, text: result.text + sarcInfo };
+  return { ...result, text: withQuickExitNote(result.text + sarcInfo) };
 }
