@@ -36,7 +36,8 @@ Matching aims for a good fit, not the single best fit. It is not an exact scienc
 | Somewhere to live, but going to lose it | Crisis, still housed: the loss has materialised | Advice: local housing and legal advice (Endpoints Contract 1.2) |
 | Staying somewhere for now | Crisis, home lost | Emergency accommodation and Supported housing; standard housing endpoints |
 | Sleeping rough or nowhere tonight | Crisis, home lost | Emergency accommodation and Supported housing; StreetLink offered, marked urgent |
-| Leaving prison or hospital | Crisis, home lost | Emergency accommodation and Supported housing; the line that staff there can refer them to the council's housing team; no StreetLink |
+| Leaving prison | Crisis, home lost | Local services for people leaving prison first, where any, referral-only ones with the line naming the probation officer or the prison's release and housing team; Emergency accommodation and Supported housing; the line that staff there can refer them to the council's housing team; no StreetLink |
+| Leaving hospital | Crisis, home lost | Local services for people leaving hospital first, where any, referral-only ones with the line naming the staff looking after them at the hospital; Emergency accommodation and Supported housing; the line that staff there can refer them to the council's housing team; no StreetLink |
 | In a hostel or supported housing, or recently moved in after being homeless (new answer) | After: rebuilding | Move-on accommodation and Tenancy setup; Tenancy setup for someone recently moved in |
 | Not sure, or something else | Not assumed | Housing Options, the navigator and Shelter |
 
@@ -85,7 +86,7 @@ In this order (MD, 2 November 2026):
 2. Safety, early and plainly, including exploitation. A yes moves the person to the Safety pathway, and Housing Options travels with them through its Safety listing.
 3. Age.
 4. Care: asked of everyone aged 16 to 24. (MD, 6 November 2026; VA #46.) Worded as "ever been in care". (MD, 2 and 8 November 2026.)
-5. "Have you ever served in the armed forces?" (MD, 2 November 2026.)
+5. "Have you ever served in the armed forces?" (MD, 2 November 2026.) A yes shows Op FORTITUDE, the national route, always, with local services for veterans where any and the standard housing endpoints (MD, 20 November 2026; Endpoints Contract).
 6. Immigration status.
 7. Household and gender together; pregnancy and children asked of everyone, pregnancy covering a partner.
 8. LGBTQ+.
@@ -303,7 +304,7 @@ Immigration is type C, not B, because immigration advice can only come from a re
 1. **Quick exit:** designed, 19 November 2026 ("Quick exit: proposal for review", Managing Director). It is on every screen of the assistant and every page of the website, which covers the pages the assistant links to, including the advice pages (3.6).
 2. **Rotation of equal fits:** reviewed in practice once the matcher runs.
 3. **Alcohol floor for Addiction:** left open for now; no national alcohol helpline has been verified at source. (MD, 8 November 2026.)
-4. **Leaving prison or hospital: one answer or two.** Section 2 keeps them as one housing answer. The routes paper of 12 November proposes separate options. Prison and hospital routing is parked for its own design work (MD, 12 November 2026), and the final wording is to be confirmed then. Neither document supersedes the other until it is.
+4. **Leaving prison or hospital:** two answers, each its own pathway (MD, 20 November 2026; Endpoints Contract). The option wording is to be confirmed.
 
 **Parked by decision**
 
