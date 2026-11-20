@@ -32,6 +32,8 @@ export interface LeavingCareEntry {
   phone?: string;
   phoneHours?: string;
   phoneOOH?: string;
+  phoneNote?: string;
+  email?: string;
   website?: string;
   localOfferUrl?: string;
   source: string;
@@ -77,7 +79,9 @@ function e2Lines(lc: LeavingCareEntry): string {
     if (lc.phoneHours) s += ` (${lc.phoneHours})`;
     if (lc.phoneOOH) s += ` (out of hours: ${lc.phoneOOH})`;
     s += `\n`;
+    if (lc.phoneNote) s += `${lc.phoneNote}\n`;
   }
+  if (lc.email) s += `${lc.email}\n`;
   if (lc.website) s += `${lc.website}\n`;
   if (lc.localOfferUrl) s += `${lc.localOfferUrl}\n`;
   return s + `\n`;

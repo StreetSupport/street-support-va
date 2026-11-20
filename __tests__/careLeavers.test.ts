@@ -73,14 +73,25 @@ const CHILDREN_PHONES = ['0121 303 1888', '024 7678 8555', '0300 555 0050', '012
 const NAVIGATOR_OR_YOUTH = "YOUNG PEOPLE'S SUPPORT";
 const count = (text: string, part: string) => text.split(part).length - 1;
 
-// A leaving care entry held for a council, for the tests that need one. No
-// council has one in the data yet: each would be confirmed at the council's site.
+// A test entry in place of a council's leaving care entry, and a council with
+// none, for the routes that need them. The entry held in the data is restored
+// after each.
+const restore = (council: string, held: unknown) => {
+  if (held === undefined) delete endpoints[council].leavingCare;
+  else endpoints[council].leavingCare = held;
+};
 function withLeavingCare(council: string, fn: () => void) {
+  const held = endpoints[council].leavingCare;
   endpoints[council].leavingCare = {
     name: `${council} leaving care team (test entry)`, phone: '0000 000 0001', website: 'https://example.org/leaving-care',
     source: 'test', verified: '2026-11-20',
   };
-  try { fn(); } finally { delete endpoints[council].leavingCare; }
+  try { fn(); } finally { restore(council, held); }
+}
+function withoutLeavingCare(council: string, fn: () => void) {
+  const held = endpoints[council].leavingCare;
+  delete endpoints[council].leavingCare;
+  try { fn(); } finally { restore(council, held); }
 }
 
 describe('who is asked', () => {
@@ -147,10 +158,12 @@ describe('16 and 17', () => {
     expect(text).not.toContain('01902 555392');
   });
 
-  test('left care, looked after by Birmingham: their worker, then the council that looked after them, its Children\'s Services, then Housing Options, the navigator and Shelter', () => {
-    const text = results(sixteen(), ['2', BIRMINGHAM]);
-    inOrder(text, E1, 'LEAVING CARE TEAM', E3, FIND, FACTS, BIRMINGHAM_CS, WOLVERHAMPTON_HO, NAVIGATOR, SHELTER);
-    expect(text).not.toContain('01902 555392');
+  test('left care, looked after by Birmingham, where no leaving care team is held: their worker, then the council that looked after them, its Children\'s Services, then Housing Options, the navigator and Shelter', () => {
+    withoutLeavingCare('birmingham', () => {
+      const text = results(sixteen(), ['2', BIRMINGHAM]);
+      inOrder(text, E1, 'LEAVING CARE TEAM', E3, FIND, FACTS, BIRMINGHAM_CS, WOLVERHAMPTON_HO, NAVIGATOR, SHELTER);
+      expect(text).not.toContain('01902 555392');
+    });
   });
 
   test('left care, where Birmingham\'s leaving care team is held: that team, not the fallback', () => {
@@ -223,8 +236,10 @@ describe('16 and 17', () => {
   test('supporter: the same routes, about the young person', () => {
     const text = results(sixteen({ isSupporter: true }), ['2', BIRMINGHAM]);
     expect(text).toContain('If they have a social worker or personal adviser, they can talk to them about where they are living.');
-    expect(text).toContain('The council that looked after them: ask for the leaving care team.');
     expect(text).toContain('They will look at their situation with them.');
+    withoutLeavingCare('birmingham', () => {
+      expect(results(sixteen({ isSupporter: true }), ['2', BIRMINGHAM])).toContain('The council that looked after them: ask for the leaving care team.');
+    });
     expect(results(sixteen({ isSupporter: true, socialServices: 'No' }), ['5']))
       .toContain("If they're not sure whether they have been in care, Children's Services can check this with them.");
   });
@@ -241,15 +256,19 @@ describe('18 to 24', () => {
   });
 
   test('Yes, a named council with no leaving care entry: the find-your-council line and Housing Options, never an unverified number', () => {
-    const text = results(nineteen(), ['1', BIRMINGHAM]);
-    inOrder(text, E1_LINE, E3, FIND, FACTS, SANDWELL_HO, SHELTER);
-    for (const phone of CHILDREN_PHONES) expect(text).not.toContain(phone);
+    withoutLeavingCare('birmingham', () => {
+      const text = results(nineteen(), ['1', BIRMINGHAM]);
+      inOrder(text, E1_LINE, E3, FIND, FACTS, SANDWELL_HO, SHELTER);
+      for (const phone of CHILDREN_PHONES) expect(text).not.toContain(phone);
+    });
   });
 
-  test('a 22 year old looked after outside the region: ask the council that looked after them, local Housing Options, and no other council\'s number', () => {
-    const text = results(twentyTwo(), ['1', ELSEWHERE]);
-    inOrder(text, E1_LINE, E3, FIND, 'Support from a leaving care team can continue until your 25th birthday.', SANDWELL_HO, SHELTER);
-    for (const phone of CHILDREN_PHONES) expect(text).not.toContain(phone);
+  test('a 22 year old looked after outside the region, where no local leaving care team is held: ask the council that looked after them, local Housing Options, and no other council\'s number', () => {
+    withoutLeavingCare('sandwell', () => {
+      const text = results(twentyTwo(), ['1', ELSEWHERE]);
+      inOrder(text, E1_LINE, E3, FIND, 'Support from a leaving care team can continue until your 25th birthday.', SANDWELL_HO, SHELTER);
+      for (const phone of CHILDREN_PHONES) expect(text).not.toContain(phone);
+    });
   });
 
   test('Yes, somewhere else, where the local leaving care team is held: it follows Housing Options as local information', () => {
@@ -274,7 +293,7 @@ describe('18 to 24', () => {
   });
 
   test.each([[false, 'The leaving care team where you are now can tell you what is available locally.'], [true, 'The leaving care team where they are now can tell them what is available locally.']])(
-    'Yes, somewhere else, with no local leaving care entry (supporter %s): E1 line, the E3 block, Housing Options, then the local fallback line', (isSupporter, line) => {
+    'Yes, somewhere else, with no local leaving care entry (supporter %s): E1 line, the E3 block, Housing Options, then the local fallback line', (isSupporter, line) => withoutLeavingCare('sandwell', () => {
       const text = results(twentyTwo({ isSupporter }), ['1', ELSEWHERE]);
       const e1 = isSupporter ? 'If they have a personal adviser, they can talk to them about their housing.' : E1_LINE;
       inOrder(text, e1, 'LEAVING CARE TEAM', E3.replace(isSupporter ? 'you:' : '#', 'them:'), FIND, SANDWELL_HO, line, 'Ask Sandwell council for the leaving care team.', NAVIGATOR_OR_YOUTH, SHELTER);
@@ -283,12 +302,14 @@ describe('18 to 24', () => {
       expect(count(text, FIND)).toBe(1);
       expect(count(text, line)).toBe(1);
       for (const phone of CHILDREN_PHONES) expect(text).not.toContain(phone);
-    });
+    }));
 
-  test('Yes, not sure which council: the leaving care team where they are now can help find who is responsible', () => {
-    const text = results(nineteen(), ['1', NOT_SURE_COUNCIL]);
-    inOrder(text, 'The leaving care team where you are now can help you find who is responsible.', 'Ask Sandwell council for the leaving care team.', FIND, SANDWELL_HO, SHELTER);
-    expect(text).not.toContain(E1_LINE);
+  test('Yes, not sure which council, where no local leaving care team is held: the leaving care team where they are now can help find who is responsible', () => {
+    withoutLeavingCare('sandwell', () => {
+      const text = results(nineteen(), ['1', NOT_SURE_COUNCIL]);
+      inOrder(text, 'The leaving care team where you are now can help you find who is responsible.', 'Ask Sandwell council for the leaving care team.', FIND, SANDWELL_HO, SHELTER);
+      expect(text).not.toContain(E1_LINE);
+    });
   });
 
   // Council not stated (11 November 2026 rule): the route for being in care with
@@ -317,9 +338,11 @@ describe('18 to 24', () => {
     }
   });
 
-  test('not sure whether they were in care: the leaving care team can check', () => {
-    const text = results(nineteen(), ['3']);
-    inOrder(text, "If you're not sure whether you have been in care, the leaving care team where you are now can check for you.", 'Ask Sandwell council for the leaving care team.', SANDWELL_HO, SHELTER);
+  test('not sure whether they were in care, where no local leaving care team is held: the leaving care team can check', () => {
+    withoutLeavingCare('sandwell', () => {
+      const text = results(nineteen(), ['3']);
+      inOrder(text, "If you're not sure whether you have been in care, the leaving care team where you are now can check for you.", 'Ask Sandwell council for the leaving care team.', SANDWELL_HO, SHELTER);
+    });
   });
 
   test('No: standard results, with no leaving care section', () => {
@@ -360,6 +383,71 @@ describe('18 to 24', () => {
     expect(text).toContain('Support from a leaving care team can continue until their 25th birthday.');
     expect(results(nineteen({ isSupporter: true }), ['3'])).toContain('the leaving care team where they are now can check for them.');
     expect(results(nineteen({ isSupporter: true }), ['1', NOT_SURE_COUNCIL])).toContain('can help them find who is responsible.');
+  });
+});
+
+// The leaving care teams of the seven councils, confirmed by the Managing
+// Director from each council's or trust's own page, 20 November 2026.
+describe('confirmed leaving care teams', () => {
+  const OPTION: Record<string, string> = { wolverhampton: '1', birmingham: '2', coventry: '3', dudley: '4', sandwell: '5', solihull: '6', walsall: '7' };
+  const TEAM: Record<string, [string, string]> = {
+    birmingham: ['18+ Care Leavers Service', '0121 464 1229 (out of hours: 0121 675 4806)\n'],
+    coventry: ['Through Care', '024 7678 7808\ndutythroughcare@coventry.gov.uk\nhttps://www.coventry.gov.uk/route21\n'],
+    dudley: ['Care leavers personal advisers', '01384 813223 (Monday to Friday, 9am to 5pm) (out of hours: 0300 555 8574)\n'],
+    sandwell: ['Care Experienced Team', '0121 569 8565 (out of hours: 0121 569 3100)\n'],
+    solihull: ['Next Steps team', '0121 717 1473 (option 1) (Monday to Friday, 9am to 5pm)\n'],
+    walsall: ['Transition and Leaving Care Hub', '01922 650575\n'],
+    wolverhampton: ['REACH Leaving Care Team', '01902 551155\nAsk to speak to a Duty Worker\nhttps://www.wolveschildrenincare.com/\n'],
+  };
+  const TEAM_PHONES: Record<string, string> = {
+    birmingham: '0121 464 1229', coventry: '024 7678 7808', dudley: '01384 813223', sandwell: '0121 569 8565',
+    solihull: '0121 717 1473', walsall: '01922 650575', wolverhampton: '01902 551155',
+  };
+  const e1Line = (isSupporter: boolean) => isSupporter ? 'If they have a personal adviser, they can talk to them about their housing.' : E1_LINE;
+  const both = [false, true] as const;
+
+  test.each(both)('a Sandwell 19 year old looked after by Birmingham (supporter %s): Birmingham\'s team and number first, then Sandwell Housing Options, and no other council\'s number', isSupporter => {
+    const text = results(nineteen({ isSupporter }), ['1', BIRMINGHAM]);
+    inOrder(text, e1Line(isSupporter), 'LEAVING CARE TEAM', '18+ Care Leavers Service\n0121 464 1229 (out of hours: 0121 675 4806)\n', SANDWELL_HO, SHELTER);
+    expect(text).not.toContain(E3);
+    for (const [k, phone] of Object.entries(TEAM_PHONES)) if (k !== 'birmingham') expect([k, text.includes(phone)]).toEqual([k, false]);
+    for (const phone of CHILDREN_PHONES) expect(text).not.toContain(phone);
+  });
+
+  test.each(Object.keys(TEAM))('%s: its team shows its exact number, self and supporter, 18 to 24 and 16 or 17 left care', council => {
+    const [name, lines] = TEAM[council];
+    for (const isSupporter of both) {
+      for (const text of [results(nineteen({ isSupporter }), ['1', OPTION[council]]), results(sixteen({ isSupporter }), ['2', OPTION[council]])]) {
+        inOrder(text, 'LEAVING CARE TEAM', `${name}\n${lines}`);
+        expect(text).not.toContain(E3);
+        for (const [k, phone] of Object.entries(TEAM_PHONES)) if (k !== council) expect([council, k, text.includes(phone)]).toEqual([council, k, false]);
+      }
+    }
+  });
+
+  test.each(both)('a 22 year old looked after somewhere else (supporter %s): the find-your-council line, and no number for the council that looked after them or any other council', isSupporter => {
+    const text = results(twentyTwo({ isSupporter }), ['1', ELSEWHERE]);
+    const e3 = isSupporter ? 'The council that looked after them: ask for the leaving care team.' : E3;
+    inOrder(text, e1Line(isSupporter), 'LEAVING CARE TEAM', e3, FIND, SANDWELL_HO, 'Care Experienced Team', SHELTER);
+    expect(count(text, FIND)).toBe(1);
+    expect(text).not.toContain("CHILDREN'S SERVICES");
+    // The only leaving care number is Sandwell's, where they are now, after Housing Options.
+    for (const [k, phone] of Object.entries(TEAM_PHONES)) if (k !== 'sandwell') expect([k, text.includes(phone)]).toEqual([k, false]);
+    expect(text.indexOf(TEAM_PHONES.sandwell)).toBeGreaterThan(text.indexOf(SANDWELL_HO));
+    for (const phone of CHILDREN_PHONES.filter(p => p !== '0121 569 3100')) expect(text).not.toContain(phone);
+  });
+
+  test.each(both)('Wolverhampton shows the Duty Worker note after the number (supporter %s)', isSupporter => {
+    for (const text of [results(nineteen({ isSupporter }), ['1', WOLVERHAMPTON]), results(sixteen({ isSupporter }), ['2', WOLVERHAMPTON])]) {
+      expect(text).toContain('REACH Leaving Care Team\n01902 551155\nAsk to speak to a Duty Worker\n');
+    }
+  });
+
+  test.each(both)('Dudley and Solihull show their hours (supporter %s)', isSupporter => {
+    const dudley = results(nineteen({ isSupporter }), ['1', OPTION.dudley]);
+    const solihull = results(nineteen({ isSupporter }), ['1', OPTION.solihull]);
+    expect(dudley).toContain('01384 813223 (Monday to Friday, 9am to 5pm)');
+    expect(solihull).toContain('0121 717 1473 (option 1) (Monday to Friday, 9am to 5pm)');
   });
 });
 

@@ -1631,7 +1631,8 @@ describe('Every housing route: age before the homelessness question', () => {
     session = { ...session, ...select(session, 1).stateUpdates };
     const result = select(session, 9);
     expect(result.text).toContain('LEAVING CARE TEAM');
-    expect(result.text).toContain('Ask Wolverhampton council for the leaving care team.');
+    expect(result.text).toContain('REACH Leaving Care Team');
+    expect(result.text).toContain('01902 551155');
   });
 
   test('a 22 year old who prefers not to say gets the standard results', () => {
