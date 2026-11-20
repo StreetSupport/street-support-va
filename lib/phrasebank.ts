@@ -2516,14 +2516,6 @@ In the meantime, keep chatting with me. I can help you look for more support now
     text: `If they're not sure whether they have been in care, the leaving care team where they are now can check for them.`
   },
 
-  CARE_LA_PREFER_NOT: {
-    text: `If you've been in care, the leaving care team can help.`
-  },
-
-  CARE_LA_PREFER_NOT__SUPPORTER: {
-    text: `If they've been in care, the leaving care team can help.`
-  },
-
   CARE_LA_LOCAL_INFO: {
     text: `The leaving care team where you are now can tell you what is available locally.`
   },

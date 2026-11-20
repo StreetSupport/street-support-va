@@ -191,33 +191,24 @@ describe('16 and 17', () => {
     expect(text).not.toContain('LEAVING CARE TEAM');
   });
 
+  // Prefer not to say is not stated (Managing Director, 11 November 2026):
+  // today's layout, exactly as if the care question had not been asked.
   test.each([
-    [false, 'Yes', "If you've been in care, the leaving care team can help."],
-    [false, null, "If you've been in care, the leaving care team can help."],
-    [true, 'Yes', "If they've been in care, the leaving care team can help."],
-    [true, null, "If they've been in care, the leaving care team can help."],
-  ] as const)('prefer not to say (supporter %s, earlier social worker answer %s): today\'s layout, then the local leaving care pointer after Housing Options', (isSupporter, socialServices, line) => {
-    const text = results(sixteen({ isSupporter, socialServices }), ['6']);
-    inOrder(text, "Wolverhampton Children's Services", WOLVERHAMPTON_HO, 'LEAVING CARE TEAM', line, 'Ask Wolverhampton council for the leaving care team.', FIND, SHELTER);
-    expect(text).not.toContain(E1);
-    if (socialServices === 'Yes') expect(text).toContain(isSupporter ? 'If they need something different' : 'If you need something different');
-    expect(count(text, 'LEAVING CARE TEAM')).toBe(1);
-    expect(count(text, FIND)).toBe(1);
+    [false, 'Yes'], [false, 'No'], [false, null], [true, 'Yes'], [true, 'No'], [true, null],
+  ] as const)('prefer not to say (supporter %s, earlier social worker answer %s): today\'s layout only, nothing selected on the answer', (isSupporter, socialServices) => {
+    const declined = results(sixteen({ isSupporter, socialServices }), ['6']);
+    const notAsked = processInput(sixteen({ isSupporter, socialServices, routeType: 'QUICK' }), '2').text;
+    expect(declined).toBe(notAsked);
+    expect(declined).not.toContain('LEAVING CARE TEAM');
+    expect(declined).not.toContain(E1);
+    expect(declined).not.toContain('been in care, the leaving care team can help');
   });
 
-  test.each([false, true])('prefer not to say after an earlier No (supporter %s): the existing young people\'s note only, one mention of the leaving care team', isSupporter => {
-    const text = results(sixteen({ isSupporter, socialServices: 'No' }), ['6']);
-    expect(text).toContain('IMPORTANT FOR YOUNG PEOPLE');
-    expect(text).not.toContain('LEAVING CARE TEAM');
-    expect(text).not.toContain('been in care, the leaving care team can help');
-    expect(count(text, 'Leaving Care team')).toBe(1);
-    expect(count(text, FIND)).toBe(1);
-  });
-
-  test('prefer not to say, where the local leaving care team is held: that team after Housing Options', () => {
+  test('prefer not to say, even where the local leaving care team is held: nothing added', () => {
     withLeavingCare('wolverhampton', () => {
       const text = results(sixteen({ socialServices: 'Yes' }), ['6']);
-      inOrder(text, WOLVERHAMPTON_HO, "If you've been in care, the leaving care team can help.", 'wolverhampton leaving care team (test entry)', SHELTER);
+      expect(text).not.toContain('wolverhampton leaving care team (test entry)');
+      expect(text).not.toContain('LEAVING CARE TEAM');
     });
   });
 
@@ -294,12 +285,37 @@ describe('18 to 24', () => {
       for (const phone of CHILDREN_PHONES) expect(text).not.toContain(phone);
     });
 
-  test.each([['not sure which council', NOT_SURE_COUNCIL], ['prefer not to say which council', PREFER_NOT_COUNCIL]])(
-    'Yes, %s: the leaving care team where they are now can help find who is responsible', (_l, council) => {
-      const text = results(nineteen(), ['1', council]);
-      inOrder(text, 'The leaving care team where you are now can help you find who is responsible.', 'Ask Sandwell council for the leaving care team.', FIND, SANDWELL_HO, SHELTER);
-      expect(text).not.toContain(E1_LINE);
+  test('Yes, not sure which council: the leaving care team where they are now can help find who is responsible', () => {
+    const text = results(nineteen(), ['1', NOT_SURE_COUNCIL]);
+    inOrder(text, 'The leaving care team where you are now can help you find who is responsible.', 'Ask Sandwell council for the leaving care team.', FIND, SANDWELL_HO, SHELTER);
+    expect(text).not.toContain(E1_LINE);
+  });
+
+  // Council not stated (11 November 2026 rule): the route for being in care with
+  // no council named, and nothing selected on the strength of a council.
+  test.each([
+    [false, E1_LINE, E3],
+    [true, 'If they have a personal adviser, they can talk to them about their housing.', 'The council that looked after them: ask for the leaving care team.'],
+  ] as const)('Yes, prefer not to say which council (supporter %s): E1 line, the E3 block with its link, then the standard results', (isSupporter, e1, e3) => {
+    withLeavingCare('sandwell', () => {
+      const text = results(nineteen({ isSupporter }), ['1', PREFER_NOT_COUNCIL]);
+      inOrder(text, e1, 'LEAVING CARE TEAM', e3, FIND, SANDWELL_HO, SHELTER);
+      expect(count(text, 'LEAVING CARE TEAM')).toBe(1);
+      expect(count(text, FIND)).toBe(1);
+      expect(text).not.toContain('sandwell leaving care team (test entry)');
+      expect(text).not.toContain('find who is responsible');
+      expect(text).not.toMatch(/Ask \w+ council for the leaving care team/);
+      for (const phone of CHILDREN_PHONES) expect(text).not.toContain(phone);
     });
+  });
+
+  test('16-17 in care, prefer not to say which council: their worker, E3 with its link, then Children\'s Services where they are now, and no other council\'s number', () => {
+    for (const isSupporter of [false, true]) {
+      const text = results(sixteen({ isSupporter }), ['1', PREFER_NOT_COUNCIL]);
+      inOrder(text, 'YOUR SOCIAL WORKER OR PERSONAL ADVISER', 'LEAVING CARE TEAM', FIND, "Wolverhampton Children's Services", WOLVERHAMPTON_HO, SHELTER);
+      for (const phone of CHILDREN_PHONES.filter(p => p !== '01902 555392')) expect(text).not.toContain(phone);
+    }
+  });
 
   test('not sure whether they were in care: the leaving care team can check', () => {
     const text = results(nineteen(), ['3']);
@@ -313,11 +329,16 @@ describe('18 to 24', () => {
     inOrder(text, 'YOUR FIRST STEP', SANDWELL_HO, SHELTER);
   });
 
-  test('Prefer not to say keeps the leaving care route visible, after the standard first step', () => {
-    for (const start of [nineteen(), twentyTwo()]) {
-      const text = results(start, ['4']);
-      inOrder(text, 'YOUR FIRST STEP', SANDWELL_HO, 'LEAVING CARE TEAM', "If you've been in care, the leaving care team can help.", 'Ask Sandwell council for the leaving care team.', SHELTER);
+  test('Prefer not to say is not stated: the standard results, the same as No, self and supporter', () => {
+    for (const isSupporter of [false, true]) {
+      const declined = results(nineteen({ isSupporter }), ['4']);
+      expect(declined).toBe(results(nineteen({ isSupporter }), ['2']));
+      expect(declined).not.toContain('LEAVING CARE TEAM');
+      expect(declined).not.toContain('been in care, the leaving care team can help');
     }
+    withLeavingCare('sandwell', () => {
+      expect(results(nineteen(), ['4'])).not.toContain('sandwell leaving care team (test entry)');
+    });
   });
 
   test('every care output includes Housing Options and Shelter', () => {
@@ -337,7 +358,6 @@ describe('18 to 24', () => {
     expect(text).toContain('If they have a personal adviser, they can talk to them about their housing.');
     expect(text).toContain('The council that looked after them: ask for the leaving care team.');
     expect(text).toContain('Support from a leaving care team can continue until their 25th birthday.');
-    expect(results(nineteen({ isSupporter: true }), ['4'])).toContain("If they've been in care, the leaving care team can help.");
     expect(results(nineteen({ isSupporter: true }), ['3'])).toContain('the leaving care team where they are now can check for them.');
     expect(results(nineteen({ isSupporter: true }), ['1', NOT_SURE_COUNCIL])).toContain('can help them find who is responsible.');
   });
@@ -401,5 +421,11 @@ describe('services designed for care leavers are lifted', () => {
 
   test.each(['NO', 'NOT_SURE', 'PREFER_NOT', 'SOCIAL_WORKER'] as const)('%s lifts nothing, and hides nothing', careExperience => {
     expect(order({ careExperience })).toEqual(['Service a', 'Service b']);
+  });
+
+  test('Prefer not to say at the care question, reached by answering it, lifts nothing', () => {
+    const { session } = converse(nineteen(), ['2', '4']);
+    expect(session.careExperience).toBe('PREFER_NOT');
+    expect(toUserProfile(session).careExperienced).toBe(false);
   });
 });

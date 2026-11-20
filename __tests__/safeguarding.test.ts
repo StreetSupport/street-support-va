@@ -1620,16 +1620,24 @@ describe('Every housing route: age before the homelessness question', () => {
     expect(select(session, 2).stateUpdates.currentGate).toBe('TERMINAL_ADDITIONAL_NEEDS');
   });
 
-  // Today's pathway (20 November 2026): a 22 year old who has been in care, or
-  // who prefers not to say, is pointed to the leaving care team.
-  test.each([['has been in care, council not known', ['1', '9']], ['prefers not to say', ['4']]] as const)('a 22 year old who %s is pointed to the leaving care team', (_l, answers) => {
-    let session = sessionAt('C3Q11_EVER_IN_CARE', {
-      ageCategory: '18-24', detailedAge: '18-24', routeType: 'FULL', supportNeed: 'Emergency Housing', localAuthority: 'Wolverhampton', homeless: true,
-    });
-    let result = select(session, Number(answers[0]));
-    if (answers.length > 1) { session = { ...session, ...result.stateUpdates }; result = select(session, Number(answers[1])); }
+  // Today's pathway (20 November 2026): a 22 year old who has been in care is
+  // pointed to the leaving care team. Prefer not to say is not stated
+  // (11 November 2026): the standard results.
+  const at22 = () => sessionAt('C3Q11_EVER_IN_CARE', {
+    ageCategory: '18-24', detailedAge: '18-24', routeType: 'FULL', supportNeed: 'Emergency Housing', localAuthority: 'Wolverhampton', homeless: true,
+  });
+  test('a 22 year old who has been in care, council not known, is pointed to the leaving care team', () => {
+    let session = at22();
+    session = { ...session, ...select(session, 1).stateUpdates };
+    const result = select(session, 9);
     expect(result.text).toContain('LEAVING CARE TEAM');
     expect(result.text).toContain('Ask Wolverhampton council for the leaving care team.');
+  });
+
+  test('a 22 year old who prefers not to say gets the standard results', () => {
+    const result = select(at22(), 4);
+    expect(result.text).not.toContain('LEAVING CARE TEAM');
+    expect(result.text).toBe(select(at22(), 2).text);
   });
 
   test('a 16 year old on the full route who declines the further questions still sees Children\'s Services before Housing Options', () => {

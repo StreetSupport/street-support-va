@@ -149,18 +149,14 @@ export function careSections(session: SessionState): CareSections {
       return { first: e1Block(supporter) + e2OrFallback(session, council, supporter, true) };
     }
     if (answer === 'IN_CARE_NOW' || answer === 'LEFT_CARE') {
-      // Somewhere else, not sure or prefer not to say: E3, then Children's
-      // Services where they are now as a fallback.
+      // Somewhere else, not sure, or council not stated (prefer not to say):
+      // E3, then Children's Services where they are now, as for every 16 and
+      // 17 year old. Nothing is selected on the strength of a council.
       return { first: e1Block(supporter) + e3(supporter) + (here ? e4(here, supporter) : '') };
     }
     if (answer === 'NOT_SURE') return { notSureNote: p('CARE_16_17_NOT_SURE_NOTE', supporter) };
-    // Today's layout, whatever the earlier social worker answer: a declined
-    // answer keeps the leaving care route visible.
-    // Where the existing young people's note shows (an earlier No), it already
-    // names the leaving care team, so the pointer is left out.
-    if (answer === 'PREFER_NOT') {
-      return session.socialServices === 'No' ? {} : { afterHousing: e2Local(session, 'CARE_LA_PREFER_NOT', supporter) };
-    }
+    // Prefer not to say is not stated (Managing Director, 11 November 2026):
+    // today's layout, nothing selected on the answer.
     return {};
   }
 
@@ -182,11 +178,16 @@ export function careSections(session: SessionState): CareSections {
         afterHousing: `${p('CARE_LA_LOCAL_INFO', supporter)}\n` + (lc ? e2Lines(lc) : `${ask}\n\n`),
       };
     }
-    // Not sure which council, or prefer not to say.
+    // Council not stated (prefer not to say, Managing Director, 11 November
+    // 2026): the route for being in care with no council named, E1 line and
+    // the E3 block with its link. Nothing selected on the strength of a council.
+    if (council === 'PREFER_NOT') {
+      return { first: e1 + e3(supporter).replace(/\n\n$/, '\n') + `${facts(session, supporter)}\n\n` };
+    }
+    // Not sure which council.
     return { first: e2Local(session, 'CARE_LA_FIND_RESPONSIBLE', supporter) };
   }
   if (answer === 'NOT_SURE') return { first: e2Local(session, 'CARE_LA_CAN_CHECK', supporter) };
-  // A declined answer keeps the leaving care route visible.
-  if (answer === 'PREFER_NOT') return { afterHousing: e2Local(session, 'CARE_LA_PREFER_NOT', supporter) };
+  // No, and Prefer not to say (not stated, 11 November 2026): standard results.
   return {};
 }
