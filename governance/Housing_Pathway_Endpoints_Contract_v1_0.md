@@ -1,12 +1,12 @@
-> **Version 1.3, for trustee ratification, 11 November 2026.** This is the full text the trustees are asked to ratify. The pull request shows each change against v1.2. It is built from v1.2 as it stands on VA #45 (`2ad9121`), which sits on #31 and #25, neither merged yet; if either changes before merging, this text is re-checked against the merged v1.2. The Markdown copy was converted on 2 October 2026 from `Housing_Pathway_Endpoints_Contract_v1.0.docx`.
+> **Version 1.4, November 2026.** Adds the leaving prison, leaving hospital and veterans pathways to 1.3. Trustees are informed of the pathways and asked by email to approve one addition to the hardcoded national organisations, Op FORTITUDE.
 
 **Housing Pathway Endpoints: Contract**
 
 Document type: Governance Contract
 
-Status: For trustee ratification
+Status: For trustee approval of one addition; pathways for information
 
-Version: 1.3 │ Last updated: November 2026
+Version: 1.4 │ Last updated: November 2026
 
 **Purpose**
 
@@ -124,17 +124,45 @@ Required endpoints:
 
 StreetLink is offered, not required. The user is told what it does and given the option. It does not replace other endpoints. Someone staying somewhere for now receives the standard housing pathway endpoints without StreetLink.
 
-**Leaving Prison or Hospital**
+**Leaving Prison**
 
-Trigger: user confirms at the housing situation question that they are leaving prison or hospital with nowhere to go (Managing Director, 3 November 2026).
+Trigger: user confirms at the housing situation question that they are leaving prison with nowhere to go (Managing Director, 3 and 20 November 2026).
 
 Required endpoints:
 
+- Local services that work specifically with people leaving prison (Street Support service catalogue matching results), where there are any. A service that takes referrals only is shown with the line that the referral comes through the person's probation officer, or the team in the prison that deals with release and housing
+
 - Standard housing pathway endpoints as above, with Housing Options signposted for a homelessness assessment
 
-- The statement that someone still in prison or hospital can ask the staff there to refer them to the council's housing team
+- The statement that someone still in prison can ask the staff there to refer them to the council's housing team
 
-StreetLink is not offered. The fuller prison and hospital discharge pathways in the VA backlog will amend this section when they are built.
+**Leaving Hospital**
+
+Trigger: user confirms at the housing situation question that they are leaving hospital with nowhere to go (Managing Director, 3 and 20 November 2026).
+
+Required endpoints:
+
+- Local services that work specifically with people leaving hospital (Street Support service catalogue matching results), where there are any. A service that takes referrals only is shown with the line that the referral comes through the staff looking after them at the hospital (Managing Director, 20 November 2026)
+
+- Standard housing pathway endpoints as above, with Housing Options signposted for a homelessness assessment
+
+- The statement that someone still in hospital can ask the staff there to refer them to the council's housing team
+
+For both: StreetLink is not offered. Self, supporter and professional see the same endpoints, with wording adapted to the reader (Managing Director, 20 November 2026). No duty, must or entitlement language (Managing Director, 2 November 2026).
+
+**Veterans**
+
+Trigger: user answers yes to "Have you ever served in the armed forces?" in the crisis housing conversation (Managing Director, 2 November 2026). Not asked of 16 and 17 year olds (Managing Director, 2 November 2026).
+
+Required endpoints:
+
+- Op FORTITUDE (national, hardcoded), always shown (Managing Director, 20 November 2026): the government-backed centralised referral pathway for veterans who are homeless or at risk of homelessness; veterans can refer themselves; 0800 9520 774 (gov.uk/support-for-veterans/op-fortitude, checked 20 November 2026). Riverside's Op FORTITUDE page gives it as available 24 hours a day, 365 days a year, and as supporting single veterans (riverside.org.uk, checked 20 November 2026)
+
+- Local services designed for veterans (Street Support service catalogue matching results, Veterans tag), where there are any
+
+- Standard housing pathway endpoints as above
+
+The wording does not state that a user qualifies for any housing provision (What the VA Does Not Do; Managing Director, 2 November 2026).
 
 **Fire or Flood Displacement**
 
@@ -405,6 +433,7 @@ The following national organisations are hardcoded into the VA and cannot be sub
 | Migrant Help                             | 0808 8010 503 / migranthelpuk.org                            | NRPF / immigration / trafficking  |
 | Modern Slavery & Exploitation Helpline   | 08000 121 700 / unseenuk.org                                 | Safety route: modern slavery and trafficking |
 | Salvation Army modern slavery referral helpline | 0800 808 3733 / salvationarmy.org.uk/modern-slavery   | Safety route: modern slavery and trafficking |
+| Op FORTITUDE                             | 0800 9520 774 / gov.uk/support-for-veterans/op-fortitude     | Veterans housing                  |
 | Childline                                | 0800 1111 / childline.org.uk                                 | Under 16                          |
 | Shelter helpline (England)               | 0808 800 4444 / england.shelter.org.uk                       | All housing pathways (floor)      |
 | Shelter legal page: DV and priority need | england.shelter.org.uk (Priority need due to domestic abuse) | Domestic violence housing pathway |
@@ -460,11 +489,12 @@ Operational changes within existing rules (no governance review required):
 | 1.1         | October 2026  | 16–17 currently involved with social services: social worker or Children’s Services duty team surfaced first, matching the VA (PR #30) | SSN        |
 | 1.2         | November 2026 | New pathway for someone about to lose their home; rough sleeping and sofa surfing triggers set by the housing situation question, StreetLink for sleeping rough or nowhere tonight only; leaving prison or hospital as its own trigger, matching the VA (PR #40) | SSN        |
 | 1.3         | November 2026 | Modern slavery and trafficking through the Safety route, open to everyone, replacing passive signposting (MD, 2 November 2026); domestic abuse layer where gender is not given (MD, 11 November 2026); Galop corrected to 0800 999 5428, checked at source; Modern Slavery & Exploitation Helpline and the Salvation Army referral helpline added, checked at source 11 November 2026 | SSN        |
+| 1.4         | November 2026 | Leaving prison and leaving hospital as separate pathways, surfacing local specialist services, with the referral route named for services that take referrals only; a veterans pathway with Op FORTITUDE as the national route, added to the hardcoded national organisations (MD, 20 November 2026); Op FORTITUDE's addition for trustees' explicit approval by email | Street Support Network |
 
-**Status: For trustee ratification**
+**Status: For trustee approval of one addition; pathways for information**
 
 Approved by: \[Pending\]
 
 Date: \[Pending\]
 
-Governance contract │ Version 1.0 │ February 2026
+Governance contract │ Version 1.4 │ November 2026
