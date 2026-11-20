@@ -254,7 +254,8 @@ export function isKnownV4Category(parent: string, sub: string): boolean {
 // service they are in ProvidedServices.ClientGroupKeys, as plain keys: 118 of the
 // 1,413 published V4-parent services carry at least one, and all 15 occur. A tag
 // means "designed for": it lifts a service for someone in the group and never
-// hides it from anyone else (decided 1 November 2026). Not yet read by the matcher.
+// hides it from anyone else (decided 1 November 2026). The live read carries them
+// into client_groups (platformMapping.ts); the matcher lifts on them.
 export const V4_POPULATION_TAGS = [
   'women',
   'men',

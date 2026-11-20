@@ -301,6 +301,7 @@ export interface UserProfile {
   v4Option?: string | null;
   v4Choice?: string | null;
   servedInArmedForces?: boolean | null;
+  ethnicity?: string | null;
 }
 
 export interface ServiceCard {
@@ -342,5 +343,6 @@ export function toUserProfile(session: SessionState): UserProfile {
     v4Option: session.v4Option ?? null,
     v4Choice: session.v4Choice ?? null,
     servedInArmedForces: session.servedInArmedForces ?? null,
+    ethnicity: session.ethnicity ?? null,
   };
 }
