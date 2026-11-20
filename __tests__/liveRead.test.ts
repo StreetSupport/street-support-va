@@ -119,9 +119,11 @@ describe('Live read: matching from the pool', () => {
 describe('Live read: when the database does not answer', () => {
   test('the VA says it cannot load local services, not that there are none', () => {
     const session = sessionAt('B5_MAIN_SUPPORT_NEED', { localAuthority: 'Wolverhampton', routeType: 'QUICK' });
-    // Food etc., then "Food to take home"; Food asks no profile questions
+    // Food etc., then "Food to take home"; Food asks no profile questions, then
+    // the noticing step, answered with its skip, "Just show me food near me"
     const s2 = { ...session, ...processInput(session, '3').stateUpdates };
-    const result = runWithServicePool({ status: 'unavailable' }, () => processInput(s2, '2'));
+    const s3 = { ...s2, ...processInput(s2, '2').stateUpdates };
+    const result = runWithServicePool({ status: 'unavailable' }, () => processInput(s3, 'Just show me food near me'));
     expect(result.text).toContain("can't load local");
     expect(result.text).not.toContain("haven't found");
     expect(result.text).not.toContain('not finding');

@@ -85,8 +85,9 @@ describe('First question: eight options', () => {
 
 describe('Second screen: what is shown', () => {
   test('someone wanting a hot meal is shown hot meals, not food to take home', () => {
-    const { s } = step(sessionAt('B5_MAIN_SUPPORT_NEED'), '3');
-    const r = runWithServicePool(v4Pool(), () => processInput(s, '1'));
+    let { s } = step(sessionAt('B5_MAIN_SUPPORT_NEED'), '3');
+    ({ s } = step(s, '1')); // A hot meal, then the noticing step
+    const r = runWithServicePool(v4Pool(), () => processInput(s, 'Just show me food near me'));
     expect(r.text).toContain('Org hot');
     expect(r.text).not.toContain('Org groc');
   });
@@ -105,8 +106,12 @@ describe('Second screen: what is shown', () => {
   });
 
   test('a domestic abuse listing is never shown through the matcher from another option', () => {
-    const { s } = step(sessionAt('B5_MAIN_SUPPORT_NEED'), '3');
-    const r = runWithServicePool(v4Pool(), () => processInput(s, '6')); // Something else
+    let { s } = step(sessionAt('B5_MAIN_SUPPORT_NEED'), '3');
+    ({ s } = step(s, '6')); // Something else: profile questions, then the noticing step's skip
+    for (let i = 0; i < 8 && s.currentGate !== 'B5_NOTICING'; i++) ({ s } = step(s, s.currentGate === 'B5_PROFILE_AGE' ? '4' : '2'));
+    expect(s.currentGate).toBe('B5_NOTICING');
+    const r = runWithServicePool(v4Pool(), () => processInput(s, 'Just show me help with food, clothes or other everyday things'));
+    expect(r.text).toContain('Org hot');
     expect(r.text).not.toContain('Org dv');
   });
 
