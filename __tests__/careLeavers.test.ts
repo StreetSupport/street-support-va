@@ -345,6 +345,24 @@ describe('18 to 24', () => {
     });
   });
 
+  // The two not-sure answers, where the local leaving care team is held: the
+  // team, then one caveat line under it (Managing Director, 20 November 2026).
+  test.each([
+    ['not sure which council', false, ['1', NOT_SURE_COUNCIL], 'If Sandwell looked after you, this team can support you. If it was a different council, they may be able to help you work out which one, or give you some support in the meantime.'],
+    ['not sure which council', true, ['1', NOT_SURE_COUNCIL], 'If Sandwell looked after them, this team can support them. If it was a different council, they may be able to help work out which one, or give some support in the meantime.'],
+    ['not sure if in care', false, ['3'], "If you're not sure whether you were in care, this team may be able to check whether Sandwell looked after you. If it was a different council, that council's leaving care team can help."],
+    ['not sure if in care', true, ['3'], "If they're not sure whether they were in care, this team may be able to check whether Sandwell looked after them. If it was a different council, that council's leaving care team can help."],
+  ] as const)('Sandwell, %s (supporter %s): the local team with its number and out of hours, the caveat line once under it, then Housing Options', (_l, isSupporter, answers, caveat) => {
+    const text = results(nineteen({ isSupporter }), [...answers]);
+    inOrder(text, 'LEAVING CARE TEAM', 'Care Experienced Team\n0121 569 8565 (out of hours: 0121 569 3100)\n', caveat, SANDWELL_HO, SHELTER);
+    expect(text).toContain(`0121 569 3100)\n${caveat}\n`);
+    expect(count(text, caveat)).toBe(1);
+    expect(count(text, 'LEAVING CARE TEAM')).toBe(1);
+    expect(text).not.toContain('find who is responsible');
+    expect(text).not.toContain('can check for you');
+    expect(text).not.toContain('can check for them');
+  });
+
   test('No: standard results, with no leaving care section', () => {
     const text = results(nineteen(), ['2']);
     expect(text).not.toContain('LEAVING CARE TEAM');
@@ -381,8 +399,10 @@ describe('18 to 24', () => {
     expect(text).toContain('If they have a personal adviser, they can talk to them about their housing.');
     expect(text).toContain('The council that looked after them: ask for the leaving care team.');
     expect(text).toContain('Support from a leaving care team can continue until their 25th birthday.');
-    expect(results(nineteen({ isSupporter: true }), ['3'])).toContain('the leaving care team where they are now can check for them.');
-    expect(results(nineteen({ isSupporter: true }), ['1', NOT_SURE_COUNCIL])).toContain('can help them find who is responsible.');
+    withoutLeavingCare('sandwell', () => {
+      expect(results(nineteen({ isSupporter: true }), ['3'])).toContain('the leaving care team where they are now can check for them.');
+      expect(results(nineteen({ isSupporter: true }), ['1', NOT_SURE_COUNCIL])).toContain('can help them find who is responsible.');
+    });
   });
 });
 

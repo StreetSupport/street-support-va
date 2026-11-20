@@ -124,12 +124,15 @@ function e2OrFallback(session: SessionState, key: string, supporter: boolean, is
 
 // E2 where they are now, with its line, or its fallback: the line, then ask
 // the local council for the leaving care team, with the find-your-council link.
-function e2Local(session: SessionState, lineKey: string, supporter: boolean): string {
+function e2Local(session: SessionState, lineKey: string, caveatKey: string, supporter: boolean): string {
   const key = laKey(session.localAuthority);
   const line = p(lineKey, supporter);
   const lc = key ? leavingCareFor(key) : null;
-  if (lc) return heading('LEAVING CARE TEAM') + `${line}\n\n` + e2Lines(lc);
   const name = key ? councilName(key) : null;
+  // Where the team is held, the caveat line sits under it in place of the line
+  // (Managing Director, 20 November 2026).
+  if (lc && name) return heading('LEAVING CARE TEAM') + e2Lines(lc).slice(0, -1) + `${p(caveatKey, supporter).replace('{council}', name)}\n\n`;
+  if (lc) return heading('LEAVING CARE TEAM') + `${line}\n\n` + e2Lines(lc);
   const ask = name
     ? `Ask ${name} council for the leaving care team.`
     : p('CARE_ASK_LOCAL_COUNCIL', supporter);
@@ -188,9 +191,9 @@ export function careSections(session: SessionState): CareSections {
       return { first: e1 + e3(supporter).replace(/\n\n$/, '\n') + `${facts(session, supporter)}\n\n` };
     }
     // Not sure which council.
-    return { first: e2Local(session, 'CARE_LA_FIND_RESPONSIBLE', supporter) };
+    return { first: e2Local(session, 'CARE_LA_FIND_RESPONSIBLE', 'CARE_LA_NOT_SURE_COUNCIL_CAVEAT', supporter) };
   }
-  if (answer === 'NOT_SURE') return { first: e2Local(session, 'CARE_LA_CAN_CHECK', supporter) };
+  if (answer === 'NOT_SURE') return { first: e2Local(session, 'CARE_LA_CAN_CHECK', 'CARE_LA_NOT_SURE_CARE_CAVEAT', supporter) };
   // No, and Prefer not to say (not stated, 11 November 2026): standard results.
   return {};
 }

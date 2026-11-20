@@ -2516,6 +2516,24 @@ In the meantime, keep chatting with me. I can help you look for more support now
     text: `If they're not sure whether they have been in care, the leaving care team where they are now can check for them.`
   },
 
+  // Caveat lines under the local leaving care team, for the two not-sure care
+  // answers (Managing Director, 20 November 2026). {council} is where they are now.
+  CARE_LA_NOT_SURE_COUNCIL_CAVEAT: {
+    text: `If {council} looked after you, this team can support you. If it was a different council, they may be able to help you work out which one, or give you some support in the meantime.`
+  },
+
+  CARE_LA_NOT_SURE_COUNCIL_CAVEAT__SUPPORTER: {
+    text: `If {council} looked after them, this team can support them. If it was a different council, they may be able to help work out which one, or give some support in the meantime.`
+  },
+
+  CARE_LA_NOT_SURE_CARE_CAVEAT: {
+    text: `If you're not sure whether you were in care, this team may be able to check whether {council} looked after you. If it was a different council, that council's leaving care team can help.`
+  },
+
+  CARE_LA_NOT_SURE_CARE_CAVEAT__SUPPORTER: {
+    text: `If they're not sure whether they were in care, this team may be able to check whether {council} looked after them. If it was a different council, that council's leaving care team can help.`
+  },
+
   CARE_LA_LOCAL_INFO: {
     text: `The leaving care team where you are now can tell you what is available locally.`
   },
