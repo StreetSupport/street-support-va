@@ -36,7 +36,8 @@ Matching aims for a good fit, not the single best fit. It is not an exact scienc
 | Somewhere to live, but going to lose it | Crisis, still housed: the loss has materialised | Advice: local housing and legal advice (Endpoints Contract 1.2) |
 | Staying somewhere for now | Crisis, home lost | Emergency accommodation and Supported housing; standard housing endpoints |
 | Sleeping rough or nowhere tonight | Crisis, home lost | Emergency accommodation and Supported housing; StreetLink offered, marked urgent |
-| Leaving prison or hospital | Crisis, home lost | Emergency accommodation and Supported housing; the line that staff there can refer them to the council's housing team; no StreetLink |
+| Leaving prison | Crisis, home lost | Local services for people leaving prison first, where any, referral-only ones with the line naming the probation officer or the prison's release and housing team; Emergency accommodation and Supported housing; the line that staff there can refer them to the council's housing team; no StreetLink |
+| Leaving hospital | Crisis, home lost | Local services for people leaving hospital first, where any, referral-only ones with the line naming the staff looking after them at the hospital; Emergency accommodation and Supported housing; the line that staff there can refer them to the council's housing team; no StreetLink |
 | In a hostel or supported housing, or recently moved in after being homeless (new answer) | After: rebuilding | Move-on accommodation and Tenancy setup; Tenancy setup for someone recently moved in |
 | Not sure, or something else | Not assumed | Housing Options, the navigator and Shelter |
 
@@ -63,7 +64,7 @@ Whether a question is worth asking depends on what the answer means for the pers
 
 **Data protection first.** LGBTQ+, health and ethnicity are special category data and convictions are criminal offence data. Each question on each pathway is written into the data protection notes (D2) before it is built. (MD, 8 November 2026.) The rule above proposes a question; D2 decides whether it is asked. A question whose necessity on a pathway cannot be recorded there is not asked on that pathway. The extra-questions screen is a choice about the conversation, not consent, and is never relied on as a lawful basis.
 
-**Ethnicity** is asked among the extra questions on every pathway that asks population questions, introduced by why it is asked: "Some services are run by and for particular communities. Telling us your ethnicity helps us show you those." Answers use the five census high-level groups with a short list beneath each. A tagged service is lifted where the community it names includes the person's census group, or where it serves minoritised communities generally. The tagged listings name particular communities (in the WMCA data: African women; African Caribbean; South Asian men; Chinese; Black and minoritised women; Black, Asian and minority ethnic young people; or "culturally sensitive" with no community named), so one broad lift would raise services designed for someone else. The community each tagged listing names is recorded once, by a person, from its text, and kept with the listing. (MD, 8 November 2026, replacing the earlier "any answer except White British" rule after the review of 8 November.) Reach and equity analysis is aggregate only, under the Analytics Contract's small-numbers limits. (MD, 8 November 2026; register Q1.)
+**Ethnicity** is asked among the extra questions on every pathway that asks population questions, introduced by why it is asked: "Some services are run by and for particular communities. Telling us your ethnicity helps us show you those." Answers use the five census high-level groups with a short list beneath each (MD, 9 November 2026). Any answer except White British lifts services tagged "Ethnic minority communities"; Prefer not to say lifts nothing (MD, 9 November 2026, superseding the 8 November named-community rule, under which a tagged service was lifted only where the community it names includes the person's census group). Reach and equity analysis is aggregate only, under the Analytics Contract's small-numbers limits. (MD, 8 November 2026; register Q1.)
 
 The map is reviewed once the national baseline lands, since national data will add groups to parents.
 
@@ -75,7 +76,7 @@ Prevention may ask more than crisis, because understanding the situation is its 
 - **Preferred name:** kept, for conversational purposes. Never sent to Claude for interpretation; the under-16 check runs first. (MD, 3 November 2026; VA #38.)
 - **Extra questions:** offered as a choice, not a consent gate: "Would you like to answer a few more questions so I can find services that fit you better?" (MD, 3 November 2026; VA #38.)
 - **Prefer not to say** is offered throughout and stores nothing. (VA #38.)
-- **Route choice:** the quicker route says which circumstances it does not ask about. (MD, 6 November 2026; VA #47.)
+- **Route choice:** the quicker route says which circumstances it does not ask about. (MD, 6 November 2026; VA #47.) A targeting question added later goes on the full route only and is named on the route screen; the quick route asks none of them (MD, 20 November 2026).
 
 ### 3.3 Crisis housing
 
@@ -85,7 +86,7 @@ In this order (MD, 2 November 2026):
 2. Safety, early and plainly, including exploitation. A yes moves the person to the Safety pathway, and Housing Options travels with them through its Safety listing.
 3. Age.
 4. Care: asked of everyone aged 16 to 24. (MD, 6 November 2026; VA #46.) Worded as "ever been in care". (MD, 2 and 8 November 2026.)
-5. "Have you ever served in the armed forces?" (MD, 2 November 2026.)
+5. "Have you ever served in the armed forces?" (MD, 2 November 2026.) A yes shows Op FORTITUDE, the national route, always, with local services for veterans where any and the standard housing endpoints (MD, 20 November 2026; Endpoints Contract).
 6. Immigration status.
 7. Household and gender together; pregnancy and children asked of everyone, pregnancy covering a partner.
 8. LGBTQ+.
@@ -222,7 +223,7 @@ When more than five remain, each is ordered by how many of the person's answers 
 | Dogs | "People with dogs" tag |
 | Immigration status | "Refugees", "Asylum seekers" or "Migrants" tag |
 | Convictions | "People with criminal records" tag |
-| Ethnicity | The community the listing names, as recorded with the listing (3.1). The "Ethnic minority communities" tag alone lifts nothing. Used once its Article 9 basis is recorded in D2 |
+| Ethnicity | "Ethnic minority communities" tag: any answer except White British lifts it; Prefer not to say lifts nothing (MD, 9 November 2026, superseding the 8 November named-community rule). Article 9 basis recorded in D2 |
 
 "Sex workers" and "Survivors of modern slavery" are reached through the Safety pathway rather than ordered by a question.
 
@@ -284,7 +285,7 @@ Immigration is type C, not B, because immigration advice can only come from a re
 |---|---|---|
 | VA Design and Service Matching Proposal (1 Nov), section 3.8, section 4 and section 8 question 6; VA V4 Redesign Design Note (4 Nov), Population | A population question is asked only where area and need include services tagged for that group | Replaced by the test in 3.1 (MD, 8 November 2026) |
 | Working note (2 Nov), crisis housing | Pets left out for now | Dogs question added for accommodation (MD, 8 November 2026) |
-| Question register, Q1 | Ethnicity: ask everyone or targeted | Asked among the extra questions on every pathway asking population questions; census groups (MD, 8 November 2026). A service is lifted by the community it names (3.1) |
+| Question register, Q1 | Ethnicity: ask everyone or targeted | Asked among the extra questions on every pathway asking population questions; census groups (MD, 9 November 2026). Any answer except White British lifts services tagged "Ethnic minority communities" (MD, 9 November 2026, superseding the 8 November named-community rule; 3.1) |
 | Question register, Q2 | Preferred name: remove or keep | Kept, for conversation (MD, 3 November 2026; VA #38) |
 | Question register, Q5 | Consent screen | A choice, not a gate (MD, 3 November 2026; VA #38) |
 | Question register, Q6 | Orientation as the routing input in domestic abuse and sexual assault: proposal | Confirmed (MD, 8 November 2026); for safeguarding review |
@@ -303,7 +304,7 @@ Immigration is type C, not B, because immigration advice can only come from a re
 1. **Quick exit:** designed, 19 November 2026 ("Quick exit: proposal for review", Managing Director). It is on every screen of the assistant and every page of the website, which covers the pages the assistant links to, including the advice pages (3.6).
 2. **Rotation of equal fits:** reviewed in practice once the matcher runs.
 3. **Alcohol floor for Addiction:** left open for now; no national alcohol helpline has been verified at source. (MD, 8 November 2026.)
-4. **Leaving prison or hospital: one answer or two.** Section 2 keeps them as one housing answer. The routes paper of 12 November proposes separate options. Prison and hospital routing is parked for its own design work (MD, 12 November 2026), and the final wording is to be confirmed then. Neither document supersedes the other until it is.
+4. **Leaving prison or hospital:** two answers, each its own pathway (MD, 20 November 2026; Endpoints Contract). The option wording is to be confirmed.
 
 **Parked by decision**
 
@@ -323,7 +324,7 @@ Things this design needs that do not yet exist. Rounds are the VA plan's review 
 | 3 | Website advice: check the domestic abuse and sexual violence pages; write the modern slavery page from official guidance | MD | Before launch (extract 2.16: by M6) | Page read against its approved line | MD |
 | 4 | One approved line per advice page, in the phrasebank | MD drafts; James reviews | With each page; Safety lines week of 16 November | Phrasebank entry | James |
 | 5 | Data protection (D2): for every question on every pathway, its purpose, necessity there, lawful basis, special category or criminal offence condition, data flow, retention, effect on matching and what happens on a decline. Ethnicity under Article 9; LGBTQ+, health and convictions beyond domestic abuse and sexual violence; dogs. Correct the Appropriate Policy Document's "no logs" line. Record that the extra-questions screen is not consent | MD; James reviews the notes | By M6 (extract 2.14, 2.20) | Each built question has a D2 row | As the D2 notes require |
-| 6 | Ethnicity: record the community each tagged listing names (3.1) | MD | Before the ethnicity question is built | 14 WMCA listings recorded | MD |
+| 6 | Ethnicity: superseded. No community is recorded per listing, because any answer except White British lifts services tagged "Ethnic minority communities" (MD, 9 November 2026, superseding the 8 November named-community rule; 3.1) | MD | None | None | None |
 | 7 | Four VA contracts for board ratification: Housing Pathway Endpoints, Non-Housing Pathway Endpoints, Service Matching v2 and VA Analytics v2. The VA works to all four, but none has been ratified. The technical lead checks each against the code first, and the VA Governance Overview's "Approved baseline" lines are corrected in the same pass. Already recorded: pipeline `reports/board_preparation/JAMES_VA_CONTRACTS_FOR_RATIFICATION.md` and `PIPELINE_BACKLOG.md`, both on main. Other status lines that read draft are wording not yet updated (MD, 8 November 2026) | James, then MD | As the backlog item sets it: before the board papers | Each contract checked against the code | Board ratification |
 | 8 | Endpoints Contract: endpoints for the rebuilding position; Dogs Trust on a dogs yes | MD | Drafts week of 16 November (extract 2.17) | Endpoints tested per answer | Trustees by email, with the C9 amendments |
 | 9 | Non-Housing Endpoints Contract amended for the V4 typology, including the alcohol floor verified at source, and the onward offer for each parent (3.7) | MD | Drafts week of 16 November (extract 2.12, 2.17) | Each floor's source, audience, coverage and wording recorded; the onward offer for each parent stated | Trustees by email, with the C9 amendments |
@@ -351,7 +352,7 @@ An AI-assisted documentary review of this note (draft, not adopted) found the de
 | Finding | Handled in |
 |---|---|
 | A1 Safeguarding routing and quick exit | 3.6; work items 1 and 2 |
-| A2 Sensitive questions and data protection | 3.1, including the ethnicity lift by named community; work items 5 and 6 |
+| A2 Sensitive questions and data protection | 3.1, including the ethnicity lift: any answer except White British lifts services tagged "Ethnic minority communities" (MD, 9 November 2026, superseding the 8 November named-community rule); work item 5 (work item 6 superseded) |
 | A3 Contract amendments and authority | Section 7; work items 7 to 10. The Governance Decision Framework is adopted (board authority register, May 2026); the review had a draft copy. Four VA contracts await board ratification, as the technical lead recorded in October (work item 7); other draft status lines are wording not yet updated |
 | A4 Matching and neutrality | Sections 4 and 6. Fuller listings ranking higher is a settled decision (MD, 8 November 2026); completeness alone lifts nothing |
 | A5 Housing position mapping | Section 2 table split; tests per answer |
@@ -359,7 +360,7 @@ An AI-assisted documentary review of this note (draft, not adopted) found the de
 | A7 Question consistency | Section 6 tests; work item 18 |
 | A8 Traceability | Section 12's evidence and approval columns |
 
-**Second review, 8 November 2026.** A second documentary review found the design "substantially satisfied", with implementation assurance outstanding, and no wholesale revision indicated. Its three observations are handled: the ethnicity row in section 6 now says the named community controls the lift; section 4 says "See all" shows broader platform results, not the assistant's filtered set; work item 2 covers a safeguarding disclosure interrupting any question. The next review should check the evidence in section 12 rather than repeat the design review.
+**Second review, 8 November 2026.** A second documentary review found the design "substantially satisfied", with implementation assurance outstanding, and no wholesale revision indicated. Its three observations are handled: the ethnicity row in section 6 now says the named community controls the lift; section 4 says "See all" shows broader platform results, not the assistant's filtered set; work item 2 covers a safeguarding disclosure interrupting any question. The next review should check the evidence in section 12 rather than repeat the design review. The named-community lift was superseded on 9 November 2026: any answer except White British lifts services tagged "Ethnic minority communities" (MD).
 
 **Third review, 8 November 2026.** A third, targeted review found no new contradiction and no governance issue requiring the design to be reopened, and treats the note as the working design specification, subject to its approval arrangements. Its two wording points are applied: section 9 now says the person always receives a response or a fallback, and work item 16 states that the sex work option is outside launch scope.
 
