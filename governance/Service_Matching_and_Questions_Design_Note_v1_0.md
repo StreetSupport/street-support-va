@@ -76,7 +76,7 @@ Prevention may ask more than crisis, because understanding the situation is its 
 - **Preferred name:** kept, for conversational purposes. Never sent to Claude for interpretation; the under-16 check runs first. (MD, 3 November 2026; VA #38.)
 - **Extra questions:** offered as a choice, not a consent gate: "Would you like to answer a few more questions so I can find services that fit you better?" (MD, 3 November 2026; VA #38.)
 - **Prefer not to say** is offered throughout and stores nothing. (VA #38.)
-- **Route choice:** the quicker route says which circumstances it does not ask about. (MD, 6 November 2026; VA #47.)
+- **Route choice:** the quicker route says which circumstances it does not ask about. (MD, 6 November 2026; VA #47.) A targeting question added later goes on the full route only and is named on the route screen; the quick route asks none of them (MD, 20 November 2026).
 
 ### 3.3 Crisis housing
 
