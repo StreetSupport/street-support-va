@@ -1,8 +1,8 @@
 # Service Matching: Contract
 
 **Document type:** Governance contract
-**Version:** 3.1, draft for trustee ratification
-**Date:** 13 November 2026 (version 3.0, 11 November 2026)
+**Version:** 3.2, draft for trustee ratification
+**Date:** 22 November 2026 (version 3.1, 13 November 2026; version 3.0, 11 November 2026)
 **Replaces:** Service Matching Contract v2.0 (March 2026, Draft, approval pending), read from the VA repository's `staging` branch, last changed in commit `6851f79`
 
 **Sources.** Every rule below traces to one of these, or is marked *Proposed*:
@@ -11,6 +11,7 @@
 - MD, 1 November 2026: the Managing Director's service matching decisions.
 - MD, 11 November 2026: the Managing Director's decisions on declined answers, the quick route and group services.
 - MD, 12 and 13 November 2026: the Managing Director's decisions on places to start, recorded in the Service Matching and Questions Design Note v1.1, 3.4 and 3.5.
+- MD, 8 November 2026: the Managing Director's decisions recorded in the Service Matching and Questions Design Note (ordering by fit, when a question is asked, the organisation already supporting someone), confirmed as standing on 22 November 2026 (review on VA #50).
 
 ---
 
@@ -133,7 +134,7 @@ A population tag alone does not say which kind applies. The reviewed record does
 
 **Sensitive questions** ask whether something is relevant to the person, not for the person to state their identity. LGBTQ+ is the example. (MD, 11 November 2026)
 
-**A population question is asked** only where the person's area and need include services tagged for that group. (Part 3, 3.8)
+**A population question is asked** by parent, nationally: a need asks it if its parent holds services designed for that group anywhere, or if the answer adds an endpoint, so every area asks the same questions for the same need. (MD, 8 November 2026; Design Note, 3.1; replacing Part 3, 3.8)
 
 **The trade-off, stated plainly.** Under this rule, some services will never appear among the five for a person they could help, because the person did not say, or was not asked, the thing that would select them. They remain available through "See all on Street Support", with their conditions shown. This is a deliberate trade-off for tailored results, not an error to correct.
 
@@ -147,7 +148,7 @@ The matching design (MD, 1 November 2026; Part 3, 3.5):
 3. Leave out services for a group the person has not said is relevant to them (section 6).
 4. One service per organisation.
 5. Five or fewer left: show them all.
-6. More than five: services designed for someone in the person's situation go first. The rest fill the remaining places in a rotating order, so no organisation always comes first.
+6. More than five: each is ordered by how many of the person's answers it fits. Each criterion counts once and every criterion counts the same. A criterion counts only where the person has said something and the listing states the matching thing explicitly; a blank never counts, for or against. Equal fits rotate, so no organisation always comes first. (MD, 8 November 2026; Design Note, section 6)
 7. "See all on Street Support" follows the cards.
 
 Step 3 carries the Managing Director's decision of 11 November 2026: a service designed for a group is selected only where the person has expressly said the group is relevant to them.
@@ -156,7 +157,7 @@ Step 3 carries the Managing Director's decision of 11 November 2026: a service d
 
 **At most five service results,** in addition to the statutory routes and fixed contacts. (MD, 1 November 2026)
 
-**The person's own instruction.** Leaving out the organisation the person says already supports them is not an eligibility gate. The card can say so. (Part 3, 3.6)
+**The person's own instruction.** Leaving out the organisation the person says already supports them is not an eligibility gate. It is left out of their suggestions, silently. (MD, 8 November 2026; Design Note, section 7; replacing Part 3, 3.6, "the card can say so") It is not built until this amendment is approved (I3b).
 
 ## 8. The quick route
 
@@ -236,7 +237,7 @@ The crisis exits for domestic abuse and sexual assault therefore sit outside thi
 | A tag or record goes stale | As either row above | The text fingerprint flags changed listings for review |
 | Thin results when answers are not stated | Fewer than five shown, occasionally none, on the quick route or after declined answers | Layer 1 always shows. "See all" carries everything available. Test area by area |
 | A person declines and misses a service meant for them | It is not among the five | Their choice (MD, 11 November 2026). It stays available |
-| Questions asked only to unlock services | More questions, against asking only what is needed | Ask a group question only where tagged services exist (Part 3, 3.8) |
+| Questions asked only to unlock services | More questions, against asking only what is needed | A question belongs only if its answer adds an endpoint or lifts a designed-for service, applied by parent (Design Note, 3.1) |
 | A restriction on part of a service | A mixed service is wrongly excluded | A restriction applies only to the whole service (Part 3) |
 | See-all cannot carry the area | "Available" is not genuinely reachable | A launch condition (Part 3, plan I9) |
 | Neutrality | SSN appears to decide who is eligible | Only the provider's stated criteria are applied. The same rule applies to every service. Rotation means no organisation always comes first (Part 3) |
@@ -275,6 +276,9 @@ Carried from v2.0:
 | Confidence | High, medium, low | Explicit, stated data only | Part 3, problem 9 |
 | Trans and non-binary answers | Never exclude | Parked; exclude nothing until decided | MD, 11 Nov |
 | Places to start | Not addressed | Offered early in someone's journey as a person to talk to, under the conditions in section 9 (version 3.1) | MD, 12 and 13 Nov |
+| Ordering beyond five | Ranking factors | By how many of the person's answers each service fits, counted only where both sides have stated it; equal fits rotate (version 3.2) | MD, 8 Nov; confirmed 22 Nov |
+| When a question is asked | Not addressed | By parent, nationally, the same questions everywhere, replacing tag presence in the area (version 3.2) | MD, 8 Nov; confirmed 22 Nov |
+| Organisation already supporting | Not addressed | Left out silently, not built until approved, in place of "the card can say so" (version 3.2) | MD, 8 Nov; confirmed 22 Nov |
 
 ---
 
