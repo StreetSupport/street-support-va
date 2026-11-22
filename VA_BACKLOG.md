@@ -89,6 +89,7 @@ This log records Tier 2 and Tier 3 governance decisions for trustee visibility. 
 **Status:** Built on the care leaver branch `feat/care-leavers-safety-local-2026-11-20`, with C1, and goes to James in #82. Safeguarding-adjacent, so for James.
 **Scope:** The Safety screen shows local Safety listings live, beside the contacts. 16 and 17 year olds on the Safety route get Children's Services.
 **Source:** Session close-out, 20 November 2026.
+**Update, 22 November 2026 (review on VA #50; design note VA #83):** the council's housing team is a fixed contact on the domestic abuse results, from housing-pathway-endpoints.json, and does not depend on the live read of local Safety listings. Where age is not known, the domestic abuse and sexual violence results show both the under-18 sexual assault centre and Children's Services ("if you're under 18") with the adult routes, and age may be asked after "OK to carry on". Not built.
 
 ---
 
@@ -513,6 +514,7 @@ ChatWidget calls `/api/location`, so this file is unreachable dead code. Confirm
 **Status:** Built on VA #81 (`cb6677b`), open, for James.
 **Scope:** Tags come from the platform's V4 population keys. A tag lifts a service and never hides one, and hard gate B is unchanged. The answers that lift, and the tag each lifts, are tabled in the VA #81 description. Ethnicity: any answer except White British lifts services for ethnic minority communities (Managing Director, 9 November 2026). The answer stays in the session and is not logged. The trans answers, Non-binary or other and Prefer not to say lift nothing.
 **Governance:** the design note's section 6 ethnicity row contradicts the build and is to be aligned; the lawful basis is recorded in the Data Minimisation and Lawful Basis Note.
+**Update, 22 November 2026:** the design note's ethnicity row now agrees with the build, and the question takes the VA #63 wording with both purposes stated (VA #83). Declined answers: the Service Matching Contract's 11 November rule stands (VA #84). It applies to "only for" and "designed for" services, which a tag alone cannot identify, so #81 applies it once the WMCA record of restrictions exists (pipeline backlog item 23; comment on #81). Whether an "Ethnic minority communities" lift can work at all is to be explored with James (Managing Director, 22 November 2026).
 **Source:** VA #81 description; `lib/serviceMatcher.ts` on VA #81.
 
 ### 90. Ethnicity question: census-group options
@@ -1338,3 +1340,25 @@ When enriched eligibility data is in use, confidence levels must influence langu
 1. C1 and 88: #82, for James. Close VA #46 as carried. The 16 and 17 routing is for James's safeguarding review on #82. C1b is open, for the Managing Director; C1c is a gap.
 2. Governance alignment where the text contradicts the build: the design note's ethnicity row (86); the Endpoints Contract's care leaver sections (C1).
 3. James's Sunday review: VA #47 and #79 to #82, with the pipeline PRs in `PIPELINE_BACKLOG.md`.
+
+## Session 22 November 2026
+
+**What changed**
+- James's review of the design note on VA #50 answered: a reply, and an inline reply on each of its five threads. VA #83 carries it into the note, on #77: council housing team as a fixed contact (88); both age routes where age is not known (88); the #63 ethnicity wording (86); trans and non-binary answers exclude nothing; declined answers and where restrictions come from follow the contract. Section 16 records the review.
+- VA #84: Service Matching Contract 3.2, on #61. Questions by parent nationally, ordering by fit, and the organisation already supporting left out silently, as in the note (8 November). For trustees with the ratification.
+- VA #81: commented that the declined-answer rule waits for the WMCA record of restrictions (86).
+
+**Decided (Managing Director, 22 November 2026)**
+- For the note against the contract, the dated sources decide: the note stands on ordering, when a question is asked and the organisation already supporting; the contract on declined answers and where restrictions come from.
+- The WMCA record of restrictions is written properly, not worked around, with the Managing Director as the named person (pipeline backlog item 23).
+- The named-community ethnicity rule was dropped (9 November) because recording each community was too much work; the lift itself is to be explored with James.
+- James puts the new VA on the site at the switch.
+
+**Committed and where.** All pushed, nothing on main: VA #83 (`50ef7d3`), VA #84 (`961b1b9`). This entry is on #78's branch.
+
+**Uncommitted, and why.** Nothing in the VA.
+
+**Next session picks up first**
+1. The record of restrictions (pipeline item 23), then #81's declined-answer rule from it.
+2. Build 88's two 22 November additions with James's safeguarding review.
+3. James's reviews: VA #83 and #84.
