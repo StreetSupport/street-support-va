@@ -64,7 +64,7 @@ Whether a question is worth asking depends on what the answer means for the pers
 
 **Data protection first.** LGBTQ+, health and ethnicity are special category data and convictions are criminal offence data. Each question on each pathway is written into the data protection notes (D2) before it is built. (MD, 8 November 2026.) The rule above proposes a question; D2 decides whether it is asked. A question whose necessity on a pathway cannot be recorded there is not asked on that pathway. The extra-questions screen is a choice about the conversation, not consent, and is never relied on as a lawful basis.
 
-**Ethnicity** is asked among the extra questions on every pathway that asks population questions, introduced by why it is asked: "Some services are run by and for particular communities. Telling us your ethnicity helps us show you those." Answers use the five census high-level groups with a short list beneath each (MD, 9 November 2026). Any answer except White British lifts services tagged "Ethnic minority communities"; Prefer not to say lifts nothing (MD, 9 November 2026, superseding the 8 November named-community rule, under which a tagged service was lifted only where the community it names includes the person's census group). Reach and equity analysis is aggregate only, under the Analytics Contract's small-numbers limits. (MD, 8 November 2026; register Q1.)
+**Ethnicity** is asked among the extra questions on every pathway that asks population questions, introduced by why it is asked, with both purposes stated: "Some services are run by and for particular communities. If you tell us your ethnicity, we can show you those, and it helps us check we're reaching every community. It's up to you." (Data Minimisation and Lawful Basis Note v2.0, VA #63: consent, both purposes stated; MD, 22 November 2026.) Answers use the five census high-level groups with a short list beneath each (MD, 9 November 2026). Any answer except White British lifts services tagged "Ethnic minority communities"; Prefer not to say lifts nothing (MD, 9 November 2026, superseding the 8 November named-community rule, under which a tagged service was lifted only where the community it names includes the person's census group). The named-community rule was dropped because recording the community each listing names was too much work. Whether an "Ethnic minority communities" lift can really work, when communities cannot be told apart, is to be explored with the technical lead before it is built further. (MD, 22 November 2026.) Reach and equity analysis is aggregate only, under the Analytics Contract's small-numbers limits. (MD, 8 November 2026; register Q1.)
 
 The map is reviewed once the national baseline lands, since national data will add groups to parents.
 
@@ -83,7 +83,7 @@ Prevention may ask more than crisis, because understanding the situation is its 
 In this order (MD, 2 November 2026):
 
 1. The housing situation question (section 2).
-2. Safety, early and plainly, including exploitation. A yes moves the person to the Safety pathway, and Housing Options travels with them through its Safety listing.
+2. Safety, early and plainly, including exploitation. A yes moves the person to the Safety pathway, and Housing Options travels with them: the council's housing team is a fixed contact on the domestic abuse results (3.6), and its Safety listing is extra.
 3. Age.
 4. Care: asked of everyone aged 16 to 24. (MD, 6 November 2026; VA #46.) Worded as "ever been in care". (MD, 2 and 8 November 2026.)
 5. "Have you ever served in the armed forces?" (MD, 2 November 2026.) A yes shows Op FORTITUDE, the national route, always, with local services for veterans where any and the standard housing endpoints (MD, 20 November 2026; Endpoints Contract).
@@ -132,6 +132,8 @@ Reached from the crisis gate, the safety question in housing, the main menu or a
 - **Type of harm,** multi-select in plain words: someone close hurting, threatening or controlling me; being forced to marry; FGM; sexual assault; being made to work, having money or documents taken, or being controlled where I live or go; being made to work to pay off a debt; something else. (MD, 2 November 2026.)
 - **Then:** whether the person is OK to carry on. A no reuses the matching crisis gate exit exactly as written. (MD, 2 November 2026.)
 - **Domestic abuse and sexual violence:** outcomes are access to safe accommodation, someone to talk to, and advice on what I can do. Gender and LGBTQ+ are asked wherever an outcome lists organisations, because orientation or gender changes the organisations and the endpoints. (MD, 2 and 8 November 2026; register Q6.) Access to safe accommodation also asks children and immigration status, because the domestic abuse layer routes on children and no recourse to public funds limits refuge access. (MD, 8 November 2026.)
+- **The council's housing team, always:** shown on the domestic abuse results as a fixed contact, from housing-pathway-endpoints.json (number and out of hours, as the fire and flood exit uses), so it never depends on a listing or on the live read of local Safety listings. The council's Safety listing, where it exists, is extra. (MD, 22 November 2026; review on VA #50.)
+- **Where age is not known:** no question is put in front of help. The domestic abuse and sexual violence results show both the under-18 sexual assault centre and Children's Services ("if you're under 18"), each saying who it is for, alongside the adult routes, as the general exit does. Age may be asked after "OK to carry on". (MD, 22 November 2026; review on VA #50.)
 - **Modern slavery and trafficking:** open to everyone. Outcomes are getting out safely, and advice on what I can do. Age and immigration are asked; gender and LGBTQ+ are not, because support runs through the National Referral Mechanism. (MD, 2 November 2026.)
 - **Sex work:** reached through the Safety pathway, where its listings sit with no subcategory. (MD, 2 November 2026.) The assistant never identifies anyone as a sex worker: the person chooses. (MD, 8 November 2026):
   - "Support for people who sell or swap sex" sits on the Safety second screen, not in the type-of-harm list, so it is not framed as harm.
@@ -194,7 +196,11 @@ Only where all three hold:
 - the listing states the restriction **in terms**, such as "women only", "open only to", "Female only" or "16-25 only";
 - the person's answer clearly falls outside it.
 
-Anything weaker excludes nothing: "especially", "mainly", "designed for", "welcomes". (MD, 8 November 2026.) Neither the platform nor V4 holds a restriction field (MD, 1 November 2026). Population tags mean "designed for" and never hide a service.
+**Trans and non-binary answers exclude nothing** until this is decided, so "clearly falls outside" never reads a non-binary answer as outside "women only". (Service Matching Contract v3.1, section 11; MD, 11 November 2026.)
+
+Anything weaker excludes nothing: "especially", "mainly", "designed for", "welcomes". (MD, 8 November 2026.) **Where the restriction is read from:** in the West Midlands, a reviewed record of restrictions and age ranges, each entry resting on a quotation from the service's own text and checked by a named person; elsewhere, only a statement in terms in the listing text (Service Matching Contract v3.1, section 5; MD, 11 November 2026, superseding this note's reading of the listing's words alone). Neither the platform nor V4 holds a restriction field (MD, 1 November 2026). Population tags mean "designed for" and never exclude a service.
+
+**Declined and unasked answers** (Service Matching Contract v3.1, section 6; MD, 11 November 2026, superseding this note's 8 November position that a tag never holds a service back): an answer not given is treated as not stated. It never excludes. But a service designed for a group is not selected unless the person has said the group is relevant to them; it stays available through "See all on Street Support".
 
 **Where it is unclear, the service is shown.** An overlapping age band, a declined answer, or a restriction on one session of a wider service excludes nothing. In a combined listing, a restriction in one section does not exclude the whole record.
 
@@ -411,6 +417,16 @@ Where the quick exit goes and what it clears are safeguarding decisions, made se
 - Section 12: work items 9 and 16 widened; work items 19 to 23 added.
 
 ---
+
+## 16. Review of 22 November 2026 (VA #50)
+
+The technical lead's review on VA #50, answered by the Managing Director on 22 November 2026:
+
+- 3.1: the ethnicity question uses the wording of the Data Minimisation and Lawful Basis Note (VA #63), which states both purposes, so the consent covers the counting; the reason the named-community rule was dropped, and the open question on the lift.
+- 3.3 and 3.6: the council's housing team is a fixed contact on the domestic abuse results, not dependent on a listing.
+- 3.6: where age is not known, the domestic abuse and sexual violence results show both the under-18 and adult routes.
+- Section 5: trans and non-binary answers exclude nothing until decided; where restrictions are read from, and declined answers, now follow the Service Matching Contract v3.1 (11 November 2026).
+- Ordering (section 6), when a question is asked (3.1) and the organisation already supporting someone (section 7) stand as written here (8 November 2026). The Service Matching Contract is brought into line with them.
 
 ## Sources
 
