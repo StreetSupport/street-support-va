@@ -193,7 +193,7 @@ These come in addition to the statutory routes and fixed contacts, which are alw
 Only where all three hold:
 
 - an established hard gate in the Service Matching Contract applies (age, gender, jurisdiction, access barrier);
-- the listing states the restriction **in terms**, such as "women only", "open only to", "Female only" or "16-25 only";
+- the listing states the restriction **in terms**, such as "women only", "open only to", "Female only" or "16-25 only", or is for "adults" (18 and over: MD, 23 November 2026);
 - the person's answer clearly falls outside it.
 
 **Trans and non-binary answers exclude nothing** until this is decided, so "clearly falls outside" never reads a non-binary answer as outside "women only". (Service Matching Contract v3.1, section 11; MD, 11 November 2026.)
