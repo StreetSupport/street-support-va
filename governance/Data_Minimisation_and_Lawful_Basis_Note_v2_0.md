@@ -24,7 +24,7 @@ Three things leave the conversation, and a fourth if the person chooses:
 
 - **Typed text the assistant cannot match** goes to its AI provider, Anthropic, to be understood (section 8). Button choices are never sent.
 - **A session record** is kept (section 9), and the counts reported are drawn from it.
-- **A problem report**, only if the person sends one, through the website's issue reporter: what went wrong, an optional description with personal details removed, an optional email for a reply, and the answers they gave only if they tick to attach them (VA backlog 82). The reporter holds reports on GitHub. A report flagged unsafe or upsetting, or carrying personal details, goes to the Managing Director instead and is not held there (technical lead, 8 November 2026).
+- **A problem report**, only if the person sends one, through the website's issue reporter (as designed in VA backlog 82; to be built before launch): what went wrong, an optional description with personal details removed, an optional email for a reply, and the answers they gave only if they tick to attach them (VA backlog 82). The reporter holds reports on GitHub (technical lead, 8 November 2026; where reports are held is still to confirm). A report flagged unsafe or upsetting, or carrying personal details, goes to the Managing Director instead and is not held there (technical lead, 8 November 2026). The basis for the reply email is consent: the person chooses to add it, for a reply only (Managing Director, 23 November 2026).
 - **A preferred name**, if the person gives one, is used only to address them during the conversation. It is never sent to the AI provider, never counted and never kept.
 
 ## 3. Minimisation by design
@@ -45,7 +45,7 @@ The extra-questions screen that replaced it is a choice about the conversation. 
 
 ## 5. Legal basis for all processing: Article 6
 
-The basis is legitimate interests (Article 6(1)(f)), for every field on every pathway.
+The basis is legitimate interests (Article 6(1)(f)), for every field on every pathway. The one exception is the email address a person can add to a problem report, which rests on consent (Article 6(1)(a); Managing Director, 23 November 2026).
 
 - **Legitimate interest:** connecting people to support that fits them, and understanding whether the service reaches the people who need it. This is SSN's charitable purpose.
 - **Necessity:** only answers that change the help shown are asked (section 3). A session record without identifiers is the least that shows whether the service is reaching people.
@@ -70,7 +70,7 @@ The question takes one of two forms:
 
 ## 7. Field and pathway table
 
-Article 6 basis is legitimate interests throughout. "Consent" means explicit consent given at a question that states its purpose (section 6).
+Article 6 basis is legitimate interests throughout, except a problem report's reply email (consent; section 5). "Consent" means explicit consent given at a question that states its purpose (section 6).
 
 | Field | Pathways asked | Purpose | Category | Article 9 or 10 condition | Declined or skipped |
 |---|---|---|---|---|---|
@@ -102,7 +102,7 @@ The population questions on each need follow the Service Matching and Questions 
 
 **Proposed, for the Managing Director (20 November 2026): the Care, Council and 16 and 17 rows.** They record the two fields VA #82 stores, `careExperience` and `careCouncil`, held in the conversation state only. The 16 and 17 row is aligned to the same build. Neither is in the session record (section 9), and no log statement writes the council answer. The step log records each step's gate (section 9), so reaching the council question shows there. That logs the pathway, not the council pair, as the 31 October design required (Pathway Review 5.2, Failure modes), and care experience is not special category data. Sources: `lib/handlers/sectionC.ts`, `lib/handlers/careLeavers.ts`, `lib/types.ts` and `app/api/chat/route.ts` on VA #82 (`f5e2647`).
 
-**Proposed, for the Managing Director (20 November 2026): the Ethnicity row.** It records the 9 November rule. The build (VA #81) does not currently log the answer; the section 9 counts apply when analytics is built. The condition follows this note's own pattern (sections 4 and 6): consent is given at the question, which states both purposes in the appendix wording, not at the extra-questions screen. Sources: VA #81 description; `lib/serviceMatcher.ts` and `lib/phrasebank.ts` on VA #81; VA Question Purpose Register Q1 and VA Design and Service Matching Proposal question 8 (`align/population-asking-proposal-2026-11-08`).
+**Confirmed by the Managing Director, 23 November 2026 (proposed 20 November): the Ethnicity row.** It records the 9 November rule. The build (VA #81) does not currently log the answer; the section 9 counts apply when analytics is built. The condition follows this note's own pattern (sections 4 and 6): consent is given at the question, which states both purposes in the appendix wording, not at the extra-questions screen. Sources: VA #81 description; `lib/serviceMatcher.ts` and `lib/phrasebank.ts` on VA #81; VA Question Purpose Register Q1 and VA Design and Service Matching Proposal question 8 (`align/population-asking-proposal-2026-11-08`).
 
 **No new field.** The West Midlands restriction record (Service Matching Contract v3.1) describes services, not people. It is applied using answers this table already lists, including the housing situation for services for people sleeping rough. It adds no question and keeps nothing about the person.
 
@@ -141,10 +141,10 @@ The data protection impact assessment (pipeline repo, `governance/Data_Protectio
 The assistant does not go live, including for the trial, until each of these is in place. Each is recorded with its date and a screenshot or written confirmation. They are implementation checks, and none changes the design or its risk assessment. If a check finds something different from this note, the note and the Privacy Policy are corrected before launch, or the setting is changed.
 
 1. **An SSN account with the AI provider.** The assistant's API key belongs to an Anthropic account held by Street Support Network, not by an individual. That puts the data processing addendum between Anthropic and SSN. The account uses SSN's billing, the Managing Director and the technical lead both have access, and any earlier key is revoked once the new one works (Managing Director; the technical lead swaps the key).
-2. **The account's terms.** It is an API account under the Commercial Terms, which incorporate the data processing addendum, and API inputs are not used for training (Managing Director).
+2. **The account's terms.** It is an API account under the Commercial Terms, which incorporate the data processing addendum, and API inputs are not used for training (Managing Director). Checked 23 November 2026: the Commercial Terms say Anthropic "may not train models on Customer Content from Services"; this holds once condition 1 is met.
 3. **Where the hosting runs.** The region set for the assistant's functions is recorded, and the Privacy Policy names it accurately (technical lead).
 4. **What the hosting keeps.** The logs hold only the session record and step logs in section 9, never what a person typed. How long logs are kept, and whether they are copied anywhere else, is recorded. The hosting provider's documentation (checked 11 November 2026) shows its logs can be matched by IP address. So whether the logs hold IP addresses is confirmed, and the Privacy Policy says the hosting provider processes them to run the service, though the assistant does not record them (technical lead).
-5. **Processing outside the UK.** The safeguard the AI provider and the hosting each rely on for processing outside the UK is confirmed from their terms (Managing Director, with the technical lead). For the AI provider: assessed on 23 November 2026 in the impact assessment's transfer risk assessment, for the account in Street Support Network's own organisation (condition 1); the contracting Anthropic entity is still to confirm. For the hosting: still to confirm (technical lead).
+5. **Processing outside the UK.** The safeguard the AI provider and the hosting each rely on for processing outside the UK is confirmed from their terms (Managing Director, with the technical lead). For the AI provider: assessed on 23 November 2026 in the impact assessment's transfer risk assessment, for the account in Street Support Network's own organisation (condition 1); the contracting entity is Anthropic Ireland, Limited (Commercial Terms, checked 23 November 2026). For the hosting: still to confirm (technical lead).
 6. This note's table checked against the built question map.
 7. The Privacy Policy, the Terms and Conditions (v3 drafted) and the other footer documents updated to match (go-live plan, workstream H).
 8. **The consent wording** checked against the ICO's guidance on explicit consent, as in section 12, with the basis for the confirmation recorded (Managing Director).
@@ -182,6 +182,7 @@ For the technical lead's review with the build.
 | 1.1 | March 2026 | Operational intelligence fields added |
 | 2.0 | November 2026 | 11 November alignments: declined or skipped answers treated as not stated, so dependent services are not selected (Service Matching Contract v3.0); the general domestic abuse and sexual assault exit (Safeguarding Contract v3.3); the quick route asks no population questions; the restriction record adds no field; hosting location noted; the AI provider account and hosting checks set as release conditions. Earlier in this version: brought into line with the Service Matching and Questions Design Note. Sensitive questions state their purpose and rest on explicit consent; substantial public interest no longer relied on, and the paragraph 12 citation corrected. Criminal offence data, pregnancy, ethnicity and information given by choosing help added. The AI provider recorded as a processor. Only aggregate counts kept. Field and pathway table rebuilt for the V4 question map |
 | 2.1 | 13 November 2026 | "Not sure" who the help is for no longer leads straight to a place to start (Managing Director, 13 November 2026; Service Matching and Questions Design Note v1.1) |
+| 2.1 | 23 November 2026 | Alignment: retention and location as they are; the Ethnicity row confirmed; a problem report's reply email on consent; release conditions 2 and 5 updated from Anthropic's Commercial Terms (Managing Director, 23 November 2026) |
 
 ## Sources
 
@@ -193,4 +194,5 @@ For the technical lead's review with the build.
 - Managing Director decisions, 8 November 2026.
 - Managing Director decision on retention and location, 23 November 2026.
 - Technical lead, email of 23 November 2026: hosting region, log retention and what the logs hold.
-- Anthropic, "Data residency" (platform.claude.com) and "Data Processing Addendum" (anthropic.com/legal), checked 23 November 2026.
+- Anthropic, "Data residency" (platform.claude.com), "Data Processing Addendum" and "Commercial Terms" (anthropic.com/legal), checked 23 November 2026.
+- Managing Director decisions, 23 November 2026: the Ethnicity row confirmed; a problem report's reply email on consent.
