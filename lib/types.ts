@@ -314,6 +314,10 @@ export interface UserProfile {
   ethnicity?: string | null;
   // Yes, in care now or left care: lifts services tagged care-leavers.
   careExperienced?: boolean;
+  // Benefits given as income (B10) or as the work situation (prevention).
+  onBenefits?: boolean;
+  // "Do you have a dog with you?" (design note 3.7, housing): not yet built.
+  hasDog?: boolean | null;
 }
 
 export interface ServiceCard {
@@ -343,7 +347,9 @@ export function toUserProfile(session: SessionState): UserProfile {
     ageCategory: session.detailedAge || session.ageCategory,
     lgbtq: session.lgbtq,
     criminalConvictions: session.criminalConvictions,
-    hasChildren: (session.hasChildren === true || session.pregnant === true) ? true : session.hasChildren,
+    // Children or pregnancy, on either route: the prevention answer counts too.
+    hasChildren: (session.hasChildren === true || session.pregnant === true || session.preventionChildren === 'Yes')
+      ? true : session.hasChildren,
     sleepingSituation: session.sleepingSituation,
     mentalHealth: session.mentalHealth,
     physicalHealth: session.physicalHealth,
@@ -357,5 +363,6 @@ export function toUserProfile(session: SessionState): UserProfile {
     servedInArmedForces: session.servedInArmedForces ?? null,
     ethnicity: session.ethnicity ?? null,
     careExperienced: ['YES', 'IN_CARE_NOW', 'LEFT_CARE'].includes(session.careExperience ?? ''),
+    onBenefits: session.income === 'Benefits' || session.preventionEmployment === 'Benefits',
   };
 }
