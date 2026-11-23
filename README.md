@@ -60,6 +60,7 @@ npm run dev
 3. Add environment variable:
    - In Vercel project settings, go to "Environment Variables"
    - Add `ANTHROPIC_API_KEY` with your API key
+   - Optional: add `CLAUDE_MODEL` to choose the Claude model (default `claude-sonnet-5-5`)
 
 4. Deploy!
 
