@@ -204,12 +204,12 @@ We're building a replacement assistant on Claude, through Anthropic's API. It is
 
 It's designed so that:
 
-- It only asks the questions needed for the help someone is looking for. Sensitive questions, such as about health or immigration status, are only asked where the answer changes what we can show them, and people can always choose not to answer.
-- Answers are used during the conversation to find the right services. Conversations aren't stored, and our analytics record categories, not what people typed.
+- It only asks the questions needed for the help someone is looking for. Sensitive questions, such as about sexual orientation or convictions, are only asked where the answer changes what we can show them, and people can always choose not to answer.
+- Answers are used during the conversation to find the right services. We don't store conversations, and our analytics record categories, not what people typed. If someone types something the assistant can't match to an option, that one message goes to Anthropic to be understood. Anthropic keeps it for up to 30 days (up to two years if its safety checks flag it), and its terms say it may not train its models on it.
 - Safety routing is fixed, not left to AI judgement. If someone says they're in danger, the assistant directs them to human help in the same way every time.
 - Its safety behaviour is checked by automated tests every time the code changes.
 
-Its governance documents sit alongside its code. Before it goes live, we'll update this policy and our Data Protection Policy, and complete a data protection impact assessment.
+Its governance documents sit alongside its code. Its data protection impact assessment is in draft (v1.1, which assesses the risk as low). Before it goes live, we'll complete that assessment, update this policy, and publish our updated Data Protection Policy and Privacy Policy.
 
 # Data, Email and Cloud Safeguards
 
