@@ -21,13 +21,13 @@ This note records how Street Support Network uses Claude, the data protection po
 
 | **Use**              | **What it does**                                                         | **Data involved**                                                                                   |
 |----------------------|--------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
-| Anthropic API        | Will generate the new virtual assistant's conversational responses. In development, not live. The live assistant runs on IBM WatsonX. | During development, synthetic test input only. Once live, conversation content passes through the API while the assistant runs, and is not stored by Street Support Network (VA Analytics Contract). |
+| Anthropic API        | Interprets typed text the new virtual assistant cannot match to an option: whether it is about housing, whether it is an advice question, and which option was meant. The responses themselves are approved content. In development, not live. The live assistant runs on IBM WatsonX. | During development, synthetic test input only. Once live, only the typed message the assistant cannot match is sent, with no history or identifier. Street Support Network does not store it (VA Analytics Contract); Anthropic keeps it for up to 30 days (Data Minimisation and Lawful Basis Note v2.0, section 8). |
 | Claude Team workspace | Staff drafting, analysis and research.                                  | Staff names and email addresses. Public service and organisation information. No service user data. |
 | Claude Code          | Development, testing and analysis of issue reports in this repository.  | Code, governance documents, issue descriptions and synthetic test input. No service user data.      |
 
 All three run under Anthropic's Commercial Terms. Anthropic is a processor and Street Support Network is the controller. Anthropic's Data Processing Addendum is incorporated into the Commercial Terms, and includes the UK International Data Transfer Addendum for processing in the United States. Customer data is not used to train Anthropic's models.
 
-Anthropic's own retention of API inputs and outputs is set by its terms. Confirm the current period against the Data Processing Addendum when the Data Protection Policy is next reviewed.
+Anthropic's own retention of API inputs and outputs is set by its terms: up to 30 days, or up to two years for anything flagged under its usage policy. The Managing Director accepted this for the virtual assistant on 23 November 2026, within its low-risk impact assessment (Data Minimisation and Lawful Basis Note v2.0, sections 8 and 12). Confirm the current period against Anthropic's terms when the Data Protection Policy is next reviewed.
 
 ## 3. What never goes into Claude
 
