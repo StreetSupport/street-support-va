@@ -1,7 +1,7 @@
 # Street Support VA: Implementation Backlog
 
 **Purpose:** Track what we should be considering working on next.
-**Last updated:** 20 November 2026
+**Last updated:** 23 November 2026
 
 ---
 
@@ -515,12 +515,24 @@ ChatWidget calls `/api/location`, so this file is unreachable dead code. Confirm
 **Scope:** Tags come from the platform's V4 population keys. A tag lifts a service and never hides one, and hard gate B is unchanged. The answers that lift, and the tag each lifts, are tabled in the VA #81 description. Ethnicity: any answer except White British lifts services for ethnic minority communities (Managing Director, 9 November 2026). The answer stays in the session and is not logged. The trans answers, Non-binary or other and Prefer not to say lift nothing.
 **Governance:** the design note's section 6 ethnicity row contradicts the build and is to be aligned; the lawful basis is recorded in the Data Minimisation and Lawful Basis Note.
 **Update, 22 November 2026:** the design note's ethnicity row now agrees with the build, and the question takes the VA #63 wording with both purposes stated (VA #83). Declined answers: the Service Matching Contract's 11 November rule stands (VA #84). It applies to "only for" and "designed for" services, which a tag alone cannot identify, so #81 applies it once the WMCA record of restrictions exists (pipeline backlog item 23; comment on #81). Whether an "Ethnic minority communities" lift can work at all is to be explored with James (Managing Director, 22 November 2026).
+**Update, 23 November 2026:** the declined-answer rule is built on VA #92 from the record of restrictions (item 91), switched off until December.
 **Source:** VA #81 description; `lib/serviceMatcher.ts` on VA #81.
 
 ### 90. Ethnicity question: census-group options
 **Status:** Decided 9 November 2026, not built. The question on VA #81 (`C3Q6_ETHNICITY`) offers six options and Prefer not to say.
 **Scope:** The answers use the five census high-level groups, with a short list beneath each (Service Matching and Questions Design Note, section 3.1).
 **Related:** item 86.
+
+### 91. The record of restrictions in the matcher
+**Status:** Built on VA #92 (`387600f`), switched off (`VA_RESTRICTIONS=on` switches it on), open, for James. 808/808 tests; an independent reader checked it and its three bugs are fixed.
+**Scope:** `lib/restrictions.ts` reads the reviewed WMCA record (pipeline item 23, #255). Only gates A and B exclude, and only on a stated answer; services designed for a group, or shown only where a condition applies, are recommended only where the person has said it applies, and stay under See all; either-or groups count if either applies; either-or and per-location ages are held as branches. On the Safety route only gate B applies (20 November). Group mappings: Managing Director, 23 November 2026 (pipeline decisions log 69): a child under 5 counts as Parents and families; benefits from the income or work answer; refugees, asylum seekers and migrants kept apart; leaving prison from the housing route.
+**Open:** how a live platform service is linked to its listing, so the record governs anything (James, VA #92); whether "Indefinite leave to remain" counts as Migrants (pipeline item 24); the 19 "ranks higher" entries are not yet used; the record's `exclusion_effect` text for branched ages still says "never split".
+**Source:** VA #92 description; pipeline #255.
+
+### 92. Sex work listings on the sexual violence route
+**Status:** Not built.
+**Scope:** The design note (Safety pathway, sex work) says the sexual violence route also includes the sex work listings as candidates. The build reads only the Sexual violence subcategory there. The sex work option itself stays after launch (design note work item 12).
+**Source:** Service Matching and Questions Design Note, Safety pathway; found 23 November 2026.
 
 ### 16. ~~Robustness: Data Protection Policy platform update~~ RESOLVED
 **Resolved:** Data Protection Policy v3 (March 2026) no longer references WatsonX.
@@ -1032,6 +1044,7 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 **Status:** Decided 9 November 2026, not built.
 **Scope:** "Do you have a dog with you?", with Yes, No and Prefer not to say, asked where the result is accommodation. It lifts services that take dogs and hides nothing. On a yes, the assistant shows Dogs Trust's Together Through Homelessness scheme. The wording, contact details and placement are in the Service Matching and Questions Design Note, section 3.3.
 **Open:** which West Midlands towns the vet scheme covers (design note, section 12, work item 11).
+**Update, 23 November 2026:** the Managing Director confirmed the question is asked on the housing route. The record of restrictions is already wired to it (`hasDog`, VA #92), so "People with dogs" services surface once the question is built.
 **Source:** Service Matching and Questions Design Note, sections 3.3 and 12.
 
 ---
@@ -1362,3 +1375,24 @@ When enriched eligibility data is in use, confidence levels must influence langu
 1. The record of restrictions (pipeline item 23), then #81's declined-answer rule from it.
 2. Build 88's two 22 November additions with James's safeguarding review.
 3. James's reviews: VA #83 and #84.
+
+## Session 23 November 2026
+
+**What changed**
+- VA #89, on #84's branch: Service Matching Contract gates A and B. "Adults" means 18 and over; a women's or men's service is for that gender only, whether or not it says "only". For trustees with the contract amendments.
+- VA #90, on #83's branch: the design note names "adults" (18 and over) among restrictions stated in terms.
+- VA #91, on #82's branch: the Glebe Centre removed as Walsall's housing navigator (it closes at the end of November); 783/783 tests.
+- VA #92, on #82's branch: the record of restrictions in the matcher (91), switched off. Item 92 added; items 86 and 89 updated.
+
+**Decided (Managing Director, 23 November 2026).** In the pipeline decisions log on #255 (60 to 73), each in his words: adults are 18 and over; a women's group is women only; the Glebe Centre out of the endpoints; the group mappings in item 91; ages held as branches; the listing link left to James with no recommendation.
+
+**Committed and where.** All pushed, nothing on main: VA #89 (`bb7ca16`), VA #90 (`cd0dae3`), VA #91 (`158e44a`), VA #92 (`387600f`). This entry is on #78's branch.
+
+**Uncommitted, and why.** Nothing in the VA.
+
+**Not yet done.** The governance decisions log does not yet record VA #89 (a Tier 3 contract change).
+
+**Next session picks up first**
+1. James's reviews of VA #89 to #92, and the listing link on VA #92.
+2. The dogs question (89).
+3. Sex work listings on the sexual violence route (92).
