@@ -134,7 +134,7 @@ Answers are used only to find help for the person in that conversation, and to p
 
 ## 12. Risk and proportionality
 
-The data protection impact assessment (pipeline repo, `governance/Data_Protection_Impact_Assessment_VA_v1_0.md`) weighs each flow. The risk to people from the assistant's processing is low, and the benefit is help that fits their situation. The controls in this note are proportionate to that. On 23 November 2026 the Managing Director reviewed where the typed text goes and how long it is kept (section 8): Anthropic's standard retention of up to 30 days is accepted, and processing outside the UK, covered by the data processing addendum, is within this assessment. The risk stays low.
+The data protection impact assessment (pipeline repo, `governance/Data_Protection_Impact_Assessment_VA_v1_1.md`) weighs each flow. The risk to people from the assistant's processing is low, and the benefit is help that fits their situation. The controls in this note are proportionate to that. On 23 November 2026 the Managing Director reviewed where the typed text goes and how long it is kept (section 8): Anthropic's standard retention of up to 30 days is accepted, and processing outside the UK, covered by the data processing addendum, is within this assessment. The risk stays low.
 
 ## 13. Release conditions
 
@@ -144,7 +144,7 @@ The assistant does not go live, including for the trial, until each of these is 
 2. **The account's terms.** It is an API account under the Commercial Terms, which incorporate the data processing addendum, and API inputs are not used for training (Managing Director).
 3. **Where the hosting runs.** The region set for the assistant's functions is recorded, and the Privacy Policy names it accurately (technical lead).
 4. **What the hosting keeps.** The logs hold only the session record and step logs in section 9, never what a person typed. How long logs are kept, and whether they are copied anywhere else, is recorded. The hosting provider's documentation (checked 11 November 2026) shows its logs can be matched by IP address. So whether the logs hold IP addresses is confirmed, and the Privacy Policy says the hosting provider processes them to run the service, though the assistant does not record them (technical lead).
-5. **Processing outside the UK.** The safeguard the AI provider and the hosting each rely on for processing outside the UK is confirmed from their terms (Managing Director, with the technical lead).
+5. **Processing outside the UK.** The safeguard the AI provider and the hosting each rely on for processing outside the UK is confirmed from their terms (Managing Director, with the technical lead). For the AI provider: assessed on 23 November 2026 in the impact assessment's transfer risk assessment, for the account in Street Support Network's own organisation (condition 1); the contracting Anthropic entity is still to confirm. For the hosting: still to confirm (technical lead).
 6. This note's table checked against the built question map.
 7. The Privacy Policy, the Terms and Conditions (v3 drafted) and the other footer documents updated to match (go-live plan, workstream H).
 8. **The consent wording** checked against the ICO's guidance on explicit consent, as in section 12, with the basis for the confirmation recorded (Managing Director).
