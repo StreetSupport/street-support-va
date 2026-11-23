@@ -111,16 +111,16 @@ The population questions on each need follow the Service Matching and Questions 
 Typed text that the assistant cannot match to an option is sent to Anthropic's API to be understood: whether a message is about housing at all, whether it is an advice question, and which option the person meant. Only that one message is sent, with a short instruction. No conversation history, no identifier and no button choices are sent. The under-16 check runs on the server before any of these calls.
 
 - **Role:** Anthropic is a processor acting for SSN.
-- **Terms:** the assistant's API account must be held by SSN, under Anthropic's Commercial Terms, which incorporate its data processing addendum. Whether the current key sits in an SSN account is not yet established, so an SSN account is a release condition (section 13).
+- **Terms:** the assistant's API account must be held by SSN, under Anthropic's Commercial Terms, which incorporate its data processing addendum. A key in Street Support Network's own Anthropic organisation was created on 23 November 2026; the technical lead puts it in place, and the earlier key is turned off once the new one works (section 13, condition 1). The Commercial Terms, accepted when the organisation was set up, incorporate the data processing addendum, which includes the UK International Data Transfer Addendum (Anthropic, checked 23 November 2026).
 - **Retention:** Anthropic deletes API inputs and outputs within 30 days, unless agreed otherwise, required by law, or needed to enforce its usage policy. Where a message is flagged under the usage policy, it may be kept for up to two years (Anthropic Privacy Center, checked 8 November 2026).
-- **Location:** processing takes place outside the UK; the Privacy Policy says so. The assistant's hosting also runs outside the UK (technical lead, 10 November 2026). Where it runs, and what its logs hold, is confirmed before launch (section 13).
+- **Location:** Anthropic processes the message wherever it has capacity (its default; the assistant sets no region) and stores API data in the US (Anthropic, checked 23 November 2026). The assistant's hosting runs in its provider's US East region (technical lead, 23 November 2026). None of this is in the UK or EU. The Managing Director reviewed this on 23 November 2026 against the impact assessment (section 12): the risk stays low, and what matters is that the Privacy Policy says accurately what happens (section 13, condition 7).
 - **Minimising what is sent:** the server matches typed text against the options before anything is sent, so only text it cannot match goes to the API (VA backlog 81).
 
 Typed text can contain anything, including a name or an address. The opening sentence (section 6) tells people that the AI provider reads what they type.
 
 ## 9. What is kept
 
-What is kept is a **session record**: one line for each conversation, written to the hosting's logs when it ends. It holds a random session id, council area, user type, age band, need, housing status, safeguarding type, escalation level, duration and route. Nothing in it identifies the person, and it is not linked to any other conversation. It is kept for as long as the hosting keeps its logs. While the conversation runs, the hosting also logs each step's gate, the council area found and any advice topic detected; never what the person typed (technical lead, 8 November 2026).
+What is kept is a **session record**: one line for each conversation, written to the hosting's logs when it ends. It holds a random session id, council area, user type, age band, need, housing status, safeguarding type, escalation level, duration and route. Nothing in it identifies the person, and it is not linked to any other conversation. It is kept for as long as the hosting keeps its logs: one day on the current plan (technical lead, 23 November 2026). While the conversation runs, the hosting also logs each step's gate, the council area found, any advice topic detected, an event when the under-16 check triggers (the session id, the step and the kind of trigger), and a line when a call to the AI provider fails (which check, the model and the error type); never what the person typed (technical lead, 8 November 2026; `lib/stateMachine.ts` on VA `staging` and `lib/claudeClassifiers.ts` on VA #85).
 
 The answers added by this note, including ethnicity, and the operational intelligence fields in section 10 are kept only as counts: outcomes by council area, need and route, and ethnicity by council area and census group. Reports leave out any small number that could point to someone.
 
@@ -134,7 +134,7 @@ Answers are used only to find help for the person in that conversation, and to p
 
 ## 12. Risk and proportionality
 
-The data protection impact assessment (pipeline repo, `governance/Data_Protection_Impact_Assessment_VA_v1_0.md`) weighs each flow. The risk to people from the assistant's processing is low, and the benefit is help that fits their situation. The controls in this note are proportionate to that.
+The data protection impact assessment (pipeline repo, `governance/Data_Protection_Impact_Assessment_VA_v1_0.md`) weighs each flow. The risk to people from the assistant's processing is low, and the benefit is help that fits their situation. The controls in this note are proportionate to that. On 23 November 2026 the Managing Director reviewed where the typed text goes and how long it is kept (section 8): Anthropic's standard retention of up to 30 days is accepted, and processing outside the UK, covered by the data processing addendum, is within this assessment. The risk stays low.
 
 ## 13. Release conditions
 
@@ -191,3 +191,6 @@ For the technical lead's review with the build.
 - Data Protection Act 2018, Schedule 1, Parts 2 and 3 (legislation.gov.uk, enacted text).
 - Anthropic Privacy Center, "How long do you store commercial API data", checked 8 November 2026.
 - Managing Director decisions, 8 November 2026.
+- Managing Director decision on retention and location, 23 November 2026.
+- Technical lead, email of 23 November 2026: hosting region, log retention and what the logs hold.
+- Anthropic, "Data residency" (platform.claude.com) and "Data Processing Addendum" (anthropic.com/legal), checked 23 November 2026.
