@@ -124,9 +124,7 @@ function wayBack(supporter: boolean): string {
 
 function modernSlaveryExit(session: SessionState): RoutingResult {
   const supporter = isSupporterAudience(session);
-  const lead = supporter
-    ? `No one should be forced to work or be controlled. Here is who can help.`
-    : `No one should be forced to work or be controlled. Here is who can help.`;
+  const lead = `No one should be forced to work or be controlled. Here is who can help.`;
   const text = [
     emergencyFirst(supporter),
     lead,

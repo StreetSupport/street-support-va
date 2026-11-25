@@ -6,7 +6,12 @@
 //   1. cover the screen at once, so a slow connection does not leave it showing;
 //   2. clear the conversation and any half-typed message, and cancel any request
 //      in progress so its reply cannot bring them back;
-//   3. send the tab to an ordinary site (BBC Weather, GOV.UK's default).
+//   3. open BBC Weather in a new tab, and replace this tab with an ordinary
+//      weather search, so our page drops out of its history (Shelter's quick
+//      exit; James Cross's review of #69, 24 November 2026). If the new tab is
+//      blocked, this tab still leaves.
+// The tab's title and icon are made ordinary at once, with the cover, so a slow
+// phone never shows our name while the next page loads.
 // Nothing is sent to the VA's server on exit. Clearing the screen does not
 // delete what has already been sent: see the proposal's decision 5 record.
 //
@@ -15,12 +20,20 @@
 // the Safety from harm route's quick exit).
 
 export const EXIT_URL = 'https://www.bbc.co.uk/weather';
+// What this tab becomes when the exit opens BBC Weather in a new tab.
+export const EXIT_REPLACE_URL = 'https://www.google.com/search?q=weather';
 
 // Whether the exit replaces the current page in the tab's history, so Back does
-// not return to it. GOV.UK tried this and dropped it; Scotland's component does
-// it. Left for the technical lead to settle by browser testing in the real
-// deployment (proposal, open question 3). Off by default, as GOV.UK.
-export const EXIT_REPLACES_HISTORY = false;
+// not return to it (proposal, open question 3, settled by the technical lead:
+// on, with the new tab, as Shelter's; James Cross, 24 November 2026).
+export const EXIT_REPLACES_HISTORY = true;
+// Opening a tab is allowed from the button or from Shift: both are the person
+// doing something.
+export const EXIT_OPENS_NEW_TAB = true;
+
+// What the tab shows while the next page loads.
+export const EXIT_TAB_TITLE = 'Weather';
+export const TRANSPARENT_ICON = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
 // Shift pressed three times within five seconds; any other key resets the
 // count (GOV.UK Exit this page component).
@@ -50,6 +63,7 @@ export interface ExitSteps {
   cover: () => void;
   clear: () => void;
   cancelRequests: () => void;
+  openTab?: (url: string) => void;
   navigate: (url: string, replaceHistory: boolean) => void;
 }
 
@@ -62,7 +76,9 @@ export function performExit(steps: ExitSteps): void {
   attempt(steps.cover);
   attempt(steps.cancelRequests);
   attempt(steps.clear);
-  steps.navigate(EXIT_URL, EXIT_REPLACES_HISTORY);
+  const opensTab = EXIT_OPENS_NEW_TAB && !!steps.openTab;
+  if (opensTab) attempt(() => steps.openTab!(EXIT_URL));
+  steps.navigate(opensTab ? EXIT_REPLACE_URL : EXIT_URL, EXIT_REPLACES_HISTORY);
 }
 
 /**
