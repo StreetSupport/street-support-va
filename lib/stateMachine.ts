@@ -34,7 +34,7 @@ import {
   handleSAGenderAsk,
 } from './handlers/crisis';
 import { handleSafetyTypeOfHarm, handleSafetyOkToContinue, isSafetyGate, parseSafetyChoice, startSafetyRoute } from './handlers/safety';
-import { FIRST_OPTIONS, firstOption, partsFor, type FirstOptionId } from './data/v4Categories';
+import { firstOption, partsFor, visibleFirstOptions, type FirstOptionId } from './data/v4Categories';
 import { buildUnder16Exit, childrenServicesData } from './handlers/shared';
 import { getServicePool } from './data/servicePool';
 import {
@@ -1555,7 +1555,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
     
     case 'B5_MAIN_SUPPORT_NEED': {
       // The first question in V4 terms (Decision 1, Managing Director, 4 November 2026).
-      const option = choice && choice >= 1 && choice <= FIRST_OPTIONS.length ? FIRST_OPTIONS[choice - 1] : null;
+      // Numbered as offered: Safety is left out while its switch is off.
+      const offered = visibleFirstOptions();
+      const option = choice && choice >= 1 && choice <= offered.length ? offered[choice - 1] : null;
       if (!option) return phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter);
       const needCount = session.needCount + 1;
 
