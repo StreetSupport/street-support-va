@@ -198,6 +198,19 @@ describe('Noticing step: what follows the answer', () => {
     expect(r.text).not.toContain('Org hot');
   });
 
+  test('while the Safety route is switched off, "Feeling unsafe" goes to the crisis question, never the matcher', () => {
+    const s = toNoticing('3', '1');
+    process.env.VA_SAFETY_ROUTE = 'off';
+    try {
+      const r = answer(s, optionNumber(s, 'Feeling unsafe'));
+      expect(r.stateUpdates.currentGate).toBe('GATE0_CRISIS_DANGER');
+      expect(r.options).toEqual(expect.arrayContaining(['Immediate physical danger', 'Domestic abuse', 'Sexual violence']));
+      expect(r.text).not.toContain('Org hot');
+    } finally {
+      process.env.VA_SAFETY_ROUTE = 'on';
+    }
+  });
+
   test('someone without a settled place to live sees their results first, then is offered housing as a choice', () => {
     const s = toNoticing('3', '1');
     const r = answer(s, optionNumber(s, "I don't have a settled place to live"));

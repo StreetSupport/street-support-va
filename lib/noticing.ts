@@ -10,7 +10,8 @@
 // get their results first with no question, then one onward offer (3.7).
 //
 // Outcomes: "Feeling unsafe" goes to the Safety from harm route (a disclosure,
-// 3.6; Safeguarding Contract 3.3 trigger). "I don't have a settled place to
+// 3.6; Safeguarding Contract 3.3 trigger), or to the crisis question while
+// the route's switch is off (lib/safetyRouteSwitch.ts). "I don't have a settled place to
 // live" and "Keeping my home or paying rent": the results for what they came
 // for first, then housing offered as a choice (Managing Director, 19 November
 // 2026). A yes leads to the same questions as choosing housing on the first

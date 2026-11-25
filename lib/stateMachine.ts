@@ -33,6 +33,7 @@ import {
   handleDVChildrenAsk,
   handleSAGenderAsk,
 } from './handlers/crisis';
+import { isSafetyRouteEnabled } from './safetyRouteSwitch';
 import { handleSafetyTypeOfHarm, handleSafetyOkToContinue, isSafetyGate, parseSafetyChoice, startSafetyRoute } from './handlers/safety';
 import { firstOption, partsFor, visibleFirstOptions, type FirstOptionId } from './data/v4Categories';
 import { buildUnder16Exit, childrenServicesData } from './handlers/shared';
@@ -1655,6 +1656,12 @@ export function processInput(session: SessionState, input: string): RoutingResul
       }
       const { outcome } = noticingOutcome(session, picked);
       if (outcome === 'safety') {
+        // While the Safety route's switch is off, the crisis question: hard-coded,
+        // live, and covering domestic abuse, sexual violence and immediate danger
+        // (James Cross's review of #73, 25 November 2026).
+        if (!isSafetyRouteEnabled()) {
+          return { ...phrase('GATE0_CRISIS_DANGER', session.isSupporter), stateUpdates: { currentGate: 'GATE0_CRISIS_DANGER', unclearCount: 0 } };
+        }
         const r = startSafetyRoute(session);
         return { ...r, stateUpdates: { ...r.stateUpdates, v4Option: 'safety', v4Choice: null, supportNeed: 'V4:safety', unclearCount: 0 } };
       }
