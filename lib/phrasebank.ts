@@ -1687,7 +1687,8 @@ If they're in immediate danger, call 999.`
 The police can help keep you safe.
 
 If you cannot speak safely, you can:
-- Call 999, then press 55 (Silent Solution - alerts police you need help)
+- Call 999 and listen. Cough or tap the phone if you can
+- On a mobile, press 55 when a recorded message asks you to. This puts you through to the police
 - Text 999 if you have registered for this service
 
 Once you are safe, I can help you find support services.`
@@ -1699,7 +1700,8 @@ Once you are safe, I can help you find support services.`
 The police can help keep them safe.
 
 If they cannot speak safely:
-- Call 999, then press 55 (Silent Solution - alerts police they need help)
+- Call 999 and listen. Cough or tap the phone if they can
+- On a mobile, press 55 when a recorded message asks. This puts the call through to the police
 - Text 999 if registered for this service
 
 Once they are safe, I can help you find support services for them.`
