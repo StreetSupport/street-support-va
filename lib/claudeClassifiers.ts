@@ -13,8 +13,14 @@
 // if Claude had not been asked: the scope check returns "unclear" (the flow
 // proceeds), the advice check finds no topic, and interpretation returns null
 // (the normal unclear-answer escalation applies). Safeguarding never waits on
-// these calls: the crisis gate and the under-16 intercept run in the state
-// machine, before any of them.
+// these calls: the under-16 intercept runs before any of them, and typed text at
+// the crisis question is never sent to Claude or matched to advice (route.ts).
+//
+// Thinking is turned off for these calls. claude-sonnet-5-5 thinks by default,
+// and thinking counts towards max_tokens, so a short check could come back with
+// no text. On that model thinking is turned off with { type: 'between_tools' };
+// 'disabled' is refused. Other models may refuse 'between_tools', so if
+// CLAUDE_MODEL changes, NO_THINKING must change with it.
 //
 // A failure is logged as one line naming the check and the model, with the
 // error's status and type. What the person typed is never logged.
@@ -56,9 +62,13 @@ export function logClaudeFailure(check: ClaudeCheck, error: unknown): void {
   console.error(`[VA] Claude ${check} failed (model ${getClaudeModel()}): status ${status}, ${type}. Continuing without it.`);
 }
 
-function firstText(res: { content: Array<{ type: string; text?: string }> }): string {
-  const block = res.content?.[0];
-  return block && block.type === 'text' && typeof block.text === 'string' ? block.text.trim().toLowerCase() : '';
+// SDK 0.39's types predate 'between_tools', hence the cast.
+export const NO_THINKING = { type: 'between_tools' } as unknown as Anthropic.ThinkingConfigParam;
+
+/** The reply's text block, found by type: a thinking block may come first. */
+function replyText(res: { content: Array<{ type: string; text?: string }> }): string {
+  const block = res.content?.find(b => b.type === 'text');
+  return block && typeof block.text === 'string' ? block.text.trim().toLowerCase() : '';
 }
 
 // Advice topics and their keywords for matching
@@ -122,7 +132,8 @@ export async function detectAdviceQuestion(input: string): Promise<string | null
 
       const res = await getClient().messages.create({
         model: getClaudeModel(),
-        max_tokens: 30,
+        max_tokens: 64,
+        thinking: NO_THINKING,
         system: `You match housing/homelessness questions to advice topics. Reply with ONLY the topic name or "none" if it doesn't match any topic.
 
 Topics:
@@ -133,7 +144,7 @@ ${topicList}`,
         }]
       });
 
-      const txt = firstText(res);
+      const txt = replyText(res);
 
       // Find matching topic
       for (const [topic, config] of Object.entries(adviceTopics)) {
@@ -183,7 +194,8 @@ export async function checkScope(input: string): Promise<'in_scope' | 'out_of_sc
   try {
     const res = await getClient().messages.create({
       model: getClaudeModel(),
-      max_tokens: 15,
+      max_tokens: 64,
+      thinking: NO_THINKING,
       system: 'You determine if a user message is related to homelessness, housing, accommodation, eviction, or support services. Reply ONLY with "in_scope" if related, or "out_of_scope" if completely unrelated (like recipes, weather, games, homework, etc.).',
       messages: [{
         role: 'user',
@@ -191,7 +203,7 @@ export async function checkScope(input: string): Promise<'in_scope' | 'out_of_sc
       }]
     });
 
-    const txt = firstText(res);
+    const txt = replyText(res);
     if (txt.includes('out_of_scope')) return 'out_of_scope';
     if (txt.includes('in_scope')) return 'in_scope';
     return 'unclear';
@@ -207,7 +219,8 @@ export async function interpretWithClaude(input: string, options: string[]): Pro
     const list = options.map((o, i) => `${i + 1}. ${o}`).join('\n');
     const res = await getClient().messages.create({
       model: getClaudeModel(),
-      max_tokens: 15,
+      max_tokens: 64,
+      thinking: NO_THINKING,
       system: 'You interpret user input for a homelessness support chatbot. Reply with ONLY the number (1, 2, 3, etc.) that best matches, "unclear" if you cannot determine intent, or "out_of_scope" if the request is completely unrelated to housing/homelessness (like recipes, weather, jokes, homework, etc.).',
       messages: [{
         role: 'user',
@@ -215,7 +228,7 @@ export async function interpretWithClaude(input: string, options: string[]): Pro
       }]
     });
 
-    const txt = firstText(res);
+    const txt = replyText(res);
     if (txt === 'unclear' || txt === 'out_of_scope') return null;
 
     const n = parseInt(txt, 10);

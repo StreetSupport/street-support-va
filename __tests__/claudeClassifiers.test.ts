@@ -31,7 +31,7 @@ import { POST } from '../app/api/chat/route';
 import { createSession } from '../lib/stateMachine';
 import type { GateType, SessionState } from '../lib/types';
 
-type CreateArgs = { model: string };
+type CreateArgs = { model: string; max_tokens: number; thinking?: { type: string } };
 
 function replying(text: string) {
   const create = jest.fn((_args: CreateArgs) => Promise.resolve({ content: [{ type: 'text', text }] }));
@@ -100,6 +100,24 @@ describe('Claude model configuration', () => {
     await interpretWithClaude('the second one please', ['Yes', 'No']);
     expect(create).toHaveBeenCalledTimes(3);
     for (const call of create.mock.calls) expect(call[0].model).toBe('claude-haiku-5-5');
+  });
+
+  test('all three checks turn thinking off and leave room for the answer', async () => {
+    const create = replying('none');
+    await checkScope('my landlord has asked me to leave next month');
+    await detectAdviceQuestion('how long does it all take?');
+    await interpretWithClaude('the second one please', ['Yes', 'No']);
+    expect(create).toHaveBeenCalledTimes(3);
+    for (const call of create.mock.calls) {
+      expect(call[0].thinking).toEqual({ type: 'between_tools' });
+      expect(call[0].max_tokens).toBeGreaterThanOrEqual(64);
+    }
+  });
+
+  test('the answer is read from the text block even when a thinking block comes first', async () => {
+    const create = jest.fn(() => Promise.resolve({ content: [{ type: 'thinking', thinking: '' }, { type: 'text', text: '2' }] }));
+    setClaudeClientForTests({ messages: { create } } as unknown as ClaudeClient);
+    await expect(interpretWithClaude('the second one please', ['Yes', 'No'])).resolves.toBe(2);
   });
 });
 
@@ -218,7 +236,33 @@ describe('Route with Claude unavailable', () => {
 });
 
 // =============================================================================
-// 4. Optional live check against the configured model (skipped in CI)
+// 4. The crisis question: typed text never goes to Claude or advice matching
+// =============================================================================
+
+describe('Crisis question', () => {
+  test('a typed disclosure stays on the crisis question with its options, and Claude is never called', async () => {
+    const create = replying('4'); // would pick "Domestic abuse" if asked
+    const before = sessionAt('GATE0_CRISIS_DANGER');
+    const { status, body } = await send("my partner hit me and I've got nowhere to sleep tonight", before);
+    expect(status).toBe(200);
+    const s = decode(body.s);
+    expect(s.currentGate).toBe('GATE0_CRISIS_DANGER');
+    expect((body as { o?: string[] }).o).toEqual(expect.arrayContaining(['Domestic abuse', 'Immediate physical danger']));
+    expect((body as { m?: string }).m ?? '').not.toMatch(/ADVICE|sleep tonight/i);
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  test('a number still works at the crisis question', async () => {
+    const create = replying('1');
+    const { status, body } = await send('7', sessionAt('GATE0_CRISIS_DANGER'));
+    expect(status).toBe(200);
+    expect(decode(body.s).currentGate).not.toBe('GATE0_CRISIS_DANGER');
+    expect(create).not.toHaveBeenCalled();
+  });
+});
+
+// =============================================================================
+// 5. Optional live check against the configured model (skipped in CI)
 // =============================================================================
 
 const live = process.env.RUN_LIVE_CLAUDE_TESTS === '1' && !!process.env.ANTHROPIC_API_KEY;

@@ -118,8 +118,11 @@ export async function POST(request: NextRequest) {
     // Get current phrase for option parsing
     const currentPhrase = getPhrase(session.currentGate, session.isSupporter);
 
-    // Check for out-of-scope requests at early gates
-    const earlyGates = ['GATE0_CRISIS_DANGER', 'GATE1_INTENT', 'B4_ADVICE_TOPIC_SELECTION', 'ADVICE_BRIDGE'];
+    const isCrisisGate = session.currentGate === 'GATE0_CRISIS_DANGER';
+
+    // Check for out-of-scope requests at early gates. Never at the crisis
+    // question: typed text there is not sent to Claude or matched to advice.
+    const earlyGates = ['GATE1_INTENT', 'B4_ADVICE_TOPIC_SELECTION', 'ADVICE_BRIDGE'];
     if (earlyGates.includes(session.currentGate) && message.length > 5 && !/^\d+$/.test(message.trim())) {
       const scope = await checkScope(message);
       if (scope === 'out_of_scope') {
@@ -162,8 +165,9 @@ export async function POST(request: NextRequest) {
     // Try to parse user input
     let parsed = isNameGate ? 0 : parseUserInput(message, currentPhrase?.options);
     
-    // If parsing failed and we have options, try Claude interpretation
-    if (parsed === null && currentPhrase?.options) {
+    // If parsing failed and we have options, try Claude interpretation, except
+    // at the crisis question, where only buttons, numbers and close matches count
+    if (parsed === null && currentPhrase?.options && !isCrisisGate) {
       parsed = await interpretWithClaude(message, currentPhrase.options);
     }
     
