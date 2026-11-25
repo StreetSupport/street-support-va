@@ -95,8 +95,8 @@ function line(l: NationalLine): string {
 
 function emergencyFirst(supporter: boolean): string {
   return supporter
-    ? `If they are in immediate danger, call 999. If they cannot speak safely, call 999 and press 55.`
-    : `If you are in immediate danger, call 999. If you cannot speak safely, call 999 and press 55.`;
+    ? `If they are in immediate danger, call 999. If they can't speak, call 999 and cough or tap if they can. On a mobile, press 55 when asked.`
+    : `If you are in immediate danger, call 999. If you can't speak, call 999 and cough or tap if you can. On a mobile, press 55 when you're asked.`;
 }
 
 function endSafety(text: string, type: string): RoutingResult {
@@ -124,9 +124,7 @@ function wayBack(supporter: boolean): string {
 
 function modernSlaveryExit(session: SessionState): RoutingResult {
   const supporter = isSupporterAudience(session);
-  const lead = supporter
-    ? `No one should be forced to work or be controlled. Here is who can help.`
-    : `No one should be forced to work or be controlled. Here is who can help.`;
+  const lead = `No one should be forced to work or be controlled. Here is who can help.`;
   const text = [
     emergencyFirst(supporter),
     lead,

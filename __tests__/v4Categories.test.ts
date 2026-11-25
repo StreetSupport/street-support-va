@@ -82,10 +82,18 @@ describe('what a person is shown', () => {
     expect(matchesParts(svc('addiction', 'gambling'), parts)).toBe(false);
   });
 
-  test('sexual health has no key on the copy yet, so it shows all of health rather than nothing', () => {
+  test('sexual health shows sexual health services only (key on the copy since 18 November)', () => {
     const choice = firstOption('health').secondScreen!.find(c => c.label === 'Sexual health')!;
-    expect(choice.pendingKey).toBeDefined();
-    expect(matchesParts(svc('health', 'physical-health'), choice.parts)).toBe(true);
+    expect(choice.pendingKey).toBeUndefined();
+    expect(matchesParts(svc('health', 'sexual-health'), choice.parts)).toBe(true);
+    expect(matchesParts(svc('health', 'physical-health'), choice.parts)).toBe(false);
+    expect(matchesParts(svc('health', 'mental-health'), choice.parts)).toBe(false);
+  });
+
+  test('baby items, sexual health and palliative care are known keys', () => {
+    expect(isKnownV4Category('essentials', 'baby-items')).toBe(true);
+    expect(isKnownV4Category('health', 'sexual-health')).toBe(true);
+    expect(isKnownV4Category('health', 'palliative-care')).toBe(true);
   });
 
   test('immigration and activities show everything in the parent', () => {
