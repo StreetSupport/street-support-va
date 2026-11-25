@@ -466,7 +466,7 @@ describe('Sexual Violence Disclosure', () => {
     expect(result.text).toContain("You'll know your next steps from here");
     expect(result.text).not.toContain("You don't have to work this out on your own");
     // Male SA variant routes to SurvivorsUK, not Rape Crisis.
-    expect(result.text).toContain('020 3598 3898');
+    expect(result.text).toContain('0808 801 0332');
     expect(result.text).toContain('999');
   });
 
@@ -480,7 +480,7 @@ describe('Sexual Violence Disclosure', () => {
     expect(result.text).toContain("You'll know your next steps from here");
     expect(result.text).not.toContain("You don't have to work this out on your own");
     // LGBTQ+ SA variant lists both SurvivorsUK and Galop.
-    expect(result.text).toContain('020 3598 3898');
+    expect(result.text).toContain('0808 801 0332');
     expect(result.text).toContain('0800 999 5428');
     expect(result.text).toContain('999');
   });

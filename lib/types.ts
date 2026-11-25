@@ -9,6 +9,7 @@ export type GateType =
   // Init & Gates
   | 'INIT'
   | 'GATE0_CRISIS_DANGER'
+  | 'CRISIS_UNCLEAR_HELP'
   | 'GATE1_INTENT'
   | 'GATE2_ROUTE_SELECTION'
   // Location Detection

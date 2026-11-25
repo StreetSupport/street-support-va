@@ -3,7 +3,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { checkScope, detectAdviceQuestion, interpretWithClaude } from '@/lib/claudeClassifiers';
-import type { SessionState } from '@/lib/types';
+import type { SessionState, RoutingResult } from '@/lib/types';
+import { crisisQuestionFallback, isStrictCrisisGate, parseStrictChoice } from '@/lib/handlers/crisis';
 import {
   createSession,
   processInput,
@@ -119,6 +120,9 @@ export async function POST(request: NextRequest) {
     const currentPhrase = getPhrase(session.currentGate, session.isSupporter);
 
     const isCrisisGate = session.currentGate === 'GATE0_CRISIS_DANGER';
+    // The crisis question and the questions it leads to read only a chosen
+    // option: no keywords, no Claude, and never the general escalation.
+    const strictGate = isStrictCrisisGate(session.currentGate);
 
     // Check for out-of-scope requests at early gates. Never at the crisis
     // question: typed text there is not sent to Claude or matched to advice.
@@ -163,17 +167,36 @@ export async function POST(request: NextRequest) {
     const isNameGate = session.currentGate === 'PREFERRED_NAME_ASK';
 
     // Try to parse user input
-    let parsed = isNameGate ? 0 : parseUserInput(message, currentPhrase?.options);
+    // "Carry on" after the crisis help: any reply carries on.
+    const isCarryOn = session.currentGate === 'CRISIS_UNCLEAR_HELP';
+    let parsed = isNameGate ? 0
+      : isCarryOn ? 1
+      : strictGate ? parseStrictChoice(message, currentPhrase?.options)
+      : parseUserInput(message, currentPhrase?.options);
     
     // If parsing failed and we have options, try Claude interpretation, except
     // at the crisis question, where only buttons, numbers and close matches count
-    if (parsed === null && currentPhrase?.options && !isCrisisGate) {
+    if (parsed === null && currentPhrase?.options && !isCrisisGate && !strictGate) {
       parsed = await interpretWithClaude(message, currentPhrase.options);
     }
     
     // If still unclear, handle escalation
     if (parsed === null) {
       session.unclearCount++;
+
+      // At the strict questions: ask once more; after that, show help at once.
+      if (strictGate && session.unclearCount >= 2) {
+        session.unclearCount = 0;
+        return respond(session, crisisQuestionFallback(session));
+      }
+      if (strictGate) {
+        return NextResponse.json({
+          s: encodeState(session),
+          m: `I didn't quite catch that. Please choose one of the options.\n\n${currentPhrase?.text || ''}`,
+          o: currentPhrase?.options,
+          e: false
+        });
+      }
       
       // Level 1 escalation at 2 unclear
       if (session.unclearCount === 2) {
@@ -215,7 +238,15 @@ export async function POST(request: NextRequest) {
     // Process the input through state machine
     const pool = await servicePoolFor(session);
     const result = runWithServicePool(pool, () => processInput(session, isNameGate ? message : String(parsed)));
-    session = { ...session, ...result.stateUpdates };
+    return respond(session, result);
+    
+  } catch (error) {
+    return errorResponse(error);
+  }
+}
+
+function respond(before: SessionState, result: RoutingResult) {
+    const session: SessionState = { ...before, ...result.stateUpdates };
     
     console.log(`[VA] -> Next gate: ${session.currentGate}, Ended: ${result.sessionEnded}`);
     
@@ -242,8 +273,9 @@ export async function POST(request: NextRequest) {
       e: result.sessionEnded,
       responseType: result.responseType
     });
-    
-  } catch (error) {
+}
+
+function errorResponse(error: unknown) {
     console.error('[VA] Error:', error);
     
     // Graceful fallback
@@ -255,5 +287,4 @@ Shelter Emergency Helpline
 https://england.shelter.org.uk`, 
       e: true 
     }, { status: 500 });
-  }
 }

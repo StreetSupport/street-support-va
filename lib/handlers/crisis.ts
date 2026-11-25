@@ -283,6 +283,9 @@ export function handleDVGenderAsk(session: SessionState, choice: number | null):
 }
 
 export function handleDVChildrenAsk(session: SessionState, choice: number | null): RoutingResult {
+  // Gender not given: the general exit (Safeguarding Contract 3.3). A
+  // non-binary or other answer is an answer, and keeps its exit.
+  if (!session.dvGender || session.dvGender === 'Prefer not to say') return buildGeneralDVExit(session);
   const dvChildren = choice === 1;
   const dvExitKey = getDVExitKey(session.dvGender, dvChildren);
   const result = safeguardingExit(dvExitKey, session.userType, 'DOMESTIC_ABUSE');
@@ -293,8 +296,174 @@ export function handleDVChildrenAsk(session: SessionState, choice: number | null
 export function handleSAGenderAsk(session: SessionState, choice: number | null): RoutingResult {
   const saGenders = ['Female', 'Male', 'Non-binary or other', 'Prefer not to say'];
   const saGender = choice ? saGenders[choice - 1] : null;
+  // Gender not given: the general exit (Safeguarding Contract 3.3).
+  if (!saGender || saGender === 'Prefer not to say') return buildGeneralSAExit(session);
   const saExitKey = getSAExitKey(saGender);
   const result = safeguardingExit(saExitKey, session.userType, 'SEXUAL_VIOLENCE');
   const sarcInfo = buildSARCInfo(session);
   return { ...result, text: result.text + sarcInfo };
+}
+
+// ============================================================================
+// Strict reading at the crisis question and the questions it leads to
+// ============================================================================
+//
+// James Cross's review of #69 (24 November 2026), agreed by the Managing
+// Director on 25 November 2026. Our safeguarding routes bypass the AI, so at
+// these questions only a chosen option counts: a single option number, as the
+// buttons send, or an option's exact words. Free text is never matched by
+// keyword and never sent to Claude. A first unclear answer asks again; a
+// second shows help at once (crisisQuestionFallback), never the general
+// escalation, which leads away from the question.
+
+export const STRICT_CRISIS_GATES = ['GATE0_CRISIS_DANGER', 'DV_GENDER_ASK', 'DV_CHILDREN_ASK', 'SA_GENDER_ASK'] as const;
+
+export function isStrictCrisisGate(gate: string): boolean {
+  return (STRICT_CRISIS_GATES as readonly string[]).includes(gate);
+}
+
+export function parseStrictChoice(input: string, options?: string[]): number | null {
+  const trimmed = input.trim();
+  if (/^\d+$/.test(trimmed)) {
+    const n = Number(trimmed);
+    return options && n >= 1 && n <= options.length ? n : null;
+  }
+  if (!options || trimmed === '') return null;
+  const norm = (t: string) => t.toLowerCase().replace(/\s+/g, ' ').trim();
+  const i = options.findIndex(o => norm(o) === norm(trimmed));
+  return i >= 0 ? i + 1 : null;
+}
+
+// ============================================================================
+// General exits where gender is not given (Safeguarding Contract 3.3,
+// Managing Director, 11 November 2026): 999 first, the local organisations,
+// and each national line with a note of who it is for and when it is open.
+// The person chooses. Lines and hours read from each organisation's own site
+// on 25 November 2026 (Managing Director, 25 November 2026).
+// ============================================================================
+
+type Audience = 'SELF' | 'SUPPORTER' | 'PROFESSIONAL';
+
+function audienceOf(session: SessionState): Audience {
+  if (session.userType === 'PROFESSIONAL') return 'PROFESSIONAL';
+  return session.isSupporter || session.userType === 'SUPPORTER' ? 'SUPPORTER' : 'SELF';
+}
+
+function opening(audience: Audience, sorry: string): string {
+  if (audience === 'SELF') return `If you're in immediate danger, call 999.\n\n${sorry} Here is who can help. You can choose who to contact.`;
+  if (audience === 'SUPPORTER') return `If they're in immediate danger, call 999.\n\nThese services can help right now. They can choose who to contact.`;
+  return `If they're in immediate danger, call 999.\n\nHere are the specialist contacts.`;
+}
+
+// Who each local organisation is for, in public words (Managing Director,
+// 25 November 2026), from the target field in safeguarding-endpoints.json.
+const LOCAL_DV_FOR: Record<string, string> = {
+  "Birmingham & Solihull Women's Aid": 'For women and children',
+  'Valley House': 'For anyone aged 16 and over',
+  'Coventry Haven — Safe to Talk Helpline': 'For women',
+  "Black Country Women's Aid": 'For women and children. Men can call the office line to be referred',
+  'The Haven Wolverhampton': 'For women and children, including LGBTQ+ people',
+};
+
+function localDVForEveryone(session: SessionState): string {
+  const la = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
+  if (!la) return '';
+  const dvLocal = (safeguardingEndpoints.dv_local as unknown as Record<string, DVLocalOrg | DVLocalOrg[]>)[la];
+  if (!dvLocal) return '';
+  const orgs = Array.isArray(dvLocal) ? dvLocal : [dvLocal];
+  const blocks = orgs.map(org => {
+    const lines = [org.name.replace(' — ', ': ')];
+    const forLine = LOCAL_DV_FOR[org.name];
+    if (forLine) lines.push(forLine);
+    if (org.phone_24hr) {
+      lines.push(`${org.phone_24hr} (24-hour line)`);
+      if (org.phone_office) lines.push(`${org.phone_office} (office line)`);
+    } else if (org.phone) {
+      lines.push(`${org.phone} (${org.availability})`);
+    }
+    lines.push(org.url);
+    return lines.join('\n');
+  });
+  return `\n\nLOCAL DOMESTIC ABUSE SUPPORT\n${blocks.join('\n\n')}`;
+}
+
+const NDAH = `National Domestic Violence Helpline
+For women
+0808 2000 247 (24/7, free, confidential)
+https://nationaldahelpline.org.uk`;
+
+const MANKIND = `ManKind Initiative
+For men
+0808 800 1170 (Monday to Friday, 10am to 4pm, not bank holidays)
+https://mankind.org.uk`;
+
+const GALOP = `Galop
+For LGBTQ+ people aged 18 and over
+0800 999 5428 (Monday and Tuesday 9.15am to 8pm, Wednesday to Friday 9.15am to 4.30pm, closed 1pm to 2pm and at weekends)
+https://galop.org.uk`;
+
+const RAPE_CRISIS = `Rape Crisis England & Wales
+For anyone aged 16 and over
+0808 500 2222 (free, confidential, 24/7)
+https://rapecrisis.org.uk`;
+
+const SURVIVORS_UK = `SurvivorsUK
+For men, boys and non-binary people
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org`;
+
+const SHELTER_DV = `HOUSING ADVICE
+Shelter - Domestic Violence Advice
+https://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse`;
+
+export function buildGeneralDVExit(session: SessionState): RoutingResult {
+  const text = opening(audienceOf(session), "I'm really sorry this is happening.")
+    + localDVForEveryone(session)
+    + `\n\nNATIONAL DOMESTIC ABUSE LINES\n${NDAH}\n\n${MANKIND}\n\n${GALOP}\n\n${SHELTER_DV}`;
+  return { ...safeguardingExit('DV_GENERAL', session.userType, 'DOMESTIC_ABUSE'), text };
+}
+
+export function buildGeneralSAExit(session: SessionState): RoutingResult {
+  const text = opening(audienceOf(session), "I'm really sorry this has happened.")
+    + buildSARCInfo(session)
+    + `\n\nNATIONAL SEXUAL VIOLENCE LINES\n${RAPE_CRISIS}\n\n${SURVIVORS_UK}\n\n${GALOP}`;
+  return { ...safeguardingExit('SA_GENERAL', session.userType, 'SEXUAL_VIOLENCE'), text };
+}
+
+// ============================================================================
+// After a second unclear answer at one of the strict questions
+// ============================================================================
+
+function crisisUnclearHelp(session: SessionState): RoutingResult {
+  const self = audienceOf(session) === 'SELF';
+  const text = [
+    self ? `If you're in immediate danger, call 999.` : `If they're in immediate danger, call 999.`,
+    `I'm not sure I've understood, so here is who can help right now. ${self ? 'You' : 'They'} can choose who to contact.`,
+    `DOMESTIC ABUSE\nNational Domestic Violence Helpline\n0808 2000 247 (24/7, free, confidential)`,
+    `SEXUAL VIOLENCE\nRape Crisis England & Wales\n0808 500 2222 (free, confidential, 24/7)`,
+    self ? `IF YOU'RE THINKING ABOUT HARMING YOURSELF\nSamaritans\n116 123 (free, 24/7)` : `IF THEY'RE THINKING ABOUT HARMING THEMSELVES\nSamaritans\n116 123 (free, 24/7)`,
+    self ? `IF YOU'RE UNDER 16\nChildline\n0800 1111` : `IF THEY'RE UNDER 16\nChildline\n0800 1111`,
+    `If none of these is what ${self ? 'you need' : 'they need'}, we can carry on and find other support.`,
+  ].join('\n\n');
+  return { text, options: ['Carry on'], stateUpdates: { currentGate: 'CRISIS_UNCLEAR_HELP' }, sessionEnded: false };
+}
+
+/** "Carry on" after the crisis help: where "None of these apply" goes. */
+export function handleCrisisUnclearHelp(session: SessionState): RoutingResult {
+  return handleCrisisDanger(session, 7);
+}
+
+/** What a second unclear answer at a strict question leads to. */
+export function crisisQuestionFallback(session: SessionState): RoutingResult {
+  switch (session.currentGate) {
+    case 'DV_GENDER_ASK':
+      return buildGeneralDVExit(session);
+    case 'DV_CHILDREN_ASK':
+      // As if Yes (Managing Director, 25 November 2026)
+      return handleDVChildrenAsk(session, 1);
+    case 'SA_GENDER_ASK':
+      return buildGeneralSAExit(session);
+    default:
+      return crisisUnclearHelp(session);
+  }
 }
