@@ -60,6 +60,7 @@ npm run dev
 3. Add environment variable:
    - In Vercel project settings, go to "Environment Variables"
    - Add `ANTHROPIC_API_KEY` with your API key
+   - Leave `VA_SAFETY_ROUTE` unset until the Safety from harm route's release conditions are met; set it to `on` to offer the route
 
 4. Deploy!
 

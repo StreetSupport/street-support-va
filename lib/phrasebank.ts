@@ -1,3 +1,5 @@
+import { isSafetyRouteEnabled } from './safetyRouteSwitch';
+
 // Street Support VA v7 Phrasebank - COMPLETE VERSION
 // All phrases from CHAR_VA_Phrasebank_v7.md
 // Generated 2026-02-01
@@ -2719,7 +2721,24 @@ The more details you can provide (location, description, best time to find them)
 };
 
 // Helper function
+// The first question without the Safety option, renumbered, while the Safety
+// route's switch is off (lib/safetyRouteSwitch.ts).
+const SAFETY_FIRST_OPTION = 'Staying safe from abuse, exploitation or harm';
+
+function withoutSafetyOption(entry: PhraseEntry): PhraseEntry {
+  const options = (entry.options ?? []).filter(o => o !== SAFETY_FIRST_OPTION);
+  const intro = entry.text.split('\n').filter(line => !/^\d+\. /.test(line)).join('\n').trimEnd();
+  const list = options.map((o, i) => `${i + 1}. ${o}`).join('\n');
+  return { ...entry, text: `${intro}\n\n${list}`, options };
+}
+
 export function getPhrase(key: string, audience: 'SELF' | 'SUPPORTER' | 'PROFESSIONAL' | null | boolean): PhraseEntry | null {
+  const entry = lookUpPhrase(key, audience);
+  if (entry && key === 'B5_MAIN_SUPPORT_NEED' && !isSafetyRouteEnabled()) return withoutSafetyOption(entry);
+  return entry;
+}
+
+function lookUpPhrase(key: string, audience: 'SELF' | 'SUPPORTER' | 'PROFESSIONAL' | null | boolean): PhraseEntry | null {
   if (audience === 'PROFESSIONAL') {
     const professionalKey = `${key}__PROFESSIONAL`;
     if (phrasebank[professionalKey]) {

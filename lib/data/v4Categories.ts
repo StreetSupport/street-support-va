@@ -125,6 +125,8 @@ export interface FirstOption {
   secondScreen?: Choice[];
 }
 
+import { isSafetyRouteEnabled } from '../safetyRouteSwitch';
+
 const subs = (parent: V4Parent, ...names: string[]): CategoryPart => ({
   parent,
   subs: names.map(n => {
@@ -214,6 +216,11 @@ export const FIRST_OPTIONS: FirstOption[] = [
     parents: [],
   },
 ];
+
+/** The first question's options as offered: without Safety while its switch is off. */
+export function visibleFirstOptions(): FirstOption[] {
+  return isSafetyRouteEnabled() ? FIRST_OPTIONS : FIRST_OPTIONS.filter(o => o.id !== 'safety');
+}
 
 export function firstOption(id: FirstOptionId): FirstOption {
   const option = FIRST_OPTIONS.find(o => o.id === id);
