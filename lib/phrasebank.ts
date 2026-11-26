@@ -2067,8 +2067,8 @@ If they're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
 Specialist, confidential support for men and boys aged 16 and over
 
 If you're in immediate danger, call 999.`
@@ -2079,8 +2079,8 @@ If you're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
 Specialist, confidential support for men and boys aged 16 and over
 
 You don't have to work this out on your own.
@@ -2093,8 +2093,8 @@ If they're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
 Specialist, confidential support for men and boys aged 16 and over
 
 You'll know your next steps from here.
@@ -2107,8 +2107,8 @@ If they're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
 
 SEXUAL VIOLENCE SUPPORT
 Galop
@@ -2123,8 +2123,8 @@ If you're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
 
 SEXUAL VIOLENCE SUPPORT
 Galop
@@ -2141,8 +2141,8 @@ If they're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
 
 SEXUAL VIOLENCE SUPPORT
 Galop

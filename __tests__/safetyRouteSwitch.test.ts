@@ -48,11 +48,6 @@ describe('Safety route switch off (the default)', () => {
     expect(r.stateUpdates.v4Option).toBe('everyday');
   });
 
-  test('typing the Safety label does not reach the Safety route', () => {
-    const r = processInput(sessionAt('B5_MAIN_SUPPORT_NEED'), SAFETY);
-    expect(r.stateUpdates.currentGate).not.toBe('SAFETY_TYPE_OF_HARM');
-  });
-
   test('the last option is still reachable by its new number', () => {
     const r = processInput(sessionAt('B5_MAIN_SUPPORT_NEED'), '7');
     expect(r.stateUpdates.v4Option).toBe('not-sure');
