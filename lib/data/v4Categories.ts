@@ -49,7 +49,7 @@ export const V4_SUBCATEGORIES: Record<V4Parent, Record<string, string | null>> =
     'Personal Care': 'personal-care',
     Clothing: 'clothing',
     'Period products': 'period-products',
-    'Baby items': null,
+    'Baby items': 'baby-items',
     'Pet welfare': 'pet-welfare',
     Communications: 'communications',
   },
@@ -67,8 +67,8 @@ export const V4_SUBCATEGORIES: Record<V4Parent, Record<string, string | null>> =
   health: {
     'Mental health': 'mental-health',
     'Physical health': 'physical-health',
-    'Sexual health': null,
-    'Palliative care': null,
+    'Sexual health': 'sexual-health',
+    'Palliative care': 'palliative-care',
   },
   addiction: {
     Drugs: 'drugs',
@@ -124,6 +124,8 @@ export interface FirstOption {
   parents: V4Parent[];
   secondScreen?: Choice[];
 }
+
+import { isSafetyRouteEnabled } from '../safetyRouteSwitch';
 
 const subs = (parent: V4Parent, ...names: string[]): CategoryPart => ({
   parent,
@@ -188,7 +190,7 @@ export const FIRST_OPTIONS: FirstOption[] = [
     secondScreen: [
       { label: 'Mental health', parts: [subs('health', 'Mental health')] },
       { label: 'Physical health', parts: [subs('health', 'Physical health')] },
-      { label: 'Sexual health', parts: whole('health'), pendingKey: 'health / Sexual health' },
+      { label: 'Sexual health', parts: [subs('health', 'Sexual health')] },
       { label: 'Drugs or alcohol', parts: [subs('addiction', 'Drugs', 'Alcohol')] },
       { label: 'Gambling', parts: [subs('addiction', 'Gambling')] },
       { label: 'Something else', parts: whole('health', 'addiction') },
@@ -214,6 +216,11 @@ export const FIRST_OPTIONS: FirstOption[] = [
     parents: [],
   },
 ];
+
+/** The first question's options as offered: without Safety while its switch is off. */
+export function visibleFirstOptions(): FirstOption[] {
+  return isSafetyRouteEnabled() ? FIRST_OPTIONS : FIRST_OPTIONS.filter(o => o.id !== 'safety');
+}
 
 export function firstOption(id: FirstOptionId): FirstOption {
   const option = FIRST_OPTIONS.find(o => o.id === id);

@@ -4,7 +4,7 @@
 import type { SessionState } from '../lib/types';
 import { createSession, processInput } from '../lib/stateMachine';
 import { QUICK_EXIT_NOTE } from '../lib/phrasebank';
-import { EXIT_URL, createShiftCounter, performExit, shouldReloadOnPageShow } from '../lib/quickExit';
+import { EXIT_REPLACE_URL, EXIT_REPLACES_HISTORY, EXIT_URL, createShiftCounter, performExit, shouldReloadOnPageShow } from '../lib/quickExit';
 
 function sessionAt(gate: SessionState['currentGate'], over: Partial<SessionState> = {}): SessionState {
   return { ...createSession('test'), currentGate: gate, localAuthority: 'Wolverhampton', ...over };
@@ -37,6 +37,27 @@ describe('Exit this page: what happens on press', () => {
 
   test('people are sent to BBC Weather, a page that is the same for everyone', () => {
     expect(EXIT_URL).toBe('https://www.bbc.co.uk/weather');
+  });
+
+  test('BBC Weather opens in a new tab, and this tab is replaced with a weather search, out of its history', () => {
+    const calls: string[] = [];
+    performExit({
+      cover: () => {}, cancelRequests: () => {}, clear: () => {},
+      openTab: (url) => calls.push(`open ${url}`),
+      navigate: (url, replace) => calls.push(`${replace ? 'replace' : 'go'} ${url}`),
+    });
+    expect(EXIT_REPLACES_HISTORY).toBe(true);
+    expect(calls).toEqual([`open ${EXIT_URL}`, `replace ${EXIT_REPLACE_URL}`]);
+  });
+
+  test('if opening the new tab fails, this tab still leaves', () => {
+    let went: string | null = null;
+    performExit({
+      cover: () => {}, cancelRequests: () => {}, clear: () => {},
+      openTab: () => { throw new Error('blocked'); },
+      navigate: (url) => { went = url; },
+    });
+    expect(went).toBe(EXIT_REPLACE_URL);
   });
 
   test('a page restored from the browser cache, for example on Back, reloads empty', () => {
