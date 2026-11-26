@@ -37,6 +37,8 @@ interface Message {
   content: string;
   timestamp: string;
   quickReplies?: QuickReply[];
+  // Several answers can be chosen; these option numbers answer on their own
+  multiSelect?: { exclusive: number[] };
 }
 
 interface ChatWidgetProps {
@@ -475,6 +477,8 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
   const [conversationStarted, setConversationStarted] = useState(false);
   const [, setLocationMode] = useState<'none' | 'geolocation' | 'postcode'>('none');
   const [awaitingPostcode, setAwaitingPostcode] = useState(false);
+  // Options ticked so far at a question that takes several answers
+  const [ticked, setTicked] = useState<number[]>([]);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -703,7 +707,8 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     }
   };
 
-  const addAssistantMessage = (data: { m?: string; o?: string[]; e?: boolean; responseType?: string }) => {
+  const addAssistantMessage = (data: { m?: string; o?: string[]; e?: boolean; responseType?: string; ms?: { exclusive: number[] } }) => {
+    setTicked([]);
     const quickReplies: QuickReply[] = Array.isArray(data.o) 
       ? data.o.map((opt: string, idx: number) => ({ label: opt, value: String(idx + 1) }))
       : [];
@@ -719,6 +724,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
         content: messageText,
         timestamp: new Date().toISOString(),
         quickReplies,
+        multiSelect: data.ms,
       }]);
     }
 
@@ -808,6 +814,20 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
 
   const handleStarterClick = () => { void sendMessage('hi', true); };
 
+  // Several answers: tick or untick one, then send them together with
+  // Continue as "1, 3", which the noticing step already reads.
+  const toggleTicked = (n: number) => {
+    setTicked(prev => (prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n]));
+  };
+  const sendTicked = (replies: QuickReply[]) => {
+    const chosen = [...ticked].sort((a, b) => a - b);
+    if (chosen.length === 0) return;
+    void handleQuickReply({
+      label: chosen.map(n => replies[n - 1]?.label).filter(Boolean).join(', '),
+      value: chosen.join(', '),
+    });
+  };
+
   // Clears the conversation, any half-typed message and any request in
   // progress. Used when the chat is closed (decision 5, Managing Director,
   // 19 November 2026) and by the quick exit.
@@ -822,6 +842,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
     setConversationStarted(false);
     setLocationMode('none');
     setAwaitingPostcode(false);
+    setTicked([]);
     setIsLoading(false);
   }, []);
 
@@ -1052,6 +1073,41 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                    message.quickReplies.length > 0 && 
                    isLastMessage && 
                    !sessionEnded && (
+                    message.multiSelect ? (
+                    <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="You can choose more than one.">
+                      {message.quickReplies.map((reply, idx) => {
+                        const n = idx + 1;
+                        const alone = message.multiSelect!.exclusive.includes(n);
+                        const on = ticked.includes(n);
+                        return (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => { if (alone) { void handleQuickReply(reply); } else { toggleTicked(n); } }}
+                            disabled={isLoading}
+                            aria-pressed={alone ? undefined : on}
+                            className="px-4 py-2.5 text-sm font-semibold rounded-full disabled:opacity-50 shadow-sm hover:shadow-md transition-all"
+                            style={{
+                              color: SSN_COLORS.text,
+                              background: on ? SSN_COLORS.mint : '#ffffff',
+                              border: `1px solid ${on ? SSN_COLORS.primaryDark : SSN_COLORS.grayBorder}`,
+                            }}
+                          >
+                            {on ? '\u2713 ' : ''}{reply.label}
+                          </button>
+                        );
+                      })}
+                      <button
+                        type="button"
+                        onClick={() => sendTicked(message.quickReplies!)}
+                        disabled={isLoading || ticked.length === 0}
+                        className="px-4 py-2.5 text-sm font-semibold rounded-full disabled:opacity-50 shadow-sm hover:shadow-md transition-all"
+                        style={{ color: '#ffffff', background: SSN_COLORS.primaryDark, border: `1px solid ${SSN_COLORS.primaryDark}` }}
+                      >
+                        Continue
+                      </button>
+                    </div>
+                    ) : (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {message.quickReplies.map((reply, idx) => (
                         <button
@@ -1068,6 +1124,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
                         </button>
                       ))}
                     </div>
+                    )
                   )}
                 </div>
               );
