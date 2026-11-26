@@ -154,6 +154,7 @@ describe('going back from every kind of step', () => {
   const cases: Array<[GateType, Partial<SessionState>]> = [
     ['B5_SECOND_SCREEN', { v4Option: 'everyday' }],
     ['B5_NOTICING', { v4Option: 'everyday' }],
+    ['B5_NOT_SURE', { v4Option: 'not-sure' }],
     ['B5_HOUSING_OFFER', { noticingHousing: 'keep-home' }],
     ['LOCATION_POSTCODE', {}],
     ['LOCATION_CONFIRM', { localAuthority: 'Coventry' }],
