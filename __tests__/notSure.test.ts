@@ -34,7 +34,8 @@ describe('the question', () => {
     expect(r.options?.[0]).toBe('Feeling unsafe');
     expect(r.options).not.toContain('Nothing else');
     expect(r.options?.slice(-2)).toEqual(["I'd rather talk to someone in person", "I'm not sure"]);
-    expect(r.multiSelect?.exclusive).toEqual([r.options!.length - 1, r.options!.length]);
+    // "Feeling unsafe" (position 1) acts at once, with the last two (#73 review).
+    expect(r.multiSelect?.exclusive).toEqual([1, r.options!.length - 1, r.options!.length]);
   });
 
   test('the placeholder is gone from the code', () => {
@@ -99,11 +100,37 @@ describe('where the answers go', () => {
     ['Family or relationships'],
     ["I'd rather talk to someone in person"],
     ["I'm not sure"],
-  ])('%s: the honest line and the first question again', (label) => {
+  ])('%s: the line and the first question again, without "not sure where to start"', (label) => {
     const { r, s } = step(asked().s, pick(label));
+    const full = getPhrase('B5_MAIN_SUPPORT_NEED', false)!.options!;
     expect(r.text.startsWith(NO_PLACE_TO_START)).toBe(true);
-    expect(r.text).toContain(getPhrase('B5_MAIN_SUPPORT_NEED', false)!.text);
+    // #73 review (Managing Director, 26 November 2026): no way round in a circle.
+    expect(r.options).toEqual(full.slice(0, -1));
+    expect(r.text).not.toContain('not sure where to start');
     expect(s.currentGate).toBe('B5_MAIN_SUPPORT_NEED');
+  });
+
+  test('after the in-person route, the old "not sure" number or words ask the first question again without it', () => {
+    const inPerson = step(asked().s, pick("I'd rather talk to someone in person")).s;
+    const n = String(getPhrase('B5_MAIN_SUPPORT_NEED', false)!.options!.length);
+    for (const input of [n, "I'm not sure where to start"]) {
+      const { r, s } = step(inPerson, input);
+      expect(r.text).not.toContain('not sure where to start');
+      expect(s.currentGate).toBe('B5_MAIN_SUPPORT_NEED');
+      expect(s.notSureInPersonShown).toBe(true);
+    }
+  });
+
+  test('after the in-person route, a real option goes on as usual and the first question is whole again', () => {
+    const inPerson = step(asked().s, pick("I'd rather talk to someone in person")).s;
+    const { s } = step(inPerson, firstNumber('everyday'));
+    expect(s.currentGate).toBe('B5_SECOND_SCREEN');
+    expect(s.notSureInPersonShown).toBe(false);
+  });
+
+  test('a supporter in the in-person route is not offered "not sure where to start" again', () => {
+    const { r } = asked({ isSupporter: true, userType: 'SUPPORTER' });
+    expect(r.options).not.toContain('Not sure where to start');
   });
 
   test('a first unclear answer asks again; a second gives 999 and the in-person route', () => {
@@ -147,7 +174,7 @@ describe('through the route', () => {
     setClaudeClientForTests({ messages: { create } } as unknown as ClaudeClient);
     const first = await send(firstNumber('not-sure'), at());
     expect(decode(first.s).currentGate).toBe('B5_NOT_SURE');
-    expect(first.ms?.exclusive.length).toBe(2);
+    expect(first.ms?.exclusive.length).toBe(3);
     await send('something hard to describe', decode(first.s));
     expect(create).not.toHaveBeenCalled();
   });
