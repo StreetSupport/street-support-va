@@ -237,3 +237,63 @@ export function noticingLeadsToResults(session: SessionState, input: string): bo
   const { outcome } = noticingOutcome(session, picked);
   return outcome !== 'safety';
 }
+
+// ------------------------------------------------------------------
+// "I'm not sure where to start" (design paper, Part C, section 2): the
+// assistant helps the person work it out, through the noticing question, with
+// the choice of someone in person at a place to start. Decisions: Managing
+// Director, 26 November 2026.
+// ------------------------------------------------------------------
+
+export const NOT_SURE_OPENER = "That's OK. Is anything putting pressure on you at the moment?";
+export const NOT_SURE_IN_PERSON = "I'd rather talk to someone in person";
+// The honest line where no place to start can be offered, and the first
+// question again (Managing Director, 8 November 2026). The assistant cannot
+// read places to start yet (work item 20), so for now this is always the line.
+export const NO_PLACE_TO_START = "There isn't a drop-in near you that we know of. Choosing what's closest from these will help me find the right support.";
+
+/** The pressures, without "Nothing else" and "I'm not sure", then the two that answer alone. */
+export function notSureOptions(): string[] {
+  const pressures = PRESSURES.filter(p => p.id !== 'nothing-else' && p.id !== 'not-sure').map(p => p.label);
+  return [...pressures, NOT_SURE_IN_PERSON, "I'm not sure"];
+}
+
+export function notSureText(): string {
+  return `${NOT_SURE_OPENER}\n\n${NOTICING_MORE_THAN_ONE}\n\n${notSureOptions().map((o, i) => `${i + 1}. ${o}`).join('\n')}`;
+}
+
+export function notSureMultiSelect(): { exclusive: number[] } {
+  const n = notSureOptions().length;
+  return { exclusive: [n - 1, n] };
+}
+
+export type NotSureOutcome =
+  | { kind: 'safety' }
+  | { kind: 'housing' }
+  | { kind: 'topic'; option: 'money-work' | 'health'; others: boolean }
+  | { kind: 'in-person' };
+
+// Where each pressure leads on the first question. Family or relationships
+// has no topic of its own: alone, it takes the in-person route.
+const TOPIC_FOR: Partial<Record<PressureId, 'money-work' | 'health'>> = {
+  money: 'money-work',
+  health: 'health',
+  addiction: 'health',
+};
+
+/**
+ * Where the answer leads. Feeling unsafe first, then housing, as at the
+ * noticing question. Otherwise the first pressure ticked that has a topic,
+ * with the awareness line where more than one was ticked. Nothing with a
+ * topic, "I'd rather talk to someone in person" or "I'm not sure": the
+ * in-person route.
+ */
+export function notSureOutcome(picked: number[]): NotSureOutcome {
+  const pressures = PRESSURES.filter(p => p.id !== 'nothing-else' && p.id !== 'not-sure');
+  const named = picked.filter(n => n <= pressures.length).map(n => pressures[n - 1].id);
+  if (named.includes('unsafe')) return { kind: 'safety' };
+  if (named.includes('no-settled-place') || named.includes('keep-home')) return { kind: 'housing' };
+  const first = named.find(id => TOPIC_FOR[id]);
+  if (!first) return { kind: 'in-person' };
+  return { kind: 'topic', option: TOPIC_FOR[first]!, others: named.length > 1 };
+}
