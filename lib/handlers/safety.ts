@@ -5,10 +5,10 @@
  * - SAFETY_OK_TO_CONTINUE: whether the person is OK to carry on
  *
  * Hard-coded, outside the crisis gate. Its own two questions bypass the service
- * matcher and AI (strict reading here and in the chat route). Open: the reused
+ * matcher and AI (strict reading here and in the chat route). The reused
  * crisis questions it hands to (DV_GENDER_ASK, DV_CHILDREN_ASK, SA_GENDER_ASK)
- * still use the general parser, Claude and escalation, as they do from the
- * crisis gate today. Adds no option to the crisis gate. Help is shown first (999 on the first screen).
+ * and the crisis gate itself get the same strict reading, with help after a
+ * second unclear answer, in #93 (on top of #85). Adds no option to the crisis gate. Help is shown first (999 on the first screen).
  * Nothing stored identifies the person; there is no reporting option. The
  * mid-conversation under-16 check runs on this route as on every other, in the
  * chat route, before this handler.
@@ -18,15 +18,17 @@
  * show help at once (Managing Director, 18 November 2026). The crisis flows stay
  * as written ("Domestic abuse (C2 to C4) is launch-dependent: the current exits
  * stay if the review is not done", VA Design and Service Matching Proposal,
- * 1 November 2026). Open: those exits do not yet show the general exit the
- * contract requires where gender is not given (Managing Director, 11 November
- * 2026); that is a gap in the crisis gate flows, not added here.
+ * 1 November 2026). The general exit the contract requires where gender is
+ * not given (Managing Director, 11 November 2026) is built in the crisis gate
+ * flows in #93, not here.
  *
  * Reached from the first question's Safety option (B5). The quick exit the
- * contract requires is in lib/quickExit.ts. The route must not go live until
- * its release conditions are met: the quick exit verified, the strict reading
- * at the crisis gate (Safety from harm proposal, decision 6) and the new
- * helpline numbers and hours confirmed by a person.
+ * contract requires is in lib/quickExit.ts. The route stays off
+ * (VA_SAFETY_ROUTE, lib/safetyRouteSwitch.ts) until its release conditions are
+ * met: Safeguarding Contract 3.3 ratified by the trustees; the quick exit
+ * verified; the strict reading at the crisis gate (Safety from harm proposal,
+ * decision 6) and the general exit where gender is not given, both in #93,
+ * merged; and the new helpline numbers and hours confirmed by a person.
  *
  * Changes require safeguarding test coverage.
  */
@@ -95,8 +97,8 @@ function line(l: NationalLine): string {
 
 function emergencyFirst(supporter: boolean): string {
   return supporter
-    ? `If they are in immediate danger, call 999. If they cannot speak safely, call 999 and press 55.`
-    : `If you are in immediate danger, call 999. If you cannot speak safely, call 999 and press 55.`;
+    ? `If they are in immediate danger, call 999. If they can't speak, call 999 and cough or tap if they can. On a mobile, press 55 when asked.`
+    : `If you are in immediate danger, call 999. If you can't speak, call 999 and cough or tap if you can. On a mobile, press 55 when you're asked.`;
 }
 
 function endSafety(text: string, type: string): RoutingResult {
@@ -124,9 +126,7 @@ function wayBack(supporter: boolean): string {
 
 function modernSlaveryExit(session: SessionState): RoutingResult {
   const supporter = isSupporterAudience(session);
-  const lead = supporter
-    ? `No one should be forced to work or be controlled. Here is who can help.`
-    : `No one should be forced to work or be controlled. Here is who can help.`;
+  const lead = `No one should be forced to work or be controlled. Here is who can help.`;
   const text = [
     emergencyFirst(supporter),
     lead,
@@ -200,7 +200,7 @@ function sexualViolenceHelpNow(session: SessionState): RoutingResult {
     emergencyFirst(supporter),
     supporter ? `Here is who can help. They can choose who to contact.` : `Here is who can help. You can choose who to contact.`,
     `SEXUAL VIOLENCE SUPPORT\nRape Crisis England & Wales\n0808 500 2222 (Free, confidential, 24/7)\nhttps://rapecrisis.org.uk`,
-    `SEXUAL VIOLENCE SUPPORT\nSurvivorsUK\n020 3598 3898\nhttps://survivorsuk.org\nSpecialist, confidential support for men and boys aged 16 and over`,
+    `SEXUAL VIOLENCE SUPPORT\nSurvivorsUK\n0808 801 0332 (Monday to Friday, 10am to 12pm)\nWebchat every day, 12pm to 8pm: https://survivorsuk.org\nSpecialist, confidential support for men and boys aged 16 and over`,
     `SEXUAL VIOLENCE SUPPORT\nGalop\n0800 999 5428\nhttps://galop.org.uk\nNational helpline for LGBTQ+ people affected by abuse or violence`,
   ].join('\n\n') + buildSARCInfo(session) + '\n\n' + QUICK_EXIT_NOTE + '\n\n' + wayBack(supporter);
   return endSafety(text, 'SEXUAL_VIOLENCE');
