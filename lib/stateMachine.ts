@@ -41,7 +41,7 @@ import { handleSafetyTypeOfHarm, handleSafetyOkToContinue, isSafetyGate, parseSa
 import { firstOption, partsFor, visibleFirstOptions, type FirstOptionId } from './data/v4Categories';
 import { buildUnder16Exit, childrenServicesData } from './handlers/shared';
 import { getServicePool } from './data/servicePool';
-import { DIGNITY_OFFER, HOUSING_OFFER_OPTIONS, NOTICING_UNCLEAR, noticingDangerLine, noticingUnclear, awarenessLine, housingOfferText, isDignityChoice, noticingOptions, noticingOutcome, noticingText, parseNoticing, takesNoticingStep } from './noticing';
+import { DIGNITY_OFFER, HOUSING_OFFER_OPTIONS, NOTICING_UNCLEAR, noticingDangerLine, noticingUnclear, awarenessLine, housingOfferText, isDignityChoice, noticingMultiSelect, noticingOptions, noticingOutcome, noticingText, parseNoticing, takesNoticingStep } from './noticing';
 import {
   handleLocationConsent,
   handleLocationPostcode,
@@ -554,6 +554,7 @@ function nextProfileQuestion(session: SessionState, after?: 'age' | 'gender' | '
     return {
       text: noticingText(session),
       options: noticingOptions(session),
+      multiSelect: noticingMultiSelect(session),
       stateUpdates: { currentGate: 'B5_NOTICING', noticingAsked: true, unclearCount: 0 },
     };
   }
@@ -1892,7 +1893,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
           const done = finishWithResults(session);
           return { ...done, text: `${noticingDangerLine(session.isSupporter)}\n\n${done.text}`, stateUpdates: { ...done.stateUpdates, unclearCount: 0 } };
         }
-        return { text: `${noticingUnclear(session.isSupporter)}\n\n${noticingText(session)}`, options: noticingOptions(session), stateUpdates: { currentGate: 'B5_NOTICING', unclearCount: session.unclearCount + 1 } };
+        return { text: `${noticingUnclear(session.isSupporter)}\n\n${noticingText(session)}`, options: noticingOptions(session), multiSelect: noticingMultiSelect(session), stateUpdates: { currentGate: 'B5_NOTICING', unclearCount: session.unclearCount + 1 } };
       }
       const { outcome } = noticingOutcome(session, picked);
       if (outcome === 'safety') {
