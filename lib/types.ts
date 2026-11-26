@@ -245,6 +245,9 @@ export interface RoutingResult {
   stateUpdates: Partial<SessionState>;
   sessionEnded?: boolean;
   responseType?: string;
+  // A question that takes several answers: the option numbers that answer
+  // on their own (lib/noticing.ts, noticingMultiSelect).
+  multiSelect?: { exclusive: number[] };
 }
 
 export interface TerminalResult {

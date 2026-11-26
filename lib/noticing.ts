@@ -53,6 +53,9 @@ export const PRESSURES: { id: PressureId; label: string }[] = [
 ];
 
 export const NOTICING_QUESTION = 'Thanks. Sometimes one thing is tied up with others. Is anything else putting pressure on you at the moment?';
+// Multi-select (design paper, Part C, 3.5). Wording: Managing Director,
+// 26 November 2026.
+export const NOTICING_MORE_THAN_ONE = 'You can choose more than one.';
 // The route's existing wording for an answer it could not read.
 export const NOTICING_UNCLEAR = "I didn't quite catch that. Please reply with a number from the options.";
 
@@ -163,7 +166,20 @@ export function noticingOptions(session: SessionState): string[] {
 
 export function noticingText(session: SessionState): string {
   const opts = noticingOptions(session);
-  return `${NOTICING_QUESTION}\n\n${opts.map((o, i) => `${i + 1}. ${o}`).join('\n')}`;
+  return `${NOTICING_QUESTION}\n\n${NOTICING_MORE_THAN_ONE}\n\n${opts.map((o, i) => `${i + 1}. ${o}`).join('\n')}`;
+}
+
+/**
+ * Tells the chat window the question takes several answers. The pressures can
+ * be ticked together and sent with Continue; "Nothing else", "I'm not sure"
+ * and the skip answer at once (Managing Director, 26 November 2026). These are
+ * their option numbers.
+ */
+export function noticingMultiSelect(session: SessionState): { exclusive: number[] } {
+  const exclusive = pressuresFor(session)
+    .map((p, i) => (p.id === 'nothing-else' || p.id === 'not-sure' ? i + 1 : 0))
+    .filter(n => n > 0);
+  return { exclusive: [...exclusive, noticingOptions(session).length] };
 }
 
 /**
