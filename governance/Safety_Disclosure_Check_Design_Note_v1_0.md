@@ -1,9 +1,10 @@
 # Safety Disclosure Check: Design Note
 
-Status: draft design • 19 November 2026 • Version 1.0
+Status: draft design • 19 November 2026, amended 26 November 2026 • Version 1.0
 
 - **Decided:** the design decisions, taken by the Managing Director on 19 November 2026, pending the technical lead's review (section 10).
 - **The trigger list (Appendix A):** approved by the Managing Director, 19 November 2026, pending the technical lead's review.
+- **Amended, 26 November 2026:** decisions found while building the check and in its independent review (section 10). A proposal to bound the list and add a visible route is in the design paper, D.2 and H13.
 - **Awaiting the technical lead:** confirmation of four contract readings, and the checks listed in section 11.
 - **Technical feasibility review may proceed.**
 
@@ -64,7 +65,7 @@ The wording is fixed in the phrasebank and never written by the AI. Help comes f
 - `supportNeed` is "V4:safety";
 - the unclear-answer count goes back to 0, so one unclear reply at the type-of-harm question is asked again rather than skipping to the general help screen.
 
-**Supporter sessions (approved, Managing Director, 19 November 2026).** The check also runs when someone came in as a supporter or professional. It fires only on first-person statements, which are then about the person typing. So Yes switches the conversation to the person's own wording ("Which of these is closest to what is happening?"), not "to them".
+**Supporter sessions (approved, Managing Director, 19 November 2026).** The check also runs when someone came in as a supporter or professional. It fires only on first-person statements, which are then about the person typing. So Yes switches the conversation to the person's own wording ("Which of these is closest to what is happening?"), not "to them". The session-end record still records them as a supporter or professional, so the check changes nothing recorded (Managing Director, 26 November 2026).
 
 This follows the UNICEF Safer Chatbots Implementation Guide (2022, p.10): "given that keyword-based detection is an imperfect solution, you should always check with the user whether they were indeed trying to seek help, allowing them to continue their experience if not". In its design, a No returns the person to where they left off, as here.
 
@@ -185,6 +186,14 @@ Approved by the Managing Director, 19 November 2026, pending the technical lead'
 
 **The trigger list (Appendix A)** is approved by the Managing Director, 19 November 2026, pending the technical lead's review. The technical lead checks feasibility, the processing order and the tests in the pull request.
 
+Taken by the Managing Director, 26 November 2026, found while building the check and in its independent review:
+- rule 7 applies to each sentence, not the whole message (Appendix A);
+- "threatens" and "threatened" need "me" or "to hurt" straight after them (Appendix A, rule 4 and B);
+- phrases about housing and common idioms added to the "does not trigger" column (Appendix A, B, D and F);
+- a supporter who says Yes is still recorded as a supporter (section 3).
+
+Proposed, not decided: a bounded list and a visible route (design paper, D.2 and H13).
+
 ## 11. Contract consistency, for the technical lead
 
 The decisions above are recorded. These points check that the note's reading of the Safeguarding Contract v3.3 holds. They are not proposals to change the design.
@@ -242,16 +251,16 @@ Its generic trigger list and response template are in a "Useful Resources folder
 - **Scottish Government, "Responding to Female Genital Mutilation (FGM) in Scotland: multi-agency guidance".** Used for family D: traditional terms for FGM.
 - **Franklin et al., RANLP 2023, safeguarding concerns in schoolchildren's messages.** Used for the matching rules: the kinds of false positive in keyword libraries, namely words inside other words ("gunna"), polysemy, positive sentiment and other languages.
 
-## Appendix A. Trigger list (approved by the Managing Director, 19 November 2026, pending the technical lead's review)
+## Appendix A. Trigger list (approved by the Managing Director, 19 November 2026, amended 26 November 2026, pending the technical lead's review)
 
 ### How a line matches (all families)
 
 1. **Whole words only, ignoring case.** "Raped" matches; "grapes" does not.
-2. **Common text forms count the same.** "I'm", "Im" and "I am" alike; "don't" and "dont" alike; apostrophes optional. Known misspellings are added to each line.
+2. **Common text forms count the same.** "I'm", "Im" and "I am" alike; "don't" and "dont" alike; apostrophes optional. Known misspellings are added to each line. Word forms include the -ing form ("hitting") and "got" ("I got raped"); "he's" counts as "he is".
 3. **Sentence.** A sentence ends at a full stop, question mark, exclamation mark or line break. With none, the whole message is one sentence.
-4. **The order that counts.** Where a line has a doer, an act and "me", they appear in that order in one sentence, with at most four other words between each. "My partner hits me" matches. "I hit my partner" does not.
+4. **The order that counts.** Where a line has a doer, an act and "me", they appear in that order in one sentence, with at most four other words between each. "My partner hits me" matches. "I hit my partner" does not. The one exception: "me" or "to hurt" comes straight after "threatens" or "threatened" (Managing Director, 26 November 2026).
 5. **Doers.**
-   - **[someone close]:** he, she, they, my partner, husband, wife, boyfriend, girlfriend, ex, dad, father, mum, mother, stepdad, stepmum, brother, sister, son, daughter, cousin, uncle, aunt, in-laws, mother-in-law, father-in-law, family, carer, landlord, boss, employer.
+   - **[someone close]:** he, she, they, my partner, husband, wife, boyfriend, girlfriend, ex, dad, father, mum, mother, stepdad, stepmum, brother, sister, son, daughter, cousin, uncle, aunt, in-laws, mother-in-law, father-in-law, family, carer, landlord, boss, employer. Where the doer comes after the act, as in "I'm scared of him", him, her and them count as he, she and they.
    - **[anyone]:** [someone close], plus someone, somebody, a man, a woman, a stranger, a group, people, the people I owe.
 6. **Negation.** A line does not match when "not", "never", "doesn't", "don't", "didn't", "hasn't" or "no longer" comes directly before its act. Examples: "he doesn't hit me", "they never took my passport".
    - **The exception.** Where a negation is part of the line's own wording, it is part of the match, not a reason to stop it. These are:
@@ -259,7 +268,7 @@ Its generic trigger list and response template are in a "Useful Resources folder
      - "won't let me", "doesn't let me", "don't let me" and "won't allow me" (B and F);
      - "without my consent" (E).
    - **In the code,** each line carries its own wording, and the negation check looks only at words outside it. Each of these lines has a test showing it still triggers, alongside one showing a plain negation ("he doesn't hit me") does not.
-7. **Questions about words or services** do not match. These are messages that begin "what is", "what does", "what's", "where is", "where can I", "how do I find" or "is there a", for example "what does coercive control mean" or "where is Rape Crisis". There is no rule about question marks: "is it normal that my partner hits me?" matches.
+7. **Questions about words or services** do not match. These are sentences that begin "what is", "what does", "what's", "where is", "where can I", "how do I find" or "is there a", for example "what does coercive control mean" or "where is Rape Crisis". There is no rule about question marks: "is it normal that my partner hits me?" matches. The rule applies to each sentence (Managing Director, 26 November 2026): "Is there a refuge near me? My husband beats me" matches. A comma does not end a sentence (rule 3), so "Where can I go tonight, my partner hits me" does not.
 8. **Hypotheticals** do not match when the sentence begins "what if" or "if someone". Everything else is matched as written, and the person can say No.
 
 The table gives the intended meaning. The code expresses rules 1 to 8 exactly, and the pull request shows each line with its tests.
@@ -275,10 +284,10 @@ The table gives the intended meaning. The code expresses rules 1 to 8 exactly, a
 ### B. Someone hurting, threatening or controlling me
 | Triggers | Does not trigger |
 |---|---|
-| [someone close] hits / hit / beats / beat / punches / kicks / slaps / hurts / hurt / strangled / choked me | my back hurts me; my feet hurt; [anyone] hit me with (a sanction, a bill, bills, arrears, a fine, a charge) |
+| [someone close] hits / hit / beats / beat / punches / kicks / slaps / hurts / hurt / strangled / choked me | my back hurts me; my feet hurt; [anyone] hit me with (a sanction, a bill, bills, arrears, a fine, a charge, a section 21); hit me up; [someone close] kicked / kicks me out, kicked me and my brother out, kicked me off the tenancy (Managing Director, 26 November 2026) |
 | [someone close] pushed me (a single act, past tense) | [someone close] keeps pushing me to (anything): pushing me to move out |
-| [someone close] threatens / threatened me; threatens / threatened to hurt me / my kids / my children / my pet / my dog | [anyone] threatened me with (eviction, court, bailiffs, a section 21, a sanction) |
-| [someone close] won't let me leave / go out / see my friends / see my family / have money / have my phone | won't let me (anything else): won't let me pay later |
+| [someone close] threatens / threatened me; threatens / threatened to hurt me / my kids / my children / my pet / my dog | [anyone] threatened me with (eviction, court, bailiffs, a section 21, section 21, a section 8, a sanction, the police); threatened to evict me; threatened to kick me out (Managing Director, 26 November 2026) |
+| [someone close] won't let me leave / go out / see my friends / see my family / have money / have my phone | won't let me (anything else): won't let me pay later; won't let me leave early; won't let me leave my tenancy early (Managing Director, 26 November 2026) |
 | [someone close] controls my money / checks my phone / tracks my phone / reads my messages | [anyone] takes money out of my benefits (deductions) |
 | I'm being abused / hit / beaten / controlled / stalked; I'm in an abusive relationship; I'm experiencing domestic abuse / domestic violence / coercive control / economic abuse | domestic abuse services near me; abuse of power |
 
@@ -295,7 +304,7 @@ Shame or dishonour on its own is not a trigger: it is not a statement of harm. T
 ### D. FGM
 | Triggers | Does not trigger |
 |---|---|
-| [anyone] want / wants / going / plan / planning to cut me; taking me abroad to be cut | cut my hair; cut my benefits; [anyone] going to cut me off |
+| [anyone] want / wants / going / plan / planning to cut me; taking me abroad to be cut | cut my hair; cut my benefits; [anyone] going to cut me off; going to cut me some slack (Managing Director, 26 November 2026) |
 | I was cut as a girl / child; I've had FGM; I have had FGM; I had FGM | FGM services; what is FGM |
 | I had [traditional term]; [anyone] want / wants / going / plan / planning to do [traditional term] to me; taking me abroad for [traditional term] | a traditional term on its own |
 
@@ -317,7 +326,7 @@ Shame or dishonour on its own is not a trigger: it is not a statement of harm. T
 | [someone close] took / has / have / keeps / kept my passport / documents / ID / papers / phone | I lost my passport; my passport expired; the Home Office / council / jobcentre has / kept my passport / ID / papers |
 | [anyone] forced / made me work for nothing / for no money / for free / for them; I'm made to work for nothing / for no money / for free | I'm forced to work two jobs; the jobcentre made me do a placement; I work too much |
 | [anyone] takes / take / keeps / keep my wages / my pay | [anyone] takes money out of my benefits |
-| [someone close] won't let me leave the house / where I work / where I live; I'm locked in; they keep me in the house | I can't leave the house (no one is stopping them: anxiety, health); I'm not allowed to leave after (a time): hostel curfew |
+| [someone close] won't let me leave the house / where I work / where I live; I'm locked in; they keep me in the house | I can't leave the house (no one is stopping them: anxiety, health); I'm not allowed to leave after (a time): hostel curfew; I'm locked in a contract / tenancy / lease (Managing Director, 26 November 2026) |
 | I have to work to pay off a debt to them; [anyone] make / makes me work to pay what I owe | I owe money; I'm in debt (Finance, not safety) |
 
 ### G. Threats to life
