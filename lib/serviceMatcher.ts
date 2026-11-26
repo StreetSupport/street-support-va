@@ -11,6 +11,7 @@ import orgsData from './data/wmca_organizations_v7.json';
 import endpointsData from './data/housing-pathway-endpoints.json';
 import type { MatchedService, DefaultOrg, UserProfile } from './types';
 import { getServicePool, runWithServicePool } from './data/servicePool';
+import { recordFor, excludedByAge, excludedByGender, selectable } from './restrictions';
 
 // ============================================================
 // TYPES
@@ -36,6 +37,8 @@ interface Service {
     has_location: boolean;
   };
   client_groups: string[];
+  // The V4 listing id: the join to the record of restrictions (lib/restrictions.ts).
+  listing_id?: string | null;
 }
 
 interface Organization {
@@ -515,13 +518,32 @@ export function getServicesByCategory(
   });
 }
 
+/** The record of restrictions only: true where it doesn't govern the service. */
+function recordAllows(s: Service, profile: UserProfile): boolean {
+  const record = recordFor(s);
+  if (!record) return true;
+  return !excludedByGender(record, profile.gender)
+    && !excludedByAge(record, profile)
+    && selectable(record, profile);
+}
+
+/** Gate B alone (the Safety route): the record where it governs, else the labels. */
+function genderAllowed(s: Service, profile: UserProfile): boolean {
+  const record = recordFor(s);
+  return record ? !excludedByGender(record, profile.gender) : matchesGender(s, profile.gender);
+}
+
 /**
  * Filter services based on user profile (gender, age, etc.)
  */
 export function filterByProfile(services: Service[], profile: UserProfile): Service[] {
   return services.filter(s => {
     const groups = s.client_groups || [];
-    
+
+    // The record of restrictions, once switched on, replaces the label-based
+    // guesses below for every service it covers (lib/restrictions.ts).
+    if (recordFor(s)) return recordAllows(s, profile);
+
     // Gender filter - pass full service for name/description checking
     if (!matchesGender(s, profile.gender)) {
       return false;
@@ -630,8 +652,11 @@ export function getServicesForNeed(need: string, profile: UserProfile): MatchedS
   // Apply profile filtering if relevant for this need
   if (profileRelevantNeeds.includes(need)) {
     services = filterByProfile(services, profile);
+  } else {
+    // For location-only needs, skip profile filtering, except the record of
+    // restrictions once switched on: its hard gates apply to every need.
+    services = services.filter(s => recordAllows(s, profile));
   }
-  // For location-only needs, skip profile filtering
   
   // Rank and return top matches
   return rankServices(services, profile, 5);
@@ -720,7 +745,7 @@ export function getSafetyFromHarmServices(harm: string | null | undefined, profi
   const constraints = sub ? { 'safety-from-harm': [sub] } : undefined;
   return liveThenFixed(() => {
     const found = getServicesByCategory(profile.localAuthority, ['safety-from-harm'], undefined, constraints)
-      .filter(s => matchesGender(s, profile.gender));
+      .filter(s => genderAllowed(s, profile));
     return rankServices(found, profile, 5);
   });
 }

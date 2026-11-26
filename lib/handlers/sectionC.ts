@@ -186,7 +186,8 @@ export function handleC3Q1BPublicFundsFollowup(session: SessionState, choice: nu
 }
 
 export function handleC3Q2DependentChildren(session: SessionState, choice: number | null): RoutingResult {
-  const hasChildren = choice === 1;
+  // No answer stays unanswered, not "no".
+  const hasChildren = choice === 1 ? true : choice === 2 ? false : null;
 
   // Age is asked once, before B6, on every housing route. Section C asks it
   // only if it is somehow missing.
