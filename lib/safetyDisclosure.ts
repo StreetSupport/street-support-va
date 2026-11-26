@@ -14,14 +14,15 @@
  *    once, in full words.
  * 3. A sentence ends at . ? ! or a line break.
  * 4. A line's parts appear in order in one sentence, with at most four other
- *    words between each, except where a line says otherwise. Where a line's own table entry is a fixed phrase
- *    ("I'm in danger"), it is one part, so nothing comes between its words;
- *    "I" and what follows allow one word between ("I'm really scared to go home").
+ *    words between each. The one exception is a decision: "threatened" needs
+ *    "me" or "to hurt ..." straight after it (Managing Director, 26 November
+ *    2026). Words inside one part ("in danger") come together.
  * 5. Doers: SOMEONE_CLOSE and ANYONE below.
  * 6. Negation directly before a line's act stops it. A negation inside the
  *    line's own wording ("will not let me") is part of the match.
- * 7. Messages beginning "what is", "what does", "where is", "where can I",
- *    "how do I find" or "is there a" never match.
+ * 7. Sentences beginning "what is", "what does", "where is", "where can I",
+ *    "how do I find" or "is there a" never match (per sentence: Managing
+ *    Director, 26 November 2026).
  * 8. Sentences beginning "what if" or "if someone" never match.
  *
  * Changes require safeguarding test coverage: every line has tests in both
@@ -41,6 +42,7 @@ const TEXT_FORMS: Record<string, string> = {
   wont: 'will not', cant: 'can not', cannot: 'can not', isnt: 'is not', arent: 'are not',
   wasnt: 'was not', werent: 'were not', wouldnt: 'would not', shouldnt: 'should not',
   theyll: 'they will', theyre: 'they are', theyve: 'they have', whats: 'what is',
+  hes: 'he is', shes: 'she is', thats: 'that is',
   gonna: 'going to', wanna: 'want to',
   // Misspellings (UNICEF Safer Chatbots, p.05: "forsd" for "forced")
   forsd: 'forced', threatend: 'threatened', thretened: 'threatened', threatned: 'threatened',
@@ -60,7 +62,8 @@ export function normalise(text: string): string {
     .replace(/'re\b/g, ' are')
     .replace(/'ve\b/g, ' have')
     .replace(/'d\b/g, ' would')
-    .replace(/'s\b/g, 's') // "what's" -> "whats", "it's" -> "its"
+    .replace(/\b(he|she|it|what|that|who|there)'s\b/g, '$1 is')
+    .replace(/'s\b/g, ' s') // "my partner's" -> "my partner s": the doer stays a word
     .replace(/'/g, '');
   // Hyphens join words: "honour-based" -> "honour based", "in-laws" -> "in laws"
   t = t.replace(/-/g, ' ');
@@ -100,6 +103,7 @@ interface Part {
   gap?: number;         // most words allowed before this part (default 4)
   act?: boolean;        // rule 6: negation directly before this part stops the line
   notFollowedBy?: string[]; // words that, straight after this part, stop the line
+  notWithin?: string[];     // words that, in the next four words, stop the line
 }
 
 export interface Line {
@@ -108,11 +112,14 @@ export interface Line {
 }
 
 const I_AM = ['i am'];
-const I_WAS = ['i was', 'i have been', 'i am'];
-const near = 1; // "I" and what follows: one word between, such as "really"
+const I_WAS = ['i was', 'i have been', 'i am', 'i got'];
 
-const ME_WITH_BILLS = ['with a sanction', 'with a bill', 'with bills', 'with arrears', 'with a fine', 'with a charge'];
-const ME_WITH_EVICTION = ['with eviction', 'with court', 'with bailiffs', 'with a section 21', 'with a sanction'];
+// Housing threats and idioms that are not harm (Appendix A; the additions:
+// Managing Director, 26 November 2026)
+const ME_WITH_BILLS = ['with a sanction', 'with a bill', 'with bills', 'with arrears', 'with a fine', 'with a charge',
+  'with a section 21', 'with section 21', 'up'];
+const ME_WITH_EVICTION = ['with eviction', 'with court', 'with bailiffs', 'with a section 21', 'with section 21',
+  'with a section 8', 'with section 8', 'with a sanction', 'with the police', 'with police'];
 
 const FGM_TERMS = [
   'thara', 'khitan', 'khifad', 'megrez', 'absum', 'mekhnishab', 'kutairi', 'ibi', 'ugwu', 'sunna', 'bondo',
@@ -124,96 +131,99 @@ const WANT_TO = ['want', 'wants', 'going', 'plan', 'plans', 'planning'];
 
 export const LINES: Line[] = [
   // A. Feeling unsafe or in danger
-  { family: 'A', parts: [{ any: ['i'] }, { any: ['do not feel safe', 'feel unsafe'], gap: near, act: true }] },
-  { family: 'A', parts: [{ any: I_AM }, { any: ['not safe', 'unsafe'], gap: near, act: true }] },
+  { family: 'A', parts: [{ any: ['i'] }, { any: ['do not feel safe'], act: true }] },
+  { family: 'A', parts: [{ any: ['i'] }, { any: ['feel'], act: true }, { any: ['unsafe'] }] },
+  { family: 'A', parts: [{ any: I_AM }, { any: ['not safe', 'unsafe'], act: true }] },
   { family: 'A', parts: [{ any: I_AM }, { any: ['scared to go home', 'afraid to go home', 'frightened to go home',
-    'scared to go back home', 'afraid to go back home', 'frightened to go back home'], gap: near, act: true }] },
-  { family: 'A', parts: [{ any: I_AM }, { any: ['scared of', 'afraid of', 'frightened of'], gap: near, act: true },
-    { any: SOMEONE_CLOSE, gap: 1 }] },
-  { family: 'A', parts: [{ any: I_AM }, { any: ['in danger'], gap: near, act: true, notFollowedBy: ['of'] }] },
+    'scared to go back home', 'afraid to go back home', 'frightened to go back home'], act: true }] },
+  { family: 'A', parts: [{ any: I_AM }, { any: ['scared of', 'afraid of', 'frightened of'], act: true },
+    { any: [...SOMEONE_CLOSE, 'him', 'her', 'them'] }] },
+  { family: 'A', parts: [{ any: I_AM }, { any: ['in'], act: true }, { any: ['danger'], notFollowedBy: ['of'] }] },
   { family: 'A', parts: [{ any: ['my life is in danger', 'i fear for my life'] }] },
 
   // B. Someone hurting, threatening or controlling me
   { family: 'B', parts: [{ any: SOMEONE_CLOSE },
-    { any: ['hits', 'hit', 'beats', 'beat', 'punches', 'punched', 'slaps', 'slapped',
-      'hurts', 'hurt', 'strangled', 'strangles', 'choked', 'chokes'], act: true },
+    { any: ['hits', 'hit', 'hitting', 'beats', 'beat', 'beating', 'punches', 'punched', 'punching', 'slaps', 'slapped',
+      'slapping', 'hurts', 'hurt', 'hurting', 'strangled', 'strangles', 'strangling', 'choked', 'chokes', 'choking'], act: true },
     { any: ['me'], notFollowedBy: ME_WITH_BILLS }] },
   // "kicked me out" is being made to leave, not harm (Managing Director,
   // 26 November 2026)
-  { family: 'B', parts: [{ any: SOMEONE_CLOSE }, { any: ['kicks', 'kicked'], act: true },
-    { any: ['me'], notFollowedBy: ['out'] }] },
+  { family: 'B', parts: [{ any: SOMEONE_CLOSE }, { any: ['kicks', 'kicked', 'kicking'], act: true },
+    { any: ['me'], notWithin: ['out', 'off'] }] },
   { family: 'B', parts: [{ any: SOMEONE_CLOSE }, { any: ['pushed'], act: true }, { any: ['me'] }] },
   // "me" or "to hurt ..." straight after, as the table lists them, so
   // "threatened to evict me" does not trigger (Managing Director, 26 November 2026)
-  { family: 'B', parts: [{ any: SOMEONE_CLOSE }, { any: ['threatens', 'threatened'], act: true },
+  { family: 'B', parts: [{ any: SOMEONE_CLOSE }, { any: ['threatens', 'threatened', 'threatening'], act: true },
     { any: ['me', 'to hurt me', 'to hurt my kids', 'to hurt my children', 'to hurt my pet', 'to hurt my dog'],
-      gap: 0, notFollowedBy: ME_WITH_EVICTION }] },
+      gap: 0, notFollowedBy: ME_WITH_EVICTION }] }, // the decision above
   { family: 'B', parts: [{ any: SOMEONE_CLOSE },
     { any: ['will not let me', 'does not let me', 'do not let me', 'will not allow me'], act: true },
-    { any: ['leave', 'go out', 'see my friends', 'see my family', 'have money', 'have my phone'], gap: 0 }] },
+    { any: ['leave', 'go out', 'see my friends', 'see my family', 'have money', 'have my phone'],
+      notWithin: ['early', 'tenancy', 'contract', 'lease'] }] },
   { family: 'B', parts: [{ any: SOMEONE_CLOSE },
     { any: ['controls my money', 'checks my phone', 'tracks my phone', 'reads my messages'], act: true }] },
   { family: 'B', parts: [{ any: I_AM }, { any: ['being abused', 'being hit', 'being beaten', 'being controlled',
     'being stalked', 'in an abusive relationship', 'experiencing domestic abuse', 'experiencing domestic violence',
-    'experiencing coercive control', 'experiencing economic abuse'], gap: near, act: true }] },
+    'experiencing coercive control', 'experiencing economic abuse'], act: true }] },
 
   // C. Forced marriage and honour
   { family: 'C', parts: [{ any: ANYONE }, { any: ['making', 'forcing', 'forced', 'force', 'forces'], act: true },
-    { any: ['me marry', 'me to marry', 'me get married', 'me to get married', 'me into marriage', 'me into a marriage'], gap: 0 }] },
+    { any: ['me marry', 'me to marry', 'me get married', 'me to get married', 'me into marriage', 'me into a marriage'] }] },
   { family: 'C', parts: [{ any: I_WAS }, { any: ['being forced to marry', 'being forced into marriage',
-    'being forced to get married', 'forced to marry', 'forced into marriage', 'forced into a marriage'], gap: near, act: true }] },
+    'being forced to get married', 'forced to marry', 'forced into marriage', 'forced into a marriage'], act: true }] },
   { family: 'C', parts: [{ any: ANYONE }, { any: ['want', 'wants'], act: true },
-    { any: ['me to marry someone i do not want'], gap: 0 }] },
+    { any: ['me to marry someone i do not want'] }] },
   { family: 'C', parts: [{ any: ANYONE }, { any: ['threatening', 'threatened', 'going', 'threatens'], act: true },
-    { any: ['to take me abroad to marry', 'to take me abroad to get married'], gap: 0 }] },
-  { family: 'C', parts: [{ any: I_AM }, { any: ['experiencing honour based abuse', 'experiencing honour based violence'], gap: near, act: true }] },
+    { any: ['to take me abroad to marry', 'to take me abroad to get married'] }] },
+  { family: 'C', parts: [{ any: I_AM }, { any: ['experiencing honour based abuse', 'experiencing honour based violence'], act: true }] },
   { family: 'C', parts: [{ any: ANYONE }, { any: ['will kill me if i do not marry', 'will kill me if i do not get married'], act: true }] },
 
   // D. FGM
-  { family: 'D', parts: [{ any: ANYONE }, { any: WANT_TO, act: true }, { any: ['to cut me'], gap: 0, notFollowedBy: ['off'] }] },
+  { family: 'D', parts: [{ any: ANYONE }, { any: WANT_TO, act: true }, { any: ['to cut me'], notFollowedBy: ['off', 'some slack', 'slack'] }] },
   { family: 'D', parts: [{ any: ['taking me abroad to be cut'] }] },
-  { family: 'D', parts: [{ any: ['i was'] }, { any: ['cut as a girl', 'cut as a child'], gap: near }] },
+  { family: 'D', parts: [{ any: ['i was'] }, { any: ['cut as a girl', 'cut as a child'] }] },
   { family: 'D', parts: [{ any: ['i have had fgm', 'i had fgm'] }] },
   { family: 'D', parts: [{ any: FGM_TERMS.map(t => `i had ${t}`).concat(FGM_TERMS.map(t => `i have had ${t}`),
     FGM_TERMS.map(t => `taking me abroad for ${t}`)) }] },
-  { family: 'D', parts: [{ any: ANYONE }, { any: WANT_TO, act: true }, { any: FGM_TERMS.map(t => `to do ${t} to me`), gap: 0 }] },
+  { family: 'D', parts: [{ any: ANYONE }, { any: WANT_TO, act: true }, { any: FGM_TERMS.map(t => `to do ${t} to me`) }] },
 
   // E. Sexual violence
-  { family: 'E', parts: [{ any: ['i was raped', 'i have been raped'] }] },
+  { family: 'E', parts: [{ any: ['i was raped', 'i have been raped', 'i got raped'] }] },
   { family: 'E', parts: [{ any: ANYONE }, { any: ['raped'], act: true }, { any: ['me'] }] },
-  { family: 'E', parts: [{ any: ['i was', 'i have been'] }, { any: ['sexually assaulted', 'sexually abused'], gap: near, act: true }] },
+  { family: 'E', parts: [{ any: ['i was', 'i have been', 'i got'] }, { any: ['sexually assaulted', 'sexually abused'], act: true }] },
   { family: 'E', parts: [{ any: ANYONE }, { any: ['sexually assaulted', 'sexually abused'], act: true }, { any: ['me'] }] },
   { family: 'E', parts: [{ any: ['i was violated', 'i have been violated'] }] },
-  { family: 'E', parts: [{ any: ANYONE }, { any: ['forced', 'made'], act: true }, { any: ['me have sex', 'me to have sex'], gap: 0 }] },
+  { family: 'E', parts: [{ any: ANYONE }, { any: ['forced', 'made'], act: true }, { any: ['me have sex', 'me to have sex'] }] },
   { family: 'E', parts: [{ any: ANYONE }, { any: ['touched'], act: true }, { any: ['me when i said no', 'me without my consent'] }] },
 
   // F. Exploitation and modern slavery
   { family: 'F', parts: [{ any: SOMEONE_CLOSE }, { any: ['took', 'takes', 'take', 'has', 'have', 'keeps', 'keep', 'kept'], act: true },
-    { any: ['my passport', 'my documents', 'my id', 'my papers', 'my phone'], gap: 0, notFollowedBy: ['number'] }] },
+    { any: ['my passport', 'my documents', 'my id', 'my papers', 'my phone'], notFollowedBy: ['number'] }] },
   { family: 'F', parts: [{ any: ANYONE }, { any: ['forced', 'made', 'make', 'makes', 'force', 'forces'], act: true },
     { any: ['me work for nothing', 'me work for no money', 'me work for free', 'me work for them',
-      'me to work for nothing', 'me to work for no money', 'me to work for free', 'me to work for them'], gap: 0 }] },
+      'me to work for nothing', 'me to work for no money', 'me to work for free', 'me to work for them'] }] },
   { family: 'F', parts: [{ any: I_AM }, { any: ['made to work for nothing', 'made to work for no money', 'made to work for free',
-    'forced to work for nothing', 'forced to work for no money', 'forced to work for free'], gap: near, act: true }] },
+    'forced to work for nothing', 'forced to work for no money', 'forced to work for free'], act: true }] },
   { family: 'F', parts: [{ any: ANYONE }, { any: ['takes', 'take', 'took', 'keeps', 'keep', 'kept'], act: true },
-    { any: ['my wages', 'my pay'], gap: 0 }] },
+    { any: ['my wages', 'my pay'] }] },
   { family: 'F', parts: [{ any: SOMEONE_CLOSE }, { any: ['will not let me', 'does not let me', 'do not let me', 'will not allow me'], act: true },
-    { any: ['leave the house', 'leave where i work', 'leave where i live'], gap: 0 }] },
-  { family: 'F', parts: [{ any: I_AM }, { any: ['locked in'], gap: near, act: true }] },
-  { family: 'F', parts: [{ any: ANYONE }, { any: ['keep', 'keeps', 'kept'], act: true }, { any: ['me in the house'], gap: 0 }] },
+    { any: ['leave the house', 'leave where i work', 'leave where i live'] }] },
+  { family: 'F', parts: [{ any: I_AM }, { any: ['locked in'], act: true,
+    notWithin: ['contract', 'tenancy', 'lease', 'agreement', 'deal'] }] },
+  { family: 'F', parts: [{ any: ANYONE }, { any: ['keep', 'keeps', 'kept'], act: true }, { any: ['me in the house'] }] },
   { family: 'F', parts: [{ any: ['i have to work to pay off a debt to them', 'i have to work to pay off my debt to them',
     'i have to work to pay off what i owe them'] }] },
   { family: 'F', parts: [{ any: I_AM }, { any: ['working to pay off a debt to them', 'working to pay off my debt to them',
-    'working to pay off what i owe them'], gap: near, act: true }] },
+    'working to pay off what i owe them'], act: true }] },
   { family: 'F', parts: [{ any: ANYONE }, { any: ['make', 'makes', 'made'], act: true },
     { any: ['me work to pay what i owe', 'me work to pay off what i owe', 'me work to pay off my debt',
-      'me work to pay off a debt'], gap: 0 }] },
+      'me work to pay off a debt'] }] },
 
   // G. Threats to life (idioms such as "my boss will kill me" trigger: Managing
   // Director, 19 November 2026)
   { family: 'G', parts: [{ any: ANYONE }, { any: ['said', 'says', 'threatened', 'threatens'], act: true },
     { any: ['to kill me', 'he will kill me', 'she will kill me', 'they will kill me', 'he would kill me',
-      'she would kill me', 'they would kill me'], gap: 0 }] },
+      'she would kill me', 'they would kill me'] }] },
   { family: 'G', parts: [{ any: ANYONE }, { any: ['is going to kill me', 'are going to kill me', 'will kill me', 'would kill me'], act: true }] },
 ];
 
@@ -253,6 +263,7 @@ function matchParts(words: string[], parts: Part[], index: number, from: number,
       if (part.act && negatedBefore(words, at)) continue;
       const end = at + phrase.length;
       if (part.notFollowedBy?.some(n => phraseAt(words, end, n.split(' ')))) continue;
+      if (part.notWithin?.some(n => words.slice(end, end + 4).includes(n))) continue;
       if (matchParts(words, parts, index + 1, end, false)) return true;
     }
   }
@@ -265,13 +276,10 @@ export function lineMatches(line: Line, words: string[]): boolean {
 
 /** The families a message matches, in order. Empty when it matches none. */
 export function detectDisclosure(message: string): DisclosureFamily[] {
-  const all = sentences(message);
-  if (all.length === 0) return [];
-  // Rule 7: questions about words or services
-  if (QUESTION_OPENERS.some(q => startsWith(all[0], q))) return [];
   const found = new Set<DisclosureFamily>();
-  for (const words of all) {
-    // Rule 8: hypotheticals
+  for (const words of sentences(message)) {
+    // Rule 7: questions about words or services. Rule 8: hypotheticals.
+    if (QUESTION_OPENERS.some(q => startsWith(words, q))) continue;
     if (HYPOTHETICAL_OPENERS.some(h => startsWith(words, h))) continue;
     for (const line of LINES) {
       if (!found.has(line.family) && lineMatches(line, words)) found.add(line.family);
@@ -288,9 +296,11 @@ export const DISCLOSURE_YES = ['yes', 'y', 'yeah', 'yep', 'yes please', 'ok', 'o
 export const DISCLOSURE_NO = ['no', 'n', 'nope', 'no thanks', 'no thank you', 'carry on'];
 
 export function readDisclosureAnswer(message: string, options: string[]): 'yes' | 'no' | 'unclear' {
-  const plain = message.trim().toLowerCase().replace(/[‘’]/g, "'").replace(/[.!,]+$/, '').trim();
-  if (plain === '1' || plain === options[0]?.toLowerCase()) return 'yes';
-  if (plain === '2' || plain === options[1]?.toLowerCase()) return 'no';
+  // Punctuation is ignored anywhere: "yes, please" is "yes please"
+  const flat = (t: string) => t.toLowerCase().replace(/[\u2018\u2019']/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+  const plain = flat(message);
+  if (plain === '1' || plain === flat(options[0] ?? '')) return 'yes';
+  if (plain === '2' || plain === flat(options[1] ?? '')) return 'no';
   if (DISCLOSURE_YES.includes(plain)) return 'yes';
   if (DISCLOSURE_NO.includes(plain)) return 'no';
   // An explicit statement, in any family, is itself the confirmation

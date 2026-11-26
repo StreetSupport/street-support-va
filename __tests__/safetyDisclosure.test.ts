@@ -68,6 +68,15 @@ const TRIGGERS: Array<[string, DisclosureFamily]> = [
   ["he said he'll kill me", 'G'], ['she says she will kill me', 'G'], ['they threatened to kill me', 'G'],
   ['the people I owe are going to kill me', 'G'], ['my boss will kill me', 'G'], ['he is going to kill me', 'G'],
   ['he is gonna kill me', 'G'],
+  // Found in independent review, 26 November 2026: text forms, word forms and rule 4's gap
+  ["He's going to kill me", 'G'], ['He says hes going to kill me', 'G'], ["my partner's hitting me", 'B'],
+  ["she's threatened me", 'B'], ['he keeps hitting me', 'B'], ['my ex keeps threatening me', 'B'],
+  ['my partner has been hurting me', 'B'], ['he kicked me in the stomach', 'B'], ['I got raped', 'E'],
+  ['I got sexually assaulted', 'E'], ["he won't allow me to leave", 'B'], ["he won't allow me to have my phone", 'B'],
+  ['they took away my passport', 'F'], ['my boss kept all my documents', 'F'], ['I feel really unsafe', 'A'],
+  ["I'm in real danger", 'A'], ["I'm so so scared to go home", 'A'], ["I'm scared of him", 'A'],
+  // Rule 7 per sentence (Managing Director, 26 November 2026)
+  ['Is there a refuge near me? My husband beats me', 'B'],
 ];
 
 const SILENT: string[] = [
@@ -101,6 +110,15 @@ const SILENT: string[] = [
   // Rules 7 and 8
   'what does coercive control mean', 'where can I find help if my partner hits me',
   'what if someone hits me', 'if someone hits me what do I do',
+  "what's FGM", 'how do I find Rape Crisis', 'is there a refuge for people whose partner hits me',
+  "he didn't hit me", "he hasn't hurt me", "I don't feel unsafe",
+  // Known limit: a comma does not end a sentence (rule 3), so rule 7 skips the whole sentence
+  'Where can I go tonight, my partner hits me',
+  // Managing Director, 26 November 2026
+  "my landlord won't let me leave my tenancy early", "my boss won't let me leave early",
+  'my landlord threatened me with section 21', 'he threatened me with the police', 'my landlord hit me with a section 21',
+  'he hit me up on WhatsApp', "I'm locked in a 12 month contract", "they're going to cut me some slack",
+  'my mum kicked me and my brother out', 'they kicked me off the tenancy',
 ];
 
 describe('Appendix A: every trigger example triggers its family', () => {
@@ -143,9 +161,9 @@ describe('matching rules', () => {
 
 describe('reading the answer to the clarifying question (section 3)', () => {
   const options = ['Yes, show me help with staying safe', 'No, carry on'];
-  test.each(['1', 'Yes, show me help with staying safe', 'yes', 'Y', 'yeah', 'yep', 'yes please', 'ok', 'okay', 'please', 'Yes.'])(
+  test.each(['1', 'Yes, show me help with staying safe', 'yes', 'Y', 'yeah', 'yep', 'yes please', 'yes, please', 'ok', 'okay', 'please', 'Yes.'])(
     'yes: %s', a => expect(readDisclosureAnswer(a, options)).toBe('yes'));
-  test.each(['2', 'No, carry on', 'no', 'N', 'nope', 'no thanks', 'no thank you', 'carry on'])(
+  test.each(['2', 'No, carry on', 'no', 'N', 'nope', 'no thanks', 'no, thank you', 'no thank you', 'carry on'])(
     'no: %s', a => expect(readDisclosureAnswer(a, options)).toBe('no'));
   test.each(['maybe', 'I dunno', '3', 'yes and no', ''])('unclear: %s', a => expect(readDisclosureAnswer(a, options)).toBe('unclear'));
   test('an explicit statement counts as yes', () => {

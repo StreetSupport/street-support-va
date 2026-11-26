@@ -6,11 +6,11 @@
 process.env.ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY ?? 'test-key-not-used';
 
 import { POST } from '../app/api/chat/route';
-import { createSession } from '../lib/stateMachine';
+import { createSession, secondScreenPhraseKey } from '../lib/stateMachine';
 import { setClaudeClientForTests, type ClaudeClient } from '../lib/claudeClassifiers';
 import { getPhrase, phrasebank } from '../lib/phrasebank';
 import { detectDisclosure } from '../lib/safetyDisclosure';
-import { SAFETY_CHECK_EXCLUDED_GATES, interceptSafetyDisclosure } from '../lib/handlers/safetyDisclosureCheck';
+import { SAFETY_CHECK_EXCLUDED_GATES, interceptSafetyDisclosure, questionAgain } from '../lib/handlers/safetyDisclosureCheck';
 import type { GateType, SessionState } from '../lib/types';
 
 type Body = { s: string; m?: string; o?: string[]; e?: boolean };
@@ -146,6 +146,64 @@ describe('the clarifying question', () => {
     const logged = logSpy.mock.calls.flat().join(' ');
     expect(logged).not.toContain('hits');
     expect(JSON.stringify(back)).not.toContain('hits');
+  });
+});
+
+describe('going back from every kind of step', () => {
+  // Steps whose question is built in code, not one fixed phrase
+  const cases: Array<[GateType, Partial<SessionState>]> = [
+    ['B5_SECOND_SCREEN', { v4Option: 'everyday' }],
+    ['B5_NOTICING', { v4Option: 'everyday' }],
+    ['B5_HOUSING_OFFER', { noticingHousing: 'keep-home' }],
+    ['LOCATION_POSTCODE', {}],
+    ['LOCATION_CONFIRM', { localAuthority: 'Coventry' }],
+  ];
+  test.each(cases)('after No at %s, the same question again', async (gate, extra) => {
+    const at = atAge({ ...extra, currentGate: gate });
+    const asked = decode((await send('my partner hits me', at)).s);
+    expect(asked.currentGate).toBe('SAFETY_DISCLOSURE_CHECK');
+    const body = await send('No', asked);
+    expect(decode(body.s).currentGate).toBe(gate);
+    expect(body.m && body.m.length > 0).toBe(true);
+    if (gate === 'LOCATION_CONFIRM') expect(body.m).toContain('Coventry');
+    if (gate === 'B5_SECOND_SCREEN') expect(body.m).toBe(getPhrase(secondScreenPhraseKey('everyday'), false)!.text);
+  });
+
+  test('while waiting for the location widget, the location question again', async () => {
+    const asked = decode((await send('my partner hits me', atAge({ currentGate: 'LOCATION_RESULT' }))).s);
+    const body = await send('No', asked);
+    expect(decode(body.s).currentGate).toBe('LOCATION_CONSENT');
+  });
+
+  // Work item 2: interruption at every question
+  const fs = require('fs') as typeof import('fs');
+  const src: string = fs.readFileSync('lib/types.ts', 'utf8');
+  const all = (src.match(/export type GateType =([\s\S]*?);/)![1].match(/'([A-Z0-9_]+)'/g) ?? []).map(g => g.replace(/'/g, '')) as GateType[];
+  const asked = all.filter(g => !SAFETY_CHECK_EXCLUDED_GATES.includes(g) && g !== 'INIT' && g !== 'TERMINAL_SERVICES');
+  test.each(asked)('at %s: asked, and No shows a question again', gate => {
+    const s = atAge({ currentGate: gate, v4Option: 'everyday', noticingHousing: 'keep-home' });
+    expect(interceptSafetyDisclosure(s, 'my partner hits me')).not.toBeNull();
+    const back = questionAgain(s, gate);
+    expect(back.text.length).toBeGreaterThan(0);
+    expect(back.text).not.toContain('[Missing phrase');
+  });
+});
+
+describe('a supporter who says Yes', () => {
+  test('is still recorded as a supporter at the end of the conversation', async () => {
+    const asked = decode((await send('he hits me', atAge({ isSupporter: true, userType: 'SUPPORTER' }))).s);
+    const s = decode((await send('Yes', asked)).s);
+    expect(s.safetyCheckCameAs).toBe('SUPPORTER');
+    logSpy.mockClear();
+    let cur = s;
+    for (const a of ['7', '2', '2']) {
+      const b = await send(a, cur);
+      cur = decode(b.s);
+      if (b.e) break;
+    }
+    const ends = logSpy.mock.calls.map(c => String(c[0]) + ' ' + String(c[1] ?? '')).filter(l => l.includes('SESSION END'));
+    expect(ends.length).toBeGreaterThan(0);
+    expect(ends.join(' ')).toContain('"userType":"SUPPORTER"');
   });
 });
 

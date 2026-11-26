@@ -232,6 +232,10 @@ export interface SessionState {
   safetyCheckDeclined?: string[];
   safetyCheckPending?: string[];
   safetyCheckReturnGate?: GateType | null;
+  // Who someone came in as, where a Yes at the check switched them to their
+  // own wording: the session-end record keeps this, so the check changes
+  // nothing recorded (Managing Director, 26 November 2026).
+  safetyCheckCameAs?: 'SUPPORTER' | 'PROFESSIONAL' | null;
   dvGender: string | null;
   dvChildren: boolean | null;
   saGender: string | null;

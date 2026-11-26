@@ -226,7 +226,7 @@ export async function POST(request: NextRequest) {
           console.log('[VA] SESSION END:', JSON.stringify({
             id: session.sessionId,
             la: session.localAuthority,
-            userType: session.userType,
+            userType: session.safetyCheckCameAs ?? session.userType,
             age: session.ageCategory,
             need: session.supportNeed,
             homeless: session.homeless,
@@ -301,7 +301,7 @@ export async function POST(request: NextRequest) {
       console.log('[VA] SESSION END:', JSON.stringify({
         id: session.sessionId,
         la: session.localAuthority,
-        userType: session.userType,
+        userType: session.safetyCheckCameAs ?? session.userType,
         age: session.ageCategory,
         need: session.supportNeed,
         homeless: session.homeless,

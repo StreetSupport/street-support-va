@@ -109,7 +109,9 @@ export function handleSafetyDisclosureAnswer(session: SessionState, message: str
   if (answer === 'yes') {
     // The person's own wording from here, also where they came in as a
     // supporter: the statement was about them (section 3).
-    const own = { isSupporter: false, ...(session.userType === 'SUPPORTER' || session.userType === 'PROFESSIONAL' ? { userType: 'SELF' as const } : {}) };
+    // The session-end record keeps who they came in as (safetyCheckCameAs).
+    const cameAs = session.userType === 'SUPPORTER' || session.userType === 'PROFESSIONAL' ? session.userType : null;
+    const own = { isSupporter: false, ...(cameAs ? { userType: 'SELF' as const, safetyCheckCameAs: cameAs } : {}) };
     // While the Safety route's switch is off, the crisis question, as for
     // "Feeling unsafe" at the noticing step (James Cross's review of #73).
     if (!isSafetyRouteEnabled()) {
