@@ -56,11 +56,12 @@ describe('Noticing step: who is asked, and what they see', () => {
     let s = sessionAt('B5_MAIN_SUPPORT_NEED');
     s = { ...s, ...processInput(s, '3').stateUpdates };
     const r = processInput(s, '1'); // A hot meal: no profile questions
-    // Design note 3.5, Managing Director, 8 November 2026
+    // Design note 3.5, Managing Director, 8 November 2026; Feeling unsafe
+    // first, Managing Director, 26 November 2026
     expect(r.text.startsWith('Thanks. Sometimes one thing is tied up with others. Is anything else putting pressure on you at the moment?')).toBe(true);
     expect(r.options).toEqual([
-      'Money, work or bills', "Health, including how I'm feeling", 'Family or relationships', 'Drink, drugs or gambling',
-      'Keeping my home or paying rent', "I don't have a settled place to live", 'Feeling unsafe', 'Nothing else', "I'm not sure",
+      'Feeling unsafe', 'Money, work or bills', "Health, including how I'm feeling", 'Family or relationships', 'Drink, drugs or gambling',
+      'Keeping my home or paying rent', "I don't have a settled place to live", 'Nothing else', "I'm not sure",
       'Just show me food near me',
     ]);
   });
