@@ -775,9 +775,12 @@ describe('Non-Housing Terminal Path', () => {
 
 describe('DV Pregnancy Path', () => {
 
-  test('DV children question includes pregnancy wording', () => {
+  // Pregnancy taken out of the DV children question (Managing Director,
+  // 26 November 2026): one topic per question, as the original phrasebank
+  // required, and pregnancy changed nothing on this route. Added 11 March 2026.
+  test('DV children question asks about children only', () => {
     const phrase = getPhrase('DV_CHILDREN_ASK', false);
-    expect(phrase?.text?.toLowerCase()).toContain('pregnant');
+    expect(phrase?.text?.toLowerCase()).not.toContain('pregnant');
   });
 
   test('answering yes to DV children question routes to children-specific exit', () => {

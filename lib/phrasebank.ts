@@ -1412,7 +1412,7 @@ What is their gender?
   },
 
   DV_CHILDREN_ASK: {
-    text: `Do you have dependent children, or are you currently pregnant?
+    text: `Do you have dependent children?
 
 1. Yes
 2. No`,
@@ -1420,7 +1420,7 @@ What is their gender?
   },
 
   DV_CHILDREN_ASK__SUPPORTER: {
-    text: `Do they have dependent children, or are they currently pregnant?
+    text: `Do they have dependent children?
 
 1. Yes
 2. No`,

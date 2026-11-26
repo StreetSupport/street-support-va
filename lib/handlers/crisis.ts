@@ -282,11 +282,6 @@ export function handleDVGenderAsk(session: SessionState, choice: number | null):
   if (!dvGender || dvGender === 'Prefer not to say') {
     return buildGeneralDVExit({ ...session, dvGender });
   }
-  // Women's exits are the same with or without children, so the children
-  // question changes nothing for them either: straight to the exit.
-  if (dvGender === 'Female') {
-    return handleDVChildrenAsk({ ...session, dvGender }, null);
-  }
   return {
     ...phrase('DV_CHILDREN_ASK', session.userType),
     stateUpdates: { currentGate: 'DV_CHILDREN_ASK', dvGender }

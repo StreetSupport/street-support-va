@@ -143,11 +143,13 @@ describe('No keyword matching at the strict questions', () => {
     expect(create).not.toHaveBeenCalled();
   });
 
-  test('women go straight to their exit: the children question changes nothing for them', () => {
-    const r = processInput(sessionAt('DV_GENDER_ASK'), '1');
-    expect(r.sessionEnded).toBe(true);
-    expect(r.stateUpdates.currentGate).not.toBe('DV_CHILDREN_ASK');
-    expect(r.text).toContain('0808 2000 247');
+  test('women, men and non-binary people are asked the children question, about children only', () => {
+    for (const choice of ['1', '2', '3']) {
+      const r = processInput(sessionAt('DV_GENDER_ASK'), choice);
+      expect(r.stateUpdates.currentGate).toBe('DV_CHILDREN_ASK');
+      expect(r.text).toContain('Do you have dependent children?');
+      expect(r.text).not.toMatch(/pregnant/i);
+    }
   });
 });
 
