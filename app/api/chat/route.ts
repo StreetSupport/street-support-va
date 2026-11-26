@@ -121,6 +121,7 @@ export async function POST(request: NextRequest) {
         o: safetyCheck.options,
         e: false,
         responseType: safetyCheck.responseType,
+        ms: safetyCheck.multiSelect,
       });
     }
 
