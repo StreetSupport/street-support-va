@@ -198,6 +198,19 @@ describe('Noticing step: what follows the answer', () => {
     expect(r.text).not.toContain('Org hot');
   });
 
+  test('while the Safety route is switched off, "Feeling unsafe" goes to the crisis question, never the matcher', () => {
+    const s = toNoticing('3', '1');
+    process.env.VA_SAFETY_ROUTE = 'off';
+    try {
+      const r = answer(s, optionNumber(s, 'Feeling unsafe'));
+      expect(r.stateUpdates.currentGate).toBe('GATE0_CRISIS_DANGER');
+      expect(r.options).toEqual(expect.arrayContaining(['Immediate physical danger', 'Domestic abuse', 'Sexual violence']));
+      expect(r.text).not.toContain('Org hot');
+    } finally {
+      process.env.VA_SAFETY_ROUTE = 'on';
+    }
+  });
+
   test('someone without a settled place to live sees their results first, then is offered housing as a choice', () => {
     const s = toNoticing('3', '1');
     const r = answer(s, optionNumber(s, "I don't have a settled place to live"));
@@ -287,6 +300,30 @@ describe('Noticing step: what follows the answer', () => {
     const s2 = { ...s, ...r1.stateUpdates };
     const r2 = answer(s2, 'still not sure what to say');
     expect(r2.text).toContain('Org hot');
+  });
+
+  test("an unclear answer points to 'Feeling unsafe' and 999 (review of #73)", () => {
+    const s = toNoticing('3', '1');
+    const r1 = answer(s, 'my partner is hurting me');
+    expect(r1.text).toContain("If you feel unsafe, choose 'Feeling unsafe'. If you are in danger right now, call 999.");
+    expect(noticingOptions(s)).toContain('Feeling unsafe');
+  });
+
+  test('a second unclear answer shows the 999 line above the results', () => {
+    const s = toNoticing('3', '1');
+    const s2 = { ...s, ...answer(s, 'hmm').stateUpdates };
+    const r2 = answer(s2, 'still not sure');
+    expect(r2.text.startsWith('If you are in danger right now, call 999.')).toBe(true);
+    expect(r2.text).toContain('Org hot');
+  });
+
+  test('supporters are told about them, not you', () => {
+    const s = { ...toNoticing('3', '1'), isSupporter: true };
+    expect(s.currentGate).toBe('B5_NOTICING');
+    const r1 = answer(s, 'not sure how to put it');
+    expect(r1.text).toContain("If they feel unsafe, choose 'Feeling unsafe'. If they are in danger right now, call 999.");
+    const r2 = answer({ ...s, ...r1.stateUpdates }, 'hmm');
+    expect(r2.text.startsWith('If they are in danger right now, call 999.')).toBe(true);
   });
 
   test('typed words are never read as a pressure by keyword', () => {

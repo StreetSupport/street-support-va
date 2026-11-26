@@ -1,8 +1,13 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { EXIT_URL, createShiftCounter, performExit, shouldReloadOnPageShow } from '@/lib/quickExit';
+import { EXIT_TAB_TITLE, EXIT_URL, TRANSPARENT_ICON, createShiftCounter, performExit, shouldReloadOnPageShow } from '@/lib/quickExit';
 import type { ServiceCard } from '@/lib/types';
+
+// True when the VA is shown inside another page's iframe.
+function inFrame(): boolean {
+  try { return window.top !== window.self; } catch { return true; }
+}
 
 // ============================================================
 // SSN BRAND COLORS (Official)
@@ -839,15 +844,26 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
         cover.setAttribute('aria-hidden', 'true');
         cover.style.cssText = 'position:fixed;inset:0;background:#ffffff;z-index:2147483647';
         document.body.appendChild(cover);
+        // The tab itself: an ordinary title and no icon, at once.
+        document.title = EXIT_TAB_TITLE;
+        document.querySelectorAll<HTMLLinkElement>('link[rel~="icon"]').forEach(l => { l.href = TRANSPARENT_ICON; });
       },
       cancelRequests: () => abortRef.current.abort(),
       clear: clearConversation,
+      // Not inside an iframe: there, opening a tab first can stop the browser
+      // moving the top page, so the exit only replaces the top page.
+      openTab: inFrame() ? undefined : (url) => { window.open(url, '_blank', 'noopener,noreferrer'); },
       navigate: (url, replaceHistory) => {
-        if (replaceHistory) { window.location.replace(url); return; }
+        // The whole page, not just this frame, where the VA sits in an iframe
+        // (the website allows top navigation on it).
+        if (replaceHistory) {
+          try { (window.top ?? window).location.replace(url); return; } catch { /* fall through to a link */ }
+        }
         // A link with rel="noreferrer", as GOV.UK's, so the destination is not told where the person came from.
         const a = document.createElement('a');
         a.href = url;
         a.rel = 'nofollow noreferrer';
+        a.target = '_top';
         document.body.appendChild(a);
         a.click();
       },
@@ -922,6 +938,7 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       <a
         href={EXIT_URL}
         rel="nofollow noreferrer"
+        target="_top"
         onClick={(e) => { e.preventDefault(); exitNow(); }}
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-2 focus:bg-white focus:font-bold focus:rounded"
         style={{ color: '#b10e1e' }}

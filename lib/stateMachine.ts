@@ -36,11 +36,12 @@ import {
   handleDVChildrenAsk,
   handleSAGenderAsk,
 } from './handlers/crisis';
+import { isSafetyRouteEnabled } from './safetyRouteSwitch';
 import { handleSafetyTypeOfHarm, handleSafetyOkToContinue, isSafetyGate, parseSafetyChoice, startSafetyRoute } from './handlers/safety';
-import { FIRST_OPTIONS, firstOption, partsFor, type FirstOptionId } from './data/v4Categories';
+import { firstOption, partsFor, visibleFirstOptions, type FirstOptionId } from './data/v4Categories';
 import { buildUnder16Exit, childrenServicesData } from './handlers/shared';
 import { getServicePool } from './data/servicePool';
-import { DIGNITY_OFFER, HOUSING_OFFER_OPTIONS, NOTICING_UNCLEAR, awarenessLine, housingOfferText, isDignityChoice, noticingOptions, noticingOutcome, noticingText, parseNoticing, takesNoticingStep } from './noticing';
+import { DIGNITY_OFFER, HOUSING_OFFER_OPTIONS, NOTICING_UNCLEAR, noticingDangerLine, noticingUnclear, awarenessLine, housingOfferText, isDignityChoice, noticingOptions, noticingOutcome, noticingText, parseNoticing, takesNoticingStep } from './noticing';
 import {
   handleLocationConsent,
   handleLocationPostcode,
@@ -1816,7 +1817,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
     
     case 'B5_MAIN_SUPPORT_NEED': {
       // The first question in V4 terms (Decision 1, Managing Director, 4 November 2026).
-      const option = choice && choice >= 1 && choice <= FIRST_OPTIONS.length ? FIRST_OPTIONS[choice - 1] : null;
+      // Numbered as offered: Safety is left out while its switch is off.
+      const offered = visibleFirstOptions();
+      const option = choice && choice >= 1 && choice <= offered.length ? offered[choice - 1] : null;
       if (!option) return phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter);
       const needCount = session.needCount + 1;
 
@@ -1887,12 +1890,18 @@ export function processInput(session: SessionState, input: string): RoutingResul
         // Ask once more; after that, show their results, so no one is held here.
         if (session.unclearCount >= 1) {
           const done = finishWithResults(session);
-          return { ...done, stateUpdates: { ...done.stateUpdates, unclearCount: 0 } };
+          return { ...done, text: `${noticingDangerLine(session.isSupporter)}\n\n${done.text}`, stateUpdates: { ...done.stateUpdates, unclearCount: 0 } };
         }
-        return { text: `${NOTICING_UNCLEAR}\n\n${noticingText(session)}`, options: noticingOptions(session), stateUpdates: { currentGate: 'B5_NOTICING', unclearCount: session.unclearCount + 1 } };
+        return { text: `${noticingUnclear(session.isSupporter)}\n\n${noticingText(session)}`, options: noticingOptions(session), stateUpdates: { currentGate: 'B5_NOTICING', unclearCount: session.unclearCount + 1 } };
       }
       const { outcome } = noticingOutcome(session, picked);
       if (outcome === 'safety') {
+        // While the Safety route's switch is off, the crisis question: hard-coded,
+        // live, and covering domestic abuse, sexual violence and immediate danger
+        // (James Cross's review of #73, 25 November 2026).
+        if (!isSafetyRouteEnabled()) {
+          return { ...phrase('GATE0_CRISIS_DANGER', session.isSupporter), stateUpdates: { currentGate: 'GATE0_CRISIS_DANGER', unclearCount: 0 } };
+        }
         const r = startSafetyRoute(session);
         return { ...r, stateUpdates: { ...r.stateUpdates, v4Option: 'safety', v4Choice: null, supportNeed: 'V4:safety', unclearCount: 0 } };
       }

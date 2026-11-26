@@ -1,3 +1,5 @@
+import { isSafetyRouteEnabled } from './safetyRouteSwitch';
+
 // Street Support VA v7 Phrasebank - COMPLETE VERSION
 // All phrases from CHAR_VA_Phrasebank_v7.md
 // Generated 2026-02-01
@@ -1722,7 +1724,8 @@ If they're in immediate danger, call 999.`
 The police can help keep you safe.
 
 If you cannot speak safely, you can:
-- Call 999, then press 55 (Silent Solution - alerts police you need help)
+- Call 999 and listen. Cough or tap the phone if you can
+- On a mobile, press 55 when a recorded message asks you to. This puts you through to the police
 - Text 999 if you have registered for this service
 
 Once you are safe, I can help you find support services.`
@@ -1734,7 +1737,8 @@ Once you are safe, I can help you find support services.`
 The police can help keep them safe.
 
 If they cannot speak safely:
-- Call 999, then press 55 (Silent Solution - alerts police they need help)
+- Call 999 and listen. Cough or tap the phone if they can
+- On a mobile, press 55 when a recorded message asks. This puts the call through to the police
 - Text 999 if registered for this service
 
 Once they are safe, I can help you find support services for them.`
@@ -2100,8 +2104,8 @@ If they're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
 Specialist, confidential support for men and boys aged 16 and over
 
 If you're in immediate danger, call 999.`
@@ -2112,8 +2116,8 @@ If you're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
 Specialist, confidential support for men and boys aged 16 and over
 
 You don't have to work this out on your own.
@@ -2126,8 +2130,8 @@ If they're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
 Specialist, confidential support for men and boys aged 16 and over
 
 You'll know your next steps from here.
@@ -2140,8 +2144,8 @@ If they're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
 
 SEXUAL VIOLENCE SUPPORT
 Galop
@@ -2156,8 +2160,8 @@ If you're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
 
 SEXUAL VIOLENCE SUPPORT
 Galop
@@ -2174,8 +2178,8 @@ If they're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
 
 SEXUAL VIOLENCE SUPPORT
 Galop
@@ -2756,7 +2760,24 @@ The more details you can provide (location, description, best time to find them)
 };
 
 // Helper function
+// The first question without the Safety option, renumbered, while the Safety
+// route's switch is off (lib/safetyRouteSwitch.ts).
+const SAFETY_FIRST_OPTION = 'Staying safe from abuse, exploitation or harm';
+
+function withoutSafetyOption(entry: PhraseEntry): PhraseEntry {
+  const options = (entry.options ?? []).filter(o => o !== SAFETY_FIRST_OPTION);
+  const intro = entry.text.split('\n').filter(line => !/^\d+\. /.test(line)).join('\n').trimEnd();
+  const list = options.map((o, i) => `${i + 1}. ${o}`).join('\n');
+  return { ...entry, text: `${intro}\n\n${list}`, options };
+}
+
 export function getPhrase(key: string, audience: 'SELF' | 'SUPPORTER' | 'PROFESSIONAL' | null | boolean): PhraseEntry | null {
+  const entry = lookUpPhrase(key, audience);
+  if (entry && key === 'B5_MAIN_SUPPORT_NEED' && !isSafetyRouteEnabled()) return withoutSafetyOption(entry);
+  return entry;
+}
+
+function lookUpPhrase(key: string, audience: 'SELF' | 'SUPPORTER' | 'PROFESSIONAL' | null | boolean): PhraseEntry | null {
   if (audience === 'PROFESSIONAL') {
     const professionalKey = `${key}__PROFESSIONAL`;
     if (phrasebank[professionalKey]) {
