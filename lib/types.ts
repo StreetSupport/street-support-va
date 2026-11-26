@@ -5,6 +5,21 @@
 // GATE TYPE
 // ============================================================
 
+// The seven answers to the housing situation question.
+// KEEP_STEADY goes to prevention. LOSING_HOME, STAYING_SOMEWHERE, LEAVING_PRISON,
+// LEAVING_HOSPITAL and NOWHERE_TONIGHT are crisis: the housing loss has
+// materialised, whether or not the person has left their home yet. Leaving
+// prison and leaving hospital are separate answers, each its own pathway
+// (Managing Director, 20 November 2026; Housing Pathway Endpoints Contract).
+export type HousingSituation =
+  | 'KEEP_STEADY'
+  | 'LOSING_HOME'
+  | 'STAYING_SOMEWHERE'
+  | 'LEAVING_PRISON'
+  | 'LEAVING_HOSPITAL'
+  | 'NOWHERE_TONIGHT'
+  | 'NOT_SURE';
+
 export type GateType =
   // Init & Gates
   | 'INIT'
@@ -32,9 +47,10 @@ export type GateType =
   // Core Profiling
   | 'B1_LOCAL_AUTHORITY'
   | 'B2_WHO_FOR'
-  | 'B3_AGE_CATEGORY'
-  | 'B4_GENDER'
   | 'B5_MAIN_SUPPORT_NEED'
+  | 'B5_SECOND_SCREEN'
+  | 'B5_NOTICING'
+  | 'B5_HOUSING_OFFER'
   | 'B5A_ADVICE_TYPE'
   | 'B5_PROFILE_AGE'
   | 'B5_YOUTH_SOCIAL_SERVICES'
@@ -42,7 +58,6 @@ export type GateType =
   | 'B5_PROFILE_LGBTQ'
   | 'B5_PROFILE_CONVICTIONS'
   | 'B5_PROFILE_CHILDREN'
-  | 'B5A_ADDITIONAL_NEED_SELECTION'
   | 'B6_HOMELESSNESS_STATUS'
   | 'HOUSING_OPTIONS_INVOLVEMENT_ASK'
   | 'B7_HOUSED_SITUATION'
@@ -65,6 +80,7 @@ export type GateType =
   | 'B12A_WHICH_ORG'
   // Section C Profiling
   | 'C2_CONSENT_GATE'
+  | 'ARMED_FORCES_ASK'
   | 'C3Q1_IMMIGRATION_STATUS'
   | 'C3Q1A_EUSS_FOLLOWUP'
   | 'C3Q1B_PUBLIC_FUNDS_FOLLOWUP'
@@ -78,12 +94,18 @@ export type GateType =
   | 'C3Q9_CRIMINAL_CONVICTIONS'
   | 'C3Q10_LGBTQ'
   | 'C3Q10A_LGBTQ_SERVICE_PREFERENCE'
-  | 'C3Q11_CURRENTLY_IN_CARE'
-  | 'C3Q12_SOCIAL_SERVICES'
+  | 'C3Q11_EVER_IN_CARE_16_17'
+  | 'C3Q11_EVER_IN_CARE'
+  | 'C3Q11A_CARE_COUNCIL'
   // Safeguarding Routing
   | 'DV_GENDER_ASK'
   | 'DV_CHILDREN_ASK'
   | 'SA_GENDER_ASK'
+  // Safety from harm route (Safeguarding Contract 3.3)
+  | 'SAFETY_TYPE_OF_HARM'
+  | 'SAFETY_OK_TO_CONTINUE'
+  // Safety disclosure check (Safety Disclosure Check Design Note v1.0)
+  | 'SAFETY_DISCLOSURE_CHECK'
   // Crisis Location Gates
   | 'CRISIS_UNDER16_LOCATION'
   | 'CRISIS_FIRE_FLOOD_LOCATION'
@@ -93,8 +115,7 @@ export type GateType =
   | 'SESSION_END'
   // Escalation
   | 'ESCALATION_LEVEL_1'
-  | 'ESCALATION_LEVEL_2'
-  | 'ESCALATION_LEVEL_3';
+  | 'ESCALATION_LEVEL_2';
 
 // ============================================================
 // SESSION STATE
@@ -114,6 +135,8 @@ export interface SessionState {
   returnUser: boolean | null;
   returnOutcome: string | null;
   housingOptionsInvolvement: boolean | null;
+  // Answer to the housing situation question (Managing Director, 3 November 2026)
+  housingSituation: HousingSituation | null;
 
   // Core profile
   localAuthority: string | null;
@@ -126,6 +149,17 @@ export interface SessionState {
   gender: string | null;
   supportNeed: string | null;
   adviceSubcategory: string | null;
+  // First question in V4 terms (lib/data/v4Categories.ts): the option chosen,
+  // and the second-screen choice where the option has one.
+  v4Option?: string | null;
+  v4Choice?: string | null;
+  // Profile questions already asked this session, answered or not, so a
+  // "prefer not to say" (stored as null) is not asked again.
+  profileAsked?: string[];
+  // The noticing step (design note 3.5) is offered once a session.
+  noticingAsked?: boolean;
+  // Which housing answer was given there, for the offer after the results.
+  noticingHousing?: 'no-settled-place' | 'keep-home' | null;
   additionalNeeds: string[];
   needCount: number;
 
@@ -169,6 +203,18 @@ export interface SessionState {
   inCare: boolean | null;
   socialServices: string | null;
   youthSocialServicesAsked: boolean;
+  // "Have you ever been in care?" and "Which council looked after you?" (VA
+  // Pathway Review 5.2; Managing Director, 20 November 2026). Full route, 16 to
+  // 24 only. Never how long, at what age or under which section. Kept in the
+  // session only; not logged.
+  careExperience?: CareExperience | null;
+  // A council key (as in housing-pathway-endpoints.json), or ELSEWHERE,
+  // NOT_SURE, PREFER_NOT.
+  careCouncil?: string | null;
+  // "Have you ever served in the armed forces?" Crisis housing only, not asked
+  // of 16 and 17 year olds (Managing Director, 2 and 20 November 2026).
+  // Yes true, No false, Prefer not to say or not asked null.
+  servedInArmedForces: boolean | null;
 
   // Flags
   isSupporter: boolean;
@@ -177,6 +223,20 @@ export interface SessionState {
   // Safeguarding
   safeguardingTriggered: boolean;
   safeguardingType: string | null;
+  // Safety from harm route: the one type of harm the person chose. Not shown
+  // back, not logged; it only selects the exit.
+  safetyHarm?: 'DOMESTIC_ABUSE' | 'SEXUAL_VIOLENCE' | 'MODERN_SLAVERY' | 'OTHER' | null;
+  // Safety disclosure check (design note v1.0, sections 3 and 7). Held in the
+  // conversation's own state only, never logged: the families a clear No has
+  // used up, the families the message being asked about matched, and the
+  // question to go back to.
+  safetyCheckDeclined?: string[];
+  safetyCheckPending?: string[];
+  safetyCheckReturnGate?: GateType | null;
+  // Who someone came in as, where a Yes at the check switched them to their
+  // own wording: the session-end record keeps this, so the check changes
+  // nothing recorded (Managing Director, 26 November 2026).
+  safetyCheckCameAs?: 'SUPPORTER' | 'PROFESSIONAL' | null;
   dvGender: string | null;
   dvChildren: boolean | null;
   saGender: string | null;
@@ -204,11 +264,16 @@ export interface RoutingResult {
   stateUpdates: Partial<SessionState>;
   sessionEnded?: boolean;
   responseType?: string;
+  // A question that takes several answers: the option numbers that answer
+  // on their own (lib/noticing.ts, noticingMultiSelect).
+  multiSelect?: { exclusive: number[] };
 }
 
 export interface TerminalResult {
   text: string;
   terminalOutcome?: string;
+  // True where local services are listed in the text.
+  hasLocal?: boolean;
 }
 
 // ============================================================
@@ -236,7 +301,13 @@ export interface DefaultOrg {
   isCouncil?: boolean;
   isDropIn?: boolean;
   availabilityNote?: string;
+  isYouthRoute?: boolean;
 }
+
+// 16-17: IN_CARE_NOW, LEFT_CARE, SOCIAL_WORKER, NO, NOT_SURE, PREFER_NOT.
+// 18-24: YES, NO, NOT_SURE, PREFER_NOT.
+export type CareExperience =
+  | 'IN_CARE_NOW' | 'LEFT_CARE' | 'SOCIAL_WORKER' | 'YES' | 'NO' | 'NOT_SURE' | 'PREFER_NOT';
 
 export interface UserProfile {
   localAuthority: string | null;
@@ -254,6 +325,12 @@ export interface UserProfile {
   lgbtqServicePreference?: string | null;
   dv?: boolean;
   adviceSubcategory?: string | null;
+  v4Option?: string | null;
+  v4Choice?: string | null;
+  servedInArmedForces?: boolean | null;
+  ethnicity?: string | null;
+  // Yes, in care now or left care: lifts services tagged care-leavers.
+  careExperienced?: boolean;
 }
 
 export interface ServiceCard {
@@ -292,5 +369,10 @@ export function toUserProfile(session: SessionState): UserProfile {
     lgbtqServicePreference: session.lgbtqServicePreference,
     dv: session.safeguardingType === 'DOMESTIC_ABUSE',
     adviceSubcategory: session.adviceSubcategory,
+    v4Option: session.v4Option ?? null,
+    v4Choice: session.v4Choice ?? null,
+    servedInArmedForces: session.servedInArmedForces ?? null,
+    ethnicity: session.ethnicity ?? null,
+    careExperienced: ['YES', 'IN_CARE_NOW', 'LEFT_CARE'].includes(session.careExperience ?? ''),
   };
 }
