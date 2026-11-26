@@ -64,7 +64,7 @@ describe('Noticing question through the route: more than one answer', () => {
     s = { ...s, ...processInput(s, '3').stateUpdates };
     const body = await send('1', s) as Body & { ms?: { exclusive: number[] } };
     expect(decode(body.s).currentGate).toBe('B5_NOTICING');
-    expect(body.ms?.exclusive.length).toBe(3);
+    expect(body.ms?.exclusive.length).toBe(4);
   });
 
   test('two ticked pressures, sent together, are both read', async () => {

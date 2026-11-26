@@ -395,13 +395,14 @@ describe('Noticing step: choosing more than one (design paper, Part C, 3.5)', ()
     const r = asked();
     const opts = r.options ?? [];
     const alone = (r.multiSelect?.exclusive ?? []).map(n => opts[n - 1]);
-    expect(alone).toEqual(['Nothing else', "I'm not sure", 'Just show me food near me']);
+    // "Feeling unsafe" acts at once too (#73 review, 26 November 2026).
+    expect(alone).toEqual(['Feeling unsafe', 'Nothing else', "I'm not sure", 'Just show me food near me']);
   });
 
   test('the unclear answer asks again with the same control', () => {
     const s = { ...sessionAt('B5_MAIN_SUPPORT_NEED'), ...asked().stateUpdates } as SessionState;
     const again = processInput({ ...s, v4Option: 'everyday', v4Choice: 'A hot meal' }, 'not a number');
-    expect(again.multiSelect?.exclusive.length).toBe(3);
+    expect(again.multiSelect?.exclusive.length).toBe(4);
   });
 
   test('ticked answers arrive as the chat window sends them, "1, 3"', () => {
