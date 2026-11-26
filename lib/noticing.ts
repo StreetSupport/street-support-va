@@ -38,14 +38,16 @@ export type PressureId =
   | 'money' | 'health' | 'relationships' | 'addiction'
   | 'keep-home' | 'no-settled-place' | 'unsafe' | 'nothing-else' | 'not-sure';
 
+// Feeling unsafe first, so it is never missed (Managing Director, 26 November
+// 2026, on James Cross's review of #73).
 export const PRESSURES: { id: PressureId; label: string }[] = [
+  { id: 'unsafe', label: 'Feeling unsafe' },
   { id: 'money', label: 'Money, work or bills' },
   { id: 'health', label: "Health, including how I'm feeling" },
   { id: 'relationships', label: 'Family or relationships' },
   { id: 'addiction', label: 'Drink, drugs or gambling' },
   { id: 'keep-home', label: 'Keeping my home or paying rent' },
   { id: 'no-settled-place', label: "I don't have a settled place to live" },
-  { id: 'unsafe', label: 'Feeling unsafe' },
   { id: 'nothing-else', label: 'Nothing else' },
   { id: 'not-sure', label: "I'm not sure" },
 ];
