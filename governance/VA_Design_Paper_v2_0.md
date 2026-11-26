@@ -88,6 +88,7 @@ Part C is carried word for word, so these amendments are recorded here and gover
 5. **People leaving prison or hospital** (Part C, section 2) are labelled "Crisis, leaving with nowhere to go: the loss has materialised", not "Crisis, home lost". The answer assumes they have not yet left and can still reach prison or hospital staff. Someone who has already left is in a different situation and would describe it differently, for example as sleeping rough. Routing is unchanged.
 6. **The eviction and family reasons inside prevention** come out, or are reworded, once the housing situation question lands. "Going to lose it" is answered once, at that question (G2.1, G2.2).
 7. **The prevention route's dependants question** asks about dependent children only. Pregnancy is not part of that trigger (G2.10).
+8. **The noticing step** (Part C, section 3.5). "Feeling unsafe" is listed first, so it is never missed (on the technical lead's review of #73). The question adds "You can choose more than one." The pressures are ticked and sent together with "Continue"; "Nothing else", "I'm not sure" and the skip answer at once.
 
 ---
 
@@ -286,7 +287,7 @@ They stay under safeguarding, in a conversation with choice, not a hard exit. (M
 
 ### 3.5 Prevention
 
-> **Amended by A.4:** item 1, "Before a crisis"; item 2, "the materialisation check" means the housing situation question; items 6 and 7, the eviction and family reasons and the children-only dependants question.
+> **Amended by A.4:** item 1, "Before a crisis"; item 2, "the materialisation check" means the housing situation question; items 6 and 7, the eviction and family reasons and the children-only dependants question; item 8, the noticing step's order and how several answers are chosen.
 
 - **The noticing step:** after the need, the assistant asks what else is putting pressure on the person, keeps the pressures they name in view together and reflects the link back in approved wording. It rests only on what the person states. (MD, 2 November 2026.) The wording (MD, 8 November 2026): "Thanks. Sometimes one thing is tied up with others. Is anything else putting pressure on you at the moment?" Multi-select, leaving out the need already chosen (health, including how I'm feeling, is left out only for someone who came about mental health: a physical or sexual health need is not the same need; MD, 20 November 2026): money, work or bills; health, including how I'm feeling; family or relationships; drink, drugs or gambling; keeping my home or paying rent; I don't have a settled place to live; feeling unsafe; nothing else; I'm not sure. A skip, "Just show me help with [need]", so declining still gets what they came for. Asked once a conversation (MD, 19 November 2026).
 - **The awareness line** is the Managing Director's wording of 2 November 2026. Until the matcher can find one organisation that fits across pressures (it needs the shape field), it ends with a fallback instead (MD, 8 November 2026):
@@ -658,7 +659,7 @@ A person can say something about their safety in their own words at any point. T
 - **Yes** goes to the Safety from harm route and stays there. **No** and **unclear** go back to the question the person was at, with their earlier answers kept.
 - **No AI.** Patterns only. The answer is read by code. Nothing new is sent to the AI provider.
 - **Not run** where the person is already on a safeguarding route or the conversation has ended. The design lists these steps in code, each with a test.
-- **Built, not yet reviewed:** on `feat/safety-disclosure-check-2026-11-26`, for the technical lead.
+- **Built, not yet reviewed:** #95, on #82, for the technical lead, before the trial.
 - **Nothing is recorded** for the check itself.
 - **Status:** the trigger list and four further points are approved by the Managing Director, pending the technical lead's review.
 
