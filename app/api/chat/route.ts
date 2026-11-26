@@ -304,7 +304,8 @@ export async function POST(request: NextRequest) {
       m: result.text,
       o: result.options,
       e: result.sessionEnded,
-      responseType: result.responseType
+      responseType: result.responseType,
+      ms: result.multiSelect,
     });
     
   } catch (error) {
