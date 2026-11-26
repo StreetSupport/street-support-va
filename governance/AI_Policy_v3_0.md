@@ -158,6 +158,7 @@ AI adds value in these areas, but always with a human in the loop.
 - Calendar scheduling and meeting coordination
 - Meeting transcription and summaries
 - Data entry and basic reporting
+- Checking and organising information about services, with people setting the rules and deciding what goes live
 - Email and template drafts
 
 ## Content Creation
