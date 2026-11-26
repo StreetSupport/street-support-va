@@ -162,6 +162,10 @@ export interface SessionState {
   // "Not sure where to start": more than one pressure ticked, so the results
   // carry the awareness line (Managing Director, 26 November 2026).
   notSureAware?: boolean;
+  // The in-person route has shown the first question again, so "not sure
+  // where to start" is left off it until another option is chosen (#73
+  // review; Managing Director, 26 November 2026).
+  notSureInPersonShown?: boolean;
   // Which housing answer was given there, for the offer after the results.
   noticingHousing?: 'no-settled-place' | 'keep-home' | null;
   additionalNeeds: string[];
