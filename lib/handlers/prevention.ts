@@ -16,7 +16,7 @@
 
 import { getPhrase } from '../phrasebank';
 import type { SessionState, RoutingResult, TerminalResult } from '../types';
-import { phrase, safeguardingExit, childrensServicesBlock, housingOptionsBlock } from './shared';
+import { phrase, safeguardingExit, childrensServicesBlock, housingOptionsBlock, housingOptionsHeading, afterOpening } from './shared';
 
 // ============================================================================
 // Gate handlers
@@ -95,7 +95,6 @@ export function handleB7D4PreventionSafeguardingSignals(
 
   // Check escalation triggers
   const isUrgent = session.preventionUrgency === 'Now/soon';
-  const hasChildren = session.preventionChildren === 'Yes' || session.pregnant === true;
   const isEviction = session.preventionReason?.includes('Eviction');
 
   if (isUrgent && isEviction) {
@@ -107,28 +106,42 @@ export function handleB7D4PreventionSafeguardingSignals(
     };
   }
 
+  return familyAwareEnding(session, { preventionSafeguardingSignals: sig }, buildTerminalServices);
+}
+
+/**
+ * The end of prevention, with children taken into account (restored from the
+ * original phrasebank, Managing Director, 26 November 2026). Used after the
+ * safeguarding question and after its follow-up, so no route misses it.
+ * Urgent with children: the fuller escalation and the council's contact, and
+ * the conversation carries on. Otherwise, with children: the family advice,
+ * then the results.
+ */
+function familyAwareEnding(
+  session: SessionState,
+  extra: Partial<SessionState>,
+  buildTerminalServices: (session: SessionState) => TerminalResult
+): RoutingResult {
+  const isUrgent = session.preventionUrgency === 'Now/soon';
+  const hasChildren = session.preventionChildren === 'Yes' || session.pregnant === true;
+  const additional = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
+
   if (isUrgent && hasChildren) {
-    // The original kept the conversation open (restored, Managing Director,
-    // 26 November 2026): the council's contact, then the offer of more help.
     const childRisk = getPhrase('ESCALATION_LEVEL_2_CHILDREN_RISK', session.isSupporter);
-    const additional = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
     return {
-      text: `${childRisk?.text || ''}\n\nYOUR COUNCIL'S HOUSING OPTIONS TEAM\n${housingOptionsBlock(session)}\n\n${additional?.text || ''}`,
+      text: `${childRisk?.text || ''}\n\n${housingOptionsHeading(session)}\n${housingOptionsBlock(session)}\n\n${additional?.text || ''}`,
       options: additional?.options,
-      stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', escalationLevel: 2, preventionSafeguardingSignals: sig },
+      stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', escalationLevel: 2, ...extra },
       sessionEnded: false
     };
   }
 
-  // Normal terminal. With children, the family advice first (restored from
-  // the original phrasebank, Managing Director, 26 November 2026).
   const result = buildTerminalServices(session);
-  const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
   const family = hasChildren ? (getPhrase('PREVENTION_ADVICE_CHILDREN_SUPPORT', session.isSupporter)?.text ?? '') + '\n\n' : '';
   return {
-    text: family + result.text + '\n' + additionalNeeds?.text,
-    options: additionalNeeds?.options,
-    stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', preventionSafeguardingSignals: sig, ...(result.terminalOutcome ? { terminalOutcome: result.terminalOutcome } : {}) },
+    text: family + result.text + '\n' + additional?.text,
+    options: additional?.options,
+    stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', ...extra, ...(result.terminalOutcome ? { terminalOutcome: result.terminalOutcome } : {}) },
     sessionEnded: false
   };
 }
@@ -150,17 +163,11 @@ export function handleB7D4APreventionSafeguardingFollowUp(
       };
     case 4: { // Child safety: the council's Children's Services, as the original
       // phrasebank had (restored, Managing Director, 26 November 2026)
+      // First, as the original had it.
       const exit = safeguardingExit('CHILD_AT_RISK_EXIT', session.userType, 'CHILD_AT_RISK');
-      return { ...exit, text: exit.text + childrensServicesBlock(session) };
+      return { ...exit, text: afterOpening(exit.text, childrensServicesBlock(session)) };
     }
-    default: // Continue to terminal
-      const result2 = buildTerminalServices(session);
-      const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-      return {
-        text: result2.text + '\n' + additionalNeeds?.text,
-        options: additionalNeeds?.options,
-        stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', ...(result2.terminalOutcome ? { terminalOutcome: result2.terminalOutcome } : {}) },
-        sessionEnded: false
-      };
+    default: // Continue to the end of prevention, with children taken into account
+      return familyAwareEnding(session, {}, buildTerminalServices);
   }
 }

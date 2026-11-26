@@ -50,13 +50,13 @@ describe('Prevention with children', () => {
   });
 
   test('not urgent: the family advice before the results, with Family Fund described correctly', () => {
-    const r = processInput(at('B7D_4_PREVENTION_SAFEGUARDING_SIGNALS', { ...base, preventionUrgency: 'Not immediate' }), '2');
+    const r = processInput(at('B7D_4_PREVENTION_SAFEGUARDING_SIGNALS', { ...base, preventionUrgency: 'Not urgent' }), '2');
     expect(r.text.startsWith('Because you have children')).toBe(true);
     expect(r.text).toContain('raising a disabled or seriously ill child');
   });
 
   test('no children: no family advice', () => {
-    const r = processInput(at('B7D_4_PREVENTION_SAFEGUARDING_SIGNALS', { ...base, preventionChildren: 'No', preventionUrgency: 'Not immediate' }), '2');
+    const r = processInput(at('B7D_4_PREVENTION_SAFEGUARDING_SIGNALS', { ...base, preventionChildren: 'No', preventionUrgency: 'Not urgent' }), '2');
     expect(r.text).not.toContain('Because you have children');
   });
 
@@ -65,4 +65,76 @@ describe('Prevention with children', () => {
     expect(r.text).toContain("CHILDREN'S SERVICES\nWalsall Children's Services");
     expect(r.text).toContain('NSPCC');
   });
+});
+
+describe('Review fixes, 26 November', () => {
+  test("child safety concern: Children's Services comes first, before NSPCC and the 999 line", () => {
+    const r = processInput(at('B7D_4A_PREVENTION_SAFEGUARDING_FOLLOW_UP', { localAuthority: 'Walsall' }), '4');
+    const cs = r.text.indexOf("CHILDREN'S SERVICES");
+    expect(cs).toBeGreaterThan(0);
+    expect(cs).toBeLessThan(r.text.indexOf('NSPCC'));
+    expect(cs).toBeLessThan(r.text.indexOf('999'));
+  });
+
+  test("the follow-up's other answers still get the family ending (urgent, with children)", () => {
+    const r = processInput(at('B7D_4A_PREVENTION_SAFEGUARDING_FOLLOW_UP', {
+      localAuthority: 'Sandwell', preventionChildren: 'Yes', preventionUrgency: 'Now/soon', preventionReason: 'Rent arrears',
+    }), '5');
+    expect(r.text).toContain('You may want to tell them:');
+    expect(r.text).toContain('Sandwell');
+  });
+
+  test("the follow-up's other answers still get the family advice (not urgent, with children)", () => {
+    const r = processInput(at('B7D_4A_PREVENTION_SAFEGUARDING_FOLLOW_UP', {
+      localAuthority: 'Sandwell', preventionChildren: 'Yes', preventionUrgency: 'Not urgent', preventionReason: 'Rent arrears',
+    }), '3');
+    expect(r.text.startsWith('Because you have children')).toBe(true);
+  });
+
+  test('council contacts keep their menu option, hours and notes', () => {
+    const wolves = processInput(at('B7D_4_PREVENTION_SAFEGUARDING_SIGNALS', {
+      localAuthority: 'Wolverhampton', preventionChildren: 'Yes', preventionUrgency: 'Now/soon', preventionReason: 'Rent arrears',
+    }), '2');
+    expect(wolves.text).toContain('01902 556789, option 2 (Mon-Fri 9am-5pm)');
+    const brum = processInput(at('B7D_4_PREVENTION_SAFEGUARDING_SIGNALS', {
+      localAuthority: 'Birmingham', preventionChildren: 'Yes', preventionUrgency: 'Now/soon', preventionReason: 'Rent arrears',
+    }), '2');
+    expect(brum.text).toContain('Out of hours: 0121 303 2296 (18+ only. Under 18: 0121 675 4806)');
+  });
+
+  test("Walsall Children's Services is shown without a menu option (decision of 26 November)", () => {
+    const r = processInput(at('DV_CHILDREN_ASK', { dvGender: 'Female', localAuthority: 'Walsall' }), '1');
+    expect(r.text).toContain('0300 555 2866');
+    expect(r.text).not.toContain('0300 555 2866, option 2');
+  });
+
+  test("supporters are told about their council, not 'your council'", () => {
+    const urgent = processInput(at('B7D_4_PREVENTION_SAFEGUARDING_SIGNALS', {
+      localAuthority: 'Walsall', preventionChildren: 'Yes', preventionUrgency: 'Now/soon', preventionReason: 'Rent arrears', isSupporter: true,
+    }), '2');
+    expect(urgent.text).toContain("THE COUNCIL'S HOUSING OPTIONS TEAM");
+    expect(urgent.text).not.toContain("YOUR COUNCIL'S");
+    const dv = processInput(at('DV_CHILDREN_ASK', { dvGender: 'Female', isSupporter: true, userType: 'SUPPORTER' }), '1');
+    expect(dv.text).toContain("Contact their local council and ask for Children's Services");
+  });
+
+  test('supporters get their own family advice', () => {
+    const r = processInput(at('B7D_4_PREVENTION_SAFEGUARDING_SIGNALS', {
+      localAuthority: 'Walsall', preventionChildren: 'Yes', preventionUrgency: 'Not urgent', preventionReason: 'Rent arrears', isSupporter: true,
+    }), '2');
+    expect(r.text.startsWith('Because they have children')).toBe(true);
+  });
+
+  test('the supporter version of the domestic abuse children question asks about children only', () => {
+    const r = processInput(at('DV_GENDER_ASK', { isSupporter: true, userType: 'SUPPORTER' }), '1');
+    expect(r.text).toContain('Do they have dependent children?');
+    expect(r.text).not.toMatch(/pregnant/i);
+  });
+
+  test.each([['Female', '1'], ['Male', '2'], ['Non-binary or other', '1'], ['Prefer not to say', '2']])(
+    "every domestic abuse exit gives the council's Housing Options (%s, answer %s)", (dvGender, answer) => {
+      const r = processInput(at('DV_CHILDREN_ASK', { dvGender, localAuthority: 'Coventry' }), answer);
+      expect(r.text).toContain('HOUSING OPTIONS');
+      expect(r.text).toContain('024 7683 4025');
+    });
 });

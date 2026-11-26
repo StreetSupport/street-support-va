@@ -13,7 +13,7 @@
  */
 
 import type { SessionState, RoutingResult } from '../types';
-import { phrase, safeguardingExit, buildUnder16Exit, childrensServicesBlock } from './shared';
+import { phrase, safeguardingExit, buildUnder16Exit, childrensServicesBlock, housingOptionsBlock } from './shared';
 import { getPronouns } from '../utils/pronouns';
 import endpointsData from '../data/housing-pathway-endpoints.json';
 import safeguardingEndpoints from '../data/safeguarding-endpoints.json';
@@ -293,16 +293,19 @@ export function handleDVChildrenAsk(session: SessionState, choice: number | null
   // A Yes adds the council's Children's Services, as the original phrasebank
   // (v7.1) did for every "children: yes" exit (restored, Managing Director,
   // 26 November 2026).
+  // Every exit also gives the council's Housing Options, as all twelve of the
+  // original's domestic abuse exits did (restored, same decision).
   const dvChildren = choice === 1;
   const children = dvChildren ? childrensServicesBlock(session) : '';
+  const housing = `\n\nHOUSING OPTIONS\n${housingOptionsBlock(session)}`;
   if (!session.dvGender || session.dvGender === 'Prefer not to say') {
     const general = buildGeneralDVExit(session);
-    return { ...general, text: general.text + children };
+    return { ...general, text: general.text + children + housing };
   }
   const dvExitKey = getDVExitKey(session.dvGender, dvChildren);
   const result = safeguardingExit(dvExitKey, session.userType, 'DOMESTIC_ABUSE');
   const localDV = buildLocalDVInfo(session);
-  return { ...result, text: beforeClosing999(result.text, children) + localDV };
+  return { ...result, text: beforeClosing999(result.text, children + housing) + localDV };
 }
 
 export function handleSAGenderAsk(session: SessionState, choice: number | null): RoutingResult {
@@ -483,8 +486,10 @@ function beforeClosing999(text: string, block: string): string {
 /** What a second unclear answer at a strict question leads to. */
 export function crisisQuestionFallback(session: SessionState): RoutingResult {
   switch (session.currentGate) {
-    case 'DV_GENDER_ASK':
-      return buildGeneralDVExit(session);
+    case 'DV_GENDER_ASK': {
+      const general = buildGeneralDVExit(session);
+      return { ...general, text: `${general.text}\n\nHOUSING OPTIONS\n${housingOptionsBlock(session)}` };
+    }
     case 'DV_CHILDREN_ASK':
       // As if Yes (Managing Director, 25 November 2026)
       return handleDVChildrenAsk(session, 1);

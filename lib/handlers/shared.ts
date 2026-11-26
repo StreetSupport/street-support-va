@@ -45,17 +45,38 @@ export const childrenServicesData = Object.fromEntries(
 ) as Record<string, { name: string; phone: string; phoneOOH?: string; website: string }>;
 
 // Council contacts by Local Authority, for blocks shown inside results and exits.
+type Contact = {
+  name: string; phone: string; phoneOOH?: string; website: string;
+  phoneOption?: string; phoneHours?: string; phoneOOHNote?: string; phoneNote?: string;
+};
+
 const housingOptionsData = Object.fromEntries(
   Object.entries(endpointsData)
     .filter(([key]) => key !== '_metadata')
-    .map(([la, data]) => [la, (data as { housingOptions: { name: string; phone: string; phoneOOH?: string; website: string } }).housingOptions])
-) as Record<string, { name: string; phone: string; phoneOOH?: string; website: string }>;
+    .map(([la, data]) => [la, (data as { housingOptions: Contact }).housingOptions])
+) as Record<string, Contact>;
 
-type Contact = { name: string; phone: string; phoneOOH?: string; website: string };
+const childrenServicesFull = Object.fromEntries(
+  Object.entries(endpointsData)
+    .filter(([key]) => key !== '_metadata')
+    .map(([la, data]) => [la, (data as { childrenServices: Contact }).childrenServices])
+) as Record<string, Contact>;
 
-function contactLines(c: Contact): string {
-  const phone = c.phoneOOH ? `${c.phone} (out of hours: ${c.phoneOOH})` : c.phone;
-  return `${c.name}\n${phone}\n${c.website}`;
+// Everything the data holds about a number: menu option, hours, notes (such as
+// Birmingham's adult-only out-of-hours line). A menu option is left out for
+// Children's Services: the Managing Director decided on 26 November 2026 to
+// leave Walsall's "option 2" out, so the number stays right if the menu changes.
+function contactLines(c: Contact, withOption: boolean): string {
+  const main = [c.phone, withOption ? c.phoneOption : undefined].filter(Boolean).join(', ');
+  const lines = [c.name, c.phoneHours ? `${main} (${c.phoneHours})` : main];
+  if (c.phoneNote) lines.push(c.phoneNote);
+  if (c.phoneOOH) lines.push(`Out of hours: ${c.phoneOOH}${c.phoneOOHNote ? ` (${c.phoneOOHNote})` : ''}`);
+  lines.push(c.website);
+  return lines.join('\n');
+}
+
+function isSelf(session: SessionState): boolean {
+  return !session.isSupporter && session.userType !== 'SUPPORTER' && session.userType !== 'PROFESSIONAL';
 }
 
 /**
@@ -66,10 +87,11 @@ function contactLines(c: Contact): string {
  */
 export function childrensServicesBlock(session: SessionState): string {
   const la = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
-  const cs = childrenServicesData[la];
+  const cs = childrenServicesFull[la];
+  const whose = isSelf(session) ? 'your' : 'their';
   const body = cs
-    ? contactLines(cs)
-    : `Contact your local council and ask for Children's Services:\nhttps://www.gov.uk/find-local-council`;
+    ? contactLines(cs, false)
+    : `Contact ${whose} local council and ask for Children's Services:\nhttps://www.gov.uk/find-local-council`;
   return `\n\nCHILDREN'S SERVICES\n${body}`;
 }
 
@@ -77,7 +99,19 @@ export function childrensServicesBlock(session: SessionState): string {
 export function housingOptionsBlock(session: SessionState): string {
   const la = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
   const ho = housingOptionsData[la];
-  return ho ? contactLines(ho) : `Find your local council: https://www.gov.uk/find-local-council`;
+  const whose = isSelf(session) ? 'your' : 'their';
+  return ho ? contactLines(ho, true) : `Find ${whose} local council: https://www.gov.uk/find-local-council`;
+}
+
+/** Heading for the Housing Options block, in the right voice. */
+export function housingOptionsHeading(session: SessionState): string {
+  return isSelf(session) ? "YOUR COUNCIL'S HOUSING OPTIONS TEAM" : "THE COUNCIL'S HOUSING OPTIONS TEAM";
+}
+
+/** Puts a block straight after an exit's opening paragraph. */
+export function afterOpening(text: string, block: string): string {
+  const i = text.indexOf('\n\n');
+  return i < 0 ? text + block : text.slice(0, i) + block + text.slice(i);
 }
 
 export function buildUnder16Exit(session: SessionState): RoutingResult {
