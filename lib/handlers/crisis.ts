@@ -17,6 +17,8 @@ import { phrase, safeguardingExit, buildUnder16Exit, childrensServicesBlock, hou
 import { getPronouns } from '../utils/pronouns';
 import endpointsData from '../data/housing-pathway-endpoints.json';
 import safeguardingEndpoints from '../data/safeguarding-endpoints.json';
+import { QUICK_EXIT_NOTE } from '../phrasebank';
+import { reachedFromSafetyRoute, safetyLocalSections } from './safetyLocal';
 
 interface EndpointEntry {
   housingOptions: { name: string; phone: string; phoneOOH?: string; website: string };
@@ -150,7 +152,7 @@ function getSAExitKey(gender: string | null): string {
 // Local safeguarding info builders
 // ============================================================================
 
-function buildSARCInfo(session: SessionState): string {
+export function buildSARCInfo(session: SessionState): string {
   const age = session.ageCategory;
   const isYoung = age === 'Under 16' || age === '16-17';
   const sarc = isYoung
@@ -175,7 +177,7 @@ interface DVLocalOrg {
   ooh_fallback?: string;
 }
 
-function buildLocalDVInfo(session: SessionState): string {
+export function buildLocalDVInfo(session: SessionState): string {
   const la = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
   if (!la) return '';
 
@@ -273,6 +275,18 @@ export function handleCrisisFireFloodLocation(session: SessionState, choice: num
   }
 }
 
+// Help first, then how to leave quickly (quick exit proposal, Managing Director,
+// 19 November 2026). Where an exit closes on its 999 line, that line stays last
+// (Supporter Professional Language Review v1.1), so the note goes just before it.
+export function withQuickExitNote(text: string): string {
+  const lines = text.replace(/\s+$/, '').split('\n');
+  const last = lines[lines.length - 1] ?? '';
+  if (/call 999\.?$/.test(last.trim())) {
+    return [...lines.slice(0, -1), QUICK_EXIT_NOTE, '', last].join('\n');
+  }
+  return `${lines.join('\n')}\n\n${QUICK_EXIT_NOTE}`;
+}
+
 export function handleDVGenderAsk(session: SessionState, choice: number | null): RoutingResult {
   const dvGenders = ['Female', 'Male', 'Non-binary or other', 'Prefer not to say'];
   const dvGender = choice ? dvGenders[choice - 1] : null;
@@ -305,7 +319,11 @@ export function handleDVChildrenAsk(session: SessionState, choice: number | null
   const dvExitKey = getDVExitKey(session.dvGender, dvChildren);
   const result = safeguardingExit(dvExitKey, session.userType, 'DOMESTIC_ABUSE');
   const localDV = buildLocalDVInfo(session);
-  return { ...result, text: beforeClosing999(result.text, children + housing) + localDV };
+  // Reached from the Safety route: its local sections too (safetyLocal.ts).
+  // From the crisis gate: unchanged. The restored children and housing
+  // sections sit before the closing 999 line; the quick exit note last.
+  const safetyLocal = reachedFromSafetyRoute(session) ? safetyLocalSections(session, session.dvGender) : '';
+  return { ...result, text: withQuickExitNote(beforeClosing999(result.text, children + housing) + localDV + safetyLocal) };
 }
 
 export function handleSAGenderAsk(session: SessionState, choice: number | null): RoutingResult {
@@ -316,7 +334,8 @@ export function handleSAGenderAsk(session: SessionState, choice: number | null):
   const saExitKey = getSAExitKey(saGender);
   const result = safeguardingExit(saExitKey, session.userType, 'SEXUAL_VIOLENCE');
   const sarcInfo = buildSARCInfo(session);
-  return { ...result, text: result.text + sarcInfo };
+  const safetyLocal = reachedFromSafetyRoute(session) ? safetyLocalSections(session, saGender) : '';
+  return { ...result, text: withQuickExitNote(result.text + sarcInfo + safetyLocal) };
 }
 
 // ============================================================================
@@ -442,14 +461,19 @@ export function buildGeneralDVExit(session: SessionState): RoutingResult {
   const text = opening(audienceOf(session), "I'm really sorry this is happening.")
     + localDVForEveryone(session)
     + `\n\nNATIONAL DOMESTIC ABUSE LINES\n${NDAH}\n\n${MANKIND}\n\n${GALOP}\n\n${SHELTER_DV}`;
-  return { ...safeguardingExit('DV_GENERAL', session.userType, 'DOMESTIC_ABUSE'), text };
+  // As every domestic abuse exit on the build line: the Safety route's local
+  // sections where reached from it, and the quick exit note (merge of #93 with
+  // the build line, 26 November 2026).
+  const safetyLocal = reachedFromSafetyRoute(session) ? safetyLocalSections(session, session.dvGender) : '';
+  return { ...safeguardingExit('DV_GENERAL', session.userType, 'DOMESTIC_ABUSE'), text: withQuickExitNote(text + safetyLocal) };
 }
 
 export function buildGeneralSAExit(session: SessionState): RoutingResult {
   const text = opening(audienceOf(session), "I'm really sorry this has happened.")
     + buildSARCInfo(session)
     + `\n\nNATIONAL SEXUAL VIOLENCE LINES\n${RAPE_CRISIS}\n\n${SURVIVORS_UK}\n\n${GALOP}`;
-  return { ...safeguardingExit('SA_GENERAL', session.userType, 'SEXUAL_VIOLENCE'), text };
+  const safetyLocal = reachedFromSafetyRoute(session) ? safetyLocalSections(session, session.saGender) : '';
+  return { ...safeguardingExit('SA_GENERAL', session.userType, 'SEXUAL_VIOLENCE'), text: withQuickExitNote(text + safetyLocal) };
 }
 
 // ============================================================================

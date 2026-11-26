@@ -1,3 +1,5 @@
+import { isSafetyRouteEnabled } from './safetyRouteSwitch';
+
 // Street Support VA v7 Phrasebank - COMPLETE VERSION
 // All phrases from CHAR_VA_Phrasebank_v7.md
 // Generated 2026-02-01
@@ -7,6 +9,15 @@ export interface PhraseEntry {
   options?: string[];
   responseType?: string;
 }
+
+// Quick exit note, option A of "Quick exit: proposal for review" (Managing
+// Director, 19 November 2026). Shown on the Safety from harm route before the
+// first question, and after help on the domestic abuse and sexual violence exits.
+// Works for supporters too: it describes whoever is at the screen. The
+// "staying safer online" link is added once a page is chosen and checked at
+// source; none has been, so none is shown. "It clears our conversation" stands
+// once the technical review has verified what the exit clears.
+export const QUICK_EXIT_NOTE = `Need to leave quickly? Press "Exit this page". On a keyboard you can also press Shift three times. It clears our conversation, but not your browsing history. You can come back and start again at any time.`;
 
 export const phrasebank: Record<string, PhraseEntry> = {
 
@@ -302,80 +313,71 @@ Support with Benefits and Grants | Turn2us - https://www.turn2us.org.uk/`
     options: ["Myself", "Someone I'm supporting", "I'm a professional or organisation", "Not sure / just trying to find the right place"]
   },
 
-  B3_AGE_CATEGORY: {
-    text: `Which age group are you in?
-
-1. Under 16
-2. 16-17
-3. 18-24
-4. 25 or over`,
-    options: ["Under 16", "16-17", "18-24", "25 or over"]
-  },
-
-  B3_AGE_CATEGORY__SUPPORTER: {
-    text: `Which age group are they in?
-
-1. Under 16
-2. 16-17
-3. 18-24
-4. 25 or over`,
-    options: ["Under 16", "16-17", "18-24", "25 or over"]
-  },
-
-  B4_GENDER: {
-    text: `I need to ask about gender because some services are specifically for particular genders. I know these options don't fit everyone perfectly - please choose whichever feels closest, or 'Prefer not to say' if you'd rather skip this.
-
-1. Male
-2. Female
-3. Non-binary or other
-4. Prefer not to say`,
-    options: ["Male", "Female", "Non-binary or other", "Prefer not to say"]
-  },
-
-  B4_GENDER__SUPPORTER: {
-    text: `I need to ask about gender because some services are specifically for particular genders. These options might not fit everyone perfectly.
-
-1. Male
-2. Female
-3. Non-binary or other
-4. Prefer not to say`,
-    options: ["Male", "Female", "Non-binary or other", "Prefer not to say"]
-  },
-
+  // First question (VA V4 Redesign Design Note, Decision 1, Managing Director,
+  // 4 November 2026). Labels must match lib/data/v4Categories.ts.
   B5_MAIN_SUPPORT_NEED: {
-    text: `What kind of support are you looking for?
+    text: `What would you like help with?
 
-1. Emergency Housing or Other Accommodation
-2. Food
-3. Work
-4. Health Services
-5. Advice Services
-6. Drop In
-7. Financial Help
-8. Personal Items
-9. Personal Services
-10. Communications
-11. Training
-12. Activities`,
-    options: ["Emergency Housing or Other Accommodation", "Food", "Work", "Health Services", "Advice Services", "Drop In", "Financial Help", "Personal Items", "Personal Services", "Communications", "Training", "Activities"]
+1. Somewhere to live, or help to keep my home
+2. Staying safe from abuse, exploitation or harm
+3. Food, clothes or other everyday things
+4. Money, debt, benefits or work
+5. Health, drugs, alcohol or gambling
+6. Immigration or asylum
+7. Things to do and people to meet
+8. I'm not sure where to start`,
+    options: ["Somewhere to live, or help to keep my home", "Staying safe from abuse, exploitation or harm", "Food, clothes or other everyday things", "Money, debt, benefits or work", "Health, drugs, alcohol or gambling", "Immigration or asylum", "Things to do and people to meet", "I'm not sure where to start"]
   },
 
   B5_MAIN_SUPPORT_NEED__SUPPORTER: {
-    text: `What kind of support are they looking for?
+    text: `What would they like help with?
 
-1. Emergency Housing or Other Accommodation
-2. Food
-3. Work
-4. Health Services
-5. Advice Services
-6. Drop In
-7. Financial Help
-8. Personal Items
-9. Personal Services
-10. Communications
-11. Training
-12. Activities`,
-    options: ["Emergency Housing or Other Accommodation", "Food", "Work", "Health Services", "Advice Services", "Drop In", "Financial Help", "Personal Items", "Personal Services", "Communications", "Training", "Activities"]
+1. Somewhere to live, or help to keep their home
+2. Staying safe from abuse, exploitation or harm
+3. Food, clothes or other everyday things
+4. Money, debt, benefits or work
+5. Health, drugs, alcohol or gambling
+6. Immigration or asylum
+7. Things to do and people to meet
+8. Not sure where to start`,
+    options: ["Somewhere to live, or help to keep their home", "Staying safe from abuse, exploitation or harm", "Food, clothes or other everyday things", "Money, debt, benefits or work", "Health, drugs, alcohol or gambling", "Immigration or asylum", "Things to do and people to meet", "Not sure where to start"]
+  },
+
+  // Second screens (Decision 1). Labels must match lib/data/v4Categories.ts.
+  B5_SECOND_EVERYDAY: {
+    text: `Which of these?
+
+1. A hot meal
+2. Food to take home
+3. Clothes
+4. Toiletries or period products
+5. A phone or getting online
+6. Something else`,
+    options: ["A hot meal", "Food to take home", "Clothes", "Toiletries or period products", "A phone or getting online", "Something else"]
+  },
+
+  B5_SECOND_MONEY_WORK: {
+    text: `Which of these?
+
+1. Debt
+2. Benefits
+3. Bills and energy
+4. Grants
+5. Work or training
+6. Something else`,
+    options: ["Debt", "Benefits", "Bills and energy", "Grants", "Work or training", "Something else"]
+  },
+
+  B5_SECOND_HEALTH: {
+    text: `Which of these?
+
+1. Mental health
+2. Physical health
+3. Sexual health
+4. Drugs or alcohol
+5. Gambling
+6. Something else`,
+    options: ["Mental health", "Physical health", "Sexual health", "Drugs or alcohol", "Gambling", "Something else"]
   },
 
   // ============================================================
@@ -413,8 +415,8 @@ Support with Benefits and Grants | Turn2us - https://www.turn2us.org.uk/`
   // Asked based on which support need was selected
   // ============================================================
 
-  // AGE - Asked for: Health, Work, Training, Activities, Drop In, and Emergency Housing on the quick route
-  // Under 16 takes the same under-16 exit as B3_AGE_CATEGORY
+  // AGE - Asked for: Health, Work, Training, Activities, Drop In, and Emergency Housing on either route
+  // Under 16 takes the under-16 exit
   B5_YOUTH_SOCIAL_SERVICES: {
     text: `Do you have a social worker or a personal adviser, or are you living somewhere the council arranged, like foster care, a children's home or supported accommodation?`,
     options: ["Yes", "No", "Not sure", "Prefer not to say"]
@@ -611,24 +613,39 @@ This helps us show family-focused financial support if relevant.
     options: ["Yes", "No", "Prefer not to say"]
   },
 
+  // Housing situation question (Managing Director, 3 November 2026). Replaces the
+  // yes or no homelessness question and the two where-are-you questions after it.
+  // The gate keeps its name so the routes into it are unchanged.
+  // Housing situation question (Managing Director, 3 November 2026). Replaces the
+  // yes or no homelessness question and the two where-are-you questions after it.
+  // The gate keeps its name so the routes into it are unchanged. Options are short
+  // and each starts with different words, for voice control and listening
+  // (Managing Director, 4 November 2026). Leaving prison and leaving hospital
+  // are two answers (Managing Director, 20 November 2026).
   B6_HOMELESSNESS_STATUS: {
-    text: `Are you currently experiencing homelessness?
+    text: `Which of these is closest to your housing situation at the moment? Staying with friends or family counts as temporary.
 
-That includes if you don't have your own place and you're staying in temporary accommodation, hospital, prison, or somewhere that isn't your permanent home.
-
-1. Yes
-2. No`,
-    options: ["Yes", "No"]
+1. Help or advice to keep things steady at home
+2. About to lose my home, like an eviction date or being told to leave
+3. Staying somewhere temporary
+4. Leaving prison with nowhere to go
+5. Coming out of hospital with nowhere to go
+6. Sleeping rough, or nowhere to stay tonight
+7. Not sure, or something else`,
+    options: ["Help or advice to keep things steady at home", "About to lose my home, like an eviction date or being told to leave", "Staying somewhere temporary", "Leaving prison with nowhere to go", "Coming out of hospital with nowhere to go", "Sleeping rough, or nowhere to stay tonight", "Not sure, or something else"]
   },
 
   B6_HOMELESSNESS_STATUS__SUPPORTER: {
-    text: `Are they currently experiencing homelessness?
+    text: `Which of these is closest to their housing situation at the moment? Staying with friends or family counts as temporary.
 
-That includes if they don't have their own place and they're staying in temporary accommodation, hospital, prison, or somewhere that isn't their permanent home.
-
-1. Yes
-2. No`,
-    options: ["Yes", "No"]
+1. Help or advice to keep things steady at home
+2. About to lose their home, like an eviction date or being told to leave
+3. Staying somewhere temporary
+4. Leaving prison with nowhere to go
+5. Coming out of hospital with nowhere to go
+6. Sleeping rough, or nowhere to stay tonight
+7. Not sure, or something else`,
+    options: ["Help or advice to keep things steady at home", "About to lose their home, like an eviction date or being told to leave", "Staying somewhere temporary", "Leaving prison with nowhere to go", "Coming out of hospital with nowhere to go", "Sleeping rough, or nowhere to stay tonight", "Not sure, or something else"]
   },
 
   HOUSING_OPTIONS_INVOLVEMENT_ASK: {
@@ -1035,6 +1052,28 @@ Would they like to answer a few more questions so I can find services that fit t
     options: ["Yes", "Skip these"]
   },
 
+  // Armed forces (Managing Director, 2 November 2026). Crisis housing only, after
+  // age and before immigration (Service Matching and Questions Design Note,
+  // 3.3); not asked of 16 and 17 year olds (3.4). A yes shows Op FORTITUDE and
+  // local services for veterans (Housing Pathway Endpoints Contract, Veterans).
+  ARMED_FORCES_ASK: {
+    text: `Have you ever served in the armed forces?
+
+1. Yes
+2. No
+3. Prefer not to say`,
+    options: ["Yes", "No", "Prefer not to say"]
+  },
+
+  ARMED_FORCES_ASK__SUPPORTER: {
+    text: `Have they ever served in the armed forces?
+
+1. Yes
+2. No
+3. Prefer not to say`,
+    options: ["Yes", "No", "Prefer not to say"]
+  },
+
   C2A_CONSENT_ACKNOWLEDGED: {
     text: `Thank you. I'll ask about a few different topics now - health, background, and circumstances. Remember you can skip any question or say 'prefer not to say'.`
   },
@@ -1134,10 +1173,9 @@ Would they like to answer a few more questions so I can find services that fit t
 
 1. Under 16
 2. 16-17
-3. 18-20
-4. 21-24
-5. 25+`,
-    options: ["Under 16", "16-17", "18-20", "21-24", "25+"]
+3. 18-24
+4. 25+`,
+    options: ["Under 16", "16-17", "18-24", "25+"]
   },
 
   C3Q3_AGE__SUPPORTER: {
@@ -1145,10 +1183,9 @@ Would they like to answer a few more questions so I can find services that fit t
 
 1. Under 16
 2. 16-17
-3. 18-20
-4. 21-24
-5. 25+`,
-    options: ["Under 16", "16-17", "18-20", "21-24", "25+"]
+3. 18-24
+4. 25+`,
+    options: ["Under 16", "16-17", "18-24", "25+"]
   },
 
   C3Q4_GENDER: {
@@ -1198,6 +1235,8 @@ We fully respect and support all gender identities. We know this question might 
   C3Q6_ETHNICITY: {
     text: `What is your ethnicity?
 
+Some services are run by and for particular communities. If you tell us your ethnicity, we can show you those, and it helps us check we're reaching every community. It's up to you.
+
 1. White (British)
 2. White (Other)
 3. Black (African)
@@ -1210,6 +1249,8 @@ We fully respect and support all gender identities. We know this question might 
 
   C3Q6_ETHNICITY__SUPPORTER: {
     text: `What is their ethnicity?
+
+Some services are run by and for particular communities. If you tell us their ethnicity, we can show you those, and it helps us check we're reaching every community. It's up to you.
 
 1. White (British)
 2. White (Other)
@@ -1349,38 +1390,91 @@ For any concerns about disclosing convictions when looking for housing, they can
     options: ["Yes, show LGBTQ+ specialist services first", "No, just show local services", "Show both"]
   },
 
-  C3Q11_CURRENTLY_IN_CARE: {
-    text: `Are you currently being looked after by social services under the Children's Act 1989?
+  // Care leavers (VA Pathway Review 5.2; Managing Director, 20 November 2026).
+  // Asked at 16 to 24 on the full route only. Never how long, at what age or
+  // under which section: the leaving care team applies those tests.
+  C3Q11_EVER_IN_CARE_16_17: {
+    text: `Have you ever been in care?
 
-1. Yes
-2. No`,
-    options: ["Yes", "No"]
+Being in care means living in foster care, a children's home, or a placement the council arranged.
+
+1. In care now
+2. Was in care but I've left
+3. No, but I have a social worker
+4. No
+5. Not sure
+6. Prefer not to say`,
+    options: ["In care now", "Was in care but I've left", "No, but I have a social worker", "No", "Not sure", "Prefer not to say"]
   },
 
-  C3Q11_CURRENTLY_IN_CARE__SUPPORTER: {
-    text: `Are they currently being looked after by social services under the Children's Act 1989?
+  C3Q11_EVER_IN_CARE_16_17__SUPPORTER: {
+    text: `Have they ever been in care?
 
-1. Yes
-2. No`,
-    options: ["Yes", "No"]
+Being in care means living in foster care, a children's home, or a placement the council arranged.
+
+1. In care now
+2. Was in care but they've left
+3. No, but they have a social worker
+4. No
+5. Not sure
+6. Prefer not to say`,
+    options: ["In care now", "Was in care but they've left", "No, but they have a social worker", "No", "Not sure", "Prefer not to say"]
   },
 
-  C3Q12_SOCIAL_SERVICES: {
-    text: `Are you currently in contact with social services or a social worker?
+  C3Q11_EVER_IN_CARE: {
+    text: `Have you ever been in care?
+
+Being in care means living in foster care, a children's home, or a placement the council arranged.
 
 1. Yes
 2. No
-3. Prefer not to say`,
-    options: ["Yes", "No", "Prefer not to say"]
+3. Not sure
+4. Prefer not to say`,
+    options: ["Yes", "No", "Not sure", "Prefer not to say"]
   },
 
-  C3Q12_SOCIAL_SERVICES__SUPPORTER: {
-    text: `Are they currently in contact with social services or a social worker?
+  C3Q11_EVER_IN_CARE__SUPPORTER: {
+    text: `Have they ever been in care?
+
+Being in care means living in foster care, a children's home, or a placement the council arranged.
 
 1. Yes
 2. No
-3. Prefer not to say`,
-    options: ["Yes", "No", "Prefer not to say"]
+3. Not sure
+4. Prefer not to say`,
+    options: ["Yes", "No", "Not sure", "Prefer not to say"]
+  },
+
+  C3Q11A_CARE_COUNCIL: {
+    text: `Which council looked after you?
+
+1. Wolverhampton
+2. Birmingham
+3. Coventry
+4. Dudley
+5. Sandwell
+6. Solihull
+7. Walsall
+8. Somewhere else
+9. Not sure
+10. Prefer not to say`,
+    options: ["Wolverhampton", "Birmingham", "Coventry", "Dudley", "Sandwell", "Solihull", "Walsall", "Somewhere else", "Not sure", "Prefer not to say"]
+  },
+
+  C3Q11A_CARE_COUNCIL__SUPPORTER: {
+    text: `Which council looked after them?
+
+1. Wolverhampton
+2. Birmingham
+3. Coventry
+4. Dudley
+5. Sandwell
+6. Solihull
+7. Walsall
+8. Somewhere else
+9. Not sure
+10. Prefer not to say`,
+    options: ["Wolverhampton", "Birmingham", "Coventry", "Dudley", "Sandwell", "Solihull", "Walsall", "Somewhere else", "Not sure", "Prefer not to say"]
   },
 
   // ============================================================
@@ -1449,6 +1543,95 @@ What is their gender?
 3. Non-binary or other
 4. Prefer not to say`,
     options: ["Female", "Male", "Non-binary or other", "Prefer not to say"]
+  },
+
+  // ============================================================
+  // SAFETY FROM HARM ROUTE (Safeguarding Contract 3.3)
+  // Hard-coded, outside the crisis gate, bypasses the matcher and AI.
+  // One type of harm (Managing Director, 12 November 2026). The situations are
+  // those of the Service Matching and Questions Design Note 3.6.
+  // ============================================================
+
+  // Plain words, without naming the harm (Safeguarding Contract 3.3;
+  // Managing Director, 18 November 2026). Each option starts with different words.
+  SAFETY_TYPE_OF_HARM: {
+    text: `If you are in danger right now, call 999.
+
+${QUICK_EXIT_NOTE}
+
+Which of these is closest to what is happening?
+
+1. Someone close is hurting, threatening or controlling me
+2. Pressure to marry someone I haven't chosen
+3. My private parts have been cut, or someone plans to cut them
+4. Sexual things were done to me without my agreement
+5. Made to work, money or documents taken, or controlled where I live or go
+6. Paying off a debt by being made to work
+7. Something else`,
+    options: [
+      "Someone close is hurting, threatening or controlling me",
+      "Pressure to marry someone I haven't chosen",
+      "My private parts have been cut, or someone plans to cut them",
+      "Sexual things were done to me without my agreement",
+      "Made to work, money or documents taken, or controlled where I live or go",
+      "Paying off a debt by being made to work",
+      "Something else"
+    ]
+  },
+
+  SAFETY_TYPE_OF_HARM__SUPPORTER: {
+    text: `If they are in danger right now, call 999.
+
+${QUICK_EXIT_NOTE}
+
+Which of these is closest to what is happening to them?
+
+1. Someone close is hurting, threatening or controlling them
+2. Pressure to marry someone they haven't chosen
+3. Their private parts have been cut, or someone plans to cut them
+4. Sexual things were done to them without their agreement
+5. Made to work, money or documents taken, or controlled where they live or go
+6. Paying off a debt by being made to work
+7. Something else`,
+    options: [
+      "Someone close is hurting, threatening or controlling them",
+      "Pressure to marry someone they haven't chosen",
+      "Their private parts have been cut, or someone plans to cut them",
+      "Sexual things were done to them without their agreement",
+      "Made to work, money or documents taken, or controlled where they live or go",
+      "Paying off a debt by being made to work",
+      "Something else"
+    ]
+  },
+
+  SAFETY_OK_TO_CONTINUE: {
+    text: `Thank you for telling me. Are you OK to carry on?
+
+1. Yes, I'm OK to carry on
+2. No, show me help now`,
+    options: ["Yes, I'm OK to carry on", "No, show me help now"]
+  },
+
+  // Safety disclosure check (Safety Disclosure Check Design Note v1.0,
+  // section 3). Fixed wording, help first, approved by the Managing Director,
+  // 19 November 2026, with the quick exit note after it. No supporter wording:
+  // it only follows a first-person statement.
+  SAFETY_DISCLOSURE_CHECK: {
+    text: `If you're in immediate danger, call 999. It sounds like you might not be safe at the moment. Would you like to see help with staying safe?
+
+1. Yes, show me help with staying safe
+2. No, carry on
+
+${QUICK_EXIT_NOTE}`,
+    options: ['Yes, show me help with staying safe', 'No, carry on']
+  },
+
+  SAFETY_OK_TO_CONTINUE__SUPPORTER: {
+    text: `Thank you for telling me. Are they OK to carry on?
+
+1. Yes, they're OK to carry on
+2. No, show help now`,
+    options: ["Yes, they're OK to carry on", "No, show help now"]
   },
 
   CRISIS_UNDER16_LOCATION: {
@@ -2286,6 +2469,122 @@ In the meantime, keep chatting with me. I can help you look for more support now
     text: `For people aged 16 or 17, housing support is usually arranged through Children's Services or a social worker. They can call their duty team directly, or ask someone they trust to help them make contact.`
   },
 
+  // Care leaver results (lib/handlers/careLeavers.ts). Facts only: never what
+  // the person is owed.
+  CARE_E1_SOCIAL_WORKER: {
+    text: `If you have a social worker or personal adviser, you can talk to them about where you are living.`
+  },
+
+  CARE_E1_SOCIAL_WORKER__SUPPORTER: {
+    text: `If they have a social worker or personal adviser, they can talk to them about where they are living.`
+  },
+
+  CARE_E1_LINE: {
+    text: `If you have a personal adviser, you can talk to them about your housing.`
+  },
+
+  CARE_E1_LINE__SUPPORTER: {
+    text: `If they have a personal adviser, they can talk to them about their housing.`
+  },
+
+  CARE_LEAVING_CARE_FACTS: {
+    text: `Leaving care teams support young people who have been in care. Help with housing is part of what they do. They will look at your situation with you.`
+  },
+
+  CARE_LEAVING_CARE_FACTS__SUPPORTER: {
+    text: `Leaving care teams support young people who have been in care. Help with housing is part of what they do. They will look at their situation with them.`
+  },
+
+  // One wording for 18 to 24 (Homelessness Code of Guidance, Chapter 22,
+  // paragraph 22.3: a Personal Adviser supports a care leaver until their 25th
+  // birthday). The fact only.
+  CARE_SUPPORT_AGE_18_24: {
+    text: `Support from a leaving care team can continue until your 25th birthday.`
+  },
+
+  CARE_SUPPORT_AGE_18_24__SUPPORTER: {
+    text: `Support from a leaving care team can continue until their 25th birthday.`
+  },
+
+  CARE_E3_ASK_COUNCIL: {
+    text: `The council that looked after you: ask for the leaving care team.`
+  },
+
+  CARE_E3_ASK_COUNCIL__SUPPORTER: {
+    text: `The council that looked after them: ask for the leaving care team.`
+  },
+
+  CARE_ASK_LOCAL_COUNCIL: {
+    text: `Ask your local council for the leaving care team.`
+  },
+
+  CARE_ASK_LOCAL_COUNCIL__SUPPORTER: {
+    text: `Ask their local council for the leaving care team.`
+  },
+
+  CARE_LA_FIND_RESPONSIBLE: {
+    text: `The leaving care team where you are now can help you find who is responsible.`
+  },
+
+  CARE_LA_FIND_RESPONSIBLE__SUPPORTER: {
+    text: `The leaving care team where they are now can help them find who is responsible.`
+  },
+
+  CARE_LA_CAN_CHECK: {
+    text: `If you're not sure whether you have been in care, the leaving care team where you are now can check for you.`
+  },
+
+  CARE_LA_CAN_CHECK__SUPPORTER: {
+    text: `If they're not sure whether they have been in care, the leaving care team where they are now can check for them.`
+  },
+
+  // Caveat lines under the local leaving care team, for the two not-sure care
+  // answers (Managing Director, 20 November 2026). {council} is where they are now.
+  CARE_LA_NOT_SURE_COUNCIL_CAVEAT: {
+    text: `If {council} looked after you, this team can support you. If it was a different council, they may be able to help you work out which one, or give you some support in the meantime.`
+  },
+
+  CARE_LA_NOT_SURE_COUNCIL_CAVEAT__SUPPORTER: {
+    text: `If {council} looked after them, this team can support them. If it was a different council, they may be able to help work out which one, or give some support in the meantime.`
+  },
+
+  CARE_LA_NOT_SURE_CARE_CAVEAT: {
+    text: `If you're not sure whether you were in care, this team may be able to check whether {council} looked after you. If it was a different council, that council's leaving care team can help.`
+  },
+
+  CARE_LA_NOT_SURE_CARE_CAVEAT__SUPPORTER: {
+    text: `If they're not sure whether they were in care, this team may be able to check whether {council} looked after them. If it was a different council, that council's leaving care team can help.`
+  },
+
+  CARE_LA_LOCAL_INFO: {
+    text: `The leaving care team where you are now can tell you what is available locally.`
+  },
+
+  CARE_LA_LOCAL_INFO__SUPPORTER: {
+    text: `The leaving care team where they are now can tell them what is available locally.`
+  },
+
+  CARE_16_17_NOT_SURE_NOTE: {
+    text: `If you're not sure whether you have been in care, Children's Services can check this with you.`
+  },
+
+  CARE_16_17_NOT_SURE_NOTE__SUPPORTER: {
+    text: `If they're not sure whether they have been in care, Children's Services can check this with them.`
+  },
+
+  // Safety from harm results (lib/handlers/safetyLocal.ts).
+  SAFETY_16_17_CHILDRENS_SERVICES: {
+    text: `For people aged 16 or 17, Children's Services can help with staying safe. You can call their duty team directly, or ask someone you trust to help you make contact.`
+  },
+
+  SAFETY_16_17_CHILDRENS_SERVICES__SUPPORTER: {
+    text: `For people aged 16 or 17, Children's Services can help with staying safe. They can call their duty team directly, or ask someone they trust to help them make contact.`
+  },
+
+  SAFETY_LOCAL_SERVICES_INTRO: {
+    text: `These local services also work with people in this situation.`
+  },
+
   TERMINAL_YOUTH_16_17_NAVIGATOR_INTRO: {
     text: `These organisations may also be able to help you understand your options.`
   },
@@ -2665,7 +2964,24 @@ The more details you can provide (location, description, best time to find them)
 };
 
 // Helper function
+// The first question without the Safety option, renumbered, while the Safety
+// route's switch is off (lib/safetyRouteSwitch.ts).
+const SAFETY_FIRST_OPTION = 'Staying safe from abuse, exploitation or harm';
+
+function withoutSafetyOption(entry: PhraseEntry): PhraseEntry {
+  const options = (entry.options ?? []).filter(o => o !== SAFETY_FIRST_OPTION);
+  const intro = entry.text.split('\n').filter(line => !/^\d+\. /.test(line)).join('\n').trimEnd();
+  const list = options.map((o, i) => `${i + 1}. ${o}`).join('\n');
+  return { ...entry, text: `${intro}\n\n${list}`, options };
+}
+
 export function getPhrase(key: string, audience: 'SELF' | 'SUPPORTER' | 'PROFESSIONAL' | null | boolean): PhraseEntry | null {
+  const entry = lookUpPhrase(key, audience);
+  if (entry && key === 'B5_MAIN_SUPPORT_NEED' && !isSafetyRouteEnabled()) return withoutSafetyOption(entry);
+  return entry;
+}
+
+function lookUpPhrase(key: string, audience: 'SELF' | 'SUPPORTER' | 'PROFESSIONAL' | null | boolean): PhraseEntry | null {
   if (audience === 'PROFESSIONAL') {
     const professionalKey = `${key}__PROFESSIONAL`;
     if (phrasebank[professionalKey]) {

@@ -6,9 +6,65 @@
 // ProvidedServices rows, joined to ServiceProviders on ServiceProviderKey = Key.
 
 import type { PoolContact, PoolService } from './servicePool';
+import { V4_POPULATION_TAGS } from './v4Categories';
 
 // The website's Find Help default (DEFAULT_SEARCH_RADIUS_KM = 5).
 export const DEFAULT_RADIUS_KM = 5;
+
+// The longest the VA waits on the database for one turn, connecting and both
+// queries together, before it gives up and uses the fixed file or says it
+// cannot load local services (Managing Director, 20 November 2026). The driver
+// timeouts use the same limit.
+export const LIVE_READ_TIMEOUT_MS = 3_000;
+
+export function liveReadClientOptions() {
+  return {
+    connectTimeoutMS: LIVE_READ_TIMEOUT_MS,
+    serverSelectionTimeoutMS: LIVE_READ_TIMEOUT_MS,
+    socketTimeoutMS: LIVE_READ_TIMEOUT_MS,
+  };
+}
+
+export class LiveReadTimeout extends Error {
+  constructor() {
+    super('Live read timed out');
+    this.name = 'LiveReadTimeout';
+  }
+}
+
+// The whole read raced against one timer, so a turn waits at most `ms`.
+export function withTimeout<T>(work: Promise<T>, ms: number = LIVE_READ_TIMEOUT_MS): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new LiveReadTimeout()), ms);
+  });
+  return Promise.race([work, timeout]).finally(() => clearTimeout(timer));
+}
+
+// After a failed read, later turns go straight to the fixed file for the same
+// time the website caches a read, rather than waiting on the database again.
+export class FailureMemory {
+  private failedAt: number | null = null;
+
+  constructor(private holdMs: number = CACHE_TTL_MS) {}
+
+  recordFailure(now: number = Date.now()): void {
+    this.failedAt = now;
+  }
+
+  clear(): void {
+    this.failedAt = null;
+  }
+
+  recentlyFailed(now: number = Date.now()): boolean {
+    if (this.failedAt === null) return false;
+    if (now - this.failedAt >= this.holdMs) {
+      this.failedAt = null;
+      return false;
+    }
+    return true;
+  }
+}
 
 // The website caches service reads for 60 seconds per server instance
 // (CACHE_TTL.services). The VA is no slower than the website to reflect a change.
@@ -24,6 +80,7 @@ export interface PlatformServiceRow {
   SubCategoryKey?: string | null;
   IsAppointmentOnly?: boolean | null;
   IsTelephoneService?: boolean | null;
+  ClientGroupKeys?: unknown;
   Address?: { Location?: { type?: string; coordinates?: [number, number] } | null } | null;
   distance?: number | null; // metres, from $geoNear
 }
@@ -53,6 +110,14 @@ export function decodeEntities(text: string): string {
     .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)));
 }
 
+const KNOWN_TAGS: ReadonlySet<string> = new Set(V4_POPULATION_TAGS);
+
+export function populationTags(keys: unknown): string[] {
+  if (!Array.isArray(keys)) return [];
+  const tags = keys.filter((k): k is string => typeof k === 'string' && KNOWN_TAGS.has(k));
+  return Array.from(new Set(tags));
+}
+
 export function mapServiceRow(row: PlatformServiceRow): PoolService | null {
   const orgKey = row.ServiceProviderKey ?? null;
   const parent = row.ParentCategoryKey ?? null;
@@ -79,11 +144,12 @@ export function mapServiceRow(row: PlatformServiceRow): PoolService | null {
       longitude: hasCoords ? coords![0] : null,
       has_location: hasCoords,
     },
-    // The website's services route does not read client groups. Until the
-    // field is confirmed for the V4 data (plan B3), pooled services carry
-    // none, so label-based age and gender filters do not apply to them.
-    // Gender restrictions stated in the description are still read.
-    client_groups: [],
+    // Population tags from ProvidedServices.ClientGroupKeys, V4 keys only
+    // (v4Categories.ts). A tag lifts a service for someone in the group and
+    // never hides it from anyone else. Any other value is dropped, so no old
+    // label can switch on the label-based age and gender filters. Gender
+    // restrictions stated in the description are still read.
+    client_groups: populationTags(row.ClientGroupKeys),
     distance_km: typeof row.distance === 'number' ? Math.round(row.distance / 10) / 100 : null,
   };
 }

@@ -1,14 +1,15 @@
 // Street Support VA v7.1 State Machine - COMPLETE VERSION
 // Full routing logic from CHAR_VA_RoutingLogic_v7.md
 // UPDATES v7.1:
-// - Social services questions (C3Q11/C3Q12) only for 16-17 and 18-20
+// - Care questions (C3Q11, C3Q11A) for everyone aged 16 to 24 on the full route
+//   (6 and 20 November 2026); age asked once, in four bands
 // - Restructured terminal output with clear hierarchy
 // - Trauma-informed language, Shelter as safety net
 
 import { getPhrase } from './phrasebank';
 import { getPronouns } from './utils/pronouns';
 import { cleanPreferredName, withNameBeforeFullStop } from './utils/preferredName';
-import type { GateType, SessionState, RoutingResult, TerminalResult } from './types';
+import type { GateType, HousingSituation, SessionState, RoutingResult, TerminalResult } from './types';
 import { toUserProfile } from './types';
 export type { GateType, SessionState, RoutingResult };
 import {
@@ -21,7 +22,10 @@ import {
   getYouthOrgs,
   getShelterInfo,
   getStreetLinkInfo,
+  getOpFortitudeInfo,
   getServicesForNeed,
+  getHousingAdviceServices,
+  getHousingServicesForPopulation,
   isProfileRelevantNeed,
   getPrimaryCategoryKey,
 } from './serviceMatcher';
@@ -34,8 +38,12 @@ import {
   handleDVChildrenAsk,
   handleSAGenderAsk,
 } from './handlers/crisis';
+import { isSafetyRouteEnabled } from './safetyRouteSwitch';
+import { handleSafetyTypeOfHarm, handleSafetyOkToContinue, isSafetyGate, parseSafetyChoice, startSafetyRoute } from './handlers/safety';
+import { firstOption, partsFor, visibleFirstOptions, type FirstOptionId } from './data/v4Categories';
 import { buildUnder16Exit, childrenServicesData } from './handlers/shared';
 import { getServicePool } from './data/servicePool';
+import { DIGNITY_OFFER, HOUSING_OFFER_OPTIONS, NOTICING_UNCLEAR, noticingDangerLine, noticingUnclear, awarenessLine, housingOfferText, isDignityChoice, noticingMultiSelect, noticingOptions, noticingOutcome, noticingText, parseNoticing, takesNoticingStep, NO_PLACE_TO_START, notSureMultiSelect, notSureOptions, notSureOutcome, notSureText } from './noticing';
 import {
   handleLocationConsent,
   handleLocationPostcode,
@@ -62,11 +70,13 @@ import {
 } from './handlers/homeless';
 import {
   handleC2ConsentGate,
+  handleArmedForcesAsk,
   handleC3Q1ImmigrationStatus,
   handleC3Q1AEussFollowup,
   handleC3Q1BPublicFundsFollowup,
   handleC3Q2DependentChildren,
   handleC3Q3Age,
+  isAged16To24,
   handleC3Q4Gender,
   handleC3Q5Pregnancy,
   handleC3Q6Ethnicity,
@@ -75,9 +85,10 @@ import {
   handleC3Q9CriminalConvictions,
   handleC3Q10Lgbtq,
   handleC3Q10ALgbtqServicePreference,
-  handleC3Q11CurrentlyInCare,
-  handleC3Q12SocialServices,
+  handleCareEverInCare,
+  handleCareCouncil,
 } from './handlers/sectionC';
+import { careSections } from './handlers/careLeavers';
 import {
   handleTerminalAdditionalNeeds,
   handleEscalationLevel1,
@@ -99,6 +110,7 @@ export function createSession(sessionId: string): SessionState {
     returnUser: null,
     returnOutcome: null,
     housingOptionsInvolvement: null,
+    housingSituation: null,
     localAuthority: null,
     latitude: null,
     longitude: null,
@@ -144,6 +156,9 @@ export function createSession(sessionId: string): SessionState {
     inCare: null,
     socialServices: null,
     youthSocialServicesAsked: false,
+    careExperience: null,
+    careCouncil: null,
+    servedInArmedForces: null,
     isSupporter: false,
     youthServicesFlag: false,
     safeguardingTriggered: false,
@@ -230,14 +245,246 @@ const needProfileRequirements: Record<string, string[]> = {
  * and what profile data has already been collected.
  * Returns terminal output when all required fields are collected.
  */
+// Profile questions by V4 parent: the Service Matching and Questions Design
+// Note, 3.7 (Managing Director, 8 November 2026), limited to the questions the
+// VA already asks. Care, armed forces, dogs and ethnicity are added when built,
+// and every question needs its data protection row (D2) before launch.
+const v4ParentRequirements: Record<string, string[]> = {
+  food: [],
+  essentials: ['gender', 'children'],
+  finance: ['age', 'gender', 'nrpf', 'children'],
+  employment: ['age', 'gender', 'convictions', 'nrpf', 'children'],
+  health: ['age', 'gender', 'lgbtq', 'convictions', 'nrpf', 'children'],
+  addiction: ['age', 'gender', 'lgbtq'],
+  immigration: ['gender', 'lgbtq', 'nrpf'],
+  activities: ['age', 'gender'],
+};
+const PROFILE_ORDER = ['age', 'gender', 'lgbtq', 'convictions', 'nrpf', 'children'];
+
+// The phrase shown at B5_SECOND_SCREEN depends on the first-question option.
+export function secondScreenPhraseKey(v4Option: string | null | undefined): string {
+  return v4Option === 'everyday' ? 'B5_SECOND_EVERYDAY' : v4Option === 'money-work' ? 'B5_SECOND_MONEY_WORK' : 'B5_SECOND_HEALTH';
+}
+
+function v4Parents(session: SessionState): string[] {
+  if (!session.v4Option) return [];
+  return [...new Set(partsFor(session.v4Option as FirstOptionId, session.v4Choice ?? undefined).map(p => p.parent))];
+}
+
+function v4Requirements(session: SessionState): string[] {
+  const wanted = new Set(v4Parents(session).flatMap(p => v4ParentRequirements[p] ?? []));
+  return PROFILE_ORDER.filter(f => wanted.has(f));
+}
+
+// The national contacts for each V4 need: which ones, from the design note's
+// table (Service Matching and Questions Design Note v1.1, section 9; Managing
+// Director, 8 November 2026) and bills and energy (Managing Director,
+// 19 November 2026); names, numbers, hours and framing from the Non-Housing
+// Pathway Endpoints Contract's national table (2.2, contacts checked at source
+// 11, 13 and 19 November 2026). Where the two documents differ, see the PR.
+type Floor = { name: string; phone?: string; website: string; description: string };
+const V4_FLOORS: Record<string, Floor> = {
+  nhs111: {
+    name: 'NHS 111',
+    phone: '111',
+    website: 'https://111.nhs.uk',
+    description: 'For urgent medical help when it is not an emergency. Free, 24 hours a day',
+  },
+  lgbtFoundation: {
+    name: 'LGBT Foundation',
+    phone: '0345 3 30 30 30',
+    website: 'https://lgbt.foundation',
+    description: 'The LGBT Foundation can provide specialist health advice and support. Monday to Friday, 9am to 6pm',
+  },
+  citizensAdvice: {
+    name: 'Citizens Advice Adviceline',
+    phone: '0800 144 8848',
+    website: 'https://www.citizensadvice.org.uk',
+    description: 'Best for debt and money advice. Free and confidential. Usually 9am to 5pm, Monday to Friday',
+  },
+  jobcentrePlus: {
+    name: 'Jobcentre Plus',
+    website: 'https://www.gov.uk/contact-jobcentre-plus',
+    description: 'Your local Jobcentre can connect you with employment support',
+  },
+  nationalCareersAdult: {
+    name: 'National Careers Service',
+    phone: '0800 072 0288',
+    website: 'https://nationalcareers.service.gov.uk',
+    description: 'Free careers advice from a careers adviser, for people aged 18 and over in England. 8am to 6pm, Monday to Friday. The website can help you find local training',
+  },
+  nationalCareersYoung: {
+    name: 'National Careers Service',
+    website: 'https://nationalcareers.service.gov.uk',
+    description: 'Free careers advice and help to find local training',
+  },
+  frank: {
+    name: 'FRANK',
+    phone: '0300 123 6600',
+    website: 'https://www.talktofrank.com',
+    description: 'Confidential advice about drugs, any time. You can also text 82111',
+  },
+  gamblingHelpline: {
+    name: 'National Gambling Helpline (GamCare)',
+    phone: '0808 8020 133',
+    website: 'https://www.gamcare.org.uk',
+    description: 'Free support with gambling, 24 hours a day, every day. Live chat on the website',
+  },
+  migrantHelp: {
+    name: 'Migrant Help asylum helpline',
+    phone: '0808 8010 503',
+    website: 'https://www.migranthelpuk.org',
+    description: 'Free helpline for people waiting for an asylum decision',
+  },
+  citizensAdviceImmigration: {
+    // Someone to speak to for everyone not waiting for an asylum decision
+    // (Managing Director, 20 November 2026). "All Citizens Advice advisers are
+    // registered with the IAA" (citizensadvice.org.uk, immigration, read
+    // 20 November 2026). The Adviser Finder is left out while it is unavailable
+    // (GOV.UK notice, updated 18 November 2026) and adds little we do not list.
+    name: 'Citizens Advice Adviceline',
+    phone: '0800 144 8848',
+    website: 'https://www.citizensadvice.org.uk/immigration/',
+    description: 'Free, confidential advice from advisers registered with the immigration regulator. Usually 9am to 5pm, Monday to Friday',
+  },
+  jcwi: {
+    // For people without status (Managing Director, 20 November 2026);
+    // number and hours from jcwi.org.uk/our-helplines, read 20 November 2026.
+    name: 'JCWI Irregular Migrants Helpline',
+    phone: '0800 160 1004',
+    website: 'https://jcwi.org.uk/our-helplines',
+    description: 'Free, confidential legal advice if you are in the UK without status. Mondays, Tuesdays and Thursdays, 10am to 1pm',
+  },
+  project17: {
+    // Website only (contract): its only published number is a mobile with no
+    // hours. Its speciality is families with children (Charity Commission,
+    // 1152621; Tower Hamlets and Cumberland directories, read 20 November 2026),
+    // so the line says so and people decide whether it fits them
+    // (Managing Director, 20 November 2026).
+    name: 'Project 17',
+    website: 'https://www.project17.org.uk',
+    description: 'For families with children who have no recourse to public funds',
+  },
+  turn2usBenefits: {
+    name: 'Turn2us Benefits Calculator',
+    website: 'https://www.turn2us.org.uk/get-support',
+    description: 'Best for benefits: check which benefits could help you. Website only',
+  },
+  turn2usGrants: {
+    name: 'Turn2us Grants Search',
+    website: 'https://grants-search.turn2us.org.uk',
+    description: 'Best for grants: search for charitable grants you may be eligible for. Website only',
+  },
+  nea: {
+    name: "National Energy Action's Energy Advice and Support Service",
+    phone: '0800 304 7159',
+    website: 'https://www.nea.org.uk/advice/',
+    description: 'Free energy advice, including help with energy bills. Open Monday to Thursday 10am to 4pm, Friday 10am to 12.30pm',
+  },
+  citizensAdviceEnergy: {
+    name: 'Citizens Advice energy line',
+    phone: '0808 223 1133',
+    website: 'https://www.citizensadvice.org.uk/energyadvice',
+    description: 'Advice on energy. 9am to 5pm, Monday to Friday, not on public holidays',
+  },
+};
+
+// `zeroMatch`: nothing local matched, or local results could not be loaded.
+// The energy pair is for that case only (decision of 19 November 2026; the
+// contract's national table).
+function v4Fallbacks(session: SessionState, zeroMatch: boolean): Floor[] {
+  if (!session.v4Option) return [];
+  const parts = partsFor(session.v4Option as FirstOptionId, session.v4Choice ?? undefined);
+  const out: Floor[] = [];
+  // Deduped by entry, not by name: two entries share the name "Citizens Advice
+  // Adviceline" with different lines on what each is for, and neither may be lost.
+  const push = (f: Floor | undefined) => { if (f && !out.includes(f)) out.push(f); };
+  for (const part of parts) {
+    const subs = part.subs ?? [];
+    const has = (k: string) => subs.length === 0 || subs.includes(k);
+    switch (part.parent) {
+      case 'health':
+        push(V4_FLOORS.nhs111);
+        if (session.lgbtq === true) push(V4_FLOORS.lgbtFoundation);
+        break;
+      case 'finance': {
+        // Citizens Advice and Turn2us for every money need, each saying what it
+        // is best for, the one for the person's question first (Managing
+        // Director, 19 November 2026).
+        const all = [V4_FLOORS.citizensAdvice, V4_FLOORS.turn2usBenefits, V4_FLOORS.turn2usGrants];
+        const first = subs.includes('benefits') ? V4_FLOORS.turn2usBenefits
+          : subs.includes('grants') ? V4_FLOORS.turn2usGrants
+          : subs.includes('debt-and-money-management') ? V4_FLOORS.citizensAdvice : undefined;
+        // Bills and energy with nothing local: National Energy Action first (decision of 19 November 2026).
+        if (zeroMatch && subs.includes('bills-and-energy')) { push(V4_FLOORS.nea); push(V4_FLOORS.citizensAdviceEnergy); }
+        push(first);
+        for (const f of all) push(f);
+        break;
+      }
+      case 'employment':
+        push(V4_FLOORS.jobcentrePlus);
+        // The phone line is for 18 and over; the website for under-18s (contract).
+        push(session.ageCategory === '16-17' ? V4_FLOORS.nationalCareersYoung : V4_FLOORS.nationalCareersAdult);
+        break;
+      case 'addiction':
+        // No national alcohol line has been verified at source (design note, section 11).
+        // FRANK is the drugs floor; "Drugs or alcohol" carries both keys.
+        if (has('drugs')) push(V4_FLOORS.frank);
+        if (has('gambling')) push(V4_FLOORS.gamblingHelpline);
+        break;
+      case 'immigration':
+        // Someone to speak to, every time (Managing Director, 20 November 2026).
+        if (session.immigrationStatus === 'Asylum seeker') push(V4_FLOORS.migrantHelp);
+        else if (session.immigrationStatus && session.immigrationStatus !== 'Prefer not to say') push(V4_FLOORS.citizensAdviceImmigration);
+        else { push(V4_FLOORS.migrantHelp); push(V4_FLOORS.citizensAdviceImmigration); }
+        if (session.immigrationStatus === 'No status') push(V4_FLOORS.jcwi);
+        // Anyone who may have no recourse to public funds, except people waiting
+        // for an asylum decision: leave to remain with no recourse, no status, or no status given
+        // (Managing Director, 20 November 2026).
+        if ((session.immigrationStatus === 'Leave to remain' && session.publicFunds === 'No')
+          || session.immigrationStatus === 'No status'
+          || !session.immigrationStatus || session.immigrationStatus === 'Prefer not to say') push(V4_FLOORS.project17);
+        break;
+    }
+  }
+  return out;
+}
+
+function v4DisplayName(session: SessionState): string {
+  const option = session.v4Option ? firstOption(session.v4Option as FirstOptionId) : null;
+  const label = session.v4Choice && session.v4Choice !== 'Something else' ? session.v4Choice : option?.label ?? 'support';
+  return `services for ${label.toLowerCase()}`;
+}
+
+// Each profile answer is carried forward with whichever question comes next,
+// so no answer is lost when questions come in a different order for
+// different needs.
 function routeToNextProfileQuestion(session: SessionState, after?: 'age' | 'gender' | 'lgbtq' | 'convictions' | 'nrpf' | 'children'): RoutingResult {
+  const asked = [...new Set([...(session.profileAsked ?? []), ...(after ? [after] : [])])];
+  const result = nextProfileQuestion({ ...session, profileAsked: asked }, after);
+  const carried: Partial<SessionState> = {
+    profileAsked: asked,
+    ageCategory: session.ageCategory,
+    gender: session.gender,
+    lgbtq: session.lgbtq,
+    criminalConvictions: session.criminalConvictions,
+    immigrationStatus: session.immigrationStatus,
+    publicFunds: session.publicFunds,
+    hasChildren: session.hasChildren,
+  };
+  return { ...result, stateUpdates: { ...carried, ...result.stateUpdates } };
+}
+
+function nextProfileQuestion(session: SessionState, after?: 'age' | 'gender' | 'lgbtq' | 'convictions' | 'nrpf' | 'children'): RoutingResult {
   const need = session.supportNeed || '';
-  const required = needProfileRequirements[need] || [];
+  const required = session.v4Option ? v4Requirements(session) : (needProfileRequirements[need] || []);
 
   // Check each required field in order
   for (const field of required) {
     // Skip the field we just answered — prevents re-triggering on null PNTS values
     if (after && field === after) continue;
+    // Skip any field already asked, so "prefer not to say" is not asked again
+    if (session.profileAsked?.includes(field)) continue;
 
     // Age
     if (field === 'age' && !session.ageCategory) {
@@ -307,11 +554,43 @@ function routeToNextProfileQuestion(session: SessionState, after?: 'age' | 'gend
     }
   }
   
-  // All required fields collected - go to terminal
+  // All required fields collected. The noticing step comes before the
+  // results, once a session, where the need takes it (design note 3.5).
+  if (takesNoticingStep(session)) {
+    return {
+      text: noticingText(session),
+      options: noticingOptions(session),
+      multiSelect: noticingMultiSelect(session),
+      stateUpdates: { currentGate: 'B5_NOTICING', noticingAsked: true, unclearCount: 0 },
+    };
+  }
+  // "Not sure where to start" with more than one pressure ticked: the
+  // awareness line with the results (Managing Director, 26 November 2026).
+  return finishWithResults(session, session.notSureAware ? awarenessLine(session) : undefined);
+}
+
+// The in-person route for "not sure where to start": a place to start where
+// one can be offered; the assistant cannot read them yet (work item 20), so
+// for now the honest line and the first question again (Managing Director,
+// 8 November 2026).
+function notSureInPerson(session: SessionState, updates: Partial<SessionState>): RoutingResult {
+  const menu = phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter);
+  return { ...menu, text: `${NO_PLACE_TO_START}\n\n${menu.text}`, stateUpdates: { ...menu.stateUpdates, ...updates } };
+}
+
+// The results for the person's need, then the question about other needs.
+// `lead` is shown before the results (the noticing step's awareness line).
+// The awareness line says "Here's help with ...", so it leads only where local
+// services are listed; it is not shown above a zero-match or "can't load" result
+// (Safeguarding Contract, invariant 5: confidence matches the data). After
+// dignity items, the one onward offer follows the results (design note 3.7).
+function finishWithResults(session: SessionState, lead?: string): RoutingResult {
   const result = buildTerminalServices(session);
   const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
+  const shownLead = lead && result.hasLocal ? lead + '\n\n' : '';
+  const offer = isDignityChoice(session) ? '\n' + DIGNITY_OFFER + '\n' : '';
   return {
-    text: result.text + '\n' + additionalNeeds?.text,
+    text: shownLead + result.text + '\n' + offer + additionalNeeds?.text,
     options: additionalNeeds?.options,
     stateUpdates: {
       currentGate: 'TERMINAL_ADDITIONAL_NEEDS' as const,
@@ -338,11 +617,6 @@ const nationalFallbacks: Record<string, Array<{name: string; phone?: string; web
       phone: '111',
       website: 'https://111.nhs.uk',
       description: 'For urgent medical help when it is not an emergency'
-    },
-    {
-      name: 'Find NHS Services',
-      website: 'https://www.nhs.uk/service-search',
-      description: 'Find GPs, pharmacies, hospitals and other NHS services'
     }
   ],
   'Financial': [
@@ -367,7 +641,7 @@ const nationalFallbacks: Record<string, Array<{name: string; phone?: string; web
   'Training': [
     {
       name: 'National Careers Service',
-      phone: '0800 100 900',
+      phone: '0800 072 0288', // adults 18+ (nationalcareers.service.gov.uk/contact-us, 19 November 2026); 0800 100 900 is retired
       website: 'https://nationalcareers.service.gov.uk',
       description: 'Free careers advice, skills assessment and training information'
     }
@@ -436,7 +710,7 @@ function buildZeroMatchTerminal(
 
 // Live read failed: say so plainly. Never tell the person there is no local
 // support when the VA simply could not load it. National floors still show.
-// Wording proposed, 2 November 2026, for approval.
+// Wording approved, 4 November 2026.
 function buildLocalResultsUnavailableTerminal(
   la: string,
   fallbacks: Array<{name: string; phone?: string; website: string; description: string}>,
@@ -460,22 +734,24 @@ function buildLocalResultsUnavailableTerminal(
 function buildNonHousingTerminal(session: SessionState): TerminalResult {
   const need = session.supportNeed || 'support';
   const la = session.localAuthority || 'your area';
-  const displayName = needDisplayNames[need] || need.toLowerCase();
-  const categoryKey = getPrimaryCategoryKey(need);
+  const v4 = !!session.v4Option;
+  const displayName = v4 ? v4DisplayName(session) : (needDisplayNames[need] || need.toLowerCase());
+  // The "see all" link moves to the V4 category with the matcher (design note, 4.6).
+  const categoryKey = v4 ? (v4Parents(session)[0] ?? '') : getPrimaryCategoryKey(need);
 
   // Build profile for service matching
   const profile = toUserProfile(session);
 
-  const fallbacks = nationalFallbacks[need] || [];
-
   // Live read unavailable: say so, do not fall back to the January file
   if (getServicePool()?.status === 'unavailable') {
-    return buildLocalResultsUnavailableTerminal(la, fallbacks, categoryKey, displayName);
+    const shown = v4 ? v4Fallbacks(session, true) : (nationalFallbacks[need] || []);
+    return buildLocalResultsUnavailableTerminal(la, shown, categoryKey, displayName);
   }
 
   // Get matched local services
   const localServices = getServicesForNeed(need, profile);
   const hasLocalServices = localServices.length > 0;
+  const fallbacks = v4 ? v4Fallbacks(session, !hasLocalServices) : (nationalFallbacks[need] || []);
 
   // Zero-match path
   if (!hasLocalServices) {
@@ -485,7 +761,7 @@ function buildNonHousingTerminal(session: SessionState): TerminalResult {
   let text = '';
 
   // Opening line - personalised if profile was used
-  if (isProfileRelevantNeed(need)) {
+  if (v4 ? v4Requirements(session).length > 0 : isProfileRelevantNeed(need)) {
     text += `Based on what you have told me, here are some ${displayName} in ${la} that may be able to help.\n\n`;
   } else {
     text += `Here are some ${displayName} in ${la}.\n\n`;
@@ -519,8 +795,8 @@ function buildNonHousingTerminal(session: SessionState): TerminalResult {
     text += buildNationalFallbacksBlock(fallbacks);
   }
 
-  // LGBT Foundation for LGBTQ+ users on Health need
-  if (session.lgbtq === true && need === 'Health') {
+  // LGBT Foundation for LGBTQ+ users on Health need (V4: among the national contacts above)
+  if (!v4 && session.lgbtq === true && need === 'Health') {
     const lgbtPhrase = getPhrase('TERMINAL_LGBT_FOUNDATION_HEALTH', session.isSupporter);
     if (!fallbacks.length) text += `---\n\n`;
     text += `LGBT Foundation\n`;
@@ -536,7 +812,107 @@ function buildNonHousingTerminal(session: SessionState): TerminalResult {
     text += buildSSNBrowseLink(displayName, la, categoryKey) + '\n';
   }
 
-  return { text: text.trim() };
+  return { text: text.trim(), hasLocal: true };
+}
+
+// ============================================================
+// HOUSING SITUATION (Managing Director, 3 November 2026)
+// ============================================================
+
+const HOUSING_SITUATION_BY_CHOICE: Record<number, HousingSituation> = {
+  1: 'KEEP_STEADY',
+  2: 'LOSING_HOME',
+  3: 'STAYING_SOMEWHERE',
+  4: 'LEAVING_PRISON',
+  5: 'LEAVING_HOSPITAL',
+  6: 'NOWHERE_TONIGHT',
+  7: 'NOT_SURE',
+};
+
+// The older fields the rest of the conversation reads, set from the answer.
+// Not sure makes no assumption either way.
+const HOUSING_SITUATION_STATE: Record<HousingSituation, Partial<SessionState>> = {
+  KEEP_STEADY: { homeless: false, housedSituation: 'At home', sleepingSituation: null },
+  LOSING_HOME: { homeless: false, housedSituation: 'At home', sleepingSituation: null },
+  STAYING_SOMEWHERE: { homeless: true, housedSituation: null, sleepingSituation: 'Staying somewhere for now' },
+  LEAVING_PRISON: { homeless: true, housedSituation: null, sleepingSituation: 'Leaving prison' },
+  LEAVING_HOSPITAL: { homeless: true, housedSituation: null, sleepingSituation: 'Leaving hospital' },
+  NOWHERE_TONIGHT: { homeless: true, housedSituation: null, sleepingSituation: 'Rough sleeping or nowhere tonight' },
+  NOT_SURE: { homeless: null, housedSituation: null, sleepingSituation: null },
+};
+
+function isRoughSleeping(session: SessionState): boolean {
+  return !!session.sleepingSituation?.toLowerCase().includes('rough');
+}
+
+// Housing results at the end of the quick route, with StreetLink first for
+// someone sleeping rough or with nowhere to stay tonight.
+function housingResultsTerminal(session: SessionState): RoutingResult {
+  const result = buildTerminalServices(session);
+  const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
+
+  let text = result.text;
+  if (isRoughSleeping(session)) {
+    const streetlink = getPhrase('STREETLINK_SIGNPOST', session.isSupporter);
+    text = (streetlink?.text || '') + '\n\n' + result.text;
+  }
+
+  return {
+    text: text + '\n' + additionalNeeds?.text,
+    options: additionalNeeds?.options,
+    stateUpdates: {
+      currentGate: 'TERMINAL_ADDITIONAL_NEEDS',
+      sleepingSituation: session.sleepingSituation,
+      housingOptionsInvolvement: session.housingOptionsInvolvement,
+      ...(result.terminalOutcome ? { terminalOutcome: result.terminalOutcome } : {}),
+    },
+    sessionEnded: false
+  };
+}
+
+// After the Housing Options question: prevention for option 1, crisis results
+// for the rest. On the full route, someone about to lose their home skips
+// "how long has this been going on" and goes to the reason question.
+function routeHousingSituation(session: SessionState): RoutingResult {
+  const hoUpdate = { housingOptionsInvolvement: session.housingOptionsInvolvement };
+
+  if (session.housingSituation === 'KEEP_STEADY') {
+    return {
+      ...phrase('B7B_PREVENTION_REASON', session.isSupporter),
+      stateUpdates: { currentGate: 'B7B_PREVENTION_REASON', preventionNeed: true, ...hoUpdate }
+    };
+  }
+
+  if (session.routeType === 'QUICK') {
+    return housingResultsTerminal(session);
+  }
+
+  if (session.housingSituation === 'LOSING_HOME') {
+    return {
+      ...phrase('B9_REASON', session.isSupporter),
+      stateUpdates: { currentGate: 'B9_REASON', ...hoUpdate }
+    };
+  }
+
+  return {
+    ...phrase('B8_DURATION', session.isSupporter),
+    stateUpdates: { currentGate: 'B8_DURATION', ...hoUpdate }
+  };
+}
+
+// An eviction notice, or being told to leave by family or friends, means the
+// loss has materialised while the person is still housed, so they are about
+// to lose their home, not keeping things steady (Managing Director,
+// 3 and 6 November 2026). They go on as if they had chosen that answer.
+function routeNoticeToLeave(session: SessionState, choice: number): RoutingResult {
+  const losing: Partial<SessionState> = {
+    housingSituation: 'LOSING_HOME',
+    ...HOUSING_SITUATION_STATE.LOSING_HOME,
+    preventionNeed: false,
+    preventionReason: choice === 2 ? 'Eviction notice' : 'Family/friends notice',
+  };
+  const result = routeHousingSituation({ ...session, ...losing } as SessionState);
+  return { ...result, stateUpdates: { ...losing, ...result.stateUpdates } };
 }
 
 // ============================================================
@@ -571,12 +947,58 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   
   let text = '';
 
+  const heading = (title: string): string => `${title}\n${'-'.repeat(title.length)}\n`;
+  const serviceLines = (svc: { name: string; phone?: string | null; website?: string | null; description?: string | null }): string => {
+    let s = `${svc.name}\n`;
+    if (svc.phone) s += `${svc.phone}\n`;
+    if (svc.website) s += `${svc.website}\n`;
+    if (svc.description) s += `${svc.description}\n`;
+    return s + `\n`;
+  };
+
+  // ----------------------------------------
+  // LEAVING PRISON - local services that work specifically with people leaving
+  // prison, where any, shown first (Housing Pathway Endpoints Contract 1.4,
+  // Leaving Prison). Selected by the V4 population tag only. The data carries
+  // no referral field, so the referral line goes on the section, not per
+  // service.
+  // LEAVING HOSPITAL - no structured field identifies hospital discharge
+  // services, so there are none to surface yet (Housing Pathway Endpoints
+  // Contract 1.4, Leaving Hospital). Where a section of them is ever shown,
+  // its referral line names the staff looking after the person at the
+  // hospital. No keyword search.
+  // ----------------------------------------
+  const prisonLeaverServices = session.housingSituation === 'LEAVING_PRISON'
+    ? getHousingServicesForPopulation('people-with-criminal-records', profile)
+    : [];
+  // Someone still in prison or hospital can ask the staff there to refer them
+  // to the council's housing team (Endpoints Contract 1.4).
+  const institution = session.housingSituation === 'LEAVING_PRISON' ? 'prison'
+    : session.housingSituation === 'LEAVING_HOSPITAL' ? 'hospital' : null;
+  const staffReferralLine = institution
+    ? `If ${theyre} still in ${institution}, ${they} can ask the staff there to refer ${pronoun} to this team.\n`
+    : '';
+  // 16 and 17 year olds: youth justice worker; adults: probation officer
+  // (Managing Director, 20 November 2026).
+  const prisonLeaverSection = (): string => {
+    if (prisonLeaverServices.length === 0) return '';
+    const officer = is16_17 ? 'youth justice worker' : 'probation officer';
+    let s = heading('SERVICES FOR PEOPLE LEAVING PRISON');
+    s += `Some of these take referrals only. If so, the referral comes through ${possessive} ${officer} or the team in the prison that deals with release and housing.\n\n`;
+    for (const svc of prisonLeaverServices) s += serviceLines(svc);
+    return s;
+  };
+
   // ----------------------------------------
   // 16-17 WITH SOCIAL SERVICES — special layout
   // ----------------------------------------
   const effectiveAge = session.detailedAge || session.ageCategory;
   const is16_17 = effectiveAge === '16-17';
   const hasSocialServices = session.socialServices === 'Yes';
+  // Care leavers (VA Pathway Review 5.2; Managing Director, 20 November 2026).
+  // Where the care answers lead to a care route, it replaces the first step;
+  // otherwise today's layouts, with the 16 and 17 "not sure" note.
+  const care = careSections(session);
 
   // Children's Services framing and LA duty team contact, shown first for every 16-17 year old
   const childrensServicesFirstStep = (): string => {
@@ -594,10 +1016,11 @@ function buildTerminalServices(session: SessionState): TerminalResult {
       cs += `\n`;
       cs += `${childServices.website}\n\n`;
     }
+    if (care.notSureNote) cs += `${care.notSureNote}\n\n`;
     return cs;
   };
 
-  if (is16_17 && hasSocialServices) {
+  if (is16_17 && hasSocialServices && !care.first) {
     text += `I've found some services that can help with ${possessive} situation.\n\n`;
 
     // Children's Services as primary route
@@ -608,6 +1031,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
     // Already involved and still looking: say so neutrally, without judging
     // the worker (Managing Director, 2 and 3 November 2026)
     text += `If ${they} need something different, or more help alongside that, these can help too.\n\n`;
+    text += prisonLeaverSection();
 
     // Age-filtered navigator orgs as secondary
     if (navigatorOrgs.length > 0) {
@@ -638,8 +1062,16 @@ function buildTerminalServices(session: SessionState): TerminalResult {
       text += `${councilOrg.name}\n`;
       if (councilOrg.phone) text += `${councilOrg.phone}\n`;
       if (councilOrg.website) text += `${councilOrg.website}\n`;
+      // Needs the technical lead's eye: 16 and 17 year olds with a social
+      // worker also see the staff referral line for prison or hospital
+      // (review, 20 November 2026). Safeguarding-adjacent layout.
+      if (staffReferralLine) text += staffReferralLine;
       text += `\n`;
     }
+
+    // 16 and 17, Prefer not to say at the care question: the leaving care
+    // team where they are now, after Housing Options.
+    if (care.afterHousing) text += care.afterHousing;
 
     // Shelter safety net
     text += `IF YOU NEED MORE HELP\n`;
@@ -662,6 +1094,9 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   // ----------------------------------------
   text += `I've found some services that can help with ${possessive} situation.\n\n`;
 
+  // 16 and 17 year olds see Children's Services first, then these.
+  if (!is16_17) text += prisonLeaverSection();
+
   // ----------------------------------------
   // YOUR FIRST STEP - Council Housing Options
   // 16-17 not involved with social services: Children's Services first, then Housing Options
@@ -670,7 +1105,11 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   text += `YOUR FIRST STEP\n`;
   text += `---------------\n`;
 
-  if (is16_17) {
+  if (care.first) {
+    text += care.first;
+    text += `HOUSING OPTIONS\n`;
+    text += `---------------\n`;
+  } else if (is16_17) {
     text += childrensServicesFirstStep();
     text += `HOUSING OPTIONS\n`;
     text += `---------------\n`;
@@ -688,8 +1127,15 @@ function buildTerminalServices(session: SessionState): TerminalResult {
     text += `This is the council's housing team. `;
     
     // Contextual advice based on situation
-    if (session.sleepingSituation?.toLowerCase().includes('rough')) {
+    if (session.housingSituation === 'NOWHERE_TONIGHT') {
+      text += `Explain what's happening and ask for a homelessness assessment. Let them know ${theyre} sleeping rough or have nowhere to stay tonight - this is urgent.\n`;
+    } else if (session.sleepingSituation?.toLowerCase().includes('rough')) {
       text += `Explain what's happening and ask for a homelessness assessment. Let them know ${theyre} sleeping rough - this is urgent.\n`;
+    } else if (session.housingSituation === 'LOSING_HOME') {
+      text += `They can help when ${theyre} about to lose ${possessive} home, so it's best to contact them as soon as ${they} can.\n`;
+    } else if (session.housingSituation === 'LEAVING_PRISON' || session.housingSituation === 'LEAVING_HOSPITAL') {
+      text += `Explain what's happening and ask for a homelessness assessment.\n`;
+      text += staffReferralLine;
     } else if (session.homeless || session.sleepingSituation) {
       text += `Explain what's happening and ask for a homelessness assessment.\n`;
     } else if (session.preventionNeed) {
@@ -702,9 +1148,17 @@ function buildTerminalServices(session: SessionState): TerminalResult {
     text += `${la} Council Housing Options\n`;
     text += `https://www.gov.uk/find-local-council\n\n`;
     text += `This is the council's housing team. Ask for a homelessness assessment.\n`;
+    text += staffReferralLine;
   }
   
   text += `\n`;
+
+  // Care leavers: the leaving care team where they are now, after Housing
+  // Options, where the care answers call for it.
+  if (care.afterHousing) text += care.afterHousing;
+
+  // 16 and 17 year olds: after Children's Services and Housing Options.
+  if (is16_17) text += prisonLeaverSection();
   
   // ----------------------------------------
   // STREETLINK - If rough sleeping (urgent outreach)
@@ -720,11 +1174,47 @@ function buildTerminalServices(session: SessionState): TerminalResult {
     text += `\n`;
     text += `This alerts local outreach teams to ${possessive} location so they can find ${pronoun} and offer support.\n\n`;
   }
+
+  // ----------------------------------------
+  // VETERANS - a yes to the armed forces question (Housing Pathway Endpoints
+  // Contract 1.4, Veterans). Op FORTITUDE always, then local housing services
+  // designed for veterans, where any, by the V4 population tag. No or prefer
+  // not to say changes nothing.
+  // ----------------------------------------
+  if (session.servedInArmedForces === true) {
+    text += heading('SUPPORT FOR VETERANS');
+    text += serviceLines(getOpFortitudeInfo(isSupporter));
+    for (const svc of getHousingServicesForPopulation('veterans', profile)) text += serviceLines(svc);
+  }
   
   // ----------------------------------------
-  // LOCAL SUPPORT - Drop-in services and navigator orgs
+  // LOCAL HOUSING ADVICE - someone about to lose their home
+  // Organisations that help at this point, from the platform's housing and
+  // legal advice listings (Managing Director, 3 November 2026)
   // ----------------------------------------
-  const allLocalOrgs = [...localSupportOrgs, ...navigatorOrgs];
+  const losingHome = session.housingSituation === 'LOSING_HOME';
+  if (losingHome) {
+    const housingAdvice = getHousingAdviceServices(profile);
+    if (housingAdvice.length > 0) {
+      text += `LOCAL HOUSING ADVICE\n`;
+      text += `--------------------\n`;
+      for (const svc of housingAdvice) {
+        text += `${svc.name}\n`;
+        if (svc.phone) text += `${svc.phone}\n`;
+        if (svc.website) text += `${svc.website}\n`;
+        if (svc.description) text += `${svc.description}\n`;
+        text += `\n`;
+      }
+    }
+  }
+
+  // ----------------------------------------
+  // LOCAL SUPPORT - Drop-in services and navigator orgs
+  // Someone about to lose their home is not shown the adult housing navigators,
+  // which are for exploring other options. Young people's routes stay.
+  // ----------------------------------------
+  const shownNavigators = losingHome ? navigatorOrgs.filter(n => n.isYouthRoute) : navigatorOrgs;
+  const allLocalOrgs = [...localSupportOrgs, ...shownNavigators];
   if (allLocalOrgs.length > 0) {
     text += `LOCAL SUPPORT\n`;
     text += `-------------\n`;
@@ -798,10 +1288,14 @@ function buildTerminalServices(session: SessionState): TerminalResult {
     }
     text += (nrpfFamilyPhrase?.text || '') + '\n\n';
 
-    // Project 17
-    text += `Project 17\n`;
-    text += `https://project17.org.uk\n`;
-    text += `Specialist support for families with no recourse to public funds\n\n`;
+    // Project 17, only if not already shown in the specialist section, as for
+    // Migrant Help below; one description everywhere (Managing Director,
+    // 20 November 2026).
+    if (!allSpecialistOrgs.some(o => o.name === 'Project 17')) {
+      text += `Project 17\n`;
+      text += `https://www.project17.org.uk\n`;
+      text += `For families with children who have no recourse to public funds\n\n`;
+    }
 
     // Migrant Help — only if not already shown in specialist section
     const migrantHelpInSpecialist = allSpecialistOrgs.some(o => o.name === 'Migrant Help');
@@ -841,12 +1335,9 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   // ----------------------------------------
   // YOUTH SERVICES - for 16-24
   // ----------------------------------------
-  const showYouth = session.youthServicesFlag || 
-    session.ageCategory === '16-17' || 
-    session.ageCategory === '18-24' || 
-    session.detailedAge === '16-17' || 
-    session.detailedAge === '18-20' ||
-    session.detailedAge === '21-24';
+  // Age is asked once, in four bands (6 November 2026); isAged16To24 also
+  // reads the older 18-20 and 21-24 values.
+  const showYouth = session.youthServicesFlag || isAged16To24(session);
     
   if (showYouth && youthOrgs.length > 0) {
     text += `YOUNG PEOPLE'S SUPPORT\n`;
@@ -873,9 +1364,11 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   // ----------------------------------------
   // SOCIAL SERVICES GUIDANCE - for care leavers / young people not engaged
   // ----------------------------------------
+  // 16 to 24: leaving care support, and the protection from being found
+  // intentionally homeless, run to 25 (Children's Wellbeing and Schools Act 2026, s.9, in force 30 September 2026; Managing Director, 6 November 2026).
   const showSocialServicesGuidance = 
-    (session.ageCategory === '16-17' || session.detailedAge === '16-17' || session.detailedAge === '18-20' || session.inCare) 
-    && session.socialServices === 'No';
+    (isAged16To24(session) || session.inCare) 
+    && session.socialServices === 'No' && !care.first;
     
   if (showSocialServicesGuidance) {
     text += `IMPORTANT FOR YOUNG PEOPLE\n`;
@@ -950,6 +1443,126 @@ export function parseUserInput(input: string, options?: string[]): number | null
   return null;
 }
 
+// Housing situation question only (review, 20 November 2026):
+// - an answer that pairs a leaving phrase with prison or hospital ("released
+//   from prison", "discharged from hospital", "coming out of the hospital") goes
+//   to that answer, whatever its first word; a passing mention ("my mum is in
+//   hospital") does not;
+// - an answer that says "nowhere" and names neither prison nor hospital goes to
+//   sleeping rough or nowhere to stay tonight.
+// Anything else goes through parseUserInput, with the prison and hospital
+// answers kept out of its text matching (review, 20 November 2026): their first
+// words caught "leaving care", "leaving my partner" and anything containing
+// "coming". They are reached only by their number or by the leaving phrase.
+const LEAVING_PHRASE = String.raw`\b(?:leaving|coming out of|getting out of|released from|discharged from|just out of|out of)\s+(?:the\s+)?`;
+
+// The gender questions: B5_PROFILE_GENDER and C3Q4_GENDER, and the
+// DV and SA gender questions. Buttons and numbers read as before. A typed
+// answer is read on whole words, in this order (20 November 2026):
+// 1. An answer naming trans (trans, transgender, trans man or woman, male to
+//    female, female to male, MtF, FtM) is read as trans before anything else.
+//    At C3Q4 it goes to Trans Female or Trans Male where it says which, and to
+//    the AI reading where it does not. At DV and SA it goes to the AI reading.
+//    At B5, which has no trans option, it is held (below).
+// 2. A negation ("not male", "not a woman") names nothing.
+// 3. Female or woman is Female; male or man is Male. Naming both names nothing.
+// 4. The other options by their own words.
+// Anything else falls through to the usual matcher, unless it holds "male" or
+// "man" inside a word, which goes to the AI reading instead. Under hard gate B
+// only an explicitly stated Male may hide women-only services.
+export const GENDER_GATES = new Set<string>(['B5_PROFILE_GENDER', 'C3Q4_GENDER', 'DV_GENDER_ASK', 'SA_GENDER_ASK']);
+
+// B5_PROFILE_GENDER has no trans option. There, a typed answer
+// naming trans is never read as Male or Female, by the parser or the AI: hard
+// gate B lets women-only services be hidden only on an explicitly stated Male,
+// and a trans answer never meets that (October trans paper). It is held as
+// "Trans", kept in the session only and never logged: it hides nothing and
+// lifts nothing.
+export const TRANS_HELD_GATES = new Set<string>(['B5_PROFILE_GENDER']);
+export const HELD_TRANS_GENDER = 'Trans';
+
+const genderWords = (t: string): string =>
+  ` ${t.toLowerCase().replace(/\([^)]*\)/g, ' ').replace(/[^a-z]+/g, ' ').trim()} `;
+
+const TRANS_FEMALE = / (?:trans(?:gender)? (?:woman|women|female)|transwoman|transfemale|mtf|m2f|male to female) /;
+const TRANS_MALE = / (?:trans(?:gender)? (?:man|men|male)|transman|transmale|ftm|f2m|female to male) /;
+const TRANS_ANY = / (?:trans|transgender|transsexual) /;
+const NEGATED = / (?:not|isn t|aren t|never|no) (?:an? )?(?:female|females|woman|women|male|males|man|men) /;
+const FEMALE_WORD = / (?:female|females|woman|women) /;
+const MALE_WORD = / (?:male|males|man|men) /;
+
+export function isTransAnswer(input: string): boolean {
+  const said = genderWords(input);
+  return TRANS_FEMALE.test(said) || TRANS_MALE.test(said) || TRANS_ANY.test(said);
+}
+
+export function heldTransAnswer(gate: string, input: string): boolean {
+  return TRANS_HELD_GATES.has(gate) && isTransAnswer(input);
+}
+
+export function parseGenderInput(input: string, options?: string[], gate?: string): number | null {
+  const trimmed = input.trim();
+  if (!options || /^\d+$/.test(trimmed)) return parseUserInput(input, options);
+
+  const said = genderWords(trimmed);
+  const optionNamed = (name: string): number | null => {
+    const i = options.findIndex(o => genderWords(o) === ` ${name} `);
+    return i >= 0 ? i + 1 : null;
+  };
+
+  // 1. Trans, before anything else.
+  if (isTransAnswer(trimmed)) {
+    if (gate !== 'C3Q4_GENDER') return null; // held at B4 and B5; the AI reading at DV and SA
+    const female = TRANS_FEMALE.test(said);
+    const male = TRANS_MALE.test(said);
+    if (female && !male) return optionNamed('trans female');
+    if (male && !female) return optionNamed('trans male');
+    return null;
+  }
+
+  // 2. A negation names nothing.
+  if (NEGATED.test(said)) return null;
+
+  // 3. Female or Male, on whole words.
+  const female = FEMALE_WORD.test(said);
+  const male = MALE_WORD.test(said);
+  if (female && male) return null;
+  if (female) return optionNamed('female');
+  if (male) return optionNamed('male');
+
+  // 4. The other options by their own words.
+  for (let i = 0; i < options.length; i++) {
+    const name = genderWords(options[i]);
+    if (name.trim() && said.includes(name)) return i + 1;
+  }
+
+  // "male" or "man" inside another word is never matched by substring.
+  if (/male|man/i.test(trimmed)) return null;
+  return parseUserInput(input, options);
+}
+
+export function parseHousingSituationInput(input: string, options?: string[]): number | null {
+  const trimmed = input.trim();
+  if (options && !/^\d+$/.test(trimmed)) {
+    const leavingPrison = new RegExp(LEAVING_PHRASE + String.raw`prison\b`, 'i').test(trimmed);
+    const leavingHospital = new RegExp(LEAVING_PHRASE + String.raw`hospital\b`, 'i').test(trimmed);
+    if (leavingPrison !== leavingHospital) {
+      const word = leavingPrison ? 'prison' : 'hospital';
+      const i = options.findIndex(o => new RegExp(String.raw`\b${word}\b`, 'i').test(o));
+      if (i >= 0) return i + 1;
+    }
+    if (/\bnowhere\b/i.test(trimmed) && !/\b(prison|hospital)\b/i.test(trimmed)) {
+      const i = options.findIndex(o => /\bnowhere to stay tonight\b/i.test(o));
+      if (i >= 0) return i + 1;
+    }
+    // Same length, so numbers still reach every answer; a masked option never
+    // matches typed text.
+    const masked = options.map(o => (/\b(prison|hospital)\b/i.test(o) ? '\u0000' : o));
+    return parseUserInput(input, masked);
+  }
+  return parseUserInput(input, options);
+}
+
 // ============================================================
 // MID-CONVERSATION UNDER-16 SAFEGUARDING DETECTION
 // ============================================================
@@ -957,7 +1570,7 @@ export function parseUserInput(input: string, options?: string[]): number | null
 // Intercepts free-text user input at every gate and looks for explicit
 // disclosure of under-16 age. Triggers an immediate safeguarding exit
 // regardless of where in the conversation the user currently is, even if
-// they previously declared an adult age at B3_AGE_CATEGORY.
+// they previously declared an adult age at an earlier age question.
 //
 // Trigger patterns are intentionally narrow:
 //   1. First-person numeric statement of ages 10-15 ("I'm 14", "I am 13").
@@ -1054,7 +1667,11 @@ export function interceptUnder16Age(session: SessionState, input: string): Routi
 export function processInput(session: SessionState, input: string): RoutingResult {
   const gate = session.currentGate;
   const p = getPhrase(gate, session.isSupporter);
-  const choice = parseUserInput(input, p?.options);
+  // The Safety route reads only a chosen option, never a keyword (safety.ts).
+  const choice = isSafetyGate(gate) ? parseSafetyChoice(input, p?.options)
+    : gate === 'B6_HOMELESSNESS_STATUS' ? parseHousingSituationInput(input, p?.options)
+    : GENDER_GATES.has(gate) ? parseGenderInput(input, p?.options, gate)
+    : parseUserInput(input, p?.options);
   
   switch (gate) {
     
@@ -1087,6 +1704,15 @@ export function processInput(session: SessionState, input: string): RoutingResul
     // ========================================
     case 'SA_GENDER_ASK':
       return handleSAGenderAsk(session, choice);
+
+    // ========================================
+    // SAFETY FROM HARM ROUTE (handlers in lib/handlers/safety.ts)
+    // ========================================
+    case 'SAFETY_TYPE_OF_HARM':
+      return handleSafetyTypeOfHarm(session, choice);
+
+    case 'SAFETY_OK_TO_CONTINUE':
+      return handleSafetyOkToContinue(session, choice);
     
     // ========================================
     // GATE 1: INTENT
@@ -1272,63 +1898,16 @@ export function processInput(session: SessionState, input: string): RoutingResul
         stateUpdates: { currentGate: 'B5_MAIN_SUPPORT_NEED', userType, isSupporter }
       };
     
-    case 'B3_AGE_CATEGORY':
-      const ageOptions = ['Under 16', '16-17', '18-24', '25 or over'];
-      const age = choice ? ageOptions[choice - 1] : null;
+    case 'B5_MAIN_SUPPORT_NEED': {
+      // The first question in V4 terms (Decision 1, Managing Director, 4 November 2026).
+      // Numbered as offered: Safety is left out while its switch is off.
+      const offered = visibleFirstOptions();
+      const option = choice && choice >= 1 && choice <= offered.length ? offered[choice - 1] : null;
+      if (!option) return phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter);
+      const needCount = session.needCount + 1;
 
-      // Under 16 safeguarding — exit directly if LA known, otherwise ask for area first
-      if (choice === 1) {
-        if (session.localAuthority) {
-          return buildUnder16Exit(session);
-        }
-        return {
-          ...phrase('CRISIS_UNDER16_LOCATION', session.userType),
-          stateUpdates: { currentGate: 'CRISIS_UNDER16_LOCATION' }
-        };
-      }
-      
-      // Youth flag for 16-17
-      const youthFlag = choice === 2;
-      
-      // Full route asks gender, quick route skips to B5
-      if (session.routeType === 'FULL') {
-        return {
-          ...phrase('B4_GENDER', session.isSupporter),
-          stateUpdates: { currentGate: 'B4_GENDER', ageCategory: age, youthServicesFlag: youthFlag }
-        };
-      } else {
-        return {
-          ...phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter),
-          stateUpdates: { currentGate: 'B5_MAIN_SUPPORT_NEED', ageCategory: age, youthServicesFlag: youthFlag }
-        };
-      }
-    
-    case 'B4_GENDER':
-      const genderOptions = ['Male', 'Female', 'Non-binary or other', 'Prefer not to say'];
-      const gender = choice ? genderOptions[choice - 1] : null;
-      
-      return {
-        ...phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter),
-        stateUpdates: { currentGate: 'B5_MAIN_SUPPORT_NEED', gender }
-      };
-    
-    case 'B5_MAIN_SUPPORT_NEED':
-      const needOptions = ['Emergency Housing', 'Food', 'Work', 'Health', 'Advice', 'Drop In', 'Financial', 'Items', 'Services', 'Comms', 'Training', 'Activities'];
-      const need = choice ? needOptions[choice - 1] : null;
-
-      // Advice routes to subcategory selection
-      if (need === 'Advice') {
-        return {
-          ...phrase('B5A_ADVICE_TYPE', session.isSupporter),
-          stateUpdates: { currentGate: 'B5A_ADVICE_TYPE', supportNeed: need, needCount: session.needCount + 1 }
-        };
-      }
-
-      // Housing needs require full profiling
-      const housingRelatedNeeds = ['Emergency Housing'];
-      const needsFullProfiling = housingRelatedNeeds.includes(need || '');
-
-      if (needsFullProfiling) {
+      if (option.id === 'housing') {
+        const need = 'Emergency Housing';
         // Every housing route asks age before B6. Age decides the under-16 exit
         // and the 16-17 route, so it cannot wait for Section C: the full route
         // reaches Section C only with consent, the prevention branch never
@@ -1336,20 +1915,156 @@ export function processInput(session: SessionState, input: string): RoutingResul
         if (!session.ageCategory) {
           return {
             ...phrase('B5_PROFILE_AGE', session.isSupporter),
-            stateUpdates: { currentGate: 'B5_PROFILE_AGE', supportNeed: need, needCount: session.needCount + 1 }
+            stateUpdates: { currentGate: 'B5_PROFILE_AGE', supportNeed: need, needCount, v4Option: 'housing', v4Choice: null }
           };
         }
 
         // Continue to homelessness status question
         return {
           ...phrase('B6_HOMELESSNESS_STATUS', session.isSupporter),
-          stateUpdates: { currentGate: 'B6_HOMELESSNESS_STATUS', supportNeed: need, needCount: session.needCount + 1 }
+          stateUpdates: { currentGate: 'B6_HOMELESSNESS_STATUS', supportNeed: need, needCount, v4Option: 'housing', v4Choice: null }
         };
-      } else {
-        // Non-housing need - route to category-specific profiling
-        const updatedSession = { ...session, supportNeed: need, needCount: session.needCount + 1 };
-        return routeToNextProfileQuestion(updatedSession);
       }
+
+      if (option.id === 'safety') {
+        // Hard-coded Safety route (Safeguarding Contract 3.3): bypasses the matcher and AI.
+        const r = startSafetyRoute(session);
+        return { ...r, stateUpdates: { ...r.stateUpdates, v4Option: 'safety', v4Choice: null, supportNeed: 'V4:safety', needCount } };
+      }
+
+      if (option.id === 'not-sure') {
+        // The assistant helps the person work it out, through the noticing
+        // question, with the choice of someone in person (design paper, Part
+        // C, section 2; Managing Director, 26 November 2026). Supporters are
+        // not offered the noticing question (3.5), so they go to the in-person
+        // route.
+        const ns = { v4Option: 'not-sure', v4Choice: null, supportNeed: 'V4:not-sure', needCount, unclearCount: 0 };
+        if (session.isSupporter) return notSureInPerson(session, ns);
+        return { text: notSureText(), options: notSureOptions(), multiSelect: notSureMultiSelect(), stateUpdates: { currentGate: 'B5_NOT_SURE', noticingAsked: true, ...ns } };
+      }
+
+      if (option.secondScreen) {
+        const key = secondScreenPhraseKey(option.id);
+        const r = phrase(key, session.isSupporter);
+        return { ...r, stateUpdates: { ...r.stateUpdates, currentGate: 'B5_SECOND_SCREEN', v4Option: option.id, v4Choice: null, supportNeed: `V4:${option.id}`, needCount } };
+      }
+
+      const updated = { ...session, v4Option: option.id, v4Choice: null, supportNeed: `V4:${option.id}`, needCount };
+      const next = routeToNextProfileQuestion(updated);
+      return { ...next, stateUpdates: { v4Option: option.id, v4Choice: null, supportNeed: `V4:${option.id}`, needCount, ...next.stateUpdates } };
+    }
+
+    case 'B5_SECOND_SCREEN': {
+      const option = session.v4Option ? firstOption(session.v4Option as FirstOptionId) : null;
+      const choices = option?.secondScreen ?? [];
+      const picked = choice && choice >= 1 && choice <= choices.length ? choices[choice - 1] : null;
+      if (!option || !picked) {
+        const key = secondScreenPhraseKey(option?.id);
+        return { ...phrase(key, session.isSupporter), stateUpdates: { currentGate: 'B5_SECOND_SCREEN' } };
+      }
+      const supportNeed = `V4:${option.id}:${picked.label}`;
+      const updated = { ...session, v4Choice: picked.label, supportNeed };
+      const next = routeToNextProfileQuestion(updated);
+      return { ...next, stateUpdates: { v4Choice: picked.label, supportNeed, ...next.stateUpdates } };
+    }
+
+    case 'B5_NOTICING': {
+      // Read as option numbers or one option's exact words only (lib/noticing.ts).
+      const picked = parseNoticing(input, noticingOptions(session));
+      if (!picked) {
+        // Ask once more; after that, show their results, so no one is held here.
+        if (session.unclearCount >= 1) {
+          const done = finishWithResults(session);
+          return { ...done, text: `${noticingDangerLine(session.isSupporter)}\n\n${done.text}`, stateUpdates: { ...done.stateUpdates, unclearCount: 0 } };
+        }
+        return { text: `${noticingUnclear(session.isSupporter)}\n\n${noticingText(session)}`, options: noticingOptions(session), multiSelect: noticingMultiSelect(session), stateUpdates: { currentGate: 'B5_NOTICING', unclearCount: session.unclearCount + 1 } };
+      }
+      const { outcome } = noticingOutcome(session, picked);
+      if (outcome === 'safety') {
+        // While the Safety route's switch is off, the crisis question: hard-coded,
+        // live, and covering domestic abuse, sexual violence and immediate danger
+        // (James Cross's review of #73, 25 November 2026).
+        if (!isSafetyRouteEnabled()) {
+          return { ...phrase('GATE0_CRISIS_DANGER', session.isSupporter), stateUpdates: { currentGate: 'GATE0_CRISIS_DANGER', unclearCount: 0 } };
+        }
+        const r = startSafetyRoute(session);
+        return { ...r, stateUpdates: { ...r.stateUpdates, v4Option: 'safety', v4Choice: null, supportNeed: 'V4:safety', unclearCount: 0 } };
+      }
+      if (outcome === 'housing') {
+        // Results for what they came for first, then housing offered as a
+        // choice, never entered automatically (Managing Director, 19 November 2026).
+        const { named } = noticingOutcome(session, picked);
+        const which = named.includes('no-settled-place') ? 'no-settled-place' : 'keep-home';
+        const others = named.some(id => !['no-settled-place', 'keep-home', 'nothing-else', 'not-sure'].includes(id));
+        const result = buildTerminalServices(session);
+        const lead = others && result.hasLocal ? awarenessLine(session) + '\n\n' : '';
+        return {
+          text: `${lead}${result.text}\n\n${housingOfferText(which)}`,
+          options: HOUSING_OFFER_OPTIONS,
+          stateUpdates: {
+            currentGate: 'B5_HOUSING_OFFER', noticingHousing: which, unclearCount: 0,
+            ...(result.terminalOutcome ? { terminalOutcome: result.terminalOutcome } : {}),
+          },
+        };
+      }
+      const done = finishWithResults(session, outcome === 'aware' ? awarenessLine(session) : undefined);
+      return { ...done, stateUpdates: { ...done.stateUpdates, unclearCount: 0 } };
+    }
+
+    case 'B5_NOT_SURE': {
+      // Read as option numbers or one option's exact words only, as at the
+      // noticing question: never by the AI.
+      const picked = parseNoticing(input, notSureOptions());
+      if (!picked) {
+        // Ask once more; after that, the in-person route, so no one is held here.
+        if (session.unclearCount >= 1) {
+          const r = notSureInPerson(session, { unclearCount: 0 });
+          return { ...r, text: `${noticingDangerLine(session.isSupporter)}\n\n${r.text}` };
+        }
+        return { text: `${noticingUnclear(session.isSupporter)}\n\n${notSureText()}`, options: notSureOptions(), multiSelect: notSureMultiSelect(), stateUpdates: { currentGate: 'B5_NOT_SURE', unclearCount: session.unclearCount + 1 } };
+      }
+      const outcome = notSureOutcome(picked);
+      if (outcome.kind === 'safety') {
+        // As "Feeling unsafe" at the noticing question.
+        if (!isSafetyRouteEnabled()) {
+          return { ...phrase('GATE0_CRISIS_DANGER', session.isSupporter), stateUpdates: { currentGate: 'GATE0_CRISIS_DANGER', unclearCount: 0 } };
+        }
+        const r = startSafetyRoute(session);
+        return { ...r, stateUpdates: { ...r.stateUpdates, v4Option: 'safety', v4Choice: null, supportNeed: 'V4:safety', unclearCount: 0 } };
+      }
+      if (outcome.kind === 'in-person') return notSureInPerson(session, { unclearCount: 0 });
+      // Housing, or the first pressure ticked that has a topic: as if chosen on
+      // the first question. "Not sure" was counted as the need, so it is not
+      // counted twice.
+      const id = outcome.kind === 'housing' ? 'housing' : outcome.option;
+      const number = visibleFirstOptions().findIndex(o => o.id === id) + 1;
+      const r = processInput({ ...session, currentGate: 'B5_MAIN_SUPPORT_NEED', needCount: Math.max(0, session.needCount - 1), unclearCount: 0 }, String(number));
+      const aware = outcome.kind === 'topic' && outcome.others;
+      return { ...r, stateUpdates: { ...r.stateUpdates, unclearCount: 0, noticingAsked: true, ...(aware ? { notSureAware: true } : {}) } };
+    }
+
+    case 'B5_HOUSING_OFFER': {
+      const pick = parseNoticing(input, HOUSING_OFFER_OPTIONS);
+      const one = pick && pick.length === 1 ? pick[0] : null;
+      if (one === 1) {
+        const housing = { supportNeed: 'Emergency Housing', v4Option: 'housing', v4Choice: null, unclearCount: 0, needCount: session.needCount + 1 };
+        if (!session.ageCategory) {
+          return { ...phrase('B5_PROFILE_AGE', session.isSupporter), stateUpdates: { currentGate: 'B5_PROFILE_AGE', ...housing } };
+        }
+        return { ...phrase('B6_HOMELESSNESS_STATUS', session.isSupporter), stateUpdates: { currentGate: 'B6_HOMELESSNESS_STATUS', ...housing } };
+      }
+      if (one === null && session.unclearCount < 1) {
+        return {
+          text: `${NOTICING_UNCLEAR}\n\n${housingOfferText(session.noticingHousing === 'keep-home' ? 'keep-home' : 'no-settled-place')}`,
+          options: HOUSING_OFFER_OPTIONS,
+          stateUpdates: { currentGate: 'B5_HOUSING_OFFER', unclearCount: session.unclearCount + 1 },
+        };
+      }
+      // Staying with these results (or a second unclear answer): the usual
+      // question about anything else, so no one is left without a next step.
+      const more = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
+      return { text: more?.text ?? '', options: more?.options, stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', unclearCount: 0 } };
+    }
 
     case 'B5A_ADVICE_TYPE':
       const adviceOptions = ['Advice:Benefits', 'Advice:Debt', 'Advice:Employment', 'Advice:Immigration', 'Advice:Health', 'Advice:Legal', 'Advice:General'];
@@ -1365,7 +2080,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
       const profAgeOptions = ['Under 16', '16-17', '18-24', '25 or over'];
       const profAge = choice ? profAgeOptions[choice - 1] : null;
 
-      // Under 16 safeguarding — same exit as B3_AGE_CATEGORY
+      // Under 16 safeguarding — the under-16 exit
       if (choice === 1) {
         if (session.localAuthority) {
           return buildUnder16Exit(session);
@@ -1391,7 +2106,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
         };
       }
 
-      // Emergency Housing continues to the homelessness status question
+      // Emergency Housing continues to the homelessness status question, on either route
       if (session.supportNeed === 'Emergency Housing') {
         return {
           ...phrase('B6_HOMELESSNESS_STATUS', session.isSupporter),
@@ -1414,7 +2129,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
 
     case 'B5_PROFILE_GENDER':
       const profGenderOptions = ['Male', 'Female', 'Non-binary or other', 'Prefer not to say'];
-      const profGender = choice ? profGenderOptions[choice - 1] : null;
+      const profGender = choice ? profGenderOptions[choice - 1] : (heldTransAnswer(gate, input) ? HELD_TRANS_GENDER : null);
       
       const sessionWithGender = { ...session, gender: profGender };
       return routeToNextProfileQuestion(sessionWithGender, 'gender');
@@ -1498,17 +2213,32 @@ export function processInput(session: SessionState, input: string): RoutingResul
       const sessionWithChildren = { ...session, hasChildren: childrenValue };
       return routeToNextProfileQuestion(sessionWithChildren, 'children');
     
-    case 'B6_HOMELESSNESS_STATUS':
-      const homeless = choice === 1;
+    case 'B6_HOMELESSNESS_STATUS': {
+      // Housing situation question (Managing Director, 3 November 2026).
+      // Option 1 is prevention. Options 2 to 6 are crisis: for option 2 the loss
+      // has materialised although the person is still in their home.
+      const situation = HOUSING_SITUATION_BY_CHOICE[choice ?? 0];
+      if (!situation) {
+        return phrase('B6_HOMELESSNESS_STATUS', session.isSupporter);
+      }
       return {
         ...phrase('HOUSING_OPTIONS_INVOLVEMENT_ASK', session.isSupporter),
-        stateUpdates: { currentGate: 'HOUSING_OPTIONS_INVOLVEMENT_ASK', homeless }
+        stateUpdates: {
+          currentGate: 'HOUSING_OPTIONS_INVOLVEMENT_ASK',
+          housingSituation: situation,
+          ...HOUSING_SITUATION_STATE[situation],
+        }
       };
+    }
 
     // TODO: Wire housingOptionsInvolvement into buildTerminalServices — when true,
     // deprioritise Housing Options in terminal output and lead with navigator/specialist orgs instead
     case 'HOUSING_OPTIONS_INVOLVEMENT_ASK': {
       const hoInvolvement = choice === 1 ? true : (choice === 2 ? false : null);
+      if (session.housingSituation) {
+        return routeHousingSituation({ ...session, housingOptionsInvolvement: hoInvolvement });
+      }
+      // Sessions started before the housing situation question keep the old route
       if (session.homeless) {
         return {
           ...phrase('B7_HOMELESS_SLEEPING_SITUATION', session.isSupporter),
@@ -1568,22 +2298,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
       
       // Quick route goes to terminal, Full route continues to B8
       if (session.routeType === 'QUICK') {
-        const resultB7 = buildTerminalServices({ ...session, sleepingSituation: sleeping });
-        const additionalNeedsB7 = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
-
-        // Add StreetLink for rough sleeping
-        let text = resultB7.text;
-        if (choice === 1) {
-          const streetlink = getPhrase('STREETLINK_SIGNPOST', session.isSupporter);
-          text = (streetlink?.text || '') + '\n\n' + resultB7.text;
-        }
-
-        return {
-          text: text + '\n' + additionalNeedsB7?.text,
-          options: additionalNeedsB7?.options,
-          stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', sleepingSituation: sleeping, ...(resultB7.terminalOutcome ? { terminalOutcome: resultB7.terminalOutcome } : {}) },
-          sessionEnded: false
-        };
+        return housingResultsTerminal({ ...session, sleepingSituation: sleeping });
       } else {
         return {
           ...phrase('B8_DURATION', session.isSupporter),
@@ -1595,6 +2310,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
     // PREVENTION PATHWAY (handlers in lib/handlers/prevention.ts)
     // ========================================
     case 'B7B_PREVENTION_REASON':
+      if (choice === 2 || choice === 4) {
+        return routeNoticeToLeave(session, choice);
+      }
       return handleB7BPreventionReason(session, choice);
 
     case 'B7C_PREVENTION_URGENCY':
@@ -1641,6 +2359,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
     // ========================================
     case 'C2_CONSENT_GATE':
       return handleC2ConsentGate(session, choice, buildTerminalServices);
+
+    case 'ARMED_FORCES_ASK':
+      return handleArmedForcesAsk(session, choice);
     
     case 'C3Q1_IMMIGRATION_STATUS':
       return handleC3Q1ImmigrationStatus(session, choice);
@@ -1681,11 +2402,12 @@ export function processInput(session: SessionState, input: string): RoutingResul
     case 'C3Q10A_LGBTQ_SERVICE_PREFERENCE':
       return handleC3Q10ALgbtqServicePreference(session, choice, buildTerminalServices);
     
-    case 'C3Q11_CURRENTLY_IN_CARE':
-      return handleC3Q11CurrentlyInCare(session, choice);
-    
-    case 'C3Q12_SOCIAL_SERVICES':
-      return handleC3Q12SocialServices(session, choice, buildTerminalServices);
+    case 'C3Q11_EVER_IN_CARE_16_17':
+    case 'C3Q11_EVER_IN_CARE':
+      return handleCareEverInCare(session, choice, buildTerminalServices);
+
+    case 'C3Q11A_CARE_COUNCIL':
+      return handleCareCouncil(session, choice, buildTerminalServices);
     
     // ========================================
     // TERMINAL & ADDITIONAL NEEDS

@@ -6,10 +6,11 @@
 // - Database-driven service lookup by category
 
 import servicesData from './data/wmca_services_v7.json';
+import { partsFor, V4_SUBCATEGORIES, type CategoryPart, type FirstOptionId } from './data/v4Categories';
 import orgsData from './data/wmca_organizations_v7.json';
 import endpointsData from './data/housing-pathway-endpoints.json';
 import type { MatchedService, DefaultOrg, UserProfile } from './types';
-import { getServicePool } from './data/servicePool';
+import { getServicePool, runWithServicePool } from './data/servicePool';
 
 // ============================================================
 // TYPES
@@ -217,8 +218,8 @@ const immigrationOrgs: DefaultOrg[] = [
   {
     name: "Project 17",
     phone: null,
-    website: "https://project17.org.uk",
-    description: "Advice for families with No Recourse to Public Funds"
+    website: "https://www.project17.org.uk",
+    description: "For families with children who have no recourse to public funds"
   }
 ];
 
@@ -362,6 +363,9 @@ function matchesAge(clientGroups: string[], ageCategory: string | null): boolean
   return true;
 }
 
+// The C3Q6 answers, as stored, that lift services for ethnic minority communities.
+const ETHNIC_MINORITY_ANSWERS = ['White Other', 'Black African', 'Black Caribbean', 'Asian', 'Mixed'];
+
 /**
  * Calculate match score for a service based on profile
  */
@@ -370,30 +374,33 @@ function calculateMatchScore(service: Service, profile: UserProfile): number {
   
   const groups = service.client_groups || [];
   const desc = service.description.toLowerCase();
+  // V4 population tags (plain keys, v4Categories.ts) lift as the old labels do.
+  // The age and gender filters never read them, so a tag hides nothing.
+  const tagged = (...keys: string[]): boolean => keys.some(k => groups.includes(k));
   
   // LGBTQ+ match - boost services targeting LGBTQ+ users
-  if (profile.lgbtq && groups.some(g => 
+  if (profile.lgbtq && (groups.some(g => 
     clientGroupKeywords.lgbtq.some(k => g.includes(k))
-  )) {
+  ) || tagged('lgbtq'))) {
     score += 20;
   }
   
   // Youth match - boost youth-focused services for young users
   if (['16-17', '18-24', '18-20', '21-24'].includes(profile.ageCategory || '') && 
-      groups.some(g => clientGroupKeywords.youth.some(k => g.includes(k)))) {
+      (groups.some(g => clientGroupKeywords.youth.some(k => g.includes(k))) || tagged('young-people'))) {
     score += 15;
   }
   
   // Family match - boost family services when user has children
-  if (profile.hasChildren && groups.some(g => 
+  if (profile.hasChildren && (groups.some(g => 
     clientGroupKeywords.families.some(k => g.includes(k))
-  )) {
+  ) || tagged('families'))) {
     score += 15;
   }
   
   // Ex-offender match - boost services that support people with convictions
   if (profile.criminalConvictions === 'Yes') {
-    if (groups.some(g => clientGroupKeywords.exOffenders.some(k => g.toLowerCase().includes(k.toLowerCase())))) {
+    if (groups.some(g => clientGroupKeywords.exOffenders.some(k => g.toLowerCase().includes(k.toLowerCase()))) || tagged('people-with-criminal-records')) {
       score += 20;
     }
     // Also check description for relevant terms
@@ -404,7 +411,7 @@ function calculateMatchScore(service: Service, profile: UserProfile): number {
   
   // NRPF match - boost services that support people with no recourse to public funds
   if (profile.publicFunds === 'No' || profile.publicFunds === 'No, I have no recourse to public funds') {
-    if (groups.some(g => clientGroupKeywords.refugees.some(k => g.includes(k)))) {
+    if (groups.some(g => clientGroupKeywords.refugees.some(k => g.includes(k))) || tagged('refugees', 'asylum-seekers', 'migrants')) {
       score += 20;
     }
     // Also check description for relevant terms
@@ -420,6 +427,37 @@ function calculateMatchScore(service: Service, profile: UserProfile): number {
     }
   }
   
+  // Veterans match - boost services designed for veterans
+  if (profile.servedInArmedForces === true && tagged('veterans')) {
+    score += 20;
+  }
+
+  // Care experience (Managing Director, 20 November 2026): Yes, in care now or
+  // left care lifts services designed for care leavers. A lift hides nothing.
+  if (profile.careExperienced === true && tagged('care-leavers')) {
+    score += 20;
+  }
+
+  // Gender match (Managing Director, 20 November 2026): an explicit Male or
+  // Female answer lifts services designed for men or for women. A lift hides
+  // nothing; the women-only and men-only filter (matchesGender) is unchanged.
+  // The trans answers lift nothing for now: the Managing Director is deciding
+  // them separately. Non-binary or other, and Prefer not to say, lift nothing.
+  const genderAnswer = (profile.gender || '').trim();
+  if (genderAnswer === 'Male' && tagged('men')) {
+    score += 20;
+  }
+  if (genderAnswer === 'Female' && tagged('women')) {
+    score += 20;
+  }
+
+  // Ethnicity match (Managing Director, 9 November 2026): any answer except
+  // White British lifts services for ethnic minority communities. Prefer not
+  // to say is stored as no answer and lifts nothing. Read here only, never logged.
+  if (profile.ethnicity && ETHNIC_MINORITY_ANSWERS.includes(profile.ethnicity) && tagged('ethnic-minority-communities')) {
+    score += 20;
+  }
+
   // Drop-in bonus (more accessible)
   if (!service.access.appointment_only) {
     score += 10;
@@ -558,6 +596,15 @@ export function rankServices(services: Service[], profile: UserProfile, limit: n
  * Main function: Get matched services for a non-housing need
  */
 export function getServicesForNeed(need: string, profile: UserProfile): MatchedService[] {
+  // V4: the first question in V4 terms (Decision 1). Reads V4 keys only: at the
+  // switch every area moves to V4 together. Safety from harm is never matched:
+  // the Safety option goes to the Safety route, and partsFor returns nothing.
+  if (profile.v4Option) {
+    const parts = partsFor(profile.v4Option as FirstOptionId, profile.v4Choice ?? undefined);
+    if (parts.length === 0) return [];
+    return rankServices(v4ServicesForParts(parts, profile), profile, 5);
+  }
+
   const categories = needToCategoryMap[need] || [];
   if (categories.length === 0) return [];
 
@@ -588,6 +635,108 @@ export function getServicesForNeed(need: string, profile: UserProfile): MatchedS
   
   // Rank and return top matches
   return rankServices(services, profile, 5);
+}
+
+/**
+ * Services in the person's area for V4 category parts, filtered by profile.
+ * Reads V4 keys only, as every V4 lookup does: at the switch every area moves
+ * to V4 together.
+ */
+function v4ServicesForParts(parts: CategoryPart[], profile: UserProfile): Service[] {
+  const v4Categories = [...new Set(parts.map(p => p.parent))];
+  const v4Constraints: Record<string, string[]> = {};
+  for (const p of parts) {
+    if (!p.subs) continue;
+    v4Constraints[p.parent] = [...(v4Constraints[p.parent] ?? []), ...p.subs];
+  }
+  // A parent asked for whole by one part and by subcategory in another is whole.
+  for (const p of parts) if (!p.subs) delete v4Constraints[p.parent];
+  return filterByProfile(
+    getServicesByCategory(profile.localAuthority, v4Categories, undefined, v4Constraints),
+    profile,
+  );
+}
+
+/**
+ * Local housing advice for someone about to lose their home (Managing
+ * Director, 3 November 2026; Housing Pathway Endpoints Contract, local housing
+ * and legal advice). The V4 equivalent of the old support > housing and
+ * support > legal: Housing, Advice.
+ */
+export function getHousingAdviceServices(profile: UserProfile): MatchedService[] {
+  return liveThenFixed(() => housingAdviceServices(profile));
+}
+
+function housingAdviceServices(profile: UserProfile): MatchedService[] {
+  const parts: CategoryPart[] = [{ parent: 'housing', subs: [V4_SUBCATEGORIES.housing.Advice!] }];
+  const v4 = v4ServicesForParts(parts, profile);
+  if (v4.length > 0) return rankServices(v4, profile, 5);
+  // Temporary fallback, so the section keeps listing services wherever it did
+  // before: the old support > housing and support > legal. Remove once housing
+  // gets the live read with V4 keys (plan B1b/B3).
+  const old = getServicesByCategory(
+    profile.localAuthority, ['support'], undefined, { support: ['housing', 'legal'] }
+  );
+  return rankServices(filterByProfile(old, profile), profile, 5);
+}
+
+/**
+ * Housing services in the person's area carrying a V4 population tag
+ * (lib/data/v4Categories.ts, V4_POPULATION_TAGS), read from the service's
+ * client groups as the plain key. Structured tag only: no keyword or
+ * description matching. Used for the leaving prison and veterans pathways
+ * (Housing Pathway Endpoints Contract 1.4).
+ */
+export function getHousingServicesForPopulation(
+  tag: 'people-with-criminal-records' | 'veterans',
+  profile: UserProfile,
+): MatchedService[] {
+  return liveThenFixed(() => {
+    const tagged = v4ServicesForParts([{ parent: 'housing' }], profile)
+      .filter(s => (s.client_groups || []).includes(tag));
+    return rankServices(tagged, profile, 5);
+  });
+}
+
+/**
+ * Local Safety from harm listings for the Safety route's results screen
+ * (Managing Director, 20 November 2026): the V4 subcategory for the harm
+ * chosen, or the whole parent for "something else". Only hard gate B can hide
+ * a listing (Service Matching Contract, hard gates): the age filter is not
+ * applied. Ranked, one per organisation, five or fewer. Live read first, then
+ * the fixed file, as housing. The fixed file carries no V4 keys, so where the
+ * read fails or finds nothing, no listings are shown and the fixed contacts on
+ * the screen are unchanged.
+ */
+const SAFETY_SUB_BY_HARM: Record<string, string | null> = {
+  DOMESTIC_ABUSE: V4_SUBCATEGORIES['safety-from-harm']['Domestic abuse'],
+  SEXUAL_VIOLENCE: V4_SUBCATEGORIES['safety-from-harm']['Sexual violence'],
+  MODERN_SLAVERY: V4_SUBCATEGORIES['safety-from-harm']['Modern slavery and trafficking'],
+  OTHER: null,
+};
+
+export function getSafetyFromHarmServices(harm: string | null | undefined, profile: UserProfile): MatchedService[] {
+  const sub = harm ? SAFETY_SUB_BY_HARM[harm] : null;
+  const constraints = sub ? { 'safety-from-harm': [sub] } : undefined;
+  return liveThenFixed(() => {
+    const found = getServicesByCategory(profile.localAuthority, ['safety-from-harm'], undefined, constraints)
+      .filter(s => matchesGender(s, profile.gender));
+    return rankServices(found, profile, 5);
+  });
+}
+
+/**
+ * Housing on the live read (Managing Director, 20 November 2026): the live
+ * results where the read answered with some, otherwise the fixed file. A slow,
+ * failed or empty read falls back to the fixed file. Any live result, even a
+ * smaller one (within the radius, with no council filter), replaces it.
+ */
+function liveThenFixed(find: () => MatchedService[]): MatchedService[] {
+  if (getServicePool()?.status === 'ready') {
+    const live = find();
+    if (live.length > 0) return live;
+  }
+  return runWithServicePool(null, find);
 }
 
 /**
@@ -706,6 +855,21 @@ export function getStreetLinkInfo(): DefaultOrg {
   };
 }
 
+// Op FORTITUDE, national and hardcoded (Housing Pathway Endpoints Contract
+// 1.4, Veterans, and hardcoded organisations table; Managing Director,
+// 20 November 2026). Details as gov.uk/support-for-veterans/op-fortitude gives
+// them, checked 20 November 2026. No hours are stated here.
+export function getOpFortitudeInfo(isSupporter: boolean): DefaultOrg {
+  return {
+    name: "Op FORTITUDE",
+    phone: "0800 9520 774",
+    website: "https://www.gov.uk/support-for-veterans/op-fortitude",
+    description: isSupporter
+      ? "The government-backed referral route for veterans who are homeless or at risk of homelessness. They can contact Op FORTITUDE themselves."
+      : "The government-backed referral route for veterans who are homeless or at risk of homelessness. You can contact them yourself."
+  };
+}
+
 // ============================================================
 // HOUSING PATHWAY ENDPOINT LOOKUPS
 // ============================================================
@@ -729,6 +893,8 @@ export function getNavigatorOrgs(localAuthority: string | null, ageCategory?: st
       description: nav.description,
       isDropIn: nav.isDropIn,
       availabilityNote: nav.availabilityNote,
+      // A navigator with an upper age limit is a young people's route
+      isYouthRoute: nav.ageMax !== null && nav.ageMax !== undefined,
     }));
 }
 
