@@ -260,6 +260,24 @@ describe('16 and 17', () => {
   });
 });
 
+describe('16 and 17 living outside the seven councils (C1c, Managing Director, 26 November 2026)', () => {
+  test.each([
+    ['left care, Birmingham named', ['2', BIRMINGHAM]],
+    ['in care or left, council elsewhere', ['2', ELSEWHERE]],
+  ])('%s: Children\'s Services is never missing; with no number held, ask the local council', (_l, answers) => {
+    withLeavingCare('birmingham', () => {
+      const text = results(sixteen({ localAuthority: 'Leicester' }), answers as string[]);
+      expect(text).toContain("CHILDREN'S SERVICES");
+      expect(text).toContain("Contact your local council and ask for Children's Services:\nhttps://www.gov.uk/find-local-council");
+    });
+  });
+
+  test('supporter wording', () => {
+    const text = results(sixteen({ localAuthority: 'Leicester', isSupporter: true }), ['2', ELSEWHERE]);
+    expect(text).toContain("Contact their local council and ask for Children's Services:");
+  });
+});
+
 describe('18 to 24', () => {
   test('a 19 year old in Sandwell, looked after by Birmingham: Birmingham first, then Sandwell Housing Options', () => {
     withLeavingCare('birmingham', () => {

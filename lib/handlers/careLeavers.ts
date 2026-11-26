@@ -88,11 +88,16 @@ function e2Lines(lc: LeavingCareEntry): string {
 }
 
 // E4: Children's Services for a council, with out of hours where held.
+// Where no number is held (a council outside the seven, or none known), the
+// find-your-council route, so a 16 or 17 year old is never left without it and
+// no unverified number is shown (Managing Director, 26 November 2026; C1c).
 function e4(key: string, supporter: boolean): string {
   const cs = childrenServicesData[key];
-  if (!cs) return '';
   let s = heading("CHILDREN'S SERVICES");
   s += `${p('TERMINAL_YOUTH_16_17_CHILDRENS_SERVICES', supporter)}\n\n`;
+  if (!cs) {
+    return s + `Contact ${supporter ? 'their' : 'your'} local council and ask for Children's Services:\n${FIND_COUNCIL}\n\n`;
+  }
   s += `${cs.name}\n${cs.phone}`;
   if (cs.phoneOOH) s += ` (out of hours: ${cs.phoneOOH})`;
   s += `\n${cs.website}\n\n`;
@@ -157,14 +162,14 @@ export function careSections(session: SessionState): CareSections {
       // are now follows it, before Housing Options (Managing Director, 20
       // November 2026; statutory guidance on 16 and 17 year olds, paras 3.4,
       // 3.51 and 4.5). The fallback already carries E4 for the named council.
-      const e4Here = leavingCareFor(council) && here ? e4(here, supporter) : '';
+      const e4Here = leavingCareFor(council) ? e4(here, supporter) : '';
       return { first: e1Block(supporter) + e2OrFallback(session, council, supporter, true) + e4Here };
     }
     if (answer === 'IN_CARE_NOW' || answer === 'LEFT_CARE') {
       // Somewhere else, not sure, or council not stated (prefer not to say):
       // E3, then Children's Services where they are now, as for every 16 and
       // 17 year old. Nothing is selected on the strength of a council.
-      return { first: e1Block(supporter) + e3(supporter) + (here ? e4(here, supporter) : '') };
+      return { first: e1Block(supporter) + e3(supporter) + e4(here, supporter) };
     }
     if (answer === 'NOT_SURE') return { notSureNote: p('CARE_16_17_NOT_SURE_NOTE', supporter) };
     // Prefer not to say is not stated (Managing Director, 11 November 2026):
