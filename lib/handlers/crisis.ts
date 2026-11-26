@@ -13,7 +13,7 @@
  */
 
 import type { SessionState, RoutingResult } from '../types';
-import { phrase, safeguardingExit, buildUnder16Exit } from './shared';
+import { phrase, safeguardingExit, buildUnder16Exit, childrensServicesBlock } from './shared';
 import { getPronouns } from '../utils/pronouns';
 import endpointsData from '../data/housing-pathway-endpoints.json';
 import safeguardingEndpoints from '../data/safeguarding-endpoints.json';
@@ -276,10 +276,9 @@ export function handleCrisisFireFloodLocation(session: SessionState, choice: num
 export function handleDVGenderAsk(session: SessionState, choice: number | null): RoutingResult {
   const dvGenders = ['Female', 'Male', 'Non-binary or other', 'Prefer not to say'];
   const dvGender = choice ? dvGenders[choice - 1] : null;
-  // Gender not given: straight to the general exit. The children question
-  // would change nothing there, and we don't ask what changes nothing
-  // (Managing Director, 26 November 2026).
-  if (!dvGender || dvGender === 'Prefer not to say') {
+  // No answer at all: the general exit. "Prefer not to say" is still asked
+  // about children, because a Yes now adds Children's Services.
+  if (!dvGender) {
     return buildGeneralDVExit({ ...session, dvGender });
   }
   return {
@@ -291,12 +290,19 @@ export function handleDVGenderAsk(session: SessionState, choice: number | null):
 export function handleDVChildrenAsk(session: SessionState, choice: number | null): RoutingResult {
   // Gender not given: the general exit (Safeguarding Contract 3.3). A
   // non-binary or other answer is an answer, and keeps its exit.
-  if (!session.dvGender || session.dvGender === 'Prefer not to say') return buildGeneralDVExit(session);
+  // A Yes adds the council's Children's Services, as the original phrasebank
+  // (v7.1) did for every "children: yes" exit (restored, Managing Director,
+  // 26 November 2026).
   const dvChildren = choice === 1;
+  const children = dvChildren ? childrensServicesBlock(session) : '';
+  if (!session.dvGender || session.dvGender === 'Prefer not to say') {
+    const general = buildGeneralDVExit(session);
+    return { ...general, text: general.text + children };
+  }
   const dvExitKey = getDVExitKey(session.dvGender, dvChildren);
   const result = safeguardingExit(dvExitKey, session.userType, 'DOMESTIC_ABUSE');
   const localDV = buildLocalDVInfo(session);
-  return { ...result, text: result.text + localDV };
+  return { ...result, text: beforeClosing999(result.text, children) + localDV };
 }
 
 export function handleSAGenderAsk(session: SessionState, choice: number | null): RoutingResult {
@@ -464,6 +470,14 @@ function crisisUnclearHelp(session: SessionState): RoutingResult {
 /** "Carry on" after the crisis help: where "None of these apply" goes. */
 export function handleCrisisUnclearHelp(session: SessionState): RoutingResult {
   return handleCrisisDanger(session, 7);
+}
+
+/** Puts a block before an exit's closing 999 line, which stays last. */
+function beforeClosing999(text: string, block: string): string {
+  if (!block) return text;
+  const i = text.lastIndexOf('\n\n');
+  const last = i >= 0 ? text.slice(i + 2) : '';
+  return i >= 0 && /999/.test(last) ? text.slice(0, i) + block + text.slice(i) : text + block;
 }
 
 /** What a second unclear answer at a strict question leads to. */

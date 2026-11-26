@@ -154,11 +154,14 @@ describe('No keyword matching at the strict questions', () => {
 });
 
 describe('General exits where gender is not given', () => {
-  test('domestic abuse, "Prefer not to say": straight to the general exit, no children question', () => {
+  test('domestic abuse, "Prefer not to say": asked about children, then the general exit', () => {
     const r = processInput(sessionAt('DV_GENDER_ASK'), '4');
-    expect(r.sessionEnded).toBe(true);
-    expect(r.stateUpdates.currentGate).not.toBe('DV_CHILDREN_ASK');
-    expect(r.text).toContain('NATIONAL DOMESTIC ABUSE LINES');
+    expect(r.stateUpdates.currentGate).toBe('DV_CHILDREN_ASK');
+    const yes = processInput(sessionAt('DV_CHILDREN_ASK', { dvGender: 'Prefer not to say', localAuthority: 'Walsall' }), '1');
+    expect(yes.text).toContain('NATIONAL DOMESTIC ABUSE LINES');
+    expect(yes.text).toContain("CHILDREN'S SERVICES");
+    const no = processInput(sessionAt('DV_CHILDREN_ASK', { dvGender: 'Prefer not to say', localAuthority: 'Walsall' }), '2');
+    expect(no.text).not.toContain("CHILDREN'S SERVICES");
   });
 
   test('domestic abuse, "Prefer not to say": 999 first, each national line with who it is for and when it is open', () => {

@@ -2383,13 +2383,72 @@ Citizens Advice: https://www.citizensadvice.org.uk/housing/
 They can check if the notice is valid and explain your options.`
   },
 
+  // Restored from the original phrasebank (v7.1), Managing Director,
+  // 26 November 2026. The council's contact is added in code, in place of
+  // the original's offer to look it up, and the conversation carries on.
   ESCALATION_LEVEL_2_CHILDREN_RISK: {
-    text: `When children are involved and housing is at risk, it's worth getting help as early as you can.
+    text: `It sounds like there are children in the household and that the situation around your housing feels urgent.
 
-Please contact your local council's Housing Options team as soon as possible and explain your situation.
+When children are involved, councils usually take extra care to understand what is happening and what support may be available to help prevent homelessness.
 
-Shelter: 0808 800 4444 (free)
-https://england.shelter.org.uk`
+A helpful next step is often to contact your local council's Housing Options or homelessness team and explain your situation.
+
+You may want to tell them:
+- that children live in the household
+- that there is a risk of losing your home
+- that you are looking for help to prevent homelessness
+
+The council should assess your situation and explain what support they may be able to offer, or what will happen next.
+
+You may also find it helpful to speak with Shelter, who can explain how the system usually works for families:
+
+Shelter Emergency Helpline
+0808 800 4444
+Free. Weekdays 8am to 8pm. Weekends 9am to 5pm.`
+  },
+
+  ESCALATION_LEVEL_2_CHILDREN_RISK__SUPPORTER: {
+    text: `It sounds like there are children in the household and that the housing situation feels urgent.
+
+When children are involved, councils usually take extra care to understand what is happening and what support may be available to help prevent homelessness.
+
+A helpful next step is often for them to contact the local council's Housing Options or homelessness team and explain their situation.
+
+They may want to tell the council:
+- that children live in the household
+- that there is a risk of losing their home
+- that they are looking for help to prevent homelessness
+
+The council should assess the situation and explain what support may be available, or what will happen next.
+
+They may also find it helpful to speak with Shelter, who can explain how the system usually works for families:
+
+Shelter Emergency Helpline
+0808 800 4444
+Free. Weekdays 8am to 8pm. Weekends 9am to 5pm.`
+  },
+
+  // Restored from the original phrasebank (v7.1), Managing Director,
+  // 26 November 2026. Family Fund's line corrected to who it is for, from
+  // its own site (26 November 2026).
+  PREVENTION_ADVICE_CHILDREN_SUPPORT: {
+    text: `Because you have children, local support services may prioritise your case. Family support services can also help with childcare, food banks, and benefits advice if needed.
+
+Turn2us (support with benefits and grants):
+https://www.turn2us.org.uk/
+
+Family Fund (grants for families on a low income raising a disabled or seriously ill child):
+https://www.familyfund.org.uk/`
+  },
+
+  PREVENTION_ADVICE_CHILDREN_SUPPORT__SUPPORTER: {
+    text: `Because they have children, local support services may prioritise their case. Family support services can also help with childcare, food banks, and benefits advice if needed.
+
+Turn2us (support with benefits and grants):
+https://www.turn2us.org.uk/
+
+Family Fund (grants for families on a low income raising a disabled or seriously ill child):
+https://www.familyfund.org.uk/`
   },
 
   ESCALATION_LEVEL_2_HEALTH_CRISIS: {

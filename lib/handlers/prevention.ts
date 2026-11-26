@@ -16,7 +16,7 @@
 
 import { getPhrase } from '../phrasebank';
 import type { SessionState, RoutingResult, TerminalResult } from '../types';
-import { phrase, safeguardingExit } from './shared';
+import { phrase, safeguardingExit, childrensServicesBlock, housingOptionsBlock } from './shared';
 
 // ============================================================================
 // Gate handlers
@@ -108,19 +108,25 @@ export function handleB7D4PreventionSafeguardingSignals(
   }
 
   if (isUrgent && hasChildren) {
+    // The original kept the conversation open (restored, Managing Director,
+    // 26 November 2026): the council's contact, then the offer of more help.
     const childRisk = getPhrase('ESCALATION_LEVEL_2_CHILDREN_RISK', session.isSupporter);
+    const additional = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
     return {
-      text: childRisk?.text || '',
-      stateUpdates: { currentGate: 'SESSION_END', escalationLevel: 2, timestampEnd: new Date().toISOString() },
-      sessionEnded: true
+      text: `${childRisk?.text || ''}\n\nYOUR COUNCIL'S HOUSING OPTIONS TEAM\n${housingOptionsBlock(session)}\n\n${additional?.text || ''}`,
+      options: additional?.options,
+      stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', escalationLevel: 2, preventionSafeguardingSignals: sig },
+      sessionEnded: false
     };
   }
 
-  // Normal terminal
+  // Normal terminal. With children, the family advice first (restored from
+  // the original phrasebank, Managing Director, 26 November 2026).
   const result = buildTerminalServices(session);
   const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
+  const family = hasChildren ? (getPhrase('PREVENTION_ADVICE_CHILDREN_SUPPORT', session.isSupporter)?.text ?? '') + '\n\n' : '';
   return {
-    text: result.text + '\n' + additionalNeeds?.text,
+    text: family + result.text + '\n' + additionalNeeds?.text,
     options: additionalNeeds?.options,
     stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', preventionSafeguardingSignals: sig, ...(result.terminalOutcome ? { terminalOutcome: result.terminalOutcome } : {}) },
     sessionEnded: false
@@ -142,8 +148,11 @@ export function handleB7D4APreventionSafeguardingFollowUp(
         stateUpdates: { currentGate: 'SESSION_END', safeguardingType: 'HEALTH_CRISIS', timestampEnd: new Date().toISOString() },
         sessionEnded: true
       };
-    case 4: // Child safety
-      return safeguardingExit('CHILD_AT_RISK_EXIT', session.userType, 'CHILD_AT_RISK');
+    case 4: { // Child safety: the council's Children's Services, as the original
+      // phrasebank had (restored, Managing Director, 26 November 2026)
+      const exit = safeguardingExit('CHILD_AT_RISK_EXIT', session.userType, 'CHILD_AT_RISK');
+      return { ...exit, text: exit.text + childrensServicesBlock(session) };
+    }
     default: // Continue to terminal
       const result2 = buildTerminalServices(session);
       const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);

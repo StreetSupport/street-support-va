@@ -44,6 +44,42 @@ export const childrenServicesData = Object.fromEntries(
     .map(([la, data]) => [la, (data as { childrenServices: { name: string; phone: string; phoneOOH?: string; website: string } }).childrenServices])
 ) as Record<string, { name: string; phone: string; phoneOOH?: string; website: string }>;
 
+// Council contacts by Local Authority, for blocks shown inside results and exits.
+const housingOptionsData = Object.fromEntries(
+  Object.entries(endpointsData)
+    .filter(([key]) => key !== '_metadata')
+    .map(([la, data]) => [la, (data as { housingOptions: { name: string; phone: string; phoneOOH?: string; website: string } }).housingOptions])
+) as Record<string, { name: string; phone: string; phoneOOH?: string; website: string }>;
+
+type Contact = { name: string; phone: string; phoneOOH?: string; website: string };
+
+function contactLines(c: Contact): string {
+  const phone = c.phoneOOH ? `${c.phone} (out of hours: ${c.phoneOOH})` : c.phone;
+  return `${c.name}\n${phone}\n${c.website}`;
+}
+
+/**
+ * The council's Children's Services, as the original phrasebank (v7.1) added
+ * to every "children: yes" domestic abuse exit and the child-at-risk exit
+ * (restored, Managing Director, 26 November 2026). Where the area isn't known
+ * yet (the crisis question comes first), the way to find it.
+ */
+export function childrensServicesBlock(session: SessionState): string {
+  const la = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
+  const cs = childrenServicesData[la];
+  const body = cs
+    ? contactLines(cs)
+    : `Contact your local council and ask for Children's Services:\nhttps://www.gov.uk/find-local-council`;
+  return `\n\nCHILDREN'S SERVICES\n${body}`;
+}
+
+/** The council's Housing Options team, or the way to find it. */
+export function housingOptionsBlock(session: SessionState): string {
+  const la = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
+  const ho = housingOptionsData[la];
+  return ho ? contactLines(ho) : `Find your local council: https://www.gov.uk/find-local-council`;
+}
+
 export function buildUnder16Exit(session: SessionState): RoutingResult {
   const la = session.localAuthority?.toLowerCase().replace(/\s+/g, '') || '';
   const childServices = childrenServicesData[la];
