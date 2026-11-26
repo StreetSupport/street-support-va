@@ -1457,7 +1457,7 @@ When enriched eligibility data is in use, confidence levels must influence langu
 
 **Committed and where.** #69 `1286491`. #73 `b04e557`, carried up: #79 `fc1eb7b`, #80 `63f1a4b`, #81 `536a134`, #82 `f90cc3a`, #95 `f0f9232` (with #95's count test updated to four answers on their own), #93 `8ebcbbb`, #57 `6c7a2d9`. Every branch type-checks and its tests pass.
 
-**Not yet done.** The children restoration branch (`feat/children-restore-2026-11-26`) has #93's earlier head in it, not `8ebcbbb`; it takes #93 again before it goes to James. #91 and #92 as before.
+**Not yet done.** #91 and #92 as before. The children restoration branch (`feat/children-restore-2026-11-26`) now has #93's head `8ebcbbb` merged in, at `fdcc3a2`, all tests passing.
 
 **Next session picks up first**
 1. James's approval of #69, then its merge; #73 then points at staging.
