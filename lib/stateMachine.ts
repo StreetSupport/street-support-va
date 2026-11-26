@@ -570,11 +570,23 @@ function nextProfileQuestion(session: SessionState, after?: 'age' | 'gender' | '
 
 // The in-person route for "not sure where to start": a place to start where
 // one can be offered; the assistant cannot read them yet (work item 20), so
-// for now the honest line and the first question again (Managing Director,
-// 8 November 2026).
+// for now the line and the first question again (Managing Director,
+// 8 November 2026), without "not sure where to start", so it cannot lead
+// round in a circle (#73 review; Managing Director, 26 November 2026).
 function notSureInPerson(session: SessionState, updates: Partial<SessionState>): RoutingResult {
+  const menu = firstQuestionWithoutNotSure(session);
+  return { ...menu, text: `${NO_PLACE_TO_START}\n\n${menu.text}`, stateUpdates: { ...menu.stateUpdates, ...updates, notSureInPersonShown: true } };
+}
+
+// The first question with "not sure where to start" left off. It is the last
+// option, so the others keep their numbers.
+function firstQuestionWithoutNotSure(session: SessionState): RoutingResult {
   const menu = phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter);
-  return { ...menu, text: `${NO_PLACE_TO_START}\n\n${menu.text}`, stateUpdates: { ...menu.stateUpdates, ...updates } };
+  const all = menu.options ?? [];
+  if (!/not sure where to start/i.test(all[all.length - 1] ?? '')) return menu;
+  const options = all.slice(0, -1);
+  const intro = menu.text.split('\n').filter(line => !/^\d+\. /.test(line)).join('\n').trimEnd();
+  return { ...menu, text: `${intro}\n\n${options.map((o, i) => `${i + 1}. ${o}`).join('\n')}`, options };
 }
 
 // The results for the person's need, then the question about other needs.
@@ -1898,8 +1910,16 @@ export function processInput(session: SessionState, input: string): RoutingResul
       // The first question in V4 terms (Decision 1, Managing Director, 4 November 2026).
       // Numbered as offered: Safety is left out while its switch is off.
       const offered = visibleFirstOptions();
-      const option = choice && choice >= 1 && choice <= offered.length ? offered[choice - 1] : null;
-      if (!option) return phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter);
+      // After the in-person route "not sure where to start" is left off (#73
+      // review). It is the last option, so the others keep their numbers.
+      const shown = session.notSureInPersonShown ? offered.filter(o => o.id !== 'not-sure') : offered;
+      const option = choice && choice >= 1 && choice <= shown.length ? shown[choice - 1] : null;
+      if (!option) return session.notSureInPersonShown ? firstQuestionWithoutNotSure(session) : phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter);
+      if (session.notSureInPersonShown) {
+        // A real option is chosen: the first question is whole again from here.
+        const r = processInput({ ...session, notSureInPersonShown: false }, input);
+        return { ...r, stateUpdates: { ...r.stateUpdates, notSureInPersonShown: false } };
+      }
       const needCount = session.needCount + 1;
 
       if (option.id === 'housing') {
