@@ -42,10 +42,16 @@ The goal is simple: give our team confidence to use AI safely and effectively, w
 
 **Red Light: don't do it** (off-limits under this policy)
 
-- Real people's personal information
+- Real people's personal information (see below)
 - Financial data, passwords or access credentials
 - Sensitive or confidential internal material
 - Anything that could harm trust or safety
+
+### What we mean by personal information
+
+In this policy, personal information means details about someone's private life: their home address, personal email or phone, health, money or family, and anything at all about people seeking support. These stay on the Red Light list.
+
+Work contact details are different. These are the name, role, work email and work phone of people at organisations we list, as published or given to us for their listing. They're still personal data in law, so we handle them with care. They may be used in Claude Team to keep listings accurate.
 
 ## What We Never Do With AI
 
@@ -158,6 +164,7 @@ AI adds value in these areas, but always with a human in the loop.
 - Calendar scheduling and meeting coordination
 - Meeting transcription and summaries
 - Data entry and basic reporting
+- Checking and organising information about services, with people setting the rules and deciding what goes live
 - Email and template drafts
 
 ## Content Creation
@@ -204,12 +211,12 @@ We're building a replacement assistant on Claude, through Anthropic's API. It is
 
 It's designed so that:
 
-- It only asks the questions needed for the help someone is looking for. Sensitive questions, such as about health or immigration status, are only asked where the answer changes what we can show them, and people can always choose not to answer.
-- Answers are used during the conversation to find the right services. Conversations aren't stored, and our analytics record categories, not what people typed.
+- It only asks the questions needed for the help someone is looking for. Sensitive questions, such as about sexual orientation or convictions, are only asked where the answer changes what we can show them, and people can always choose not to answer.
+- Answers are used during the conversation to find the right services. We don't store conversations, and our analytics record categories, not what people typed. If someone types something the assistant can't match to an option, that one message goes to Anthropic to be understood. Anthropic keeps it for up to 30 days (up to two years if its safety checks flag it), and its terms say it may not train its models on it.
 - Safety routing is fixed, not left to AI judgement. If someone says they're in danger, the assistant directs them to human help in the same way every time.
 - Its safety behaviour is checked by automated tests every time the code changes.
 
-Its governance documents sit alongside its code. Before it goes live, we'll update this policy and our Data Protection Policy, and complete a data protection impact assessment.
+Its governance documents sit alongside its code. Its data protection impact assessment is in draft (v1.1, which assesses the risk as low). Before it goes live, we'll complete that assessment, update this policy, and publish our updated Data Protection Policy and Privacy Policy.
 
 # Data, Email and Cloud Safeguards
 
@@ -236,13 +243,13 @@ We don't connect AI tools to our email or file storage.
 
 Claude Team is our approved AI workspace. It runs under Anthropic's commercial terms with a data processing agreement, and our data isn't used to train its models. Use your Street Support Network account in our Claude Team workspace for all Street Support Network work. Personal or free AI accounts must not be used.
 
-The Red Light list still applies in Claude Team. If personal information gets into it by mistake, delete the chat and follow our Incident Response steps below.
+The Red Light list still applies in Claude Team. If personal information gets into it by mistake, delete the chat and follow our Incident Response steps below. Work contact details may be used to keep listings accurate (see What we mean by personal information).
 
 ## The Key Principle
 
 If someone has access to sensitive data they shouldn't, AI makes it searchable through natural conversation. We fix permissions first, then consider AI connections.
 
-Our no-personal-data approach keeps everyday AI use outside the scope of personal data processing (see our **Data Protection Policy** for full details). If personal information accidentally gets into an AI tool, report it immediately to the Managing Director and follow our existing data breach procedures.
+Apart from work contact details used to keep listings accurate, we keep personal information out of everyday AI use (see our **Data Protection Policy** for full details). If personal information accidentally gets into an AI tool, report it immediately to the Managing Director and follow our existing data breach procedures.
 
 ## GDPR Compliance
 

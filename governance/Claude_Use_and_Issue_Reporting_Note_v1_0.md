@@ -11,7 +11,7 @@
 | **Version**           | 1.0                                                                                                                               |
 | **Author**            | Matt Lambert                                                                                                                      |
 | **For**               | James Cross                                                                                                                       |
-| **Related documents** | VA Analytics Contract v2.0, Safeguarding Contract v3.2 (Claude Usage Rules), Data Minimisation and Lawful Basis Note v1.1         |
+| **Related documents** | VA Analytics Contract v2.1, Safeguarding Contract v3.3 (Claude Usage Rules), Data Minimisation and Lawful Basis Note v2.0, Data Protection Impact Assessment v1.1 (draft) |
 
 ## 1. Purpose
 
@@ -22,7 +22,7 @@ This note records how Street Support Network uses Claude, the data protection po
 | **Use**              | **What it does**                                                         | **Data involved**                                                                                   |
 |----------------------|--------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
 | Anthropic API        | Interprets typed text the new virtual assistant cannot match to an option: whether it is about housing, whether it is an advice question, and which option was meant. The responses themselves are approved content. In development, not live. The live assistant runs on IBM WatsonX. | During development, synthetic test input only. Once live, only the typed message the assistant cannot match is sent, with no history or identifier. Street Support Network does not store it (VA Analytics Contract); Anthropic keeps it for up to 30 days (Data Minimisation and Lawful Basis Note v2.0, section 8). |
-| Claude Team workspace | Staff drafting, analysis and research.                                  | Staff names and email addresses. Public service and organisation information. No service user data. |
+| Claude Team workspace | Staff drafting, analysis and research.                                  | Staff names and email addresses. Work contact details of people at organisations we list, used to keep listings accurate (AI Policy v3.0). Public service and organisation information. No service user data. |
 | Claude Code          | Development, testing and analysis of issue reports in this repository.  | Code, governance documents, issue descriptions and synthetic test input. No service user data.      |
 
 All three run under Anthropic's Commercial Terms. Anthropic is a processor and Street Support Network is the controller. Anthropic's Data Processing Addendum is incorporated into the Commercial Terms, and includes the UK International Data Transfer Addendum for processing in the United States. Customer data is not used to train Anthropic's models.
@@ -83,9 +83,9 @@ Virtual assistant issue reports contain no information about the person using th
 
 | **Item**                     | **Action**                                                                                                                                        |
 |------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
-| Data Protection Policy and DPIA | Confirm Anthropic is named as processor for staff use now, and for the new virtual assistant before it goes live. Neither document is held in this repository. |
+| Data Protection Policy and DPIA | Confirm Anthropic is named as processor for the new virtual assistant before it goes live. Staff use of Claude is a separate piece of work (Managing Director, 23 November 2026). Neither document is held in this repository. For the assistant, drafts name it: the DPIA v1.1 (pipeline PR #251) and the Data Protection Policy and Privacy Policy v4 drafts (pipeline PR #253). |
 | AI Policy                    | AI Policy v3.0 covers the live WatsonX assistant and the new assistant in development. Update it when the new assistant goes live. |
-| Hosting provider             | Confirm the production host is named as a processor. The README describes deployment to Vercel.                                                  |
+| Hosting provider             | Confirm the production host is named as a processor. The README describes deployment to Vercel. The drafts above describe "our hosting provider" without naming it; its safeguard for processing outside the UK and whether its logs hold IP addresses are with the technical lead. |
 | Repository visibility        | This repository is public. Virtual assistant issue reports must not be filed as GitHub issues here. Confirm where tickets from the website form are stored. |
 | Urgent notification          | Agree how URGENT reports are surfaced so they are not left in the queue.                                                                          |
 | Ticket retention             | Set a retention period for closed tickets.                                                                                                        |
