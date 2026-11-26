@@ -1350,6 +1350,7 @@ When enriched eligibility data is in use, confidence levels must influence langu
 | 2026-11-12 | AI Policy v3.0 added to governance as source (replaces v2.1a, draft for trustee approval). Governance Overview updated with document index entries and a note for the 17 November trustee meeting. |
 | 2026-11-20 | Status lines corrected: 62, 65, C1, veterans and prison. C1a to C1c and items 85 to 90 added. Session 20 November 2026 entry added. |
 | 2026-11-26 | C1b closed; C1c done. Items 93 to 97 added. Session 26 November 2026 entry added. |
+| 2026-11-26 (evening) | #85 merged to staging. James's reviews of #69 and #73 dealt with; #73 carried up the build line. Session 26 November 2026 (evening) entry added. |
 
 ---
 
@@ -1445,3 +1446,20 @@ When enriched eligibility data is in use, confidence levels must influence langu
 2. Leave the build branches alone until James replies, unless he asks for a change or something is unsafe.
 3. The H13 decisions (item 94), and H10, the local contact line, in the week of 30 November.
 
+## Session 26 November 2026 (evening)
+
+**What changed**
+- #85 (Claude model configuration) merged to staging, `c5b8661`.
+- #69: James's two amends. The BBC Weather prefetch sends no referrer; SurvivorsUK is "for men, boys, trans and non-binary people", with no age, and its text and WhatsApp line, 0786 003 1252, every day 12pm to 8pm. Both threads answered. The push cleared his approval, so #69 waits for him to approve again.
+- #73: James's review. "Feeling unsafe" answers on its own at the noticing question and at "not sure where to start". The in-person line is James's wording: "I can't show you drop-ins yet. Choosing what's closest from these will help me find the right support." After the in-person route the first question leaves out "not sure where to start", so no one goes round in a circle. Both threads answered.
+
+**Decided (Managing Director, 26 November 2026).** The three #73 changes above; of James's two ways out of the loop, leaving the option off the second time, for now. Ending the route on the council's housing team or the national lines is for after the trial.
+
+**Committed and where.** #69 `1286491`. #73 `b04e557`, carried up: #79 `fc1eb7b`, #80 `63f1a4b`, #81 `536a134`, #82 `f90cc3a`, #95 `f0f9232` (with #95's count test updated to four answers on their own), #93 `8ebcbbb`, #57 `6c7a2d9`. Every branch type-checks and its tests pass.
+
+**Not yet done.** The children restoration branch (`feat/children-restore-2026-11-26`) has #93's earlier head in it, not `8ebcbbb`; it takes #93 again before it goes to James. #91 and #92 as before.
+
+**Next session picks up first**
+1. James's approval of #69, then its merge; #73 then points at staging.
+2. James's approval of #73.
+3. Ending the in-person route on something concrete, after the trial.
