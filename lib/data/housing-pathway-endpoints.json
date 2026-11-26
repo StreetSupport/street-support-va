@@ -316,18 +316,8 @@
       "source": "https://go.walsall.gov.uk/children-and-young-people/children-care-and-care-leavers/local-offer-care-leavers/transition-and",
       "verified": "2026-11-20"
     },
-    "navigatorOrgs": [
-      {
-        "name": "Glebe Centre / YMCA Black Country",
-        "description": "Housing advice and support for people experiencing homelessness.",
-        "ageMin": 18,
-        "ageMax": null,
-        "phone": "01922 625687",
-        "availabilityNote": "Mon-Fri 10am-4pm",
-        "website": "https://www.ymcablackcountry.org.uk",
-        "isDropIn": true
-      }
-    ],
+    "navigatorOrgs": [],
+    "_navigatorGap": "No housing navigator organisation identified for Walsall. The Glebe Centre (YMCA Black Country) was removed on 23 November 2026 (Managing Director): it closes at the end of November 2026.",
     "dvOrgs": {
       "womensAid": {
         "name": "Black Country Women's Aid",
