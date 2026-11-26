@@ -59,6 +59,7 @@ These documents are carried into this paper. Each stays in the repository as the
 | VA Area Restrictions Proposal (2 November) | same branch | E.2 |
 | VA Trans Answers papers (31 October) | same branch | Part C, section 5: trans and non-binary answers exclude nothing until decided. Fixed: the assistant never shows whether an organisation accepts trans people (Decision Paper, point 3) |
 | Safety Disclosure Check Design Note v1.0 | `docs/safety-disclosure-check-note-2026-11-19` | D.2 summarises; the note keeps the trigger list (Appendix A) |
+| Safety disclosure check: a bounded list and a visible route (proposal, 26 November 2026) | this branch, `governance/` | D.2 and H13 summarise; the proposal keeps the detail and the decisions |
 | Mid-Conversation Age Detection Design Note v1.3 | `align/adults-18-contract-2026-11-23` | D.3 summarises; the note keeps the triggers and tests |
 | Immigration Questions Redesign (12 November) | `docs/immigration-redesign-2026-11-12` | D.5 |
 | Quick Route Design Note v1.1 (March) | `staging` | D.4 |
@@ -654,12 +655,17 @@ The council contacts sit with the other contacts, before any sign-off line and t
 A person can say something about their safety in their own words at any point. The Safeguarding Contract's Free-Text Disclosure Rule says such disclosures "must be treated as authoritative". (Safety Disclosure Check Design Note v1.0, 19 November 2026.)
 
 - **What it does:** on every typed message, after the under-16 check, fixed patterns look for a first-person statement about safety. On a match, the assistant asks one fixed question, with help first: "If you're in immediate danger, call 999. It sounds like you might not be safe at the moment. Would you like to see help with staying safe?"
-- **Yes** goes to the Safety from harm route and stays there. **No** carries on. **Unclear** goes back to where the person was.
+- **Yes** goes to the Safety from harm route and stays there. **No** and **unclear** go back to the question the person was at, with their earlier answers kept.
 - **No AI.** Patterns only. The answer is read by code. Nothing new is sent to the AI provider.
 - **Not run** where the person is already on a safeguarding route or the conversation has ended. The design lists these steps in code, each with a test.
-- **Not yet built.** The note is a draft design.
+- **Built, not yet reviewed:** on `feat/safety-disclosure-check-2026-11-26`, for the technical lead.
 - **Nothing is recorded** for the check itself.
 - **Status:** the trigger list and four further points are approved by the Managing Director, pending the technical lead's review.
+
+**Proposed: a bounded list and a visible route** (proposal, 26 November 2026; H13). A list of phrases can never be complete, and each addition brings false alarms that need exclusions of their own. So the list becomes a safety net, not the main way in:
+- **A visible route.** A small link, "Help with staying safe", away from "Exit this page", wherever the Safety route is available. It asks first, with 999 first; Yes goes to the Safety route and No goes back to where the person was.
+- **A bounded list.** Appendix A after the technical lead's review, reviewed at set points, the first after the trial, and corrected when evidence shows a real problem.
+- **No AI and no new data.** No field records which way someone came in (Managing Director, 26 November 2026).
 
 ## D.3. Age
 
@@ -815,11 +821,13 @@ Each finding says whether it is in the design or in the build.
 
 # Part H. Outstanding items by status
 
-Part C, section 11 keeps its own list, and section 12 the work to complete. These are the items this paper adds. Decisions settled on 26 November 2026 are in A.4 and G.2. Each item keeps its number wherever it sits, so earlier references still hold. Unfinished building is not unfinished design: only H10 needs a decision.
+Part C, section 11 keeps its own list, and section 12 the work to complete. These are the items this paper adds. Decisions settled on 26 November 2026 are in A.4 and G.2. Each item keeps its number wherever it sits, so earlier references still hold. Unfinished building is not unfinished design: only H10 and H13 need a decision.
 
 ## Open decision
 
 - **H10. A local contact line** (Decisions and Delivery Extract, 3.6): which local organisation, at each stage of the pathway, is best placed to take phone calls. Street Support Network never gives its own contact details or contacts people directly; it only points people to other organisations (B.2). For the Managing Director, to finalise in the week of 30 November 2026. The working shape: Places to Start at the early part of the pathway; housing factor organisations at the later part of Strengthen; who it is at the point of materialisation is still to be thought through; the housing navigator after crisis. What is open is how this changes the options shown in the Endpoints Contracts. It does not change routing within the assistant.
+
+- **H13. The visible safety route and the bounded list** (D.2; proposal, 26 November 2026). For the Managing Director: whether to take the approach; timing, which turns on whether the Safety route is switched on for the trial; the label and the button's confirming question; supporter wording; and, while the Safety route is switched off, whether to hide the link or send it to the crisis question. For the technical lead: where the link can sit on a phone, the signal to the chat route, and whether one shared entry to the Safety route is worth building first.
 
 ## Decided, waiting to be built
 
