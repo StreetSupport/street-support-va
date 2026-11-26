@@ -167,7 +167,8 @@ describe('going back from every kind of step', () => {
     expect(decode(body.s).currentGate).toBe(gate);
     expect(body.m && body.m.length > 0).toBe(true);
     if (gate === 'LOCATION_CONFIRM') expect(body.m).toContain('Coventry');
-    if (gate === 'B5_NOTICING') expect((body as Body & { ms?: { exclusive: number[] } }).ms?.exclusive.length).toBe(3);
+    // Feeling unsafe, Nothing else, I'm not sure and the skip answer on their own (#73 review).
+    if (gate === 'B5_NOTICING') expect((body as Body & { ms?: { exclusive: number[] } }).ms?.exclusive.length).toBe(4);
     if (gate === 'B5_SECOND_SCREEN') expect(body.m).toBe(getPhrase(secondScreenPhraseKey('everyday'), false)!.text);
   });
 
