@@ -54,6 +54,20 @@ export const NOTICING_QUESTION = 'Thanks. Sometimes one thing is tied up with ot
 // The route's existing wording for an answer it could not read.
 export const NOTICING_UNCLEAR = "I didn't quite catch that. Please reply with a number from the options.";
 
+// At the noticing question, an unclear answer may be someone typing about
+// their safety, which nothing reads until #72's check is built. So the prompt
+// points to the safe option and 999, and a second unclear answer shows the
+// 999 line above the results (James Cross's review of #73, 24 November 2026).
+// The 999 line is the phrasebank's (SAFETY_TYPE_OF_HARM).
+export function noticingDangerLine(supporter: boolean): string {
+  return supporter ? 'If they are in danger right now, call 999.' : 'If you are in danger right now, call 999.';
+}
+
+export function noticingUnclear(supporter: boolean): string {
+  const unsafe = supporter ? "If they feel unsafe, choose 'Feeling unsafe'." : "If you feel unsafe, choose 'Feeling unsafe'.";
+  return `${NOTICING_UNCLEAR} ${unsafe} ${noticingDangerLine(supporter)}`;
+}
+
 // A housing answer: results first, then housing offered as a choice
 // (Managing Director, 19 November 2026); the keeping-your-home wording,
 // Managing Director, 20 November 2026.

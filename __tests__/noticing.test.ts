@@ -302,6 +302,30 @@ describe('Noticing step: what follows the answer', () => {
     expect(r2.text).toContain('Org hot');
   });
 
+  test("an unclear answer points to 'Feeling unsafe' and 999 (review of #73)", () => {
+    const s = toNoticing('3', '1');
+    const r1 = answer(s, 'my partner is hurting me');
+    expect(r1.text).toContain("If you feel unsafe, choose 'Feeling unsafe'. If you are in danger right now, call 999.");
+    expect(noticingOptions(s)).toContain('Feeling unsafe');
+  });
+
+  test('a second unclear answer shows the 999 line above the results', () => {
+    const s = toNoticing('3', '1');
+    const s2 = { ...s, ...answer(s, 'hmm').stateUpdates };
+    const r2 = answer(s2, 'still not sure');
+    expect(r2.text.startsWith('If you are in danger right now, call 999.')).toBe(true);
+    expect(r2.text).toContain('Org hot');
+  });
+
+  test('supporters are told about them, not you', () => {
+    const s = { ...toNoticing('3', '1'), isSupporter: true };
+    expect(s.currentGate).toBe('B5_NOTICING');
+    const r1 = answer(s, 'not sure how to put it');
+    expect(r1.text).toContain("If they feel unsafe, choose 'Feeling unsafe'. If they are in danger right now, call 999.");
+    const r2 = answer({ ...s, ...r1.stateUpdates }, 'hmm');
+    expect(r2.text.startsWith('If they are in danger right now, call 999.')).toBe(true);
+  });
+
   test('typed words are never read as a pressure by keyword', () => {
     const s = toNoticing('3', '1');
     const r = answer(s, 'I feel unsafe at home');
