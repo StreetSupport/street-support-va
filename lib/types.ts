@@ -36,6 +36,8 @@ export type GateType =
   | 'B5_MAIN_SUPPORT_NEED'
   | 'B5_SECOND_SCREEN'
   | 'B5_NOTICING'
+  // "I'm not sure where to start" (design paper, Part C, section 2)
+  | 'B5_NOT_SURE'
   | 'B5_HOUSING_OFFER'
   | 'B5A_ADVICE_TYPE'
   | 'B5_PROFILE_AGE'
@@ -140,6 +142,9 @@ export interface SessionState {
   profileAsked?: string[];
   // The noticing step (design note 3.5) is offered once a session.
   noticingAsked?: boolean;
+  // "Not sure where to start": more than one pressure ticked, so the results
+  // carry the awareness line (Managing Director, 26 November 2026).
+  notSureAware?: boolean;
   // Which housing answer was given there, for the offer after the results.
   noticingHousing?: 'no-settled-place' | 'keep-home' | null;
   additionalNeeds: string[];
