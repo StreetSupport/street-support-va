@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
     // asks the AI: it rests only on what the person states (design note 3.5).
     // A trans answer typed at B4 or B5 gender is passed as typed and never sent
     // to the AI, so it is never read as Male or Female (stateMachine.ts).
-    const isRawGate = isNameGate || session.currentGate === 'B5_NOTICING' || session.currentGate === 'B5_HOUSING_OFFER'
+    const isRawGate = isNameGate || session.currentGate === 'B5_NOTICING' || session.currentGate === 'B5_NOT_SURE' || session.currentGate === 'B5_HOUSING_OFFER'
       || heldTransAnswer(session.currentGate, message);
 
     // The Safety from harm route bypasses the AI (Safeguarding Contract 3.3).
@@ -287,7 +287,7 @@ export async function POST(request: NextRequest) {
     
     // Reset unclear count on successful parse. The noticing step reads its own
     // answer and keeps its own count, so a second unclear answer reaches results.
-    if (session.currentGate !== 'B5_NOTICING' && session.currentGate !== 'B5_HOUSING_OFFER') session.unclearCount = 0;
+    if (session.currentGate !== 'B5_NOTICING' && session.currentGate !== 'B5_NOT_SURE' && session.currentGate !== 'B5_HOUSING_OFFER') session.unclearCount = 0;
     
     // Process the input through state machine
     const input = isRawGate ? message : String(parsed);
