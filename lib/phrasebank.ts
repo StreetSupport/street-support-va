@@ -1612,6 +1612,20 @@ Which of these is closest to what is happening to them?
     options: ["Yes, I'm OK to carry on", "No, show me help now"]
   },
 
+  // Safety disclosure check (Safety Disclosure Check Design Note v1.0,
+  // section 3). Fixed wording, help first, approved by the Managing Director,
+  // 19 November 2026, with the quick exit note after it. No supporter wording:
+  // it only follows a first-person statement.
+  SAFETY_DISCLOSURE_CHECK: {
+    text: `If you're in immediate danger, call 999. It sounds like you might not be safe at the moment. Would you like to see help with staying safe?
+
+1. Yes, show me help with staying safe
+2. No, carry on
+
+${QUICK_EXIT_NOTE}`,
+    options: ['Yes, show me help with staying safe', 'No, carry on']
+  },
+
   SAFETY_OK_TO_CONTINUE__SUPPORTER: {
     text: `Thank you for telling me. Are they OK to carry on?
 

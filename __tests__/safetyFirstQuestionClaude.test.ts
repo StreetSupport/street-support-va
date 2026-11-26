@@ -46,7 +46,7 @@ describe('Claude on the first question never skips the Safety screen', () => {
 
   test.each([
     'someone keeps hurting me and I am scared',
-    'my boss took my passport',
+    'my boss holds on to my documents',
     'I need to get away from him tonight',
   ])('Claude picks Safety for "%s": the person lands on the type-of-harm question', async (typed) => {
     create.mockResolvedValue({ content: [{ type: 'text', text: safetyNumber }] });
@@ -56,6 +56,15 @@ describe('Claude on the first question never skips the Safety screen', () => {
     expect(s.currentGate).toBe('SAFETY_TYPE_OF_HARM');
     expect(body.e).toBeFalsy();
     expect(s.safeguardingTriggered).toBeFalsy();
+  });
+
+  // A statement in the safety disclosure check's list is caught before Claude
+  // is asked (Safety Disclosure Check Design Note v1.0, section 6).
+  test('a statement in the check\'s list gets the clarifying question, and Claude is not called', async () => {
+    create.mockResolvedValue({ content: [{ type: 'text', text: safetyNumber }] });
+    const body = await send('my boss took my passport', atFirstQuestion());
+    expect(create).not.toHaveBeenCalled();
+    expect(decode(body.s).currentGate).toBe('SAFETY_DISCLOSURE_CHECK');
   });
 
   test('a typed disclosure Claude cannot place never ends on an exit either', async () => {

@@ -2,6 +2,7 @@
 // Handles session state and Claude interpretation fallback
 
 import { NextRequest, NextResponse } from 'next/server';
+import { SAFETY_DISCLOSURE_GATE, handleSafetyDisclosureAnswer, interceptSafetyDisclosure } from '@/lib/handlers/safetyDisclosureCheck';
 import { checkScope, detectAdviceQuestion, interpretWithClaude } from '@/lib/claudeClassifiers';
 import type { SessionState } from '@/lib/types';
 import {
@@ -102,6 +103,24 @@ export async function POST(request: NextRequest) {
         m: under16Exit.text,
         o: under16Exit.options,
         e: under16Exit.sessionEnded,
+      });
+    }
+
+    // Safety disclosure check (Safety Disclosure Check Design Note v1.0):
+    // directly after the under-16 check, before any Claude classifier and any
+    // step's own handling. Its own question is read strictly, by code only, and
+    // never reaches the AI or the unclear-answer escalation. Nothing is logged.
+    const safetyCheck = session.currentGate === SAFETY_DISCLOSURE_GATE
+      ? handleSafetyDisclosureAnswer(session, message)
+      : interceptSafetyDisclosure(session, message);
+    if (safetyCheck) {
+      session = { ...session, ...safetyCheck.stateUpdates };
+      return NextResponse.json({
+        s: encodeState(session),
+        m: safetyCheck.text,
+        o: safetyCheck.options,
+        e: false,
+        responseType: safetyCheck.responseType,
       });
     }
 
