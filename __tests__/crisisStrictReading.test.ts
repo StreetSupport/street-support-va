@@ -86,7 +86,9 @@ describe('A second unclear answer shows help at once', () => {
     expect(s.currentGate).toBe('CRISIS_UNCLEAR_HELP');
     expect(body.e).toBeFalsy();
     expect(body.m!.startsWith("If you're in immediate danger, call 999.")).toBe(true);
-    for (const n of ['0808 2000 247', '0808 500 2222', '116 123', '0800 1111']) expect(body.m).toContain(n);
+    for (const n of ['0808 2000 247', '0808 800 1170', '0808 500 2222', '116 123', '0800 1111']) expect(body.m).toContain(n);
+    expect(body.m).toContain('National Domestic Violence Helpline\nFor women');
+    expect(body.m).toContain('ManKind Initiative\nFor men');
     expect(body.o).toEqual(['Carry on']);
     expect(s.unclearCount).toBe(0);
     expect(create).not.toHaveBeenCalled();
@@ -112,10 +114,12 @@ describe('A second unclear answer shows help at once', () => {
   });
 
   test('domestic abuse children question: counts as Yes', async () => {
-    const body = await twice('maybe', sessionAt('DV_CHILDREN_ASK', { dvGender: 'Female' }));
-    const yes = processInput(sessionAt('DV_CHILDREN_ASK', { dvGender: 'Female' }), '1');
+    const body = await twice('maybe', sessionAt('DV_CHILDREN_ASK', { dvGender: 'Male' }));
+    const yes = processInput(sessionAt('DV_CHILDREN_ASK', { dvGender: 'Male' }), '1');
+    const no = processInput(sessionAt('DV_CHILDREN_ASK', { dvGender: 'Male' }), '2');
     expect(body.e).toBe(true);
-    expect(body.m!.startsWith(yes.text.slice(0, 60))).toBe(true);
+    expect(yes.text).not.toBe(no.text);
+    expect(body.m).toBe(yes.text);
   });
 
   test('sexual violence gender question: the general exit', async () => {
@@ -125,14 +129,43 @@ describe('A second unclear answer shows help at once', () => {
   });
 });
 
+describe('No keyword matching at the strict questions', () => {
+  test('"male" is read as Male, not Female (the old matcher found "male" inside "Female")', async () => {
+    const body = await send('male', sessionAt('DV_GENDER_ASK'));
+    expect(decode(body.s).dvGender).toBe('Male');
+  });
+
+  test('a sentence containing an option word is not matched: it asks again', async () => {
+    const body = await send("I'm a man", sessionAt('DV_GENDER_ASK'));
+    const s = decode(body.s);
+    expect(s.currentGate).toBe('DV_GENDER_ASK');
+    expect(s.dvGender ?? null).toBeNull();
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  test('women go straight to their exit: the children question changes nothing for them', () => {
+    const r = processInput(sessionAt('DV_GENDER_ASK'), '1');
+    expect(r.sessionEnded).toBe(true);
+    expect(r.stateUpdates.currentGate).not.toBe('DV_CHILDREN_ASK');
+    expect(r.text).toContain('0808 2000 247');
+  });
+});
+
 describe('General exits where gender is not given', () => {
+  test('domestic abuse, "Prefer not to say": straight to the general exit, no children question', () => {
+    const r = processInput(sessionAt('DV_GENDER_ASK'), '4');
+    expect(r.sessionEnded).toBe(true);
+    expect(r.stateUpdates.currentGate).not.toBe('DV_CHILDREN_ASK');
+    expect(r.text).toContain('NATIONAL DOMESTIC ABUSE LINES');
+  });
+
   test('domestic abuse, "Prefer not to say": 999 first, each national line with who it is for and when it is open', () => {
     const r = processInput(sessionAt('DV_CHILDREN_ASK', { dvGender: 'Prefer not to say' }), '2');
     expect(r.sessionEnded).toBe(true);
     expect(r.text.startsWith("If you're in immediate danger, call 999.")).toBe(true);
     expect(r.text).toContain('For women\n0808 2000 247 (24/7');
     expect(r.text).toContain('For men\n0808 800 1170 (Monday to Friday, 10am to 4pm');
-    expect(r.text).toContain('For LGBTQ+ people aged 18 and over\n0800 999 5428 (Monday and Tuesday');
+    expect(r.text).toContain("For LGBTQ+ people aged 18 and over\n0800 999 5428 (weekdays: see galop.org.uk for today's hours)");
     expect(r.text).not.toContain('—');
   });
 
@@ -146,6 +179,7 @@ describe('General exits where gender is not given', () => {
   test('domestic abuse in the Black Country: men are told they can be referred', () => {
     const r = processInput(sessionAt('DV_CHILDREN_ASK', { dvGender: 'Prefer not to say', localAuthority: 'Walsall' }), '1');
     expect(r.text).toContain("Black Country Women's Aid\nFor women and children. Men can call the office line to be referred");
+    expect(r.text).toContain('0121 553 0090 (office line, Monday to Friday, 9am to 5pm)');
   });
 
   test('domestic abuse, "Non-binary or other" keeps its existing exit', () => {

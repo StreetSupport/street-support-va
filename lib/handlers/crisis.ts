@@ -276,6 +276,17 @@ export function handleCrisisFireFloodLocation(session: SessionState, choice: num
 export function handleDVGenderAsk(session: SessionState, choice: number | null): RoutingResult {
   const dvGenders = ['Female', 'Male', 'Non-binary or other', 'Prefer not to say'];
   const dvGender = choice ? dvGenders[choice - 1] : null;
+  // Gender not given: straight to the general exit. The children question
+  // would change nothing there, and we don't ask what changes nothing
+  // (Managing Director, 26 November 2026).
+  if (!dvGender || dvGender === 'Prefer not to say') {
+    return buildGeneralDVExit({ ...session, dvGender });
+  }
+  // Women's exits are the same with or without children, so the children
+  // question changes nothing for them either: straight to the exit.
+  if (dvGender === 'Female') {
+    return handleDVChildrenAsk({ ...session, dvGender }, null);
+  }
   return {
     ...phrase('DV_CHILDREN_ASK', session.userType),
     stateUpdates: { currentGate: 'DV_CHILDREN_ASK', dvGender }
@@ -377,7 +388,7 @@ function localDVForEveryone(session: SessionState): string {
     if (forLine) lines.push(forLine);
     if (org.phone_24hr) {
       lines.push(`${org.phone_24hr} (24-hour line)`);
-      if (org.phone_office) lines.push(`${org.phone_office} (office line)`);
+      if (org.phone_office) lines.push(`${org.phone_office} (office line${officeHours(org.availability)})`);
     } else if (org.phone) {
       lines.push(`${org.phone} (${org.availability})`);
     }
@@ -385,6 +396,13 @@ function localDVForEveryone(session: SessionState): string {
     return lines.join('\n');
   });
   return `\n\nLOCAL DOMESTIC ABUSE SUPPORT\n${blocks.join('\n\n')}`;
+}
+
+// "24hr line: always. Office: Mon-Fri 9am-5pm" -> ", Monday to Friday, 9am to 5pm"
+function officeHours(availability?: string): string {
+  const m = availability?.match(/Office:\s*(.+)$/);
+  if (!m) return '';
+  return ', ' + m[1].replace('Mon-Fri', 'Monday to Friday,').replace(/(\d+(?:am|pm))-(\d+(?:am|pm))/, '$1 to $2').replace(/,\s*,/, ',');
 }
 
 const NDAH = `National Domestic Violence Helpline
@@ -399,7 +417,7 @@ https://mankind.org.uk`;
 
 const GALOP = `Galop
 For LGBTQ+ people aged 18 and over
-0800 999 5428 (Monday and Tuesday 9.15am to 8pm, Wednesday to Friday 9.15am to 4.30pm, closed 1pm to 2pm and at weekends)
+0800 999 5428 (weekdays: see galop.org.uk for today's hours)
 https://galop.org.uk`;
 
 const RAPE_CRISIS = `Rape Crisis England & Wales
@@ -439,7 +457,7 @@ function crisisUnclearHelp(session: SessionState): RoutingResult {
   const text = [
     self ? `If you're in immediate danger, call 999.` : `If they're in immediate danger, call 999.`,
     `I'm not sure I've understood, so here is who can help right now. ${self ? 'You' : 'They'} can choose who to contact.`,
-    `DOMESTIC ABUSE\nNational Domestic Violence Helpline\n0808 2000 247 (24/7, free, confidential)`,
+    `DOMESTIC ABUSE\nNational Domestic Violence Helpline\nFor women\n0808 2000 247 (24/7, free, confidential)\n\nManKind Initiative\nFor men\n0808 800 1170 (Monday to Friday, 10am to 4pm, not bank holidays)`,
     `SEXUAL VIOLENCE\nRape Crisis England & Wales\n0808 500 2222 (free, confidential, 24/7)`,
     self ? `IF YOU'RE THINKING ABOUT HARMING YOURSELF\nSamaritans\n116 123 (free, 24/7)` : `IF THEY'RE THINKING ABOUT HARMING THEMSELVES\nSamaritans\n116 123 (free, 24/7)`,
     self ? `IF YOU'RE UNDER 16\nChildline\n0800 1111` : `IF THEY'RE UNDER 16\nChildline\n0800 1111`,
