@@ -379,3 +379,32 @@ describe('Noticing step: local services are read only when results follow', () =
     expect(noticingLeadsToResults({ ...s, unclearCount: 1 }, 'hmm')).toBe(true);
   });
 });
+
+describe('Noticing step: choosing more than one (design paper, Part C, 3.5)', () => {
+  const asked = () => {
+    let s = sessionAt('B5_MAIN_SUPPORT_NEED');
+    s = { ...s, ...processInput(s, '3').stateUpdates };
+    return processInput(s, '1'); // A hot meal: no profile questions
+  };
+
+  test('the question says more than one can be chosen (Managing Director, 26 November 2026)', () => {
+    expect(asked().text).toContain('You can choose more than one.');
+  });
+
+  test('it tells the chat window that several answers can be chosen, and which answer on their own', () => {
+    const r = asked();
+    const opts = r.options ?? [];
+    const alone = (r.multiSelect?.exclusive ?? []).map(n => opts[n - 1]);
+    expect(alone).toEqual(['Nothing else', "I'm not sure", 'Just show me food near me']);
+  });
+
+  test('the unclear answer asks again with the same control', () => {
+    const s = { ...sessionAt('B5_MAIN_SUPPORT_NEED'), ...asked().stateUpdates } as SessionState;
+    const again = processInput({ ...s, v4Option: 'everyday', v4Choice: 'A hot meal' }, 'not a number');
+    expect(again.multiSelect?.exclusive.length).toBe(3);
+  });
+
+  test('ticked answers arrive as the chat window sends them, "1, 3"', () => {
+    expect(parseNoticing('2, 4', ['a', 'b', 'c', 'd'])).toEqual([2, 4]);
+  });
+});
