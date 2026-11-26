@@ -19,7 +19,7 @@ import { startSafetyRoute } from './safety';
 import { crisisQuestionFallback } from './crisis';
 import { isSafetyRouteEnabled } from '../safetyRouteSwitch';
 import { secondScreenPhraseKey } from '../stateMachine';
-import { HOUSING_OFFER_OPTIONS, housingOfferText, noticingMultiSelect, noticingOptions, noticingText } from '../noticing';
+import { HOUSING_OFFER_OPTIONS, housingOfferText, noticingMultiSelect, noticingOptions, noticingText, notSureMultiSelect, notSureOptions, notSureText } from '../noticing';
 import { detectDisclosure, readDisclosureAnswer } from '../safetyDisclosure';
 
 export const SAFETY_DISCLOSURE_GATE: GateType = 'SAFETY_DISCLOSURE_CHECK';
@@ -74,6 +74,8 @@ export function questionAgain(session: SessionState, gate: GateType): RoutingRes
     }
     case 'B5_NOTICING':
       return { text: noticingText(session), options: noticingOptions(session), multiSelect: noticingMultiSelect(session), stateUpdates: { currentGate: 'B5_NOTICING' } };
+    case 'B5_NOT_SURE':
+      return { text: notSureText(), options: notSureOptions(), multiSelect: notSureMultiSelect(), stateUpdates: { currentGate: 'B5_NOT_SURE' } };
     case 'B5_HOUSING_OFFER':
       return {
         text: housingOfferText(session.noticingHousing === 'keep-home' ? 'keep-home' : 'no-settled-place'),
