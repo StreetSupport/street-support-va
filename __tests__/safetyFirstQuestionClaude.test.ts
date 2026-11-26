@@ -65,3 +65,30 @@ describe('Claude on the first question never skips the Safety screen', () => {
     expect(body.e).toBeFalsy();
   });
 });
+
+describe('On the Safety route itself, typed text never reaches Claude', () => {
+  // Guards the merge with #85, which conflicts on the line that keeps Claude
+  // off these questions: resolved the wrong way, this fails.
+  test.each(['SAFETY_TYPE_OF_HARM', 'SAFETY_OK_TO_CONTINUE'] as const)(
+    'at %s, free text asks again and Claude is not called',
+    async (gate) => {
+      create.mockResolvedValue({ content: [{ type: 'text', text: '1' }] });
+      const body = await send('he watches my phone all the time', { ...atFirstQuestion(), currentGate: gate });
+      expect(create).not.toHaveBeenCalled();
+      expect(decode(body.s).currentGate).toBe(gate);
+    },
+  );
+});
+
+describe('With the Safety switch off', () => {
+  test('typing the Safety label through the route does not reach the Safety route', async () => {
+    create.mockResolvedValue({ content: [{ type: 'text', text: 'unclear' }] });
+    process.env.VA_SAFETY_ROUTE = 'off';
+    try {
+      const body = await send('Staying safe from abuse, exploitation or harm', atFirstQuestion());
+      expect(decode(body.s).currentGate).not.toBe('SAFETY_TYPE_OF_HARM');
+    } finally {
+      process.env.VA_SAFETY_ROUTE = 'on';
+    }
+  });
+});

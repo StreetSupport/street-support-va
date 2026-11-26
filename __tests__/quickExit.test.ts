@@ -50,7 +50,7 @@ describe('Exit this page: what happens on press', () => {
     expect(calls).toEqual([`open ${EXIT_URL}`, `replace ${EXIT_REPLACE_URL}`]);
   });
 
-  test('if the new tab is blocked, this tab still leaves', () => {
+  test('if opening the new tab fails, this tab still leaves', () => {
     let went: string | null = null;
     performExit({
       cover: () => {}, cancelRequests: () => {}, clear: () => {},

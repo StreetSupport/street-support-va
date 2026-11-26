@@ -4,6 +4,11 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { EXIT_TAB_TITLE, EXIT_URL, TRANSPARENT_ICON, createShiftCounter, performExit, shouldReloadOnPageShow } from '@/lib/quickExit';
 import type { ServiceCard } from '@/lib/types';
 
+// True when the VA is shown inside another page's iframe.
+function inFrame(): boolean {
+  try { return window.top !== window.self; } catch { return true; }
+}
+
 // ============================================================
 // SSN BRAND COLORS (Official)
 // ============================================================
@@ -845,7 +850,9 @@ export default function ChatWidget({ isOpen, onClose }: ChatWidgetProps) {
       },
       cancelRequests: () => abortRef.current.abort(),
       clear: clearConversation,
-      openTab: (url) => { window.open(url, '_blank', 'noopener,noreferrer'); },
+      // Not inside an iframe: there, opening a tab first can stop the browser
+      // moving the top page, so the exit only replaces the top page.
+      openTab: inFrame() ? undefined : (url) => { window.open(url, '_blank', 'noopener,noreferrer'); },
       navigate: (url, replaceHistory) => {
         // The whole page, not just this frame, where the VA sits in an iframe
         // (the website allows top navigation on it).
