@@ -2069,7 +2069,8 @@ SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
 0808 801 0332 (Monday to Friday, 10am to 12pm)
 Webchat every day, 12pm to 8pm: https://survivorsuk.org
-Specialist, confidential support for men and boys aged 16 and over
+Text or WhatsApp every day, 12pm to 8pm: 0786 003 1252
+Specialist, confidential support for men, boys, trans and non-binary people
 
 If you're in immediate danger, call 999.`
   },
@@ -2081,7 +2082,8 @@ SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
 0808 801 0332 (Monday to Friday, 10am to 12pm)
 Webchat every day, 12pm to 8pm: https://survivorsuk.org
-Specialist, confidential support for men and boys aged 16 and over
+Text or WhatsApp every day, 12pm to 8pm: 0786 003 1252
+Specialist, confidential support for men, boys, trans and non-binary people
 
 You don't have to work this out on your own.
 
@@ -2095,7 +2097,8 @@ SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
 0808 801 0332 (Monday to Friday, 10am to 12pm)
 Webchat every day, 12pm to 8pm: https://survivorsuk.org
-Specialist, confidential support for men and boys aged 16 and over
+Text or WhatsApp every day, 12pm to 8pm: 0786 003 1252
+Specialist, confidential support for men, boys, trans and non-binary people
 
 You'll know your next steps from here.
 
@@ -2109,6 +2112,7 @@ SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
 0808 801 0332 (Monday to Friday, 10am to 12pm)
 Webchat every day, 12pm to 8pm: https://survivorsuk.org
+Text or WhatsApp every day, 12pm to 8pm: 0786 003 1252
 
 SEXUAL VIOLENCE SUPPORT
 Galop
@@ -2125,6 +2129,7 @@ SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
 0808 801 0332 (Monday to Friday, 10am to 12pm)
 Webchat every day, 12pm to 8pm: https://survivorsuk.org
+Text or WhatsApp every day, 12pm to 8pm: 0786 003 1252
 
 SEXUAL VIOLENCE SUPPORT
 Galop
@@ -2143,6 +2148,7 @@ SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
 0808 801 0332 (Monday to Friday, 10am to 12pm)
 Webchat every day, 12pm to 8pm: https://survivorsuk.org
+Text or WhatsApp every day, 12pm to 8pm: 0786 003 1252
 
 SEXUAL VIOLENCE SUPPORT
 Galop
