@@ -42,10 +42,16 @@ The goal is simple: give our team confidence to use AI safely and effectively, w
 
 **Red Light: don't do it** (off-limits under this policy)
 
-- Real people's personal information
+- Real people's personal information (see below)
 - Financial data, passwords or access credentials
 - Sensitive or confidential internal material
 - Anything that could harm trust or safety
+
+### What we mean by personal information
+
+In this policy, personal information means details about someone's private life: their home address, personal email or phone, health, money or family, and anything at all about people seeking support. These stay on the Red Light list.
+
+Work contact details are different. These are the name, role, work email and work phone of people at organisations we list, as published or given to us for their listing. They're still personal data in law, so we handle them with care. They may be used in Claude Team to keep listings accurate.
 
 ## What We Never Do With AI
 
@@ -237,13 +243,13 @@ We don't connect AI tools to our email or file storage.
 
 Claude Team is our approved AI workspace. It runs under Anthropic's commercial terms with a data processing agreement, and our data isn't used to train its models. Use your Street Support Network account in our Claude Team workspace for all Street Support Network work. Personal or free AI accounts must not be used.
 
-The Red Light list still applies in Claude Team. If personal information gets into it by mistake, delete the chat and follow our Incident Response steps below.
+The Red Light list still applies in Claude Team. If personal information gets into it by mistake, delete the chat and follow our Incident Response steps below. Work contact details may be used to keep listings accurate (see What we mean by personal information).
 
 ## The Key Principle
 
 If someone has access to sensitive data they shouldn't, AI makes it searchable through natural conversation. We fix permissions first, then consider AI connections.
 
-Our no-personal-data approach keeps everyday AI use outside the scope of personal data processing (see our **Data Protection Policy** for full details). If personal information accidentally gets into an AI tool, report it immediately to the Managing Director and follow our existing data breach procedures.
+Apart from work contact details used to keep listings accurate, we keep personal information out of everyday AI use (see our **Data Protection Policy** for full details). If personal information accidentally gets into an AI tool, report it immediately to the Managing Director and follow our existing data breach procedures.
 
 ## GDPR Compliance
 
