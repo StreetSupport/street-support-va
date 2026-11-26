@@ -172,12 +172,13 @@ export function noticingText(session: SessionState): string {
 /**
  * Tells the chat window the question takes several answers. The pressures can
  * be ticked together and sent with Continue; "Nothing else", "I'm not sure"
- * and the skip answer at once (Managing Director, 26 November 2026). These are
- * their option numbers.
+ * and the skip answer at once (Managing Director, 26 November 2026), and so
+ * does "Feeling unsafe", which always wins, so it acts at once (#73 review,
+ * 26 November 2026). These are their option numbers.
  */
 export function noticingMultiSelect(session: SessionState): { exclusive: number[] } {
   const exclusive = pressuresFor(session)
-    .map((p, i) => (p.id === 'nothing-else' || p.id === 'not-sure' ? i + 1 : 0))
+    .map((p, i) => (p.id === 'unsafe' || p.id === 'nothing-else' || p.id === 'not-sure' ? i + 1 : 0))
     .filter(n => n > 0);
   return { exclusive: [...exclusive, noticingOptions(session).length] };
 }
@@ -247,10 +248,10 @@ export function noticingLeadsToResults(session: SessionState, input: string): bo
 
 export const NOT_SURE_OPENER = "That's OK. Is anything putting pressure on you at the moment?";
 export const NOT_SURE_IN_PERSON = "I'd rather talk to someone in person";
-// The honest line where no place to start can be offered, and the first
-// question again (Managing Director, 8 November 2026). The assistant cannot
-// read places to start yet (work item 20), so for now this is always the line.
-export const NO_PLACE_TO_START = "There isn't a drop-in near you that we know of. Choosing what's closest from these will help me find the right support.";
+// The line before the first question again on the in-person route. The
+// assistant cannot read places to start yet (work item 20), so it says what is
+// true either way (#73 review; Managing Director, 26 November 2026).
+export const NO_PLACE_TO_START = "I can't show you drop-ins yet. Choosing what's closest from these will help me find the right support.";
 
 /** The pressures, without "Nothing else" and "I'm not sure", then the two that answer alone. */
 export function notSureOptions(): string[] {
@@ -264,7 +265,9 @@ export function notSureText(): string {
 
 export function notSureMultiSelect(): { exclusive: number[] } {
   const n = notSureOptions().length;
-  return { exclusive: [n - 1, n] };
+  // "Feeling unsafe" acts at once, as at the noticing question (#73 review).
+  const unsafe = PRESSURES.filter(p => p.id !== 'nothing-else' && p.id !== 'not-sure').findIndex(p => p.id === 'unsafe') + 1;
+  return { exclusive: [...(unsafe > 0 ? [unsafe] : []), n - 1, n] };
 }
 
 export type NotSureOutcome =
