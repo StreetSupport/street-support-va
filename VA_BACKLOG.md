@@ -135,10 +135,10 @@ This log records Tier 2 and Tier 3 governance decisions for trustee visibility. 
 **Source:** care leaver branch, `4a0860c`.
 
 #### C1b. Out-of-area care leavers aged 18 to 24: optional local leaving care support
-**Status:** Open, for the Managing Director. The build shows no local leaving care team to someone looked after outside the area, and shows local Housing Options instead (Decided by the Managing Director, 20 November 2026. `e84a66d`). The open point is whether to show the local leaving care team as optional extra support. The reasoning is recorded in the paper "Care leavers living in a different area" (https://claude.ai/artifact/2TEeYnWDCYHF8HQTsf56B2).
+**Status:** Closed, 26 November 2026 (Managing Director; design paper H6, on #94). Was: open, for the Managing Director. The build shows no local leaving care team to someone looked after outside the area, and shows local Housing Options instead (Decided by the Managing Director, 20 November 2026. `e84a66d`). The open point is whether to show the local leaving care team as optional extra support. The reasoning is recorded in the paper "Care leavers living in a different area" (https://claude.ai/artifact/2TEeYnWDCYHF8HQTsf56B2).
 
 #### C1c. 16 and 17, left care, council named, living outside the seven councils
-**Status:** Open. Found in review. On the "left care, council named" screen, Children's Services where they are now is shown only where it is held for that council. A 16 or 17 year old living outside the seven councils gets no Children's Services there.
+**Status:** Done, 26 November 2026. Where no Children's Services number is held for the council, the screen gives the find-your-council route, so no unverified number is shown (Managing Director, 26 November 2026; design paper D.7). On #82 at `4ef799d`, carried to #95, #93 and #57. Was: found in review. On the "left care, council named" screen, Children's Services where they are now is shown only where it is held for that council. A 16 or 17 year old living outside the seven councils gets no Children's Services there.
 **Source:** `lib/handlers/careLeavers.ts` on the care leaver branch, `f5e2647`.
 
 #### C2. Conviction routing: full redesign
@@ -533,6 +533,29 @@ ChatWidget calls `/api/location`, so this file is unreachable dead code. Confirm
 **Status:** Not built.
 **Scope:** The design note (Safety pathway, sex work) says the sexual violence route also includes the sex work listings as candidates. The build reads only the Sexual violence subcategory there. The sex work option itself stays after launch (design note work item 12).
 **Source:** Service Matching and Questions Design Note, Safety pathway; found 23 November 2026.
+
+### 93. Safety disclosure check
+**Status:** Built on VA #95 (`f3e0365`), on #82, for James. Independently reviewed; the fixes and the Managing Director's decisions of 26 November are in. Live once merged: it is not behind the Safety route's switch, and Yes goes to the crisis question while that is off.
+**Scope:** Fixed patterns, no AI, on every typed message after the under-16 check (Safety Disclosure Check Design Note v1.0, on #72, amended 26 November at `d4f3ba3`).
+**Open:** James's review of Appendix A and six readings listed in #95. Known false alarms and the comma limit (rule 3) wait for the first review of the list after the trial (item 94).
+
+### 94. A visible safety route and a bounded trigger list
+**Status:** Proposed, not decided (design paper H13; proposal in `governance/` on #94, `e5bc3ce`). Three independent reviews. Recommended after the trial.
+**Scope:** A "Help with staying safe" link wherever the Safety route is available, asking first; the trigger list bounded after James's review and changed only at set review points.
+**Open:** the Managing Director's five decisions in the proposal; James's three questions at the top of #94.
+
+### 95. "I'm not sure where to start"
+**Status:** Built on VA #73 (`a2b2a64`), carried to #95, #93 and #57, for James. Replaces the "Not built yet" placeholder (Managing Director's decisions, 26 November 2026).
+**Scope:** The noticing question with its own opener; Feeling unsafe to the Safety route or crisis question; housing to the housing route; otherwise the first pressure ticked that has a topic, with the awareness line where several were ticked; family or relationships alone, in person or not sure to the in-person route.
+**Open:** the assistant cannot read places to start yet (work item 20), so the in-person route gives the honest line and the first question again.
+
+### 96. The noticing question: Feeling unsafe first, and choosing more than one
+**Status:** Built on VA #73 (`53b8e64`, `e537928`), carried up to #95, #93 and #57, for James. Wording: Managing Director, 26 November 2026 (design paper A.4, item 8).
+**Open:** the tick buttons have not been tried in a browser; James asked to click through on the preview (#73).
+
+### 97. Crisis question: strict reading and general exits, with the children restoration
+**Status:** VA #93 built, for James; on 26 November moved onto #95 (`f2c7b72`), the build line merged in and its clashes resolved, so it merges cleanly after #95. The children restoration (D.1, D.6) is on its own branch, `feat/children-restore-2026-11-26` (`332aa57`), with #93's new head merged in and no pull request. It asks everyone on the domestic abuse route about children, so #93's shortcut for women is not taken there.
+**Open:** James's review; pushing the restoration with #93 when he is ready for it.
 
 ### 16. ~~Robustness: Data Protection Policy platform update~~ RESOLVED
 **Resolved:** Data Protection Policy v3 (March 2026) no longer references WatsonX.
@@ -1326,6 +1349,7 @@ When enriched eligibility data is in use, confidence levels must influence langu
 | 2026-11-12 | Item 81 added: Claude use and VA issue reporting. Claude Use and Issue Reporting Note v1.0 drafted and `CLAUDE.md` added, for James review. |
 | 2026-11-12 | AI Policy v3.0 added to governance as source (replaces v2.1a, draft for trustee approval). Governance Overview updated with document index entries and a note for the 17 November trustee meeting. |
 | 2026-11-20 | Status lines corrected: 62, 65, C1, veterans and prison. C1a to C1c and items 85 to 90 added. Session 20 November 2026 entry added. |
+| 2026-11-26 | C1b closed; C1c done. Items 93 to 97 added. Session 26 November 2026 entry added. |
 
 ---
 
@@ -1396,3 +1420,28 @@ When enriched eligibility data is in use, confidence levels must influence langu
 1. James's reviews of VA #89 to #92, and the listing link on VA #92.
 2. The dogs question (89).
 3. Sex work listings on the sexual violence route (92).
+
+---
+
+## Session 26 November 2026
+
+**What changed**
+- Design paper v2.0 (VA #94): consolidated design record, with A.4 (the decisions of 26 November), D.2 and H13. A review guide for James posted on #94.
+- Safety disclosure check built (item 93), VA #95; its design note on #72 records the 26 November decisions.
+- The noticing question: Feeling unsafe first and multi-select (item 96); "I'm not sure where to start" built (item 95). All on #73, carried up the build line.
+- C1c built on #82; C1b closed.
+- #93 and #57 moved onto #95, their clashes with the build line resolved; #69 and #73 marked ready; `blocks-30-nov` and `safeguarding` labels on everything Monday needs.
+
+**Decided (Managing Director, 26 November 2026).** Recorded in the design paper (A.4, D.2, D.6, D.7, H1 to H13), the safety disclosure check note on #72, and the commit messages. Design decisions, so not added to the pipeline decisions log on #255, which records the WMCA rebuild's data decisions.
+
+**Committed and where.** All pushed, nothing on main or staging. Heads: #73 `a2b2a64`, #79 `5a91e46`, #80 `3848981`, #81 `ecf5945`, #82 `da0d73d`, #95 `f3e0365`, #93 `f2c7b72`, #57 `702500e`, #94 `9f7e19c`, #72 `d4f3ba3`. This entry is on #78's branch.
+
+**Uncommitted, and why.** Nothing. The children restoration (item 97) is pushed for safekeeping to `feat/children-restore-2026-11-26` (`332aa57`), with #93's new head merged in and no pull request; it goes to James with #93.
+
+**Not yet done.** #91 and #92 do not carry today's changes (they pick them up when rebased after #82 merges).
+
+**Next session picks up first**
+1. James's answer to the review guide on #94: which deployment the trial uses, and the live service data setting.
+2. Leave the build branches alone until James replies, unless he asks for a change or something is unsafe.
+3. The H13 decisions (item 94), and H10, the local contact line, in the week of 30 November.
+
