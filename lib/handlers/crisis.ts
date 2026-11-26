@@ -300,7 +300,7 @@ export function handleDVChildrenAsk(session: SessionState, choice: number | null
   const housing = `\n\nHOUSING OPTIONS\n${housingOptionsBlock(session)}`;
   if (!session.dvGender || session.dvGender === 'Prefer not to say') {
     const general = buildGeneralDVExit(session);
-    return { ...general, text: general.text + children + housing };
+    return { ...general, text: beforeClosing999(general.text, children + housing) };
   }
   const dvExitKey = getDVExitKey(session.dvGender, dvChildren);
   const result = safeguardingExit(dvExitKey, session.userType, 'DOMESTIC_ABUSE');
@@ -478,9 +478,16 @@ export function handleCrisisUnclearHelp(session: SessionState): RoutingResult {
 /** Puts a block before an exit's closing 999 line, which stays last. */
 function beforeClosing999(text: string, block: string): string {
   if (!block) return text;
-  const i = text.lastIndexOf('\n\n');
-  const last = i >= 0 ? text.slice(i + 2) : '';
-  return i >= 0 && /999/.test(last) ? text.slice(0, i) + block + text.slice(i) : text + block;
+  // After the last contact (the last paragraph with a web address), so the
+  // council's details sit with the other contacts and before any sign-off
+  // line or the closing 999 line.
+  const paras = text.split('\n\n');
+  let last = -1;
+  paras.forEach((para, idx) => { if (/https?:\/\//.test(para)) last = idx; });
+  if (last < 0) return text + block;
+  const head = paras.slice(0, last + 1).join('\n\n');
+  const tail = paras.slice(last + 1).join('\n\n');
+  return head + block + (tail ? '\n\n' + tail : '');
 }
 
 /** What a second unclear answer at a strict question leads to. */
@@ -488,7 +495,7 @@ export function crisisQuestionFallback(session: SessionState): RoutingResult {
   switch (session.currentGate) {
     case 'DV_GENDER_ASK': {
       const general = buildGeneralDVExit(session);
-      return { ...general, text: `${general.text}\n\nHOUSING OPTIONS\n${housingOptionsBlock(session)}` };
+      return { ...general, text: beforeClosing999(general.text, `\n\nHOUSING OPTIONS\n${housingOptionsBlock(session)}`) };
     }
     case 'DV_CHILDREN_ASK':
       // As if Yes (Managing Director, 25 November 2026)

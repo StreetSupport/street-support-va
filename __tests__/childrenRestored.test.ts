@@ -4,6 +4,7 @@
  */
 
 import { createSession, processInput } from '../lib/stateMachine';
+import { crisisQuestionFallback } from '../lib/handlers/crisis';
 import type { GateType, SessionState } from '../lib/types';
 
 const at = (gate: GateType, extra: Partial<SessionState> = {}): SessionState =>
@@ -137,4 +138,32 @@ describe('Review fixes, 26 November', () => {
       expect(r.text).toContain('HOUSING OPTIONS');
       expect(r.text).toContain('024 7683 4025');
     });
+});
+
+describe('Second review fixes, 26 November', () => {
+  test.each([
+    [{ isSupporter: true, userType: 'SUPPORTER' }, "You don't have to work this out on your own."],
+    [{ isSupporter: true, userType: 'PROFESSIONAL' }, "You'll know your next steps from here."],
+  ])('supporter and professional exits keep the sign-off after the council contacts', (who, signOff) => {
+    const r = processInput(at('DV_CHILDREN_ASK', { dvGender: 'Female', localAuthority: 'Walsall', ...who } as Partial<SessionState>), '1');
+    expect(r.text.indexOf("CHILDREN'S SERVICES")).toBeLessThan(r.text.indexOf(signOff));
+    expect(r.text.indexOf('HOUSING OPTIONS')).toBeLessThan(r.text.indexOf(signOff));
+  });
+
+  test('a second unclear answer at the gender question still gives Housing Options', () => {
+    const r = crisisQuestionFallback(at('DV_GENDER_ASK', { localAuthority: 'Coventry' }));
+    expect(r.text).toContain('HOUSING OPTIONS');
+    expect(r.text).toContain('024 7683 4025');
+  });
+
+  test("with no council known, supporters are pointed to 'their' local council", () => {
+    const r = processInput(at('DV_CHILDREN_ASK', { dvGender: 'Male', isSupporter: true, userType: 'SUPPORTER' }), '2');
+    expect(r.text).toContain('Find their local council');
+    expect(r.text).not.toContain('Find your local council');
+  });
+
+  test("a contact's note is shown (Solihull)", () => {
+    const r = processInput(at('DV_CHILDREN_ASK', { dvGender: 'Female', localAuthority: 'Solihull' }), '2');
+    expect(r.text).toContain('Automatically transfers to out-of-hours service');
+  });
 });
