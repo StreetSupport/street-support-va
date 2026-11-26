@@ -27,6 +27,15 @@
       "phoneOOH": "0121 675 4806",
       "website": "https://www.birminghamchildrenstrust.co.uk"
     },
+    "leavingCare": {
+      "name": "18+ Care Leavers Service",
+      "_canonicalNote": "Confirmed by the Managing Director from the council's or trust's own page, 20 November 2026",
+      "deliveredBy": "Birmingham Children's Trust",
+      "phone": "0121 464 1229",
+      "phoneOOH": "0121 675 4806",
+      "source": "Birmingham Children's Trust, \"Support for 18 to 21 year olds who have been in care\"",
+      "verified": "2026-11-20"
+    },
     "navigatorOrgs": [
       {
         "name": "SIFA Fireside",
@@ -87,6 +96,16 @@
       "phone": "024 7678 8555",
       "phoneOOH": "024 7683 2222",
       "website": "https://www.coventry.gov.uk/childrens-services"
+    },
+    "leavingCare": {
+      "name": "Through Care",
+      "_canonicalNote": "Confirmed by the Managing Director from the council's or trust's own page, 20 November 2026",
+      "deliveredBy": "Coventry City Council",
+      "phone": "024 7678 7808",
+      "email": "dutythroughcare@coventry.gov.uk",
+      "website": "https://www.coventry.gov.uk/route21",
+      "source": "https://www.coventry.gov.uk/route21",
+      "verified": "2026-11-20"
     },
     "navigatorOrgs": [
       {
@@ -149,6 +168,16 @@
       "phoneOOH": "0300 555 8574",
       "website": "https://www.dudley.gov.uk/resident/care-health/children-and-family-care"
     },
+    "leavingCare": {
+      "name": "Care leavers personal advisers",
+      "_canonicalNote": "Confirmed by the Managing Director from the council's or trust's own page, 20 November 2026",
+      "deliveredBy": "Dudley Council",
+      "phone": "01384 813223",
+      "phoneHours": "Monday to Friday, 9am to 5pm",
+      "phoneOOH": "0300 555 8574",
+      "source": "Dudley Care Leavers Local Offer 2026",
+      "verified": "2026-11-20"
+    },
     "navigatorOrgs": [],
     "_navigatorGap": "No housing navigator organisation identified for Dudley. Lighthouse Community Hub was removed on 22 October 2026 (Managing Director): it is a weekly soup kitchen with an adviser, not a housing navigator for Dudley. The gap sits with the WMCA regional coordinator, who liaises with the rough sleeping leads and councils; if they have no equivalent service, it is not a short-term fix (Managing Director, 30 October 2026).",
     "dvOrgs": {
@@ -184,6 +213,15 @@
       "phoneOOH": "0121 569 2355",
       "website": "https://www.sandwellchildrenstrust.org"
     },
+    "leavingCare": {
+      "name": "Care Experienced Team",
+      "_canonicalNote": "Confirmed by the Managing Director from the council's or trust's own page, 20 November 2026",
+      "deliveredBy": "Sandwell Children's Trust",
+      "phone": "0121 569 8565",
+      "phoneOOH": "0121 569 3100",
+      "source": "Sandwell Children's Trust, Care Experienced \"Get in touch\"",
+      "verified": "2026-11-20"
+    },
     "navigatorOrgs": [],
     "_navigatorGap": "No housing navigator organisation identified for Sandwell. Documented as a system gap — shared with local partnership.",
     "_navigatorNote": "P3 does not operate in Sandwell. P3 Coventry and P3 Wolverhampton serve those areas only. Sandwell navigator gap is confirmed — no commissioned navigator identified as of March 2026.",
@@ -217,7 +255,18 @@
     "childrenServices": {
       "name": "Solihull Children's Services",
       "phone": "0121 788 4300",
+      "phoneOOH": "0121 605 6060",
       "website": "https://www.solihull.gov.uk/children-and-family-support"
+    },
+    "leavingCare": {
+      "name": "Next Steps team",
+      "_canonicalNote": "Confirmed by the Managing Director from the council's or trust's own page, 20 November 2026",
+      "deliveredBy": "Solihull Council",
+      "phone": "0121 717 1473 (option 1)",
+      "phoneHours": "Monday to Friday, 9am to 5pm",
+      "website": "https://www.solihull.gov.uk/children-and-families/care-experienced-children-and-young-people",
+      "source": "https://www.solihull.gov.uk/children-and-families/care-experienced-children-and-young-people",
+      "verified": "2026-11-20"
     },
     "navigatorOrgs": [
       {
@@ -255,8 +304,17 @@
     "childrenServices": {
       "name": "Walsall Children's Services",
       "phone": "0300 555 2866",
-      "phoneOption": "option 2",
+      "phoneOOH": "0300 555 2922",
       "website": "https://www.walsall.gov.uk/children-and-families"
+    },
+    "leavingCare": {
+      "name": "Transition and Leaving Care Hub",
+      "_canonicalNote": "Confirmed by the Managing Director from the council's or trust's own page, 20 November 2026",
+      "deliveredBy": "Walsall Council",
+      "phone": "01922 650575",
+      "website": "https://go.walsall.gov.uk/children-and-young-people/children-care-and-care-leavers/local-offer-care-leavers/transition-and",
+      "source": "https://go.walsall.gov.uk/children-and-young-people/children-care-and-care-leavers/local-offer-care-leavers/transition-and",
+      "verified": "2026-11-20"
     },
     "navigatorOrgs": [
       {
@@ -302,6 +360,16 @@
       "phone": "01902 555392",
       "phoneOOH": "01902 552999",
       "website": "https://www.wolverhampton.gov.uk/children-and-young-people"
+    },
+    "leavingCare": {
+      "name": "REACH Leaving Care Team",
+      "_canonicalNote": "Confirmed by the Managing Director from the council's or trust's own page, 20 November 2026",
+      "deliveredBy": "City of Wolverhampton Council",
+      "phone": "01902 551155",
+      "phoneNote": "Ask to speak to a Duty Worker",
+      "website": "https://www.wolveschildrenincare.com/",
+      "source": "https://www.wolveschildrenincare.com/",
+      "verified": "2026-11-20"
     },
     "navigatorOrgs": [
       {

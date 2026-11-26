@@ -1101,6 +1101,16 @@ When enriched eligibility data is in use, confidence levels must influence langu
 
 ---
 
+## Pipeline Phase Field (new, 30 July 2026)
+
+### Phase is a set, not a string
+**Status:** Not started. For Phase C routing.
+**Issue:** When phase routing lands (Phase C), split the phase field on `|` and test membership. Never compare with `== "respond"`. Pipeline phase values are combined: DV and SV rows carry `respond|rebuild`, 45 rows carry `strengthen|rebuild`, 8 carry `strengthen|respond|rebuild`. An exact-match test on a crisis row written `respond|rebuild` fails, and a DV user routes as prevention.
+**Safeguarding:** Relevant.
+**Source:** James Cross, pipeline PR #17, 30 July 2026.
+
+---
+
 ## Completed
 
 | Item | Date |

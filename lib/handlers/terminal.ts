@@ -13,6 +13,7 @@
 import { getPhrase } from '../phrasebank';
 import type { SessionState, RoutingResult, TerminalResult } from '../types';
 import { phrase } from './shared';
+import { withNameBeforeFullStop } from '../utils/preferredName';
 
 // ============================================================================
 // Gate handlers
@@ -29,7 +30,7 @@ export function handleTerminalAdditionalNeeds(session: SessionState, choice: num
     // Done
     const goodbye = getPhrase('TERMINAL_GOODBYE', session.isSupporter);
     return {
-      text: goodbye?.text || 'Take care.',
+      text: withNameBeforeFullStop(goodbye?.text || 'Take care.', session.preferredName),
       stateUpdates: { currentGate: 'SESSION_END', timestampEnd: new Date().toISOString() },
       sessionEnded: true
     };

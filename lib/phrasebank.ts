@@ -1,3 +1,5 @@
+import { isSafetyRouteEnabled } from './safetyRouteSwitch';
+
 // Street Support VA v7 Phrasebank - COMPLETE VERSION
 // All phrases from CHAR_VA_Phrasebank_v7.md
 // Generated 2026-02-01
@@ -7,6 +9,15 @@ export interface PhraseEntry {
   options?: string[];
   responseType?: string;
 }
+
+// Quick exit note, option A of "Quick exit: proposal for review" (Managing
+// Director, 19 November 2026). Shown on the Safety from harm route before the
+// first question, and after help on the domestic abuse and sexual violence exits.
+// Works for supporters too: it describes whoever is at the screen. The
+// "staying safer online" link is added once a page is chosen and checked at
+// source; none has been, so none is shown. "It clears our conversation" stands
+// once the technical review has verified what the exit clears.
+export const QUICK_EXIT_NOTE = `Need to leave quickly? Press "Exit this page". On a keyboard you can also press Shift three times. It clears our conversation, but not your browsing history. You can come back and start again at any time.`;
 
 export const phrasebank: Record<string, PhraseEntry> = {
 
@@ -86,22 +97,22 @@ Which of these fits their situation best?
 
   ACCESS_LOCATION_ASK: {
     text: `Where are you accessing this service from?`,
-    options: ["Library", "Community centre", "Council office", "At home", "On my phone", "Other"]
+    options: ["Library", "Community centre", "Council office", "At home", "On my phone", "Other", "Prefer not to say"]
   },
 
   ACCESS_LOCATION_ASK__SUPPORTER: {
     text: `Where are you accessing this service from?`,
-    options: ["Library", "Community centre", "Council office", "At home", "On my phone", "Other"]
+    options: ["Library", "Community centre", "Council office", "At home", "On my phone", "Other", "Prefer not to say"]
   },
 
   RETURN_USER_ASK: {
     text: `Have you used Street Support before?`,
-    options: ["Yes", "No"]
+    options: ["Yes", "No", "Prefer not to say"]
   },
 
   RETURN_USER_ASK__SUPPORTER: {
     text: `Have you used Street Support before?`,
-    options: ["Yes", "No"]
+    options: ["Yes", "No", "Prefer not to say"]
   },
 
   RETURN_USER_FOLLOWUP: {
@@ -302,80 +313,71 @@ Support with Benefits and Grants | Turn2us - https://www.turn2us.org.uk/`
     options: ["Myself", "Someone I'm supporting", "I'm a professional or organisation", "Not sure / just trying to find the right place"]
   },
 
-  B3_AGE_CATEGORY: {
-    text: `Which age group are you in?
-
-1. Under 16
-2. 16-17
-3. 18-24
-4. 25 or over`,
-    options: ["Under 16", "16-17", "18-24", "25 or over"]
-  },
-
-  B3_AGE_CATEGORY__SUPPORTER: {
-    text: `Which age group are they in?
-
-1. Under 16
-2. 16-17
-3. 18-24
-4. 25 or over`,
-    options: ["Under 16", "16-17", "18-24", "25 or over"]
-  },
-
-  B4_GENDER: {
-    text: `I need to ask about gender because some services are specifically for particular genders. I know these options don't fit everyone perfectly - please choose whichever feels closest, or 'Prefer not to say' if you'd rather skip this.
-
-1. Male
-2. Female
-3. Non-binary or other
-4. Prefer not to say`,
-    options: ["Male", "Female", "Non-binary or other", "Prefer not to say"]
-  },
-
-  B4_GENDER__SUPPORTER: {
-    text: `I need to ask about gender because some services are specifically for particular genders. These options might not fit everyone perfectly.
-
-1. Male
-2. Female
-3. Non-binary or other
-4. Prefer not to say`,
-    options: ["Male", "Female", "Non-binary or other", "Prefer not to say"]
-  },
-
+  // First question (VA V4 Redesign Design Note, Decision 1, Managing Director,
+  // 4 November 2026). Labels must match lib/data/v4Categories.ts.
   B5_MAIN_SUPPORT_NEED: {
-    text: `What kind of support are you looking for?
+    text: `What would you like help with?
 
-1. Emergency Housing or Other Accommodation
-2. Food
-3. Work
-4. Health Services
-5. Advice Services
-6. Drop In
-7. Financial Help
-8. Personal Items
-9. Personal Services
-10. Communications
-11. Training
-12. Activities`,
-    options: ["Emergency Housing or Other Accommodation", "Food", "Work", "Health Services", "Advice Services", "Drop In", "Financial Help", "Personal Items", "Personal Services", "Communications", "Training", "Activities"]
+1. Somewhere to live, or help to keep my home
+2. Staying safe from abuse, exploitation or harm
+3. Food, clothes or other everyday things
+4. Money, debt, benefits or work
+5. Health, drugs, alcohol or gambling
+6. Immigration or asylum
+7. Things to do and people to meet
+8. I'm not sure where to start`,
+    options: ["Somewhere to live, or help to keep my home", "Staying safe from abuse, exploitation or harm", "Food, clothes or other everyday things", "Money, debt, benefits or work", "Health, drugs, alcohol or gambling", "Immigration or asylum", "Things to do and people to meet", "I'm not sure where to start"]
   },
 
   B5_MAIN_SUPPORT_NEED__SUPPORTER: {
-    text: `What kind of support are they looking for?
+    text: `What would they like help with?
 
-1. Emergency Housing or Other Accommodation
-2. Food
-3. Work
-4. Health Services
-5. Advice Services
-6. Drop In
-7. Financial Help
-8. Personal Items
-9. Personal Services
-10. Communications
-11. Training
-12. Activities`,
-    options: ["Emergency Housing or Other Accommodation", "Food", "Work", "Health Services", "Advice Services", "Drop In", "Financial Help", "Personal Items", "Personal Services", "Communications", "Training", "Activities"]
+1. Somewhere to live, or help to keep their home
+2. Staying safe from abuse, exploitation or harm
+3. Food, clothes or other everyday things
+4. Money, debt, benefits or work
+5. Health, drugs, alcohol or gambling
+6. Immigration or asylum
+7. Things to do and people to meet
+8. Not sure where to start`,
+    options: ["Somewhere to live, or help to keep their home", "Staying safe from abuse, exploitation or harm", "Food, clothes or other everyday things", "Money, debt, benefits or work", "Health, drugs, alcohol or gambling", "Immigration or asylum", "Things to do and people to meet", "Not sure where to start"]
+  },
+
+  // Second screens (Decision 1). Labels must match lib/data/v4Categories.ts.
+  B5_SECOND_EVERYDAY: {
+    text: `Which of these?
+
+1. A hot meal
+2. Food to take home
+3. Clothes
+4. Toiletries or period products
+5. A phone or getting online
+6. Something else`,
+    options: ["A hot meal", "Food to take home", "Clothes", "Toiletries or period products", "A phone or getting online", "Something else"]
+  },
+
+  B5_SECOND_MONEY_WORK: {
+    text: `Which of these?
+
+1. Debt
+2. Benefits
+3. Bills and energy
+4. Grants
+5. Work or training
+6. Something else`,
+    options: ["Debt", "Benefits", "Bills and energy", "Grants", "Work or training", "Something else"]
+  },
+
+  B5_SECOND_HEALTH: {
+    text: `Which of these?
+
+1. Mental health
+2. Physical health
+3. Sexual health
+4. Drugs or alcohol
+5. Gambling
+6. Something else`,
+    options: ["Mental health", "Physical health", "Sexual health", "Drugs or alcohol", "Gambling", "Something else"]
   },
 
   // ============================================================
@@ -413,8 +415,18 @@ Support with Benefits and Grants | Turn2us - https://www.turn2us.org.uk/`
   // Asked based on which support need was selected
   // ============================================================
 
-  // AGE - Asked for: Health, Work, Training, Activities, Drop In, and Emergency Housing on the quick route
-  // Under 16 takes the same under-16 exit as B3_AGE_CATEGORY
+  // AGE - Asked for: Health, Work, Training, Activities, Drop In, and Emergency Housing on either route
+  // Under 16 takes the under-16 exit
+  B5_YOUTH_SOCIAL_SERVICES: {
+    text: `Do you have a social worker or a personal adviser, or are you living somewhere the council arranged, like foster care, a children's home or supported accommodation?`,
+    options: ["Yes", "No", "Not sure", "Prefer not to say"]
+  },
+
+  B5_YOUTH_SOCIAL_SERVICES__SUPPORTER: {
+    text: `Do they have a social worker or a personal adviser, or are they living somewhere the council arranged, like foster care, a children's home or supported accommodation?`,
+    options: ["Yes", "No", "Not sure", "Prefer not to say"]
+  },
+
   B5_PROFILE_AGE: {
     text: `To help find the most relevant services, which age group are you in?
 
@@ -601,24 +613,39 @@ This helps us show family-focused financial support if relevant.
     options: ["Yes", "No", "Prefer not to say"]
   },
 
+  // Housing situation question (Managing Director, 3 November 2026). Replaces the
+  // yes or no homelessness question and the two where-are-you questions after it.
+  // The gate keeps its name so the routes into it are unchanged.
+  // Housing situation question (Managing Director, 3 November 2026). Replaces the
+  // yes or no homelessness question and the two where-are-you questions after it.
+  // The gate keeps its name so the routes into it are unchanged. Options are short
+  // and each starts with different words, for voice control and listening
+  // (Managing Director, 4 November 2026). Leaving prison and leaving hospital
+  // are two answers (Managing Director, 20 November 2026).
   B6_HOMELESSNESS_STATUS: {
-    text: `Are you currently experiencing homelessness?
+    text: `Which of these is closest to your housing situation at the moment? Staying with friends or family counts as temporary.
 
-That includes if you don't have your own place and you're staying in temporary accommodation, hospital, prison, or somewhere that isn't your permanent home.
-
-1. Yes
-2. No`,
-    options: ["Yes", "No"]
+1. Help or advice to keep things steady at home
+2. About to lose my home, like an eviction date or being told to leave
+3. Staying somewhere temporary
+4. Leaving prison with nowhere to go
+5. Coming out of hospital with nowhere to go
+6. Sleeping rough, or nowhere to stay tonight
+7. Not sure, or something else`,
+    options: ["Help or advice to keep things steady at home", "About to lose my home, like an eviction date or being told to leave", "Staying somewhere temporary", "Leaving prison with nowhere to go", "Coming out of hospital with nowhere to go", "Sleeping rough, or nowhere to stay tonight", "Not sure, or something else"]
   },
 
   B6_HOMELESSNESS_STATUS__SUPPORTER: {
-    text: `Are they currently experiencing homelessness?
+    text: `Which of these is closest to their housing situation at the moment? Staying with friends or family counts as temporary.
 
-That includes if they don't have their own place and they're staying in temporary accommodation, hospital, prison, or somewhere that isn't their permanent home.
-
-1. Yes
-2. No`,
-    options: ["Yes", "No"]
+1. Help or advice to keep things steady at home
+2. About to lose their home, like an eviction date or being told to leave
+3. Staying somewhere temporary
+4. Leaving prison with nowhere to go
+5. Coming out of hospital with nowhere to go
+6. Sleeping rough, or nowhere to stay tonight
+7. Not sure, or something else`,
+    options: ["Help or advice to keep things steady at home", "About to lose their home, like an eviction date or being told to leave", "Staying somewhere temporary", "Leaving prison with nowhere to go", "Coming out of hospital with nowhere to go", "Sleeping rough, or nowhere to stay tonight", "Not sure, or something else"]
   },
 
   HOUSING_OPTIONS_INVOLVEMENT_ASK: {
@@ -988,7 +1015,7 @@ It's fine if they're not sure. We just want to understand how best to help.
   // ============================================================
 
   C2_CONSENT_GATE: {
-    text: `Thanks for sharing that. To help you find the right support, I need to ask a few more questions.
+    text: `Thanks for sharing that. To help you find the right support, I can ask a few more questions.
 
 Some of these might be about sensitive topics - like your health, ethnicity, or sexual orientation. I only ask because certain services are designed for people in particular circumstances, and this helps me guide you to the right places.
 
@@ -998,15 +1025,15 @@ Some of these might be about sensitive topics - like your health, ethnicity, or 
 
 Privacy info: https://streetsupport.net/about/privacy-and-data/
 
-Do you give your consent for me to ask these additional questions?
+Would you like to answer a few more questions so I can find services that fit you better?
 
-1. Yes, I consent
-2. No, I do not consent`,
-    options: ["Yes, I consent", "No, I do not consent"]
+1. Yes
+2. Skip these`,
+    options: ["Yes", "Skip these"]
   },
 
   C2_CONSENT_GATE__SUPPORTER: {
-    text: `Thanks for sharing that. To help them find the right support, I need to ask a few more questions.
+    text: `Thanks for sharing that. To help them find the right support, I can ask a few more questions.
 
 Some of these might be about sensitive topics - like their health, ethnicity, or sexual orientation. I only ask because certain services are designed for people in particular circumstances, and this helps me guide them to the right places.
 
@@ -1018,11 +1045,33 @@ Please check with them before you answer.
 
 Privacy info: https://streetsupport.net/about/privacy-and-data/
 
-Do they give their consent for me to ask these additional questions?
+Would they like to answer a few more questions so I can find services that fit them better?
 
-1. Yes, they consent
-2. No, they do not consent`,
-    options: ["Yes, they consent", "No, they do not consent"]
+1. Yes
+2. Skip these`,
+    options: ["Yes", "Skip these"]
+  },
+
+  // Armed forces (Managing Director, 2 November 2026). Crisis housing only, after
+  // age and before immigration (Service Matching and Questions Design Note,
+  // 3.3); not asked of 16 and 17 year olds (3.4). A yes shows Op FORTITUDE and
+  // local services for veterans (Housing Pathway Endpoints Contract, Veterans).
+  ARMED_FORCES_ASK: {
+    text: `Have you ever served in the armed forces?
+
+1. Yes
+2. No
+3. Prefer not to say`,
+    options: ["Yes", "No", "Prefer not to say"]
+  },
+
+  ARMED_FORCES_ASK__SUPPORTER: {
+    text: `Have they ever served in the armed forces?
+
+1. Yes
+2. No
+3. Prefer not to say`,
+    options: ["Yes", "No", "Prefer not to say"]
   },
 
   C2A_CONSENT_ACKNOWLEDGED: {
@@ -1124,10 +1173,9 @@ Do they give their consent for me to ask these additional questions?
 
 1. Under 16
 2. 16-17
-3. 18-20
-4. 21-24
-5. 25+`,
-    options: ["Under 16", "16-17", "18-20", "21-24", "25+"]
+3. 18-24
+4. 25+`,
+    options: ["Under 16", "16-17", "18-24", "25+"]
   },
 
   C3Q3_AGE__SUPPORTER: {
@@ -1135,10 +1183,9 @@ Do they give their consent for me to ask these additional questions?
 
 1. Under 16
 2. 16-17
-3. 18-20
-4. 21-24
-5. 25+`,
-    options: ["Under 16", "16-17", "18-20", "21-24", "25+"]
+3. 18-24
+4. 25+`,
+    options: ["Under 16", "16-17", "18-24", "25+"]
   },
 
   C3Q4_GENDER: {
@@ -1188,25 +1235,31 @@ We fully respect and support all gender identities. We know this question might 
   C3Q6_ETHNICITY: {
     text: `What is your ethnicity?
 
+Some services are run by and for particular communities. If you tell us your ethnicity, we can show you those, and it helps us check we're reaching every community. It's up to you.
+
 1. White (British)
 2. White (Other)
 3. Black (African)
 4. Black (Caribbean)
 5. Asian
-6. Mixed or Multiethnic Groups`,
-    options: ["White (British)", "White (Other)", "Black (African)", "Black (Caribbean)", "Asian", "Mixed or Multiethnic Groups"]
+6. Mixed or Multiethnic Groups
+7. Prefer not to say`,
+    options: ["White (British)", "White (Other)", "Black (African)", "Black (Caribbean)", "Asian", "Mixed or Multiethnic Groups", "Prefer not to say"]
   },
 
   C3Q6_ETHNICITY__SUPPORTER: {
     text: `What is their ethnicity?
 
+Some services are run by and for particular communities. If you tell us their ethnicity, we can show you those, and it helps us check we're reaching every community. It's up to you.
+
 1. White (British)
 2. White (Other)
 3. Black (African)
 4. Black (Caribbean)
 5. Asian
-6. Mixed or Multiethnic Groups`,
-    options: ["White (British)", "White (Other)", "Black (African)", "Black (Caribbean)", "Asian", "Mixed or Multiethnic Groups"]
+6. Mixed or Multiethnic Groups
+7. Prefer not to say`,
+    options: ["White (British)", "White (Other)", "Black (African)", "Black (Caribbean)", "Asian", "Mixed or Multiethnic Groups", "Prefer not to say"]
   },
 
   C3Q7_PHYSICAL_HEALTH: {
@@ -1217,8 +1270,9 @@ We fully respect and support all gender identities. We know this question might 
 3. Visual impairment
 4. Hearing impairment
 5. Verbal impairment
-6. Neurological impairment (Parkinson's, Multiple Sclerosis, Stroke)`,
-    options: ["None", "Mobility impairment", "Visual impairment", "Hearing impairment", "Verbal impairment", "Neurological impairment (Parkinson's, Multiple Sclerosis, Stroke)"]
+6. Neurological impairment (Parkinson's, Multiple Sclerosis, Stroke)
+7. Prefer not to say`,
+    options: ["None", "Mobility impairment", "Visual impairment", "Hearing impairment", "Verbal impairment", "Neurological impairment (Parkinson's, Multiple Sclerosis, Stroke)", "Prefer not to say"]
   },
 
   C3Q7_PHYSICAL_HEALTH__SUPPORTER: {
@@ -1229,8 +1283,9 @@ We fully respect and support all gender identities. We know this question might 
 3. Visual impairment
 4. Hearing impairment
 5. Verbal impairment
-6. Neurological impairment (Parkinson's, Multiple Sclerosis, Stroke)`,
-    options: ["None", "Mobility impairment", "Visual impairment", "Hearing impairment", "Verbal impairment", "Neurological impairment (Parkinson's, Multiple Sclerosis, Stroke)"]
+6. Neurological impairment (Parkinson's, Multiple Sclerosis, Stroke)
+7. Prefer not to say`,
+    options: ["None", "Mobility impairment", "Visual impairment", "Hearing impairment", "Verbal impairment", "Neurological impairment (Parkinson's, Multiple Sclerosis, Stroke)", "Prefer not to say"]
   },
 
   C3Q8_MENTAL_HEALTH: {
@@ -1335,38 +1390,91 @@ For any concerns about disclosing convictions when looking for housing, they can
     options: ["Yes, show LGBTQ+ specialist services first", "No, just show local services", "Show both"]
   },
 
-  C3Q11_CURRENTLY_IN_CARE: {
-    text: `Are you currently being looked after by social services under the Children's Act 1989?
+  // Care leavers (VA Pathway Review 5.2; Managing Director, 20 November 2026).
+  // Asked at 16 to 24 on the full route only. Never how long, at what age or
+  // under which section: the leaving care team applies those tests.
+  C3Q11_EVER_IN_CARE_16_17: {
+    text: `Have you ever been in care?
 
-1. Yes
-2. No`,
-    options: ["Yes", "No"]
+Being in care means living in foster care, a children's home, or a placement the council arranged.
+
+1. In care now
+2. Was in care but I've left
+3. No, but I have a social worker
+4. No
+5. Not sure
+6. Prefer not to say`,
+    options: ["In care now", "Was in care but I've left", "No, but I have a social worker", "No", "Not sure", "Prefer not to say"]
   },
 
-  C3Q11_CURRENTLY_IN_CARE__SUPPORTER: {
-    text: `Are they currently being looked after by social services under the Children's Act 1989?
+  C3Q11_EVER_IN_CARE_16_17__SUPPORTER: {
+    text: `Have they ever been in care?
 
-1. Yes
-2. No`,
-    options: ["Yes", "No"]
+Being in care means living in foster care, a children's home, or a placement the council arranged.
+
+1. In care now
+2. Was in care but they've left
+3. No, but they have a social worker
+4. No
+5. Not sure
+6. Prefer not to say`,
+    options: ["In care now", "Was in care but they've left", "No, but they have a social worker", "No", "Not sure", "Prefer not to say"]
   },
 
-  C3Q12_SOCIAL_SERVICES: {
-    text: `Are you currently in contact with social services or a social worker?
+  C3Q11_EVER_IN_CARE: {
+    text: `Have you ever been in care?
+
+Being in care means living in foster care, a children's home, or a placement the council arranged.
 
 1. Yes
 2. No
-3. Prefer not to say`,
-    options: ["Yes", "No", "Prefer not to say"]
+3. Not sure
+4. Prefer not to say`,
+    options: ["Yes", "No", "Not sure", "Prefer not to say"]
   },
 
-  C3Q12_SOCIAL_SERVICES__SUPPORTER: {
-    text: `Are they currently in contact with social services or a social worker?
+  C3Q11_EVER_IN_CARE__SUPPORTER: {
+    text: `Have they ever been in care?
+
+Being in care means living in foster care, a children's home, or a placement the council arranged.
 
 1. Yes
 2. No
-3. Prefer not to say`,
-    options: ["Yes", "No", "Prefer not to say"]
+3. Not sure
+4. Prefer not to say`,
+    options: ["Yes", "No", "Not sure", "Prefer not to say"]
+  },
+
+  C3Q11A_CARE_COUNCIL: {
+    text: `Which council looked after you?
+
+1. Wolverhampton
+2. Birmingham
+3. Coventry
+4. Dudley
+5. Sandwell
+6. Solihull
+7. Walsall
+8. Somewhere else
+9. Not sure
+10. Prefer not to say`,
+    options: ["Wolverhampton", "Birmingham", "Coventry", "Dudley", "Sandwell", "Solihull", "Walsall", "Somewhere else", "Not sure", "Prefer not to say"]
+  },
+
+  C3Q11A_CARE_COUNCIL__SUPPORTER: {
+    text: `Which council looked after them?
+
+1. Wolverhampton
+2. Birmingham
+3. Coventry
+4. Dudley
+5. Sandwell
+6. Solihull
+7. Walsall
+8. Somewhere else
+9. Not sure
+10. Prefer not to say`,
+    options: ["Wolverhampton", "Birmingham", "Coventry", "Dudley", "Sandwell", "Solihull", "Walsall", "Somewhere else", "Not sure", "Prefer not to say"]
   },
 
   // ============================================================
@@ -1435,6 +1543,95 @@ What is their gender?
 3. Non-binary or other
 4. Prefer not to say`,
     options: ["Female", "Male", "Non-binary or other", "Prefer not to say"]
+  },
+
+  // ============================================================
+  // SAFETY FROM HARM ROUTE (Safeguarding Contract 3.3)
+  // Hard-coded, outside the crisis gate, bypasses the matcher and AI.
+  // One type of harm (Managing Director, 12 November 2026). The situations are
+  // those of the Service Matching and Questions Design Note 3.6.
+  // ============================================================
+
+  // Plain words, without naming the harm (Safeguarding Contract 3.3;
+  // Managing Director, 18 November 2026). Each option starts with different words.
+  SAFETY_TYPE_OF_HARM: {
+    text: `If you are in danger right now, call 999.
+
+${QUICK_EXIT_NOTE}
+
+Which of these is closest to what is happening?
+
+1. Someone close is hurting, threatening or controlling me
+2. Pressure to marry someone I haven't chosen
+3. My private parts have been cut, or someone plans to cut them
+4. Sexual things were done to me without my agreement
+5. Made to work, money or documents taken, or controlled where I live or go
+6. Paying off a debt by being made to work
+7. Something else`,
+    options: [
+      "Someone close is hurting, threatening or controlling me",
+      "Pressure to marry someone I haven't chosen",
+      "My private parts have been cut, or someone plans to cut them",
+      "Sexual things were done to me without my agreement",
+      "Made to work, money or documents taken, or controlled where I live or go",
+      "Paying off a debt by being made to work",
+      "Something else"
+    ]
+  },
+
+  SAFETY_TYPE_OF_HARM__SUPPORTER: {
+    text: `If they are in danger right now, call 999.
+
+${QUICK_EXIT_NOTE}
+
+Which of these is closest to what is happening to them?
+
+1. Someone close is hurting, threatening or controlling them
+2. Pressure to marry someone they haven't chosen
+3. Their private parts have been cut, or someone plans to cut them
+4. Sexual things were done to them without their agreement
+5. Made to work, money or documents taken, or controlled where they live or go
+6. Paying off a debt by being made to work
+7. Something else`,
+    options: [
+      "Someone close is hurting, threatening or controlling them",
+      "Pressure to marry someone they haven't chosen",
+      "Their private parts have been cut, or someone plans to cut them",
+      "Sexual things were done to them without their agreement",
+      "Made to work, money or documents taken, or controlled where they live or go",
+      "Paying off a debt by being made to work",
+      "Something else"
+    ]
+  },
+
+  SAFETY_OK_TO_CONTINUE: {
+    text: `Thank you for telling me. Are you OK to carry on?
+
+1. Yes, I'm OK to carry on
+2. No, show me help now`,
+    options: ["Yes, I'm OK to carry on", "No, show me help now"]
+  },
+
+  // Safety disclosure check (Safety Disclosure Check Design Note v1.0,
+  // section 3). Fixed wording, help first, approved by the Managing Director,
+  // 19 November 2026, with the quick exit note after it. No supporter wording:
+  // it only follows a first-person statement.
+  SAFETY_DISCLOSURE_CHECK: {
+    text: `If you're in immediate danger, call 999. It sounds like you might not be safe at the moment. Would you like to see help with staying safe?
+
+1. Yes, show me help with staying safe
+2. No, carry on
+
+${QUICK_EXIT_NOTE}`,
+    options: ['Yes, show me help with staying safe', 'No, carry on']
+  },
+
+  SAFETY_OK_TO_CONTINUE__SUPPORTER: {
+    text: `Thank you for telling me. Are they OK to carry on?
+
+1. Yes, they're OK to carry on
+2. No, show help now`,
+    options: ["Yes, they're OK to carry on", "No, show help now"]
   },
 
   CRISIS_UNDER16_LOCATION: {
@@ -1556,7 +1753,8 @@ If they're in immediate danger, call 999.`
 The police can help keep you safe.
 
 If you cannot speak safely, you can:
-- Call 999, then press 55 (Silent Solution - alerts police you need help)
+- Call 999 and listen. Cough or tap the phone if you can
+- On a mobile, press 55 when a recorded message asks you to. This puts you through to the police
 - Text 999 if you have registered for this service
 
 Once you are safe, I can help you find support services.`
@@ -1568,7 +1766,8 @@ Once you are safe, I can help you find support services.`
 The police can help keep them safe.
 
 If they cannot speak safely:
-- Call 999, then press 55 (Silent Solution - alerts police they need help)
+- Call 999 and listen. Cough or tap the phone if they can
+- On a mobile, press 55 when a recorded message asks. This puts the call through to the police
 - Text 999 if registered for this service
 
 Once they are safe, I can help you find support services for them.`
@@ -1934,8 +2133,8 @@ If they're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
 Specialist, confidential support for men and boys aged 16 and over
 
 If you're in immediate danger, call 999.`
@@ -1946,8 +2145,8 @@ If you're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
 Specialist, confidential support for men and boys aged 16 and over
 
 You don't have to work this out on your own.
@@ -1960,8 +2159,8 @@ If they're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
 Specialist, confidential support for men and boys aged 16 and over
 
 You'll know your next steps from here.
@@ -1974,8 +2173,8 @@ If they're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
 
 SEXUAL VIOLENCE SUPPORT
 Galop
@@ -1990,8 +2189,8 @@ If you're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
 
 SEXUAL VIOLENCE SUPPORT
 Galop
@@ -2008,8 +2207,8 @@ If they're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
 
 SEXUAL VIOLENCE SUPPORT
 Galop
@@ -2255,19 +2454,11 @@ In the meantime, keep chatting with me. I can help you look for more support now
   },
 
   TERMINAL_NRPF_FAMILY_SUPPORT: {
-    text: `Children's Services have a duty to assess what support may be available for your family, including if you have no recourse to public funds.`
+    text: `Children's Services can talk with you about what support may be available for your family, including if you have no recourse to public funds.`
   },
 
   TERMINAL_NRPF_FAMILY_SUPPORT__SUPPORTER: {
-    text: `Children's Services have a duty to assess what support may be available for their family, including if they have no recourse to public funds.`
-  },
-
-  TERMINAL_SOCIAL_SERVICES_GUIDANCE: {
-    text: `Based on your situation, you may be entitled to support from social services. They have a duty to help young people and care leavers with housing.
-
-You can contact your local council and ask for the Children's Services or Leaving Care team.
-
-Find your local council: https://www.gov.uk/find-local-council`
+    text: `Children's Services can talk with them about what support may be available for their family, including if they have no recourse to public funds.`
   },
 
   TERMINAL_YOUTH_16_17_CHILDRENS_SERVICES: {
@@ -2276,6 +2467,122 @@ Find your local council: https://www.gov.uk/find-local-council`
 
   TERMINAL_YOUTH_16_17_CHILDRENS_SERVICES__SUPPORTER: {
     text: `For people aged 16 or 17, housing support is usually arranged through Children's Services or a social worker. They can call their duty team directly, or ask someone they trust to help them make contact.`
+  },
+
+  // Care leaver results (lib/handlers/careLeavers.ts). Facts only: never what
+  // the person is owed.
+  CARE_E1_SOCIAL_WORKER: {
+    text: `If you have a social worker or personal adviser, you can talk to them about where you are living.`
+  },
+
+  CARE_E1_SOCIAL_WORKER__SUPPORTER: {
+    text: `If they have a social worker or personal adviser, they can talk to them about where they are living.`
+  },
+
+  CARE_E1_LINE: {
+    text: `If you have a personal adviser, you can talk to them about your housing.`
+  },
+
+  CARE_E1_LINE__SUPPORTER: {
+    text: `If they have a personal adviser, they can talk to them about their housing.`
+  },
+
+  CARE_LEAVING_CARE_FACTS: {
+    text: `Leaving care teams support young people who have been in care. Help with housing is part of what they do. They will look at your situation with you.`
+  },
+
+  CARE_LEAVING_CARE_FACTS__SUPPORTER: {
+    text: `Leaving care teams support young people who have been in care. Help with housing is part of what they do. They will look at their situation with them.`
+  },
+
+  // One wording for 18 to 24 (Homelessness Code of Guidance, Chapter 22,
+  // paragraph 22.3: a Personal Adviser supports a care leaver until their 25th
+  // birthday). The fact only.
+  CARE_SUPPORT_AGE_18_24: {
+    text: `Support from a leaving care team can continue until your 25th birthday.`
+  },
+
+  CARE_SUPPORT_AGE_18_24__SUPPORTER: {
+    text: `Support from a leaving care team can continue until their 25th birthday.`
+  },
+
+  CARE_E3_ASK_COUNCIL: {
+    text: `The council that looked after you: ask for the leaving care team.`
+  },
+
+  CARE_E3_ASK_COUNCIL__SUPPORTER: {
+    text: `The council that looked after them: ask for the leaving care team.`
+  },
+
+  CARE_ASK_LOCAL_COUNCIL: {
+    text: `Ask your local council for the leaving care team.`
+  },
+
+  CARE_ASK_LOCAL_COUNCIL__SUPPORTER: {
+    text: `Ask their local council for the leaving care team.`
+  },
+
+  CARE_LA_FIND_RESPONSIBLE: {
+    text: `The leaving care team where you are now can help you find who is responsible.`
+  },
+
+  CARE_LA_FIND_RESPONSIBLE__SUPPORTER: {
+    text: `The leaving care team where they are now can help them find who is responsible.`
+  },
+
+  CARE_LA_CAN_CHECK: {
+    text: `If you're not sure whether you have been in care, the leaving care team where you are now can check for you.`
+  },
+
+  CARE_LA_CAN_CHECK__SUPPORTER: {
+    text: `If they're not sure whether they have been in care, the leaving care team where they are now can check for them.`
+  },
+
+  // Caveat lines under the local leaving care team, for the two not-sure care
+  // answers (Managing Director, 20 November 2026). {council} is where they are now.
+  CARE_LA_NOT_SURE_COUNCIL_CAVEAT: {
+    text: `If {council} looked after you, this team can support you. If it was a different council, they may be able to help you work out which one, or give you some support in the meantime.`
+  },
+
+  CARE_LA_NOT_SURE_COUNCIL_CAVEAT__SUPPORTER: {
+    text: `If {council} looked after them, this team can support them. If it was a different council, they may be able to help work out which one, or give some support in the meantime.`
+  },
+
+  CARE_LA_NOT_SURE_CARE_CAVEAT: {
+    text: `If you're not sure whether you were in care, this team may be able to check whether {council} looked after you. If it was a different council, that council's leaving care team can help.`
+  },
+
+  CARE_LA_NOT_SURE_CARE_CAVEAT__SUPPORTER: {
+    text: `If they're not sure whether they were in care, this team may be able to check whether {council} looked after them. If it was a different council, that council's leaving care team can help.`
+  },
+
+  CARE_LA_LOCAL_INFO: {
+    text: `The leaving care team where you are now can tell you what is available locally.`
+  },
+
+  CARE_LA_LOCAL_INFO__SUPPORTER: {
+    text: `The leaving care team where they are now can tell them what is available locally.`
+  },
+
+  CARE_16_17_NOT_SURE_NOTE: {
+    text: `If you're not sure whether you have been in care, Children's Services can check this with you.`
+  },
+
+  CARE_16_17_NOT_SURE_NOTE__SUPPORTER: {
+    text: `If they're not sure whether they have been in care, Children's Services can check this with them.`
+  },
+
+  // Safety from harm results (lib/handlers/safetyLocal.ts).
+  SAFETY_16_17_CHILDRENS_SERVICES: {
+    text: `For people aged 16 or 17, Children's Services can help with staying safe. You can call their duty team directly, or ask someone you trust to help you make contact.`
+  },
+
+  SAFETY_16_17_CHILDRENS_SERVICES__SUPPORTER: {
+    text: `For people aged 16 or 17, Children's Services can help with staying safe. They can call their duty team directly, or ask someone they trust to help them make contact.`
+  },
+
+  SAFETY_LOCAL_SERVICES_INTRO: {
+    text: `These local services also work with people in this situation.`
   },
 
   TERMINAL_YOUTH_16_17_NAVIGATOR_INTRO: {
@@ -2322,16 +2629,6 @@ I can still provide general information about how homelessness support usually w
     text: `Contact your local council's Housing Options team. You can find their details at https://www.gov.uk/find-local-council`
   },
 
-  LOCAL_AUTHORITY_FALLBACK_EXTENDED: {
-    text: `Contact your local council's Housing Options or homelessness team. They have a legal duty to help.
-
-Find your local council: https://www.gov.uk/find-local-council
-
-If you need immediate advice:
-Shelter: 0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
-https://england.shelter.org.uk`
-  },
-
   // ============================================================
   // ESCALATION
   // ============================================================
@@ -2375,7 +2672,7 @@ What would be most helpful right now?`,
   },
 
   ESCALATION_LEVEL_2_LEGAL_EMERGENCY: {
-    text: `This sounds urgent. With an eviction notice, there are specific legal steps that need to happen, and getting the right advice quickly can make a real difference.
+    text: `This sounds urgent. With an eviction notice, getting the right advice quickly can make a real difference.
 
 Shelter: 0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
 https://england.shelter.org.uk/get_help/helpline
@@ -2386,9 +2683,9 @@ They can check if the notice is valid and explain your options.`
   },
 
   ESCALATION_LEVEL_2_CHILDREN_RISK: {
-    text: `When children are involved and housing is at risk, there are extra protections available. Local councils have a duty to help prevent homelessness for families with children.
+    text: `When children are involved and housing is at risk, it's worth getting help as early as you can.
 
-Please contact your local council's Housing Options team as soon as possible. They should assess your situation urgently.
+Please contact your local council's Housing Options team as soon as possible and explain your situation.
 
 Shelter: 0808 800 4444 (free)
 https://england.shelter.org.uk`
@@ -2430,51 +2727,51 @@ Whatever you're going through, you deserve support. You're welcome back anytime.
 
 1. You'll speak to someone in the Housing Options team
 2. They'll ask about your situation and do an assessment
-3. If you're homeless or at risk, they have duties to help
-4. You may be offered temporary accommodation while they investigate
-5. They'll make a decision about what help they can provide
+3. They'll talk with you about what help they can offer
+4. You may be offered temporary accommodation while they look into your situation
+5. They'll tell you what help they can provide
 
-The council must give you a written decision. If you disagree, you can ask for a review.
+If you disagree with what they decide, you can ask them to look at it again. There's a time limit, so get advice from Shelter quickly.
 
 Shelter has detailed guides: https://england.shelter.org.uk/housing_advice/homelessness`
   },
 
   ADVICE_PRIORITY_NEED: {
-    text: `In England, councils must provide accommodation to people who are homeless and in 'priority need'. This includes:
+    text: `'Priority need' is a term councils use when deciding what help they can offer. It can depend on things like:
 
-- People with dependent children
-- Pregnant women
-- People who are vulnerable due to health, disability, or other reasons
-- Young people aged 16-17
-- Care leavers aged 18-20
-- People made homeless by fire, flood, or emergency
-- People fleeing domestic abuse
+- Having dependent children
+- Being pregnant
+- Health, disability or other reasons that make you vulnerable
+- Being 16 or 17
+- Having left care, if you're 18 to 20
+- Losing your home to fire, flood or another emergency
+- Fleeing domestic abuse
 
-Even if you don't think you're in priority need, the council still has duties to help prevent homelessness and help you find somewhere to live.
+Whatever your situation, you can ask your council for help.
 
 More info: https://england.shelter.org.uk/housing_advice/homelessness/priority_need`
   },
 
   ADVICE_LEGALLY_HOMELESS: {
-    text: `You're considered legally homeless if:
+    text: `You can be homeless even with a roof over your head. Councils may treat you as homeless if:
 
 - You have nowhere you can stay
-- You can't access your home (for example, it's not safe)
-- You're staying somewhere temporarily with no right to stay
-- You're living somewhere that's not reasonable to continue living in
+- You can't get into your home (for example, it's not safe)
+- You're only staying somewhere temporarily
+- It's not reasonable for you to keep living where you are
 
 You don't have to be sleeping rough to be homeless. Sofa surfing or staying in unsuitable conditions counts too.
 
-The council can help before you actually lose your home - this is called 'threatened with homelessness' and kicks in 56 days before you'll become homeless.`
+The council can help before you lose your home, so it's worth getting in touch early.`
   },
 
   ADVICE_SOFA_SURFING: {
-    text: `Staying on someone's sofa or floor counts as being homeless in law. You're not expected to stay there forever, and it's not secure housing.
+    text: `Staying on someone's sofa or floor can count as being homeless. It isn't secure housing, and you're not expected to stay there forever.
 
-You have the right to approach your local council for help. They should:
-- Accept a homelessness application from you
-- Work with you to find somewhere more stable
-- Possibly provide temporary accommodation while they help
+You can ask your local council for help. They can talk with you about:
+- Making a homelessness application
+- Finding somewhere more stable
+- Temporary accommodation while they help
 
 Don't wait until you're asked to leave - you can approach the council now.
 
@@ -2483,12 +2780,12 @@ https://england.shelter.org.uk/housing_advice/homelessness/sofa_surfing`
   },
 
   ADVICE_EVICTION_RISK_PREVENTION: {
-    text: `If your landlord wants you to leave or you've received a notice, don't panic. There are rules they must follow, and you may have more time than you think.
+    text: `If your landlord wants you to leave or you've received a notice, don't panic. Ending a tenancy follows a set process, and you may have more time than you think.
 
 Key things to know:
-- Most notices require at least 2 months warning (Section 21) or specific grounds (Section 8)
-- You don't have to leave just because the notice period ends - only a court can evict you
-- The council can help prevent homelessness up to 56 days before you'd need to leave
+- A notice on its own doesn't mean you have to leave straight away
+- Shelter or Citizens Advice can check your notice and explain your options
+- The council can help before you lose your home, so contact them early
 
 Get advice quickly:
 Shelter: 0808 800 4444 (free)
@@ -2498,7 +2795,7 @@ Citizens Advice: https://www.citizensadvice.org.uk/housing/renting-privately/end
   ADVICE_SLEEP_TONIGHT: {
     text: `If you need somewhere to sleep tonight:
 
-1. Contact your local council's Housing Options team - they have a duty to help if you're homeless tonight. Many have out-of-hours numbers.
+1. Contact your local council's Housing Options team - they can help if you have nowhere to stay tonight. Many have out-of-hours numbers.
 
 2. StreetLink can alert local outreach services to your location: https://streetlink.org.uk
 
@@ -2514,128 +2811,30 @@ Your safety matters. If you're in danger, call 999.`
 
 Steps to take:
 1. Talk to your landlord - explain your situation, many will work with you
-2. Check what benefits you might be entitled to (Universal Credit, Housing Benefit)
+2. Check whether benefits could help (Universal Credit, Housing Benefit)
 3. Contact your council - they may have Discretionary Housing Payments available
 4. Get debt advice - organisations like StepChange can help you manage overall debt
 
-Important: Your landlord cannot evict you just for being in arrears. They must follow a legal process, which takes time.
+Being behind on rent doesn't mean you'll lose your home straight away, and there's time to get help.
 
 Citizens Advice: https://www.citizensadvice.org.uk/debt-and-money/rent-arrears/
 Shelter: 0808 800 4444`
   },
 
-  ADVICE_RENT_ARREARS_EARLY_HELP_SCOTLAND: {
-    text: `If you're struggling to pay rent in Scotland, help is available.
-
-In Scotland, eviction rules are different - your landlord must apply to a tribunal to evict you, and the process takes time.
-
-Steps to take:
-1. Speak to your landlord early
-2. Check your benefit entitlement
-3. Contact your council about Discretionary Housing Payments
-4. Get advice from Shelter Scotland: 0808 800 4444
-
-More info: https://scotland.shelter.org.uk/housing_advice/paying_for_a_home/rent_arrears`
-  },
-
   ADVICE_LANDLORD_PRESSURE_OR_NOTICE_ENGLAND: {
     text: `If your landlord is pressuring you to leave or has given you a notice:
 
-Know your rights:
-- You don't have to leave immediately when a notice expires
-- Only a court can legally evict you
-- Your landlord cannot change locks, remove belongings, or harass you
-- If they do, this may be illegal eviction
+Some things to know:
+- You don't have to leave as soon as a notice ends
+- If your landlord changes the locks, removes your belongings or harasses you, get advice straight away
 
 What to do:
-1. Check if the notice is valid - there are strict rules
+1. Ask Shelter or Citizens Advice to check your notice
 2. Don't leave until you've had advice
 3. Contact Shelter or Citizens Advice immediately
 
 Shelter: 0808 800 4444
 https://england.shelter.org.uk/housing_advice/eviction`
-  },
-
-  ADVICE_LANDLORD_PRESSURE_OR_NOTICE_SCOTLAND: {
-    text: `If your landlord is pressuring you to leave or has given you a notice in Scotland:
-
-In Scotland, the eviction process goes through a tribunal, not the courts. Your landlord must:
-- Give proper written notice
-- Apply to the First-tier Tribunal
-- Get an eviction order
-
-You have rights:
-- You don't have to leave just because the notice period ends
-- Changing locks or harassment is illegal
-
-Get advice:
-Shelter Scotland: 0808 800 4444
-https://scotland.shelter.org.uk/housing_advice/eviction`
-  },
-
-  ADVICE_MORTGAGE_ARREARS_ENGLAND: {
-    text: `If you're struggling with mortgage payments:
-
-Your lender must follow a process before repossessing your home:
-1. They should try to work out a payment arrangement with you
-2. Repossession requires a court order
-3. You can apply to delay the order if you can show a payment plan
-
-Get help:
-- Talk to your lender about payment options
-- Check if you can claim Support for Mortgage Interest
-- Speak to a free debt advisor
-
-Citizens Advice: https://www.citizensadvice.org.uk/debt-and-money/mortgage-problems/
-Shelter: 0808 800 4444`
-  },
-
-  ADVICE_MORTGAGE_ARREARS_SCOTLAND: {
-    text: `If you're struggling with mortgage payments in Scotland:
-
-Your lender must follow the pre-action requirements:
-- Give you information about your options
-- Try to agree a reasonable repayment plan
-- Consider alternatives to repossession
-
-Get help:
-- Contact your lender early
-- Check Support for Mortgage Interest eligibility
-- Get free advice
-
-Shelter Scotland: 0808 800 4444
-https://scotland.shelter.org.uk/housing_advice/mortgage_problems`
-  },
-
-  ADVICE_STAYING_WITH_OTHERS_ENGLAND: {
-    text: `If you've been asked to leave by family or friends, or you're worried they might ask you to leave:
-
-You may be legally homeless if:
-- You have no right to stay where you are
-- You're being asked to leave
-- Your situation is unstable or temporary
-
-The council has a duty to help prevent homelessness up to 56 days before you'd have to leave.
-
-What to do:
-1. Approach your local council's Housing Options team
-2. Explain your situation - you don't need a formal notice
-3. Ask about your housing options
-
-Shelter: 0808 800 4444`
-  },
-
-  ADVICE_STAYING_WITH_OTHERS_SCOTLAND: {
-    text: `If you've been asked to leave by family or friends in Scotland, or you're worried they might:
-
-You can approach your local council for help. In Scotland, the council has duties to assess your situation and provide advice.
-
-You may be considered homeless if you have no legal right to stay where you are.
-
-Contact:
-- Your local council's housing team
-- Shelter Scotland: 0808 800 4444
-https://scotland.shelter.org.uk/housing_advice/homelessness`
   },
 
   ADVICE_FINANCIAL_HARDSHIP_ENGLAND: {
@@ -2706,7 +2905,24 @@ The more details you can provide (location, description, best time to find them)
 };
 
 // Helper function
+// The first question without the Safety option, renumbered, while the Safety
+// route's switch is off (lib/safetyRouteSwitch.ts).
+const SAFETY_FIRST_OPTION = 'Staying safe from abuse, exploitation or harm';
+
+function withoutSafetyOption(entry: PhraseEntry): PhraseEntry {
+  const options = (entry.options ?? []).filter(o => o !== SAFETY_FIRST_OPTION);
+  const intro = entry.text.split('\n').filter(line => !/^\d+\. /.test(line)).join('\n').trimEnd();
+  const list = options.map((o, i) => `${i + 1}. ${o}`).join('\n');
+  return { ...entry, text: `${intro}\n\n${list}`, options };
+}
+
 export function getPhrase(key: string, audience: 'SELF' | 'SUPPORTER' | 'PROFESSIONAL' | null | boolean): PhraseEntry | null {
+  const entry = lookUpPhrase(key, audience);
+  if (entry && key === 'B5_MAIN_SUPPORT_NEED' && !isSafetyRouteEnabled()) return withoutSafetyOption(entry);
+  return entry;
+}
+
+function lookUpPhrase(key: string, audience: 'SELF' | 'SUPPORTER' | 'PROFESSIONAL' | null | boolean): PhraseEntry | null {
   if (audience === 'PROFESSIONAL') {
     const professionalKey = `${key}__PROFESSIONAL`;
     if (phrasebank[professionalKey]) {
