@@ -316,7 +316,7 @@ export async function POST(request: NextRequest) {
       m: `Something went wrong. Please contact Shelter directly:
 
 Shelter Emergency Helpline
-0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
+0808 800 4444 (free, Monday to Friday 8am to 5pm; closed at weekends and on bank holidays)
 https://england.shelter.org.uk`, 
       e: true 
     }, { status: 500 });
