@@ -77,9 +77,9 @@ These documents are carried into this paper. Each stays in the repository as the
 
 `VA_BACKLOG.md` stays the open-work log. It is not a design source.
 
-## A.4. Decisions of 26 November 2026 that amend Part C
+## A.4. Decisions of 26 and 27 November 2026 that amend Part C
 
-Part C is carried word for word, so these amendments are recorded here and govern where Part C says otherwise. All are the Managing Director's, 26 November 2026.
+Part C is carried word for word, so these amendments are recorded here and govern where Part C says otherwise. All are the Managing Director's: items 1 to 8 on 26 November 2026, item 9 on 27 November 2026.
 
 1. **The position "Prevention" is renamed "Before a crisis"** in the design and in code comments. The words people see are unchanged. Prevention is an outcome, not a position (PH-M06; B.3).
 2. **"The materialisation check"** (Part C, section 3.5) means the housing situation question: "going to lose it" is crisis, still housed.
@@ -89,6 +89,7 @@ Part C is carried word for word, so these amendments are recorded here and gover
 6. **The eviction and family reasons inside prevention** come out, or are reworded, once the housing situation question lands. "Going to lose it" is answered once, at that question (G2.1, G2.2).
 7. **The prevention route's dependants question** asks about dependent children only. Pregnancy is not part of that trigger (G2.10).
 8. **The noticing step** (Part C, section 3.5). "Feeling unsafe" is listed first, so it is never missed (on the technical lead's review of #73). The question adds "You can choose more than one." The pressures are ticked and sent together with "Continue"; "Nothing else", "I'm not sure" and the skip answer at once.
+9. **Confirming what AI reads** (every question where AI reads typed text). Where someone types instead of tapping and AI suggests what they meant (one of the options on screen, whether the message is about housing or support, or which advice topic they are asking about), the assistant reflects that reading back for the person to confirm, and acts only on their confirmation. If they say no, the question is shown again with its buttons. AI is still never used on the safety routes or at the crisis question, and the under-16 and safety disclosure checks still read typed text by code first. This replaces "gentle mapping" for routine inputs in the AI Usage Boundaries Contract. To be built; the wording is drafted from both phrasebanks.
 
 ---
 
