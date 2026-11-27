@@ -79,8 +79,8 @@ The VA applies a service's own stated eligibility. (Part 3, objective O4, citing
 
 **The hard gates** are a closed list. Only they may exclude. (v2.0)
 
-- **A. Age.** The person's age is below a minimum, or above a maximum, the service states explicitly. Inferred or implied age groups do not qualify. (v2.0)
-- **B. Gender.** The service is explicitly women only and the person has said male, or explicitly men only and the person has said female. Gendered focus is not a gendered restriction. (v2.0)
+- **A. Age.** The person's age is below a minimum, or above a maximum, the service states explicitly. A service for "adults" states a minimum of 18 (MD, 23 November 2026). Other inferred or implied age groups do not qualify. (v2.0)
+- **B. Gender.** The service is for women only and the person has said male, or for men only and the person has said female. A women's or men's service (a women's group, a women's refuge, a men's group) is for that gender only, whether or not it says "only" (MD, 23 November 2026). A service that names a gender as one group among others is not restricted. (v2.0)
 - **C. Jurisdiction.** The service is legally or operationally restricted to a jurisdiction the person is not in. The rule must be explicit in service data, and is used sparingly. (v2.0)
 - **D. Access barriers.** The person has confirmed a barrier, and the service states it cannot support people with that barrier. If either side is unclear, nothing is excluded. (v2.0)
 
@@ -108,7 +108,7 @@ A population tag alone does not say which kind applies. The reviewed record does
 - Where a condition differs by location, it is held for each location.
 - **A condition recorded outside the established hard gates may affect selection, but does not create a new ground for exclusion.** The hard gates in this section stay a closed list.
 - **A condition that cannot be represented reliably is not applied.** Its wording is shown in "How to get it", and it is listed for review. It is never simplified into a different rule.
-- An implied age ("adults", "by the age of 18") is not a stated age and is not applied.
+- "Adults" means 18 and over: a service for adults is not shown to 16 and 17 year olds (MD, 23 November 2026). Other implied ages are not applied; any other reading of a service's age is its own entry in the reviewed restriction record.
 
 **Confidence.** Only explicit, stated service data may exclude. Anything weaker excludes nothing. (v2.0, simplified as Part 3 section 2 proposed: problem 9)
 

@@ -1,4 +1,4 @@
-> **Version 1.0, for trustee ratification, 11 November 2026.** This is the full text the trustees are asked to ratify. Built from the February 2026 text, a Markdown copy of `governance/AI_Usage_Boundaries_Contract.pdf` in the pipeline repository (sha256 `33f7da254abad282…`). The pull request shows each change against that text, and they are listed under "Version history" at the end. No boundary changes.
+> **Version 1.1, 27 November 2026 (version 1.0, for trustee ratification, 11 November 2026).** Version 1.1 changes one boundary: the assistant acts on AI's reading of typed text only once the person confirms it (Managing Director, 27 November 2026). This is the full text the trustees are asked to ratify. Built from the February 2026 text, a Markdown copy of `governance/AI_Usage_Boundaries_Contract.pdf` in the pipeline repository (sha256 `33f7da254abad282…`). The pull request shows each change against that text, and they are listed under "Version history" at the end. Version 1.0 changed no boundaries.
 
 # AI Usage Boundaries: Contract
 
@@ -6,7 +6,7 @@ Document type: Governance Contract
 
 Status: For trustee ratification
 
-Version: 1.0
+Version: 1.1
 
 Last updated: November 2026
 
@@ -82,14 +82,14 @@ Comprehension support explains presented content; it does not introduce new info
 
 ### Free-Text Handling
 
-Boundary: AI may interpret user inputs but must not infer sensitive circumstances without confirmation.
+Boundary: AI may interpret user inputs, but the assistant acts on an interpretation only once the person confirms it, and AI must not infer sensitive circumstances.
 
 Rules:
 
 - Free text may signal risk but does not constitute disclosure
 - AI may reflect emotion but must not assign cause or diagnosis
 - High-risk routing (DV, self-harm, crisis) only occurs after user confirmation
-- For routine inputs (location, need type), gentle mapping is acceptable
+- For routine inputs (location, need type), AI may suggest what the person meant; the assistant reflects it back and acts only once the person confirms it (Managing Director, 27 November 2026)
 - For safeguarding-adjacent language, clarification is mandatory
 
 Rationale: Mapping free text directly to high-risk intent creates silent inference. Clarification preserves responsiveness and user agency.
@@ -243,6 +243,7 @@ The system is designed so that AI helps users navigate, but humans (through appr
 |---|---|---|
 | Draft (PDF) | February 2026 | Initial contract |
 | 1.0 | November 2026 | Markdown copy. Scope now names the Safeguarding and Data Enrichment Contracts as governing their own areas. Fallback brought up to date: Shelter's published hours (weekdays only); the council's out-of-hours line as the best route outside office hours; StreetLink and 999 added; hours shown on every contact (checked at source, 11 November 2026). No change to any boundary |
+| 1.1 | 27 November 2026 | Free-text handling: AI may suggest what a typed input means, and the assistant reflects it back and acts only once the person confirms it. Replaces "gentle mapping" for routine inputs (Managing Director, 27 November 2026) |
 
 ## Status
 
