@@ -131,31 +131,31 @@ describe('Crisis Gate', () => {
 
 describe('Under 16', () => {
 
-  test('B3_AGE_CATEGORY option 1 is "Under 16" (routing depends on array index)', () => {
-    const phrase = getPhrase('B3_AGE_CATEGORY', false);
+  test('B5_PROFILE_AGE option 1 is "Under 16" (routing depends on array index)', () => {
+    const phrase = getPhrase('B5_PROFILE_AGE', false);
     expect(phrase?.options?.[0]).toBe('Under 16');
   });
 
-  test('routes to child safeguarding exit, not B4_GENDER', () => {
-    const session = sessionAt('B3_AGE_CATEGORY');
+  test('routes to child safeguarding exit, not on to the homelessness question', () => {
+    const session = sessionAt('B5_PROFILE_AGE', { supportNeed: 'Emergency Housing' });
     const result = select(session, 1); // Under 16
-    expect(result.stateUpdates.currentGate).not.toBe('B4_GENDER');
+    expect(result.stateUpdates.currentGate).not.toBe('B6_HOMELESSNESS_STATUS');
   });
 
   test('response contains Childline number', () => {
-    const session = sessionAt('B3_AGE_CATEGORY', { localAuthority: 'Birmingham' });
+    const session = sessionAt('B5_PROFILE_AGE', { localAuthority: 'Birmingham' });
     const result = select(session, 1);
     expect(result.text).toContain('0800 1111');
   });
 
   test('response contains Children\'s Services reference', () => {
-    const session = sessionAt('B3_AGE_CATEGORY');
+    const session = sessionAt('B5_PROFILE_AGE');
     const result = select(session, 1);
     expect(result.text.toLowerCase()).toContain('children');
   });
 
   test('does not show adult helplines as primary', () => {
-    const session = sessionAt('B3_AGE_CATEGORY');
+    const session = sessionAt('B5_PROFILE_AGE');
     const result = select(session, 1);
     // Shelter is adult service
     expect(result.text).not.toContain('0808 800 4444');
@@ -165,7 +165,7 @@ describe('Under 16', () => {
     // Per v1.1 §1.4: NSPCC adult helpline is for non-professionals worried
     // about a child; professionals call Children's Services directly. Warm
     // sign-off is inappropriate register for the professional context.
-    const session = sessionAt('B3_AGE_CATEGORY', {
+    const session = sessionAt('B5_PROFILE_AGE', {
       localAuthority: 'Birmingham',
       userType: 'PROFESSIONAL',
       isSupporter: true,
@@ -202,14 +202,17 @@ describe('Crisis gate option 2', () => {
 
 describe('16-17 Year Olds', () => {
 
-  test('continues to B4_GENDER on full route (not child exit)', () => {
-    const session = sessionAt('B3_AGE_CATEGORY', { routeType: 'FULL' });
+  // 16 and 17 on a housing route are asked first whether they are in care or
+  // have a social worker (2 and 3 November 2026), then the homelessness question.
+  test('continues to the in-care or social worker question on the full route (not child exit)', () => {
+    const session = sessionAt('B5_PROFILE_AGE', { routeType: 'FULL', supportNeed: 'Emergency Housing' });
     const result = select(session, 2); // 16-17
-    expect(result.stateUpdates.currentGate).toBe('B4_GENDER');
+    expect(result.stateUpdates.currentGate).toBe('B5_YOUTH_SOCIAL_SERVICES');
+    expect(result.stateUpdates.safeguardingType).toBeUndefined();
   });
 
   test('sets age category to 16-17', () => {
-    const session = sessionAt('B3_AGE_CATEGORY');
+    const session = sessionAt('B5_PROFILE_AGE', { supportNeed: 'Emergency Housing' });
     const result = select(session, 2);
     expect(result.stateUpdates.ageCategory).toBe('16-17');
   });
@@ -654,7 +657,7 @@ describe('Critical Content Exists', () => {
   });
 
   test('under 16 exit produces non-empty response', () => {
-    const session = sessionAt('B3_AGE_CATEGORY');
+    const session = sessionAt('B5_PROFILE_AGE');
     const result = select(session, 1);
     expect(result.text.length).toBeGreaterThan(50);
   });
@@ -1129,7 +1132,7 @@ describe('Housing Options Involvement', () => {
 // MID-CONVERSATION UNDER-16 DETECTION
 // Detects explicit first-person disclosure of under-16 age at any gate
 // and routes to the safeguarding exit, even if the user previously declared
-// an adult age at B3_AGE_CATEGORY.
+// an adult age at an earlier age question.
 // =============================================================================
 
 describe('Mid-Conversation Under-16 Detection', () => {
@@ -1591,15 +1594,51 @@ describe('Every housing route: age before the homelessness question', () => {
     expect(result.stateUpdates.detailedAge).toBe('25+');
   });
 
-  test('Section C still asks an 18-24 year old whether they are 18-20 or 21-24, which decides the social services questions', () => {
+  test('Section C does not ask age again for an 18-24 year old', () => {
     const session = sessionAt('C3Q2_DEPENDENT_CHILDREN', {
-      ageCategory: '18-24',
-      routeType: 'FULL',
-      supportNeed: 'Emergency Housing',
-      localAuthority: 'Wolverhampton',
+      ageCategory: '18-24', routeType: 'FULL', supportNeed: 'Emergency Housing', localAuthority: 'Wolverhampton',
     });
     const result = select(session, 2);
-    expect(result.stateUpdates.currentGate).toBe('C3Q3_AGE');
+    expect(result.stateUpdates.currentGate).toBe('C3Q4_GENDER');
+    expect(result.stateUpdates.detailedAge).toBe('18-24');
+  });
+
+  // Leaving care support, and the protection from being found intentionally
+  // homeless, run to 25 (Children's Wellbeing and Schools Act 2026, s.9).
+  // "Have you ever been in care?" replaces the old care questions (20 November 2026).
+  test.each([['16-17', 'C3Q11_EVER_IN_CARE_16_17'], ['18-24', 'C3Q11_EVER_IN_CARE']])('someone aged %s on the full route is asked about care', (age, gate) => {
+    const session = sessionAt('C3Q10_LGBTQ', {
+      ageCategory: age, detailedAge: age, routeType: 'FULL', supportNeed: 'Emergency Housing', localAuthority: 'Wolverhampton', homeless: true,
+    });
+    expect(select(session, 2).stateUpdates.currentGate).toBe(gate);
+  });
+
+  test('someone aged 25 or over on the full route is not asked about care', () => {
+    const session = sessionAt('C3Q10_LGBTQ', {
+      ageCategory: '25+', detailedAge: '25+', routeType: 'FULL', supportNeed: 'Emergency Housing', localAuthority: 'Wolverhampton', homeless: true,
+    });
+    expect(select(session, 2).stateUpdates.currentGate).toBe('TERMINAL_ADDITIONAL_NEEDS');
+  });
+
+  // Today's pathway (20 November 2026): a 22 year old who has been in care is
+  // pointed to the leaving care team. Prefer not to say is not stated
+  // (11 November 2026): the standard results.
+  const at22 = () => sessionAt('C3Q11_EVER_IN_CARE', {
+    ageCategory: '18-24', detailedAge: '18-24', routeType: 'FULL', supportNeed: 'Emergency Housing', localAuthority: 'Wolverhampton', homeless: true,
+  });
+  test('a 22 year old who has been in care, council not known, is pointed to the leaving care team', () => {
+    let session = at22();
+    session = { ...session, ...select(session, 1).stateUpdates };
+    const result = select(session, 9);
+    expect(result.text).toContain('LEAVING CARE TEAM');
+    expect(result.text).toContain('REACH Leaving Care Team');
+    expect(result.text).toContain('01902 551155');
+  });
+
+  test('a 22 year old who prefers not to say gets the standard results', () => {
+    const result = select(at22(), 4);
+    expect(result.text).not.toContain('LEAVING CARE TEAM');
+    expect(result.text).toBe(select(at22(), 2).text);
   });
 
   test('a 16 year old on the full route who declines the further questions still sees Children\'s Services before Housing Options', () => {

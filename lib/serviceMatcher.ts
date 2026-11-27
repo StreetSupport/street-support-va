@@ -432,6 +432,12 @@ function calculateMatchScore(service: Service, profile: UserProfile): number {
     score += 20;
   }
 
+  // Care experience (Managing Director, 20 November 2026): Yes, in care now or
+  // left care lifts services designed for care leavers. A lift hides nothing.
+  if (profile.careExperienced === true && tagged('care-leavers')) {
+    score += 20;
+  }
+
   // Gender match (Managing Director, 20 November 2026): an explicit Male or
   // Female answer lifts services designed for men or for women. A lift hides
   // nothing; the women-only and men-only filter (matchesGender) is unchanged.
@@ -689,6 +695,33 @@ export function getHousingServicesForPopulation(
     const tagged = v4ServicesForParts([{ parent: 'housing' }], profile)
       .filter(s => (s.client_groups || []).includes(tag));
     return rankServices(tagged, profile, 5);
+  });
+}
+
+/**
+ * Local Safety from harm listings for the Safety route's results screen
+ * (Managing Director, 20 November 2026): the V4 subcategory for the harm
+ * chosen, or the whole parent for "something else". Only hard gate B can hide
+ * a listing (Service Matching Contract, hard gates): the age filter is not
+ * applied. Ranked, one per organisation, five or fewer. Live read first, then
+ * the fixed file, as housing. The fixed file carries no V4 keys, so where the
+ * read fails or finds nothing, no listings are shown and the fixed contacts on
+ * the screen are unchanged.
+ */
+const SAFETY_SUB_BY_HARM: Record<string, string | null> = {
+  DOMESTIC_ABUSE: V4_SUBCATEGORIES['safety-from-harm']['Domestic abuse'],
+  SEXUAL_VIOLENCE: V4_SUBCATEGORIES['safety-from-harm']['Sexual violence'],
+  MODERN_SLAVERY: V4_SUBCATEGORIES['safety-from-harm']['Modern slavery and trafficking'],
+  OTHER: null,
+};
+
+export function getSafetyFromHarmServices(harm: string | null | undefined, profile: UserProfile): MatchedService[] {
+  const sub = harm ? SAFETY_SUB_BY_HARM[harm] : null;
+  const constraints = sub ? { 'safety-from-harm': [sub] } : undefined;
+  return liveThenFixed(() => {
+    const found = getServicesByCategory(profile.localAuthority, ['safety-from-harm'], undefined, constraints)
+      .filter(s => matchesGender(s, profile.gender));
+    return rankServices(found, profile, 5);
   });
 }
 

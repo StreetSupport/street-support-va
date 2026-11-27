@@ -18,6 +18,7 @@ import { getPronouns } from '../utils/pronouns';
 import endpointsData from '../data/housing-pathway-endpoints.json';
 import safeguardingEndpoints from '../data/safeguarding-endpoints.json';
 import { QUICK_EXIT_NOTE } from '../phrasebank';
+import { reachedFromSafetyRoute, safetyLocalSections } from './safetyLocal';
 
 interface EndpointEntry {
   housingOptions: { name: string; phone: string; phoneOOH?: string; website: string };
@@ -300,7 +301,10 @@ export function handleDVChildrenAsk(session: SessionState, choice: number | null
   const dvExitKey = getDVExitKey(session.dvGender, dvChildren);
   const result = safeguardingExit(dvExitKey, session.userType, 'DOMESTIC_ABUSE');
   const localDV = buildLocalDVInfo(session);
-  return { ...result, text: withQuickExitNote(result.text + localDV) };
+  // Reached from the Safety route: its local sections too (safetyLocal.ts).
+  // From the crisis gate: unchanged.
+  const safetyLocal = reachedFromSafetyRoute(session) ? safetyLocalSections(session, session.dvGender) : '';
+  return { ...result, text: withQuickExitNote(result.text + localDV + safetyLocal) };
 }
 
 export function handleSAGenderAsk(session: SessionState, choice: number | null): RoutingResult {
@@ -309,5 +313,6 @@ export function handleSAGenderAsk(session: SessionState, choice: number | null):
   const saExitKey = getSAExitKey(saGender);
   const result = safeguardingExit(saExitKey, session.userType, 'SEXUAL_VIOLENCE');
   const sarcInfo = buildSARCInfo(session);
-  return { ...result, text: withQuickExitNote(result.text + sarcInfo) };
+  const safetyLocal = reachedFromSafetyRoute(session) ? safetyLocalSections(session, saGender) : '';
+  return { ...result, text: withQuickExitNote(result.text + sarcInfo + safetyLocal) };
 }

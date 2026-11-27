@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       console.log('[VA] Location result:', JSON.stringify({
         success: !!locationData.success,
         localAuthority: locationData.localAuthority ?? null,
-        inWMCA: locationData.isWMCA ?? locationData.isInWMCA ?? null,
+        inWMCA: locationData.isWMCA ?? null,
       }));
       
       const result = processLocationInput(session, locationData);
@@ -168,7 +168,11 @@ export async function POST(request: NextRequest) {
     // The first question and its second screens: a number or the option's own
     // words only. The loose first-word match would read "a" on "A hot meal",
     // or "staying" on the Safety option, into unrelated text.
-    const menuGate = session.currentGate === 'B5_MAIN_SUPPORT_NEED' || session.currentGate === 'B5_SECOND_SCREEN';
+    // The care questions likewise: the loose match would read a typed "no" as
+    // "No, but I have a social worker".
+    const menuGate = session.currentGate === 'B5_MAIN_SUPPORT_NEED' || session.currentGate === 'B5_SECOND_SCREEN'
+      || session.currentGate === 'C3Q11_EVER_IN_CARE_16_17' || session.currentGate === 'C3Q11_EVER_IN_CARE'
+      || session.currentGate === 'C3Q11A_CARE_COUNCIL';
 
     // Try to parse user input
     let parsed = isRawGate

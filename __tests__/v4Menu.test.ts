@@ -49,8 +49,10 @@ function v4Pool(): ServicePool {
 
 describe('First question: eight options', () => {
   test('a person is offered eight options', () => {
-    const s = sessionAt('B4_GENDER');
-    const { r } = step(s, '3'); // any gender answer leads to the first question
+    // B4_GENDER, which led here, was removed as unreachable (#46); the
+    // who-for question leads to the first question.
+    const s = sessionAt('B2_WHO_FOR');
+    const { r } = step(s, '1');
     expect(r.stateUpdates.currentGate).toBe('B5_MAIN_SUPPORT_NEED');
     expect(r.options).toHaveLength(8);
   });

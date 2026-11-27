@@ -38,6 +38,7 @@ import { phrase } from './shared';
 import { buildLocalDVInfo, buildSARCInfo } from './crisis';
 import { QUICK_EXIT_NOTE } from '../phrasebank';
 import safeguardingEndpoints from '../data/safeguarding-endpoints.json';
+import { safetyLocalSections } from './safetyLocal';
 
 type Harm = 'DOMESTIC_ABUSE' | 'SEXUAL_VIOLENCE' | 'MODERN_SLAVERY' | 'OTHER';
 
@@ -132,8 +133,7 @@ function modernSlaveryExit(session: SessionState): RoutingResult {
     lead,
     `MODERN SLAVERY REFERRAL HELPLINE\n${line(national.salvation_army_referral)}`,
     `MODERN SLAVERY AND EXPLOITATION\n${line(national.modern_slavery_helpline)}`,
-    wayBack(supporter),
-  ].join('\n\n');
+  ].join('\n\n') + safetyLocalSections(session) + '\n\n' + wayBack(supporter);
   return endSafety(text, 'MODERN_SLAVERY');
 }
 
@@ -155,8 +155,7 @@ export function generalSafetyExit(session: SessionState): RoutingResult {
     `SEXUAL VIOLENCE\nRape Crisis England & Wales\n0808 500 2222 (Free, confidential, 24/7)`,
     `MODERN SLAVERY REFERRAL HELPLINE\n${line(national.salvation_army_referral)}`,
     `MODERN SLAVERY AND EXPLOITATION\n${line(national.modern_slavery_helpline)}`,
-    wayBack(supporter),
-  ].join('\n\n');
+  ].join('\n\n') + safetyLocalSections(session) + '\n\n' + wayBack(supporter);
   return endSafety(text, 'SAFETY_GENERAL');
 }
 
@@ -188,6 +187,7 @@ function domesticAbuseHelpNow(session: SessionState): RoutingResult {
     `DOMESTIC ABUSE SUPPORT\nGalop\n0800 999 5428\nhttps://galop.org.uk\nNational helpline for LGBTQ+ people affected by abuse or violence`,
   ].join('\n\n') + buildLocalDVInfo(session) +
     `\n\nHOUSING ADVICE\nShelter - Domestic Violence Advice\nhttps://england.shelter.org.uk/housing_advice/homelessness/priority_need/at_risk_of_domestic_abuse` +
+    safetyLocalSections(session) +
     // How to leave quickly, after the help, with no question or delay before it
     // (Managing Director, 19 November 2026).
     '\n\n' + QUICK_EXIT_NOTE + '\n\n' + wayBack(supporter);
@@ -202,7 +202,7 @@ function sexualViolenceHelpNow(session: SessionState): RoutingResult {
     `SEXUAL VIOLENCE SUPPORT\nRape Crisis England & Wales\n0808 500 2222 (Free, confidential, 24/7)\nhttps://rapecrisis.org.uk`,
     `SEXUAL VIOLENCE SUPPORT\nSurvivorsUK\n0808 801 0332 (Monday to Friday, 10am to 12pm)\nWebchat every day, 12pm to 8pm: https://survivorsuk.org\nText or WhatsApp every day, 12pm to 8pm: 0786 003 1252\nSpecialist, confidential support for men, boys, trans and non-binary people`,
     `SEXUAL VIOLENCE SUPPORT\nGalop\n0800 999 5428\nhttps://galop.org.uk\nNational helpline for LGBTQ+ people affected by abuse or violence`,
-  ].join('\n\n') + buildSARCInfo(session) + '\n\n' + QUICK_EXIT_NOTE + '\n\n' + wayBack(supporter);
+  ].join('\n\n') + buildSARCInfo(session) + safetyLocalSections(session) + '\n\n' + QUICK_EXIT_NOTE + '\n\n' + wayBack(supporter);
   return endSafety(text, 'SEXUAL_VIOLENCE');
 }
 
