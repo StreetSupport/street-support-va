@@ -94,13 +94,12 @@ export function handleC2ConsentGate(
 ): RoutingResult {
   if (choice === 1) {
     const ack = getPhrase('C2A_CONSENT_ACKNOWLEDGED', session.isSupporter);
-    // Armed forces comes after age and before immigration (design note 3.3).
-    const nextGate = shouldAskArmedForces(session) ? 'ARMED_FORCES_ASK' : 'C3Q1_IMMIGRATION_STATUS';
-    const next = getPhrase(nextGate, session.isSupporter);
+    // The armed forces question has already been asked, before this screen.
+    const next = getPhrase('C3Q1_IMMIGRATION_STATUS', session.isSupporter);
     return {
       text: (ack?.text || '') + '\n\n' + (next?.text || ''),
       options: next?.options,
-      stateUpdates: { currentGate: nextGate, consentGiven: true },
+      stateUpdates: { currentGate: 'C3Q1_IMMIGRATION_STATUS', consentGiven: true },
       sessionEnded: false
     };
   } else {
@@ -117,12 +116,27 @@ export function handleC2ConsentGate(
 }
 
 // Yes true, No false, Prefer not to say null: not stated, so services for
-// veterans are not selected.
-export function handleArmedForcesAsk(session: SessionState, choice: number | null): RoutingResult {
+// veterans are not selected. Asked before the more-questions screen, so the
+// answer leads there on the full route and to the results on the quick route.
+export function handleArmedForcesAsk(
+  session: SessionState,
+  choice: number | null,
+  buildTerminalServices: (session: SessionState) => TerminalResult
+): RoutingResult {
   const servedInArmedForces = choice === 1 ? true : (choice === 2 ? false : null);
+  if (session.routeType === 'FULL') {
+    return {
+      ...phrase('C2_CONSENT_GATE', session.isSupporter),
+      stateUpdates: { currentGate: 'C2_CONSENT_GATE', servedInArmedForces }
+    };
+  }
+  const result = buildTerminalServices({ ...session, servedInArmedForces });
+  const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
   return {
-    ...phrase('C3Q1_IMMIGRATION_STATUS', session.isSupporter),
-    stateUpdates: { currentGate: 'C3Q1_IMMIGRATION_STATUS', servedInArmedForces }
+    text: result.text + '\n' + additionalNeeds?.text,
+    options: additionalNeeds?.options,
+    stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', servedInArmedForces, ...(result.terminalOutcome ? { terminalOutcome: result.terminalOutcome } : {}) },
+    sessionEnded: false
   };
 }
 
