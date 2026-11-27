@@ -33,6 +33,8 @@ import {
   handleDVChildrenAsk,
   handleSAGenderAsk,
 } from './handlers/crisis';
+import { handleSafetyTypeOfHarm, handleSafetyOkToContinue, isSafetyGate, parseSafetyChoice, startSafetyRoute } from './handlers/safety';
+import { firstOption, partsFor, visibleFirstOptions, type FirstOptionId } from './data/v4Categories';
 import { buildUnder16Exit, childrenServicesData } from './handlers/shared';
 import { getServicePool } from './data/servicePool';
 import {
@@ -229,14 +231,246 @@ const needProfileRequirements: Record<string, string[]> = {
  * and what profile data has already been collected.
  * Returns terminal output when all required fields are collected.
  */
+// Profile questions by V4 parent: the Service Matching and Questions Design
+// Note, 3.7 (Managing Director, 8 November 2026), limited to the questions the
+// VA already asks. Care, armed forces, dogs and ethnicity are added when built,
+// and every question needs its data protection row (D2) before launch.
+const v4ParentRequirements: Record<string, string[]> = {
+  food: [],
+  essentials: ['gender', 'children'],
+  finance: ['age', 'gender', 'nrpf', 'children'],
+  employment: ['age', 'gender', 'convictions', 'nrpf', 'children'],
+  health: ['age', 'gender', 'lgbtq', 'convictions', 'nrpf', 'children'],
+  addiction: ['age', 'gender', 'lgbtq'],
+  immigration: ['gender', 'lgbtq', 'nrpf'],
+  activities: ['age', 'gender'],
+};
+const PROFILE_ORDER = ['age', 'gender', 'lgbtq', 'convictions', 'nrpf', 'children'];
+
+// The phrase shown at B5_SECOND_SCREEN depends on the first-question option.
+export function secondScreenPhraseKey(v4Option: string | null | undefined): string {
+  return v4Option === 'everyday' ? 'B5_SECOND_EVERYDAY' : v4Option === 'money-work' ? 'B5_SECOND_MONEY_WORK' : 'B5_SECOND_HEALTH';
+}
+
+function v4Parents(session: SessionState): string[] {
+  if (!session.v4Option) return [];
+  return [...new Set(partsFor(session.v4Option as FirstOptionId, session.v4Choice ?? undefined).map(p => p.parent))];
+}
+
+function v4Requirements(session: SessionState): string[] {
+  const wanted = new Set(v4Parents(session).flatMap(p => v4ParentRequirements[p] ?? []));
+  return PROFILE_ORDER.filter(f => wanted.has(f));
+}
+
+// The national contacts for each V4 need: which ones, from the design note's
+// table (Service Matching and Questions Design Note v1.1, section 9; Managing
+// Director, 8 November 2026) and bills and energy (Managing Director,
+// 19 November 2026); names, numbers, hours and framing from the Non-Housing
+// Pathway Endpoints Contract's national table (2.2, contacts checked at source
+// 11, 13 and 19 November 2026). Where the two documents differ, see the PR.
+type Floor = { name: string; phone?: string; website: string; description: string };
+const V4_FLOORS: Record<string, Floor> = {
+  nhs111: {
+    name: 'NHS 111',
+    phone: '111',
+    website: 'https://111.nhs.uk',
+    description: 'For urgent medical help when it is not an emergency. Free, 24 hours a day',
+  },
+  lgbtFoundation: {
+    name: 'LGBT Foundation',
+    phone: '0345 3 30 30 30',
+    website: 'https://lgbt.foundation',
+    description: 'The LGBT Foundation can provide specialist health advice and support. Monday to Friday, 9am to 6pm',
+  },
+  citizensAdvice: {
+    name: 'Citizens Advice Adviceline',
+    phone: '0800 144 8848',
+    website: 'https://www.citizensadvice.org.uk',
+    description: 'Best for debt and money advice. Free and confidential. Usually 9am to 5pm, Monday to Friday',
+  },
+  jobcentrePlus: {
+    name: 'Jobcentre Plus',
+    website: 'https://www.gov.uk/contact-jobcentre-plus',
+    description: 'Your local Jobcentre can connect you with employment support',
+  },
+  nationalCareersAdult: {
+    name: 'National Careers Service',
+    phone: '0800 072 0288',
+    website: 'https://nationalcareers.service.gov.uk',
+    description: 'Free careers advice from a careers adviser, for people aged 18 and over in England. 8am to 6pm, Monday to Friday. The website can help you find local training',
+  },
+  nationalCareersYoung: {
+    name: 'National Careers Service',
+    website: 'https://nationalcareers.service.gov.uk',
+    description: 'Free careers advice and help to find local training',
+  },
+  frank: {
+    name: 'FRANK',
+    phone: '0300 123 6600',
+    website: 'https://www.talktofrank.com',
+    description: 'Confidential advice about drugs, any time. You can also text 82111',
+  },
+  gamblingHelpline: {
+    name: 'National Gambling Helpline (GamCare)',
+    phone: '0808 8020 133',
+    website: 'https://www.gamcare.org.uk',
+    description: 'Free support with gambling, 24 hours a day, every day. Live chat on the website',
+  },
+  migrantHelp: {
+    name: 'Migrant Help asylum helpline',
+    phone: '0808 8010 503',
+    website: 'https://www.migranthelpuk.org',
+    description: 'Free helpline for people waiting for an asylum decision',
+  },
+  citizensAdviceImmigration: {
+    // Someone to speak to for everyone not waiting for an asylum decision
+    // (Managing Director, 20 November 2026). "All Citizens Advice advisers are
+    // registered with the IAA" (citizensadvice.org.uk, immigration, read
+    // 20 November 2026). The Adviser Finder is left out while it is unavailable
+    // (GOV.UK notice, updated 18 November 2026) and adds little we do not list.
+    name: 'Citizens Advice Adviceline',
+    phone: '0800 144 8848',
+    website: 'https://www.citizensadvice.org.uk/immigration/',
+    description: 'Free, confidential advice from advisers registered with the immigration regulator. Usually 9am to 5pm, Monday to Friday',
+  },
+  jcwi: {
+    // For people without status (Managing Director, 20 November 2026);
+    // number and hours from jcwi.org.uk/our-helplines, read 20 November 2026.
+    name: 'JCWI Irregular Migrants Helpline',
+    phone: '0800 160 1004',
+    website: 'https://jcwi.org.uk/our-helplines',
+    description: 'Free, confidential legal advice if you are in the UK without status. Mondays, Tuesdays and Thursdays, 10am to 1pm',
+  },
+  project17: {
+    // Website only (contract): its only published number is a mobile with no
+    // hours. Its speciality is families with children (Charity Commission,
+    // 1152621; Tower Hamlets and Cumberland directories, read 20 November 2026),
+    // so the line says so and people decide whether it fits them
+    // (Managing Director, 20 November 2026).
+    name: 'Project 17',
+    website: 'https://www.project17.org.uk',
+    description: 'For families with children who have no recourse to public funds',
+  },
+  turn2usBenefits: {
+    name: 'Turn2us Benefits Calculator',
+    website: 'https://www.turn2us.org.uk/get-support',
+    description: 'Best for benefits: check which benefits could help you. Website only',
+  },
+  turn2usGrants: {
+    name: 'Turn2us Grants Search',
+    website: 'https://grants-search.turn2us.org.uk',
+    description: 'Best for grants: search for charitable grants you may be eligible for. Website only',
+  },
+  nea: {
+    name: "National Energy Action's Energy Advice and Support Service",
+    phone: '0800 304 7159',
+    website: 'https://www.nea.org.uk/advice/',
+    description: 'Free energy advice, including help with energy bills. Open Monday to Thursday 10am to 4pm, Friday 10am to 12.30pm',
+  },
+  citizensAdviceEnergy: {
+    name: 'Citizens Advice energy line',
+    phone: '0808 223 1133',
+    website: 'https://www.citizensadvice.org.uk/energyadvice',
+    description: 'Advice on energy. 9am to 5pm, Monday to Friday, not on public holidays',
+  },
+};
+
+// `zeroMatch`: nothing local matched, or local results could not be loaded.
+// The energy pair is for that case only (decision of 19 November 2026; the
+// contract's national table).
+function v4Fallbacks(session: SessionState, zeroMatch: boolean): Floor[] {
+  if (!session.v4Option) return [];
+  const parts = partsFor(session.v4Option as FirstOptionId, session.v4Choice ?? undefined);
+  const out: Floor[] = [];
+  // Deduped by entry, not by name: two entries share the name "Citizens Advice
+  // Adviceline" with different lines on what each is for, and neither may be lost.
+  const push = (f: Floor | undefined) => { if (f && !out.includes(f)) out.push(f); };
+  for (const part of parts) {
+    const subs = part.subs ?? [];
+    const has = (k: string) => subs.length === 0 || subs.includes(k);
+    switch (part.parent) {
+      case 'health':
+        push(V4_FLOORS.nhs111);
+        if (session.lgbtq === true) push(V4_FLOORS.lgbtFoundation);
+        break;
+      case 'finance': {
+        // Citizens Advice and Turn2us for every money need, each saying what it
+        // is best for, the one for the person's question first (Managing
+        // Director, 19 November 2026).
+        const all = [V4_FLOORS.citizensAdvice, V4_FLOORS.turn2usBenefits, V4_FLOORS.turn2usGrants];
+        const first = subs.includes('benefits') ? V4_FLOORS.turn2usBenefits
+          : subs.includes('grants') ? V4_FLOORS.turn2usGrants
+          : subs.includes('debt-and-money-management') ? V4_FLOORS.citizensAdvice : undefined;
+        // Bills and energy with nothing local: National Energy Action first (decision of 19 November 2026).
+        if (zeroMatch && subs.includes('bills-and-energy')) { push(V4_FLOORS.nea); push(V4_FLOORS.citizensAdviceEnergy); }
+        push(first);
+        for (const f of all) push(f);
+        break;
+      }
+      case 'employment':
+        push(V4_FLOORS.jobcentrePlus);
+        // The phone line is for 18 and over; the website for under-18s (contract).
+        push(session.ageCategory === '16-17' ? V4_FLOORS.nationalCareersYoung : V4_FLOORS.nationalCareersAdult);
+        break;
+      case 'addiction':
+        // No national alcohol line has been verified at source (design note, section 11).
+        // FRANK is the drugs floor; "Drugs or alcohol" carries both keys.
+        if (has('drugs')) push(V4_FLOORS.frank);
+        if (has('gambling')) push(V4_FLOORS.gamblingHelpline);
+        break;
+      case 'immigration':
+        // Someone to speak to, every time (Managing Director, 20 November 2026).
+        if (session.immigrationStatus === 'Asylum seeker') push(V4_FLOORS.migrantHelp);
+        else if (session.immigrationStatus && session.immigrationStatus !== 'Prefer not to say') push(V4_FLOORS.citizensAdviceImmigration);
+        else { push(V4_FLOORS.migrantHelp); push(V4_FLOORS.citizensAdviceImmigration); }
+        if (session.immigrationStatus === 'No status') push(V4_FLOORS.jcwi);
+        // Anyone who may have no recourse to public funds, except people waiting
+        // for an asylum decision: leave to remain with no recourse, no status, or no status given
+        // (Managing Director, 20 November 2026).
+        if ((session.immigrationStatus === 'Leave to remain' && session.publicFunds === 'No')
+          || session.immigrationStatus === 'No status'
+          || !session.immigrationStatus || session.immigrationStatus === 'Prefer not to say') push(V4_FLOORS.project17);
+        break;
+    }
+  }
+  return out;
+}
+
+function v4DisplayName(session: SessionState): string {
+  const option = session.v4Option ? firstOption(session.v4Option as FirstOptionId) : null;
+  const label = session.v4Choice && session.v4Choice !== 'Something else' ? session.v4Choice : option?.label ?? 'support';
+  return `services for ${label.toLowerCase()}`;
+}
+
+// Each profile answer is carried forward with whichever question comes next,
+// so no answer is lost when questions come in a different order for
+// different needs.
 function routeToNextProfileQuestion(session: SessionState, after?: 'age' | 'gender' | 'lgbtq' | 'convictions' | 'nrpf' | 'children'): RoutingResult {
+  const asked = [...new Set([...(session.profileAsked ?? []), ...(after ? [after] : [])])];
+  const result = nextProfileQuestion({ ...session, profileAsked: asked }, after);
+  const carried: Partial<SessionState> = {
+    profileAsked: asked,
+    ageCategory: session.ageCategory,
+    gender: session.gender,
+    lgbtq: session.lgbtq,
+    criminalConvictions: session.criminalConvictions,
+    immigrationStatus: session.immigrationStatus,
+    publicFunds: session.publicFunds,
+    hasChildren: session.hasChildren,
+  };
+  return { ...result, stateUpdates: { ...carried, ...result.stateUpdates } };
+}
+
+function nextProfileQuestion(session: SessionState, after?: 'age' | 'gender' | 'lgbtq' | 'convictions' | 'nrpf' | 'children'): RoutingResult {
   const need = session.supportNeed || '';
-  const required = needProfileRequirements[need] || [];
+  const required = session.v4Option ? v4Requirements(session) : (needProfileRequirements[need] || []);
 
   // Check each required field in order
   for (const field of required) {
     // Skip the field we just answered — prevents re-triggering on null PNTS values
     if (after && field === after) continue;
+    // Skip any field already asked, so "prefer not to say" is not asked again
+    if (session.profileAsked?.includes(field)) continue;
 
     // Age
     if (field === 'age' && !session.ageCategory) {
@@ -337,11 +571,6 @@ const nationalFallbacks: Record<string, Array<{name: string; phone?: string; web
       phone: '111',
       website: 'https://111.nhs.uk',
       description: 'For urgent medical help when it is not an emergency'
-    },
-    {
-      name: 'Find NHS Services',
-      website: 'https://www.nhs.uk/service-search',
-      description: 'Find GPs, pharmacies, hospitals and other NHS services'
     }
   ],
   'Financial': [
@@ -366,7 +595,7 @@ const nationalFallbacks: Record<string, Array<{name: string; phone?: string; web
   'Training': [
     {
       name: 'National Careers Service',
-      phone: '0800 100 900',
+      phone: '0800 072 0288', // adults 18+ (nationalcareers.service.gov.uk/contact-us, 19 November 2026); 0800 100 900 is retired
       website: 'https://nationalcareers.service.gov.uk',
       description: 'Free careers advice, skills assessment and training information'
     }
@@ -459,22 +688,24 @@ function buildLocalResultsUnavailableTerminal(
 function buildNonHousingTerminal(session: SessionState): TerminalResult {
   const need = session.supportNeed || 'support';
   const la = session.localAuthority || 'your area';
-  const displayName = needDisplayNames[need] || need.toLowerCase();
-  const categoryKey = getPrimaryCategoryKey(need);
+  const v4 = !!session.v4Option;
+  const displayName = v4 ? v4DisplayName(session) : (needDisplayNames[need] || need.toLowerCase());
+  // The "see all" link moves to the V4 category with the matcher (design note, 4.6).
+  const categoryKey = v4 ? (v4Parents(session)[0] ?? '') : getPrimaryCategoryKey(need);
 
   // Build profile for service matching
   const profile = toUserProfile(session);
 
-  const fallbacks = nationalFallbacks[need] || [];
-
   // Live read unavailable: say so, do not fall back to the January file
   if (getServicePool()?.status === 'unavailable') {
-    return buildLocalResultsUnavailableTerminal(la, fallbacks, categoryKey, displayName);
+    const shown = v4 ? v4Fallbacks(session, true) : (nationalFallbacks[need] || []);
+    return buildLocalResultsUnavailableTerminal(la, shown, categoryKey, displayName);
   }
 
   // Get matched local services
   const localServices = getServicesForNeed(need, profile);
   const hasLocalServices = localServices.length > 0;
+  const fallbacks = v4 ? v4Fallbacks(session, !hasLocalServices) : (nationalFallbacks[need] || []);
 
   // Zero-match path
   if (!hasLocalServices) {
@@ -484,7 +715,7 @@ function buildNonHousingTerminal(session: SessionState): TerminalResult {
   let text = '';
 
   // Opening line - personalised if profile was used
-  if (isProfileRelevantNeed(need)) {
+  if (v4 ? v4Requirements(session).length > 0 : isProfileRelevantNeed(need)) {
     text += `Based on what you have told me, here are some ${displayName} in ${la} that may be able to help.\n\n`;
   } else {
     text += `Here are some ${displayName} in ${la}.\n\n`;
@@ -518,8 +749,8 @@ function buildNonHousingTerminal(session: SessionState): TerminalResult {
     text += buildNationalFallbacksBlock(fallbacks);
   }
 
-  // LGBT Foundation for LGBTQ+ users on Health need
-  if (session.lgbtq === true && need === 'Health') {
+  // LGBT Foundation for LGBTQ+ users on Health need (V4: among the national contacts above)
+  if (!v4 && session.lgbtq === true && need === 'Health') {
     const lgbtPhrase = getPhrase('TERMINAL_LGBT_FOUNDATION_HEALTH', session.isSupporter);
     if (!fallbacks.length) text += `---\n\n`;
     text += `LGBT Foundation\n`;
@@ -645,7 +876,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
     text += `---------------------\n`;
     text += `If ${theyre} finding it hard to get through to services, or ${they}'d like to talk through ${possessive} options with someone, Shelter's helpline is there for ${pronoun}:\n\n`;
     text += `${shelter.name}\n`;
-    text += `${shelter.phone} (free, 8am-8pm weekdays, 9am-5pm weekends)\n`;
+    text += `${shelter.phone} (free, Monday to Friday 8am to 5pm; closed at weekends and on bank holidays)\n`;
     text += `${shelter.website}\n\n`;
     text += `They can explain ${possessive} rights, help ${pronoun} prepare for conversations with the council, and support ${pronoun} if things aren't going well.\n\n`;
 
@@ -797,10 +1028,14 @@ function buildTerminalServices(session: SessionState): TerminalResult {
     }
     text += (nrpfFamilyPhrase?.text || '') + '\n\n';
 
-    // Project 17
-    text += `Project 17\n`;
-    text += `https://project17.org.uk\n`;
-    text += `Specialist support for families with no recourse to public funds\n\n`;
+    // Project 17, only if not already shown in the specialist section, as for
+    // Migrant Help below; one description everywhere (Managing Director,
+    // 20 November 2026).
+    if (!allSpecialistOrgs.some(o => o.name === 'Project 17')) {
+      text += `Project 17\n`;
+      text += `https://www.project17.org.uk\n`;
+      text += `For families with children who have no recourse to public funds\n\n`;
+    }
 
     // Migrant Help — only if not already shown in specialist section
     const migrantHelpInSpecialist = allSpecialistOrgs.some(o => o.name === 'Migrant Help');
@@ -891,7 +1126,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   text += `---------------------\n`;
   text += `If ${theyre} finding it hard to get through to services, or ${they}'d like to talk through ${possessive} options with someone, Shelter's helpline is there for ${pronoun}:\n\n`;
   text += `${shelter.name}\n`;
-  text += `${shelter.phone} (free, 8am-8pm weekdays, 9am-5pm weekends)\n`;
+  text += `${shelter.phone} (free, Monday to Friday 8am to 5pm; closed at weekends and on bank holidays)\n`;
   text += `${shelter.website}\n\n`;
   text += `They can explain ${possessive} rights, help ${pronoun} prepare for conversations with the council, and support ${pronoun} if things aren't going well.\n\n`;
   
@@ -1053,7 +1288,8 @@ export function interceptUnder16Age(session: SessionState, input: string): Routi
 export function processInput(session: SessionState, input: string): RoutingResult {
   const gate = session.currentGate;
   const p = getPhrase(gate, session.isSupporter);
-  const choice = parseUserInput(input, p?.options);
+  // The Safety route reads only a chosen option, never a keyword (safety.ts).
+  const choice = isSafetyGate(gate) ? parseSafetyChoice(input, p?.options) : parseUserInput(input, p?.options);
   
   switch (gate) {
     
@@ -1083,6 +1319,15 @@ export function processInput(session: SessionState, input: string): RoutingResul
     // ========================================
     case 'SA_GENDER_ASK':
       return handleSAGenderAsk(session, choice);
+
+    // ========================================
+    // SAFETY FROM HARM ROUTE (handlers in lib/handlers/safety.ts)
+    // ========================================
+    case 'SAFETY_TYPE_OF_HARM':
+      return handleSafetyTypeOfHarm(session, choice);
+
+    case 'SAFETY_OK_TO_CONTINUE':
+      return handleSafetyOkToContinue(session, choice);
     
     // ========================================
     // GATE 1: INTENT
@@ -1308,23 +1553,16 @@ export function processInput(session: SessionState, input: string): RoutingResul
         stateUpdates: { currentGate: 'B5_MAIN_SUPPORT_NEED', gender }
       };
     
-    case 'B5_MAIN_SUPPORT_NEED':
-      const needOptions = ['Emergency Housing', 'Food', 'Work', 'Health', 'Advice', 'Drop In', 'Financial', 'Items', 'Services', 'Comms', 'Training', 'Activities'];
-      const need = choice ? needOptions[choice - 1] : null;
+    case 'B5_MAIN_SUPPORT_NEED': {
+      // The first question in V4 terms (Decision 1, Managing Director, 4 November 2026).
+      // Numbered as offered: Safety is left out while its switch is off.
+      const offered = visibleFirstOptions();
+      const option = choice && choice >= 1 && choice <= offered.length ? offered[choice - 1] : null;
+      if (!option) return phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter);
+      const needCount = session.needCount + 1;
 
-      // Advice routes to subcategory selection
-      if (need === 'Advice') {
-        return {
-          ...phrase('B5A_ADVICE_TYPE', session.isSupporter),
-          stateUpdates: { currentGate: 'B5A_ADVICE_TYPE', supportNeed: need, needCount: session.needCount + 1 }
-        };
-      }
-
-      // Housing needs require full profiling
-      const housingRelatedNeeds = ['Emergency Housing'];
-      const needsFullProfiling = housingRelatedNeeds.includes(need || '');
-
-      if (needsFullProfiling) {
+      if (option.id === 'housing') {
+        const need = 'Emergency Housing';
         // Every housing route asks age before B6. Age decides the under-16 exit
         // and the 16-17 route, so it cannot wait for Section C: the full route
         // reaches Section C only with consent, the prevention branch never
@@ -1332,20 +1570,56 @@ export function processInput(session: SessionState, input: string): RoutingResul
         if (!session.ageCategory) {
           return {
             ...phrase('B5_PROFILE_AGE', session.isSupporter),
-            stateUpdates: { currentGate: 'B5_PROFILE_AGE', supportNeed: need, needCount: session.needCount + 1 }
+            stateUpdates: { currentGate: 'B5_PROFILE_AGE', supportNeed: need, needCount, v4Option: 'housing', v4Choice: null }
           };
         }
 
         // Continue to homelessness status question
         return {
           ...phrase('B6_HOMELESSNESS_STATUS', session.isSupporter),
-          stateUpdates: { currentGate: 'B6_HOMELESSNESS_STATUS', supportNeed: need, needCount: session.needCount + 1 }
+          stateUpdates: { currentGate: 'B6_HOMELESSNESS_STATUS', supportNeed: need, needCount, v4Option: 'housing', v4Choice: null }
         };
-      } else {
-        // Non-housing need - route to category-specific profiling
-        const updatedSession = { ...session, supportNeed: need, needCount: session.needCount + 1 };
-        return routeToNextProfileQuestion(updatedSession);
       }
+
+      if (option.id === 'safety') {
+        // Hard-coded Safety route (Safeguarding Contract 3.3): bypasses the matcher and AI.
+        const r = startSafetyRoute(session);
+        return { ...r, stateUpdates: { ...r.stateUpdates, v4Option: 'safety', v4Choice: null, supportNeed: 'V4:safety', needCount } };
+      }
+
+      if (option.id === 'not-sure') {
+        // Leads to the noticing step (design note v1.1, section 2), built next.
+        // Until then this branch is not reachable in a release.
+        return {
+          text: 'Not built yet: the noticing step for "not sure where to start".',
+          stateUpdates: { v4Option: 'not-sure', v4Choice: null, supportNeed: 'V4:not-sure', needCount },
+        };
+      }
+
+      if (option.secondScreen) {
+        const key = secondScreenPhraseKey(option.id);
+        const r = phrase(key, session.isSupporter);
+        return { ...r, stateUpdates: { ...r.stateUpdates, currentGate: 'B5_SECOND_SCREEN', v4Option: option.id, v4Choice: null, supportNeed: `V4:${option.id}`, needCount } };
+      }
+
+      const updated = { ...session, v4Option: option.id, v4Choice: null, supportNeed: `V4:${option.id}`, needCount };
+      const next = routeToNextProfileQuestion(updated);
+      return { ...next, stateUpdates: { v4Option: option.id, v4Choice: null, supportNeed: `V4:${option.id}`, needCount, ...next.stateUpdates } };
+    }
+
+    case 'B5_SECOND_SCREEN': {
+      const option = session.v4Option ? firstOption(session.v4Option as FirstOptionId) : null;
+      const choices = option?.secondScreen ?? [];
+      const picked = choice && choice >= 1 && choice <= choices.length ? choices[choice - 1] : null;
+      if (!option || !picked) {
+        const key = secondScreenPhraseKey(option?.id);
+        return { ...phrase(key, session.isSupporter), stateUpdates: { currentGate: 'B5_SECOND_SCREEN' } };
+      }
+      const supportNeed = `V4:${option.id}:${picked.label}`;
+      const updated = { ...session, v4Choice: picked.label, supportNeed };
+      const next = routeToNextProfileQuestion(updated);
+      return { ...next, stateUpdates: { v4Choice: picked.label, supportNeed, ...next.stateUpdates } };
+    }
 
     case 'B5A_ADVICE_TYPE':
       const adviceOptions = ['Advice:Benefits', 'Advice:Debt', 'Advice:Employment', 'Advice:Immigration', 'Advice:Health', 'Advice:Legal', 'Advice:General'];

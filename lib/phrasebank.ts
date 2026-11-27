@@ -1,3 +1,5 @@
+import { isSafetyRouteEnabled } from './safetyRouteSwitch';
+
 // Street Support VA v7 Phrasebank - COMPLETE VERSION
 // All phrases from CHAR_VA_Phrasebank_v7.md
 // Generated 2026-02-01
@@ -7,6 +9,15 @@ export interface PhraseEntry {
   options?: string[];
   responseType?: string;
 }
+
+// Quick exit note, option A of "Quick exit: proposal for review" (Managing
+// Director, 19 November 2026). Shown on the Safety from harm route before the
+// first question, and after help on the domestic abuse and sexual violence exits.
+// Works for supporters too: it describes whoever is at the screen. The
+// "staying safer online" link is added once a page is chosen and checked at
+// source; none has been, so none is shown. "It clears our conversation" stands
+// once the technical review has verified what the exit clears.
+export const QUICK_EXIT_NOTE = `Need to leave quickly? Press "Exit this page". On a keyboard you can also press Shift three times. It clears our conversation, but not your browsing history. You can come back and start again at any time.`;
 
 export const phrasebank: Record<string, PhraseEntry> = {
 
@@ -342,40 +353,71 @@ Support with Benefits and Grants | Turn2us - https://www.turn2us.org.uk/`
     options: ["Male", "Female", "Non-binary or other", "Prefer not to say"]
   },
 
+  // First question (VA V4 Redesign Design Note, Decision 1, Managing Director,
+  // 4 November 2026). Labels must match lib/data/v4Categories.ts.
   B5_MAIN_SUPPORT_NEED: {
-    text: `What kind of support are you looking for?
+    text: `What would you like help with?
 
-1. Emergency Housing or Other Accommodation
-2. Food
-3. Work
-4. Health Services
-5. Advice Services
-6. Drop In
-7. Financial Help
-8. Personal Items
-9. Personal Services
-10. Communications
-11. Training
-12. Activities`,
-    options: ["Emergency Housing or Other Accommodation", "Food", "Work", "Health Services", "Advice Services", "Drop In", "Financial Help", "Personal Items", "Personal Services", "Communications", "Training", "Activities"]
+1. Somewhere to live, or help to keep my home
+2. Staying safe from abuse, exploitation or harm
+3. Food, clothes or other everyday things
+4. Money, debt, benefits or work
+5. Health, drugs, alcohol or gambling
+6. Immigration or asylum
+7. Things to do and people to meet
+8. I'm not sure where to start`,
+    options: ["Somewhere to live, or help to keep my home", "Staying safe from abuse, exploitation or harm", "Food, clothes or other everyday things", "Money, debt, benefits or work", "Health, drugs, alcohol or gambling", "Immigration or asylum", "Things to do and people to meet", "I'm not sure where to start"]
   },
 
   B5_MAIN_SUPPORT_NEED__SUPPORTER: {
-    text: `What kind of support are they looking for?
+    text: `What would they like help with?
 
-1. Emergency Housing or Other Accommodation
-2. Food
-3. Work
-4. Health Services
-5. Advice Services
-6. Drop In
-7. Financial Help
-8. Personal Items
-9. Personal Services
-10. Communications
-11. Training
-12. Activities`,
-    options: ["Emergency Housing or Other Accommodation", "Food", "Work", "Health Services", "Advice Services", "Drop In", "Financial Help", "Personal Items", "Personal Services", "Communications", "Training", "Activities"]
+1. Somewhere to live, or help to keep their home
+2. Staying safe from abuse, exploitation or harm
+3. Food, clothes or other everyday things
+4. Money, debt, benefits or work
+5. Health, drugs, alcohol or gambling
+6. Immigration or asylum
+7. Things to do and people to meet
+8. Not sure where to start`,
+    options: ["Somewhere to live, or help to keep their home", "Staying safe from abuse, exploitation or harm", "Food, clothes or other everyday things", "Money, debt, benefits or work", "Health, drugs, alcohol or gambling", "Immigration or asylum", "Things to do and people to meet", "Not sure where to start"]
+  },
+
+  // Second screens (Decision 1). Labels must match lib/data/v4Categories.ts.
+  B5_SECOND_EVERYDAY: {
+    text: `Which of these?
+
+1. A hot meal
+2. Food to take home
+3. Clothes
+4. Toiletries or period products
+5. A phone or getting online
+6. Something else`,
+    options: ["A hot meal", "Food to take home", "Clothes", "Toiletries or period products", "A phone or getting online", "Something else"]
+  },
+
+  B5_SECOND_MONEY_WORK: {
+    text: `Which of these?
+
+1. Debt
+2. Benefits
+3. Bills and energy
+4. Grants
+5. Work or training
+6. Something else`,
+    options: ["Debt", "Benefits", "Bills and energy", "Grants", "Work or training", "Something else"]
+  },
+
+  B5_SECOND_HEALTH: {
+    text: `Which of these?
+
+1. Mental health
+2. Physical health
+3. Sexual health
+4. Drugs or alcohol
+5. Gambling
+6. Something else`,
+    options: ["Mental health", "Physical health", "Sexual health", "Drugs or alcohol", "Gambling", "Something else"]
   },
 
   // ============================================================
@@ -1451,6 +1493,81 @@ What is their gender?
     options: ["Female", "Male", "Non-binary or other", "Prefer not to say"]
   },
 
+  // ============================================================
+  // SAFETY FROM HARM ROUTE (Safeguarding Contract 3.3)
+  // Hard-coded, outside the crisis gate, bypasses the matcher and AI.
+  // One type of harm (Managing Director, 12 November 2026). The situations are
+  // those of the Service Matching and Questions Design Note 3.6.
+  // ============================================================
+
+  // Plain words, without naming the harm (Safeguarding Contract 3.3;
+  // Managing Director, 18 November 2026). Each option starts with different words.
+  SAFETY_TYPE_OF_HARM: {
+    text: `If you are in danger right now, call 999.
+
+${QUICK_EXIT_NOTE}
+
+Which of these is closest to what is happening?
+
+1. Someone close is hurting, threatening or controlling me
+2. Pressure to marry someone I haven't chosen
+3. My private parts have been cut, or someone plans to cut them
+4. Sexual things were done to me without my agreement
+5. Made to work, money or documents taken, or controlled where I live or go
+6. Paying off a debt by being made to work
+7. Something else`,
+    options: [
+      "Someone close is hurting, threatening or controlling me",
+      "Pressure to marry someone I haven't chosen",
+      "My private parts have been cut, or someone plans to cut them",
+      "Sexual things were done to me without my agreement",
+      "Made to work, money or documents taken, or controlled where I live or go",
+      "Paying off a debt by being made to work",
+      "Something else"
+    ]
+  },
+
+  SAFETY_TYPE_OF_HARM__SUPPORTER: {
+    text: `If they are in danger right now, call 999.
+
+${QUICK_EXIT_NOTE}
+
+Which of these is closest to what is happening to them?
+
+1. Someone close is hurting, threatening or controlling them
+2. Pressure to marry someone they haven't chosen
+3. Their private parts have been cut, or someone plans to cut them
+4. Sexual things were done to them without their agreement
+5. Made to work, money or documents taken, or controlled where they live or go
+6. Paying off a debt by being made to work
+7. Something else`,
+    options: [
+      "Someone close is hurting, threatening or controlling them",
+      "Pressure to marry someone they haven't chosen",
+      "Their private parts have been cut, or someone plans to cut them",
+      "Sexual things were done to them without their agreement",
+      "Made to work, money or documents taken, or controlled where they live or go",
+      "Paying off a debt by being made to work",
+      "Something else"
+    ]
+  },
+
+  SAFETY_OK_TO_CONTINUE: {
+    text: `Thank you for telling me. Are you OK to carry on?
+
+1. Yes, I'm OK to carry on
+2. No, show me help now`,
+    options: ["Yes, I'm OK to carry on", "No, show me help now"]
+  },
+
+  SAFETY_OK_TO_CONTINUE__SUPPORTER: {
+    text: `Thank you for telling me. Are they OK to carry on?
+
+1. Yes, they're OK to carry on
+2. No, show help now`,
+    options: ["Yes, they're OK to carry on", "No, show help now"]
+  },
+
   CRISIS_UNDER16_LOCATION: {
     text: `Thank you for telling me. You've done the right thing by reaching out. So I can give you the right Children's Services to contact, please tell me which area you're in.
 
@@ -1570,7 +1687,8 @@ If they're in immediate danger, call 999.`
 The police can help keep you safe.
 
 If you cannot speak safely, you can:
-- Call 999, then press 55 (Silent Solution - alerts police you need help)
+- Call 999 and listen. Cough or tap the phone if you can
+- On a mobile, press 55 when a recorded message asks you to. This puts you through to the police
 - Text 999 if you have registered for this service
 
 Once you are safe, I can help you find support services.`
@@ -1582,7 +1700,8 @@ Once you are safe, I can help you find support services.`
 The police can help keep them safe.
 
 If they cannot speak safely:
-- Call 999, then press 55 (Silent Solution - alerts police they need help)
+- Call 999 and listen. Cough or tap the phone if they can
+- On a mobile, press 55 when a recorded message asks. This puts the call through to the police
 - Text 999 if registered for this service
 
 Once they are safe, I can help you find support services for them.`
@@ -1948,9 +2067,10 @@ If they're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
-Specialist, confidential support for men and boys aged 16 and over
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
+Text or WhatsApp every day, 12pm to 8pm: 0786 003 1252
+Specialist, confidential support for men, boys, trans and non-binary people
 
 If you're in immediate danger, call 999.`
   },
@@ -1960,9 +2080,10 @@ If you're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
-Specialist, confidential support for men and boys aged 16 and over
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
+Text or WhatsApp every day, 12pm to 8pm: 0786 003 1252
+Specialist, confidential support for men, boys, trans and non-binary people
 
 You don't have to work this out on your own.
 
@@ -1974,9 +2095,10 @@ If they're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
-Specialist, confidential support for men and boys aged 16 and over
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
+Text or WhatsApp every day, 12pm to 8pm: 0786 003 1252
+Specialist, confidential support for men, boys, trans and non-binary people
 
 You'll know your next steps from here.
 
@@ -1988,8 +2110,9 @@ If they're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
+Text or WhatsApp every day, 12pm to 8pm: 0786 003 1252
 
 SEXUAL VIOLENCE SUPPORT
 Galop
@@ -2004,8 +2127,9 @@ If you're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
+Text or WhatsApp every day, 12pm to 8pm: 0786 003 1252
 
 SEXUAL VIOLENCE SUPPORT
 Galop
@@ -2022,8 +2146,9 @@ If they're in immediate danger, call 999.`
 
 SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
-020 3598 3898
-https://survivorsuk.org
+0808 801 0332 (Monday to Friday, 10am to 12pm)
+Webchat every day, 12pm to 8pm: https://survivorsuk.org
+Text or WhatsApp every day, 12pm to 8pm: 0786 003 1252
 
 SEXUAL VIOLENCE SUPPORT
 Galop
@@ -2175,7 +2300,7 @@ Please contact your local council's Housing Options team as soon as you can so t
 
 Find your local council: https://www.gov.uk/find-local-council
 
-Shelter: 0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
+Shelter: 0808 800 4444 (free, Monday to Friday 8am to 5pm; closed at weekends and on bank holidays)
 https://england.shelter.org.uk`
   },
 
@@ -2188,7 +2313,7 @@ Please contact the local council's Housing Options team as soon as you can so th
 
 Find the local council: https://www.gov.uk/find-local-council
 
-Shelter: 0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
+Shelter: 0808 800 4444 (free, Monday to Friday 8am to 5pm; closed at weekends and on bank holidays)
 https://england.shelter.org.uk`
   },
 
@@ -2373,7 +2498,7 @@ What would be most helpful right now?`,
   ESCALATION_LEVEL_2_LEGAL_EMERGENCY: {
     text: `This sounds urgent. With an eviction notice, getting the right advice quickly can make a real difference.
 
-Shelter: 0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
+Shelter: 0808 800 4444 (free, Monday to Friday 8am to 5pm; closed at weekends and on bank holidays)
 https://england.shelter.org.uk/get_help/helpline
 
 Citizens Advice: https://www.citizensadvice.org.uk/housing/
@@ -2408,7 +2533,7 @@ https://england.shelter.org.uk`
 These services can help:
 
 Shelter Emergency Helpline
-0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
+0808 800 4444 (free, Monday to Friday 8am to 5pm; closed at weekends and on bank holidays)
 https://england.shelter.org.uk/get_help/helpline
 
 Crisis
@@ -2604,7 +2729,24 @@ The more details you can provide (location, description, best time to find them)
 };
 
 // Helper function
+// The first question without the Safety option, renumbered, while the Safety
+// route's switch is off (lib/safetyRouteSwitch.ts).
+const SAFETY_FIRST_OPTION = 'Staying safe from abuse, exploitation or harm';
+
+function withoutSafetyOption(entry: PhraseEntry): PhraseEntry {
+  const options = (entry.options ?? []).filter(o => o !== SAFETY_FIRST_OPTION);
+  const intro = entry.text.split('\n').filter(line => !/^\d+\. /.test(line)).join('\n').trimEnd();
+  const list = options.map((o, i) => `${i + 1}. ${o}`).join('\n');
+  return { ...entry, text: `${intro}\n\n${list}`, options };
+}
+
 export function getPhrase(key: string, audience: 'SELF' | 'SUPPORTER' | 'PROFESSIONAL' | null | boolean): PhraseEntry | null {
+  const entry = lookUpPhrase(key, audience);
+  if (entry && key === 'B5_MAIN_SUPPORT_NEED' && !isSafetyRouteEnabled()) return withoutSafetyOption(entry);
+  return entry;
+}
+
+function lookUpPhrase(key: string, audience: 'SELF' | 'SUPPORTER' | 'PROFESSIONAL' | null | boolean): PhraseEntry | null {
   if (audience === 'PROFESSIONAL') {
     const professionalKey = `${key}__PROFESSIONAL`;
     if (phrasebank[professionalKey]) {
