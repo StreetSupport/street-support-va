@@ -128,9 +128,8 @@ describe('Safety from harm route', () => {
 
   test('domestic abuse followed through: the exit marks the session as a domestic abuse safeguarding exit', () => {
     let { session } = walk(1, 1);
-    let r = processInput(session, '1'); // Female
-    session = { ...session, ...r.stateUpdates };
-    r = processInput(session, '2'); // no children
+    // Female: straight to the exit, no children question (#93; Managing Director, 26 November 2026)
+    const r = processInput(session, '1');
     expect(r.sessionEnded).toBe(true);
     expect(r.stateUpdates?.safeguardingTriggered).toBe(true);
     expect(r.stateUpdates?.safeguardingType).toBe('DOMESTIC_ABUSE');

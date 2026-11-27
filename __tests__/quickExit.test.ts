@@ -173,6 +173,11 @@ describe('The safety note on every domestic abuse and sexual violence exit', () 
         const dvGender = ['Female', 'Male', 'Non-binary or other', 'Prefer not to say'][Number(g) - 1];
         for (const children of ['1', '2']) {
           const r = processInput(sessionAt('DV_CHILDREN_ASK', { ...a, dvGender, localAuthority: null }), children);
+          // The general exit where gender isn't given puts 999 first instead (#93)
+          if (dvGender === 'Prefer not to say') {
+            if (!/999/.test(r.text.trim().split('\n')[0])) misses.push(`DV ${who} general: 999 not first`);
+            continue;
+          }
           const last = r.text.trim().split('\n').pop() ?? '';
           if (!/call 999\.?$/.test(last.trim())) misses.push(`DV ${who} ${dvGender} children=${children}`);
         }

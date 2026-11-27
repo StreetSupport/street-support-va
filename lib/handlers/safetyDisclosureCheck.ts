@@ -16,6 +16,7 @@ import type { GateType, RoutingResult, SessionState } from '../types';
 import { getPhrase } from '../phrasebank';
 import { phrase } from './shared';
 import { startSafetyRoute } from './safety';
+import { crisisQuestionFallback } from './crisis';
 import { isSafetyRouteEnabled } from '../safetyRouteSwitch';
 import { secondScreenPhraseKey } from '../stateMachine';
 import { HOUSING_OFFER_OPTIONS, housingOfferText, noticingMultiSelect, noticingOptions, noticingText, notSureMultiSelect, notSureOptions, notSureText } from '../noticing';
@@ -83,6 +84,10 @@ export function questionAgain(session: SessionState, gate: GateType): RoutingRes
       };
     case 'LOCATION_POSTCODE':
       return { ...phrase('LOCATION_POSTCODE_REQUEST', s), stateUpdates: { currentGate: 'LOCATION_POSTCODE' }, responseType: 'postcode_input' };
+    case 'CRISIS_UNCLEAR_HELP':
+      // The help shown after a second unclear answer at the crisis question
+      // (#93), with its "Carry on".
+      return crisisQuestionFallback(session);
     case 'LOCATION_RESULT':
       // Waiting for the location widget: ask how they want to share it again.
       return phrase('LOCATION_CONSENT', s);

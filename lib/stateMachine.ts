@@ -31,6 +31,7 @@ import {
 } from './serviceMatcher';
 import {
   handleCrisisDanger,
+  handleCrisisUnclearHelp,
   handleCrisisUnder16Location,
   handleCrisisFireFloodLocation,
   handleDVGenderAsk,
@@ -1702,6 +1703,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
     // ========================================
     case 'GATE0_CRISIS_DANGER':
       return handleCrisisDanger(session, choice);
+
+    case 'CRISIS_UNCLEAR_HELP':
+      return handleCrisisUnclearHelp(session);
 
     case 'CRISIS_UNDER16_LOCATION':
       return handleCrisisUnder16Location(session, choice);

@@ -105,7 +105,8 @@ describe('local listings on the Safety results screen', () => {
   });
 
   test('domestic abuse, OK to carry on: the crisis gate flow, then its exit shows the listings too', () => {
-    const text = walk(['1', '1', '1', '2'], LIVE()).text; // female, no children
+    // Female: straight to the exit, no children question (#93; Managing Director, 26 November 2026)
+    const text = walk(['1', '1', '1'], LIVE()).text;
     expect(text).toContain(NATIONAL_DA);
     expect(text).toContain('Listing da');
     expect(text).toContain(QUICK_EXIT_NOTE);
@@ -132,8 +133,10 @@ describe('local listings on the Safety results screen', () => {
     const male = walk(['1', '1', '2', '2'], pool()).text;
     expect(male).toContain('Listing any');
     expect(male).not.toContain('Listing w\n');
-    for (const gender of ['1', '3', '4']) {
-      expect(walk(['1', '1', gender, '2'], pool()).text).toContain('Listing w\n');
+    // Female and prefer not to say go straight to their exits; non-binary or
+    // other is asked about children (#93; Managing Director, 26 November 2026)
+    for (const path of [['1', '1', '1'], ['1', '1', '3', '2'], ['1', '1', '4']]) {
+      expect(walk(path, pool()).text).toContain('Listing w\n');
     }
     expect(walk(DA_NOW, pool()).text).toContain('Listing w\n');
   });
@@ -235,7 +238,7 @@ describe("16 and 17: Children's Services on the Safety route", () => {
     });
 
   test('after the OK to carry on flow too', () => {
-    expect(walk(['1', '1', '1', '2'], null, { ageCategory: '16-17' }).text).toContain(COVENTRY_CS);
+    expect(walk(['1', '1', '1'], null, { ageCategory: '16-17' }).text).toContain(COVENTRY_CS); // female: straight to the exit (#93)
   });
 
   test('even when the read fails', () => {
