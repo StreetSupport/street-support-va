@@ -21,8 +21,10 @@ import {
   getYouthOrgs,
   getShelterInfo,
   getStreetLinkInfo,
+  getOpFortitudeInfo,
   getServicesForNeed,
   getHousingAdviceServices,
+  getHousingServicesForPopulation,
   isProfileRelevantNeed,
   getPrimaryCategoryKey,
 } from './serviceMatcher';
@@ -66,6 +68,7 @@ import {
 } from './handlers/homeless';
 import {
   handleC2ConsentGate,
+  handleArmedForcesAsk,
   handleC3Q1ImmigrationStatus,
   handleC3Q1AEussFollowup,
   handleC3Q1BPublicFundsFollowup,
@@ -149,6 +152,7 @@ export function createSession(sessionId: string): SessionState {
     inCare: null,
     socialServices: null,
     youthSocialServicesAsked: false,
+    servedInArmedForces: null,
     isSupporter: false,
     youthServicesFlag: false,
     safeguardingTriggered: false,
@@ -825,9 +829,10 @@ const HOUSING_SITUATION_BY_CHOICE: Record<number, HousingSituation> = {
   1: 'KEEP_STEADY',
   2: 'LOSING_HOME',
   3: 'STAYING_SOMEWHERE',
-  4: 'LEAVING_INSTITUTION',
-  5: 'NOWHERE_TONIGHT',
-  6: 'NOT_SURE',
+  4: 'LEAVING_PRISON',
+  5: 'LEAVING_HOSPITAL',
+  6: 'NOWHERE_TONIGHT',
+  7: 'NOT_SURE',
 };
 
 // The older fields the rest of the conversation reads, set from the answer.
@@ -836,7 +841,8 @@ const HOUSING_SITUATION_STATE: Record<HousingSituation, Partial<SessionState>> =
   KEEP_STEADY: { homeless: false, housedSituation: 'At home', sleepingSituation: null },
   LOSING_HOME: { homeless: false, housedSituation: 'At home', sleepingSituation: null },
   STAYING_SOMEWHERE: { homeless: true, housedSituation: null, sleepingSituation: 'Staying somewhere for now' },
-  LEAVING_INSTITUTION: { homeless: true, housedSituation: null, sleepingSituation: 'Leaving prison or hospital' },
+  LEAVING_PRISON: { homeless: true, housedSituation: null, sleepingSituation: 'Leaving prison' },
+  LEAVING_HOSPITAL: { homeless: true, housedSituation: null, sleepingSituation: 'Leaving hospital' },
   NOWHERE_TONIGHT: { homeless: true, housedSituation: null, sleepingSituation: 'Rough sleeping or nowhere tonight' },
   NOT_SURE: { homeless: null, housedSituation: null, sleepingSituation: null },
 };
@@ -947,6 +953,54 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   
   let text = '';
 
+  const heading = (title: string): string => `${title}\n${'-'.repeat(title.length)}\n`;
+  const serviceLines = (svc: { name: string; phone?: string | null; website?: string | null; description?: string | null }): string => {
+    let s = `${svc.name}\n`;
+    if (svc.phone) s += `${svc.phone}\n`;
+    if (svc.website) s += `${svc.website}\n`;
+    if (svc.description) s += `${svc.description}\n`;
+    return s + `\n`;
+  };
+
+  // ----------------------------------------
+  // LEAVING PRISON - local services that work specifically with people leaving
+  // prison, where any, shown first (Housing Pathway Endpoints Contract 1.4,
+  // Leaving Prison). Selected by the V4 population tag only. The data carries
+  // no referral field, so the referral line goes on the section, not per
+  // service.
+  // LEAVING HOSPITAL - no structured field identifies hospital discharge
+  // services, so there are none to surface yet (Housing Pathway Endpoints
+  // Contract 1.4, Leaving Hospital). Where a section of them is ever shown,
+  // its referral line names the staff looking after the person at the
+  // hospital. No keyword search.
+  // ----------------------------------------
+  const prisonLeaverServices = session.housingSituation === 'LEAVING_PRISON'
+    ? getHousingServicesForPopulation('people-with-criminal-records', profile)
+    : [];
+  // Someone still in prison or hospital can ask the staff there to refer them
+  // to the council's housing team (Endpoints Contract 1.4).
+  const institution = session.housingSituation === 'LEAVING_PRISON' ? 'prison'
+    : session.housingSituation === 'LEAVING_HOSPITAL' ? 'hospital' : null;
+  const staffReferralLine = institution
+    ? `If ${theyre} still in ${institution}, ${they} can ask the staff there to refer ${pronoun} to this team.\n`
+    : '';
+  // 16 and 17 year olds: the staff go to their social worker or Children's
+  // Services, not Housing Options (technical lead's review of #80, 27 November
+  // 2026; Managing Director, 27 November 2026).
+  const youthStaffLine = institution
+    ? `If ${theyre} still in ${institution}, the staff there can contact ${possessive} social worker or Children's Services for ${pronoun}.\n\n`
+    : '';
+  // 16 and 17 year olds: youth justice worker; adults: probation officer
+  // (Managing Director, 20 November 2026).
+  const prisonLeaverSection = (): string => {
+    if (prisonLeaverServices.length === 0) return '';
+    const officer = is16_17 ? 'youth justice worker' : 'probation officer';
+    let s = heading('SERVICES FOR PEOPLE LEAVING PRISON');
+    s += `Some of these take referrals only. If so, the referral comes through ${possessive} ${officer} or the team in the prison that deals with release and housing.\n\n`;
+    for (const svc of prisonLeaverServices) s += serviceLines(svc);
+    return s;
+  };
+
   // ----------------------------------------
   // 16-17 WITH SOCIAL SERVICES — special layout
   // ----------------------------------------
@@ -970,6 +1024,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
       cs += `\n`;
       cs += `${childServices.website}\n\n`;
     }
+    cs += youthStaffLine;
     return cs;
   };
 
@@ -984,6 +1039,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
     // Already involved and still looking: say so neutrally, without judging
     // the worker (Managing Director, 2 and 3 November 2026)
     text += `If ${they} need something different, or more help alongside that, these can help too.\n\n`;
+    text += prisonLeaverSection();
 
     // Age-filtered navigator orgs as secondary
     if (navigatorOrgs.length > 0) {
@@ -1014,6 +1070,8 @@ function buildTerminalServices(session: SessionState): TerminalResult {
       text += `${councilOrg.name}\n`;
       if (councilOrg.phone) text += `${councilOrg.phone}\n`;
       if (councilOrg.website) text += `${councilOrg.website}\n`;
+      // No staff referral line here: for 16 and 17 year olds it sits under
+      // Children's Services (youthStaffLine).
       text += `\n`;
     }
 
@@ -1037,6 +1095,9 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   // OPENING - Acknowledge their situation
   // ----------------------------------------
   text += `I've found some services that can help with ${possessive} situation.\n\n`;
+
+  // 16 and 17 year olds see Children's Services first, then these.
+  if (!is16_17) text += prisonLeaverSection();
 
   // ----------------------------------------
   // YOUR FIRST STEP - Council Housing Options
@@ -1070,9 +1131,9 @@ function buildTerminalServices(session: SessionState): TerminalResult {
       text += `Explain what's happening and ask for a homelessness assessment. Let them know ${theyre} sleeping rough - this is urgent.\n`;
     } else if (session.housingSituation === 'LOSING_HOME') {
       text += `They can help when ${theyre} about to lose ${possessive} home, so it's best to contact them as soon as ${they} can.\n`;
-    } else if (session.housingSituation === 'LEAVING_INSTITUTION') {
+    } else if (session.housingSituation === 'LEAVING_PRISON' || session.housingSituation === 'LEAVING_HOSPITAL') {
       text += `Explain what's happening and ask for a homelessness assessment.\n`;
-      text += `If ${theyre} still in prison or hospital, ${they} can ask the staff there to refer ${pronoun} to the council's housing team.\n`;
+      if (!is16_17) text += staffReferralLine;
     } else if (session.homeless || session.sleepingSituation) {
       text += `Explain what's happening and ask for a homelessness assessment.\n`;
     } else if (session.preventionNeed) {
@@ -1085,9 +1146,13 @@ function buildTerminalServices(session: SessionState): TerminalResult {
     text += `${la} Council Housing Options\n`;
     text += `https://www.gov.uk/find-local-council\n\n`;
     text += `This is the council's housing team. Ask for a homelessness assessment.\n`;
+    if (!is16_17) text += staffReferralLine;
   }
   
   text += `\n`;
+
+  // 16 and 17 year olds: after Children's Services and Housing Options.
+  if (is16_17) text += prisonLeaverSection();
   
   // ----------------------------------------
   // STREETLINK - If rough sleeping (urgent outreach)
@@ -1102,6 +1167,18 @@ function buildTerminalServices(session: SessionState): TerminalResult {
     }
     text += `\n`;
     text += `This alerts local outreach teams to ${possessive} location so they can find ${pronoun} and offer support.\n\n`;
+  }
+
+  // ----------------------------------------
+  // VETERANS - a yes to the armed forces question (Housing Pathway Endpoints
+  // Contract 1.4, Veterans). Op FORTITUDE always, then local housing services
+  // designed for veterans, where any, by the V4 population tag. No or prefer
+  // not to say changes nothing.
+  // ----------------------------------------
+  if (session.servedInArmedForces === true) {
+    text += heading('SUPPORT FOR VETERANS');
+    text += serviceLines(getOpFortitudeInfo(isSupporter));
+    for (const svc of getHousingServicesForPopulation('veterans', profile)) text += serviceLines(svc);
   }
   
   // ----------------------------------------
@@ -1361,6 +1438,47 @@ export function parseUserInput(input: string, options?: string[]): number | null
   return null;
 }
 
+// Housing situation question only (review, 20 November 2026):
+// - an answer that pairs a leaving phrase with prison or hospital ("released
+//   from prison", "discharged from hospital", "coming out of the hospital") goes
+//   to that answer, whatever its first word; a passing mention ("my mum is in
+//   hospital") does not;
+// - an answer that says "nowhere" and names neither prison nor hospital goes to
+//   sleeping rough or nowhere to stay tonight.
+// Anything else goes through parseUserInput, with the prison and hospital
+// answers kept out of its text matching (review, 20 November 2026): their first
+// words caught "leaving care", "leaving my partner" and anything containing
+// "coming". In this parser they are reached only by their number or by the
+// leaving phrase. When nothing here matches, the chat route still asks Claude
+// with the full list, so a typed answer such as "I get released next week" can
+// reach them too (technical lead's review of #80, 27 November 2026). Once AI
+// readings are reflected back for the person to confirm (Managing Director,
+// 27 November 2026; backlog item 98), that reading is confirmed before it is
+// acted on.
+const LEAVING_PHRASE = String.raw`\b(?:leaving|coming out of|getting out of|released from|discharged from|just out of|out of)\s+(?:the\s+)?`;
+
+export function parseHousingSituationInput(input: string, options?: string[]): number | null {
+  const trimmed = input.trim();
+  if (options && !/^\d+$/.test(trimmed)) {
+    const leavingPrison = new RegExp(LEAVING_PHRASE + String.raw`prison\b`, 'i').test(trimmed);
+    const leavingHospital = new RegExp(LEAVING_PHRASE + String.raw`hospital\b`, 'i').test(trimmed);
+    if (leavingPrison !== leavingHospital) {
+      const word = leavingPrison ? 'prison' : 'hospital';
+      const i = options.findIndex(o => new RegExp(String.raw`\b${word}\b`, 'i').test(o));
+      if (i >= 0) return i + 1;
+    }
+    if (/\bnowhere\b/i.test(trimmed) && !/\b(prison|hospital)\b/i.test(trimmed)) {
+      const i = options.findIndex(o => /\bnowhere to stay tonight\b/i.test(o));
+      if (i >= 0) return i + 1;
+    }
+    // Same length, so numbers still reach every answer; a masked option never
+    // matches typed text.
+    const masked = options.map(o => (/\b(prison|hospital)\b/i.test(o) ? '\u0000' : o));
+    return parseUserInput(input, masked);
+  }
+  return parseUserInput(input, options);
+}
+
 // ============================================================
 // MID-CONVERSATION UNDER-16 SAFEGUARDING DETECTION
 // ============================================================
@@ -1466,7 +1584,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
   const gate = session.currentGate;
   const p = getPhrase(gate, session.isSupporter);
   // The Safety route reads only a chosen option, never a keyword (safety.ts).
-  const choice = isSafetyGate(gate) ? parseSafetyChoice(input, p?.options) : parseUserInput(input, p?.options);
+  const choice = isSafetyGate(gate) ? parseSafetyChoice(input, p?.options)
+    : gate === 'B6_HOMELESSNESS_STATUS' ? parseHousingSituationInput(input, p?.options)
+    : parseUserInput(input, p?.options);
   
   switch (gate) {
     
@@ -2199,6 +2319,9 @@ export function processInput(session: SessionState, input: string): RoutingResul
     // ========================================
     case 'C2_CONSENT_GATE':
       return handleC2ConsentGate(session, choice, buildTerminalServices);
+
+    case 'ARMED_FORCES_ASK':
+      return handleArmedForcesAsk(session, choice, buildTerminalServices);
     
     case 'C3Q1_IMMIGRATION_STATUS':
       return handleC3Q1ImmigrationStatus(session, choice);

@@ -5,14 +5,18 @@
 // GATE TYPE
 // ============================================================
 
-// The six answers to the housing situation question.
-// KEEP_STEADY goes to prevention. The other five are crisis: the housing loss
-// has materialised, whether or not the person has left their home yet.
+// The seven answers to the housing situation question.
+// KEEP_STEADY goes to prevention. LOSING_HOME, STAYING_SOMEWHERE, LEAVING_PRISON,
+// LEAVING_HOSPITAL and NOWHERE_TONIGHT are crisis: the housing loss has
+// materialised, whether or not the person has left their home yet. Leaving
+// prison and leaving hospital are separate answers, each its own pathway
+// (Managing Director, 20 November 2026; Housing Pathway Endpoints Contract).
 export type HousingSituation =
   | 'KEEP_STEADY'
   | 'LOSING_HOME'
   | 'STAYING_SOMEWHERE'
-  | 'LEAVING_INSTITUTION'
+  | 'LEAVING_PRISON'
+  | 'LEAVING_HOSPITAL'
   | 'NOWHERE_TONIGHT'
   | 'NOT_SURE';
 
@@ -80,6 +84,7 @@ export type GateType =
   | 'B12A_WHICH_ORG'
   // Section C Profiling
   | 'C2_CONSENT_GATE'
+  | 'ARMED_FORCES_ASK'
   | 'C3Q1_IMMIGRATION_STATUS'
   | 'C3Q1A_EUSS_FOLLOWUP'
   | 'C3Q1B_PUBLIC_FUNDS_FOLLOWUP'
@@ -207,6 +212,10 @@ export interface SessionState {
   inCare: boolean | null;
   socialServices: string | null;
   youthSocialServicesAsked: boolean;
+  // "Have you ever served in the armed forces?" Crisis housing only, not asked
+  // of 16 and 17 year olds (Managing Director, 2 and 20 November 2026).
+  // Yes true, No false, Prefer not to say or not asked null.
+  servedInArmedForces: boolean | null;
 
   // Flags
   isSupporter: boolean;
@@ -303,6 +312,7 @@ export interface UserProfile {
   adviceSubcategory?: string | null;
   v4Option?: string | null;
   v4Choice?: string | null;
+  servedInArmedForces?: boolean | null;
 }
 
 export interface ServiceCard {
@@ -343,5 +353,6 @@ export function toUserProfile(session: SessionState): UserProfile {
     adviceSubcategory: session.adviceSubcategory,
     v4Option: session.v4Option ?? null,
     v4Choice: session.v4Choice ?? null,
+    servedInArmedForces: session.servedInArmedForces ?? null,
   };
 }

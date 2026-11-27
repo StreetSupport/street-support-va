@@ -9,6 +9,7 @@ import {
   processInput,
   getFirstMessage,
   parseUserInput,
+  parseHousingSituationInput,
   processLocationInput,
   interceptUnder16Age,
   secondScreenPhraseKey
@@ -192,7 +193,9 @@ export async function POST(request: NextRequest) {
         ? parseSafetyChoice(message, currentPhrase?.options)
         : menuGate
           ? parseSafetyChoice(message, currentPhrase?.options)
-          : parseUserInput(message, currentPhrase?.options);
+          : session.currentGate === 'B6_HOMELESSNESS_STATUS'
+            ? parseHousingSituationInput(message, currentPhrase?.options)
+            : parseUserInput(message, currentPhrase?.options);
     
     // If parsing failed and we have options, try Claude interpretation, except
     // on the Safety route and at the crisis question, where only buttons,

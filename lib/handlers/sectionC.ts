@@ -3,6 +3,7 @@
  *
  * Handles Section C profiling gates:
  * - C2_CONSENT_GATE
+ * - ARMED_FORCES_ASK
  * - C3Q1_IMMIGRATION_STATUS
  * - C3Q1A_EUSS_FOLLOWUP
  * - C3Q1B_PUBLIC_FUNDS_FOLLOWUP
@@ -36,6 +37,27 @@ function shouldAskSocialServicesQuestions(session: SessionState): boolean {
   return age === '16-17' || age === '18-20';
 }
 
+// The armed forces question is asked only in the crisis housing conversation:
+// home lost, about to lose it, leaving prison or hospital, staying somewhere,
+// nowhere tonight. Not on the keep-things-steady prevention route, and not of
+// 16 and 17 year olds (Managing Director, 2 November 2026; Service Matching and
+// Questions Design Note 3.3 and 3.4). Age is asked before the housing situation
+// question on every housing route; where it is not known, the question is not
+// asked.
+const CRISIS_HOUSING: SessionState['housingSituation'][] = [
+  'LOSING_HOME', 'STAYING_SOMEWHERE', 'LEAVING_PRISON', 'LEAVING_HOSPITAL', 'NOWHERE_TONIGHT',
+];
+
+// Full guided route only: the quicker route assumes 'no' or 'none' to the
+// circumstance questions, as its screen says (GATE2_ROUTE_SELECTION; Managing
+// Director, 27 November 2026).
+export function shouldAskArmedForces(session: SessionState): boolean {
+  if (session.routeType !== 'FULL') return false;
+  if (!CRISIS_HOUSING.includes(session.housingSituation)) return false;
+  const age = session.detailedAge || session.ageCategory;
+  return !!age && age !== '16-17' && age !== 'Under 16';
+}
+
 // ============================================================================
 // Gate handlers
 // ============================================================================
@@ -47,10 +69,11 @@ export function handleC2ConsentGate(
 ): RoutingResult {
   if (choice === 1) {
     const ack = getPhrase('C2A_CONSENT_ACKNOWLEDGED', session.isSupporter);
-    const imm = getPhrase('C3Q1_IMMIGRATION_STATUS', session.isSupporter);
+    // The armed forces question has already been asked, before this screen.
+    const next = getPhrase('C3Q1_IMMIGRATION_STATUS', session.isSupporter);
     return {
-      text: (ack?.text || '') + '\n\n' + (imm?.text || ''),
-      options: imm?.options,
+      text: (ack?.text || '') + '\n\n' + (next?.text || ''),
+      options: next?.options,
       stateUpdates: { currentGate: 'C3Q1_IMMIGRATION_STATUS', consentGiven: true },
       sessionEnded: false
     };
@@ -65,6 +88,31 @@ export function handleC2ConsentGate(
       sessionEnded: false
     };
   }
+}
+
+// Yes true, No false, Prefer not to say null: not stated, so services for
+// veterans are not selected. Asked before the more-questions screen, so the
+// answer leads there on the full route and to the results on the quick route.
+export function handleArmedForcesAsk(
+  session: SessionState,
+  choice: number | null,
+  buildTerminalServices: (session: SessionState) => TerminalResult
+): RoutingResult {
+  const servedInArmedForces = choice === 1 ? true : (choice === 2 ? false : null);
+  if (session.routeType === 'FULL') {
+    return {
+      ...phrase('C2_CONSENT_GATE', session.isSupporter),
+      stateUpdates: { currentGate: 'C2_CONSENT_GATE', servedInArmedForces }
+    };
+  }
+  const result = buildTerminalServices({ ...session, servedInArmedForces });
+  const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
+  return {
+    text: result.text + '\n' + additionalNeeds?.text,
+    options: additionalNeeds?.options,
+    stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', servedInArmedForces, ...(result.terminalOutcome ? { terminalOutcome: result.terminalOutcome } : {}) },
+    sessionEnded: false
+  };
 }
 
 export function handleC3Q1ImmigrationStatus(session: SessionState, choice: number | null): RoutingResult {

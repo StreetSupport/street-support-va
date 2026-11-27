@@ -660,17 +660,19 @@ This helps us show family-focused financial support if relevant.
   // yes or no homelessness question and the two where-are-you questions after it.
   // The gate keeps its name so the routes into it are unchanged. Options are short
   // and each starts with different words, for voice control and listening
-  // (Managing Director, 4 November 2026).
+  // (Managing Director, 4 November 2026). Leaving prison and leaving hospital
+  // are two answers (Managing Director, 20 November 2026).
   B6_HOMELESSNESS_STATUS: {
     text: `Which of these is closest to your housing situation at the moment? Staying with friends or family counts as temporary.
 
 1. Help or advice to keep things steady at home
 2. About to lose my home, like an eviction date or being told to leave
 3. Staying somewhere temporary
-4. Leaving prison or hospital with nowhere to go
-5. Sleeping rough, or nowhere to stay tonight
-6. Not sure, or something else`,
-    options: ["Help or advice to keep things steady at home", "About to lose my home, like an eviction date or being told to leave", "Staying somewhere temporary", "Leaving prison or hospital with nowhere to go", "Sleeping rough, or nowhere to stay tonight", "Not sure, or something else"]
+4. Leaving prison with nowhere to go
+5. Coming out of hospital with nowhere to go
+6. Sleeping rough, or nowhere to stay tonight
+7. Not sure, or something else`,
+    options: ["Help or advice to keep things steady at home", "About to lose my home, like an eviction date or being told to leave", "Staying somewhere temporary", "Leaving prison with nowhere to go", "Coming out of hospital with nowhere to go", "Sleeping rough, or nowhere to stay tonight", "Not sure, or something else"]
   },
 
   B6_HOMELESSNESS_STATUS__SUPPORTER: {
@@ -679,10 +681,11 @@ This helps us show family-focused financial support if relevant.
 1. Help or advice to keep things steady at home
 2. About to lose their home, like an eviction date or being told to leave
 3. Staying somewhere temporary
-4. Leaving prison or hospital with nowhere to go
-5. Sleeping rough, or nowhere to stay tonight
-6. Not sure, or something else`,
-    options: ["Help or advice to keep things steady at home", "About to lose their home, like an eviction date or being told to leave", "Staying somewhere temporary", "Leaving prison or hospital with nowhere to go", "Sleeping rough, or nowhere to stay tonight", "Not sure, or something else"]
+4. Leaving prison with nowhere to go
+5. Coming out of hospital with nowhere to go
+6. Sleeping rough, or nowhere to stay tonight
+7. Not sure, or something else`,
+    options: ["Help or advice to keep things steady at home", "About to lose their home, like an eviction date or being told to leave", "Staying somewhere temporary", "Leaving prison with nowhere to go", "Coming out of hospital with nowhere to go", "Sleeping rough, or nowhere to stay tonight", "Not sure, or something else"]
   },
 
   HOUSING_OPTIONS_INVOLVEMENT_ASK: {
@@ -1087,6 +1090,28 @@ Would they like to answer a few more questions so I can find services that fit t
 1. Yes
 2. Skip these`,
     options: ["Yes", "Skip these"]
+  },
+
+  // Armed forces (Managing Director, 2 November 2026). Crisis housing only, after
+  // age and before immigration (Service Matching and Questions Design Note,
+  // 3.3); not asked of 16 and 17 year olds (3.4). A yes shows Op FORTITUDE and
+  // local services for veterans (Housing Pathway Endpoints Contract, Veterans).
+  ARMED_FORCES_ASK: {
+    text: `Have you ever served in the armed forces?
+
+1. Yes
+2. No
+3. Prefer not to say`,
+    options: ["Yes", "No", "Prefer not to say"]
+  },
+
+  ARMED_FORCES_ASK__SUPPORTER: {
+    text: `Have they ever served in the armed forces?
+
+1. Yes
+2. No
+3. Prefer not to say`,
+    options: ["Yes", "No", "Prefer not to say"]
   },
 
   C2A_CONSENT_ACKNOWLEDGED: {

@@ -16,6 +16,19 @@
 import { getPhrase } from '../phrasebank';
 import type { SessionState, RoutingResult, TerminalResult } from '../types';
 import { phrase } from './shared';
+import { shouldAskArmedForces } from './sectionC';
+
+// The armed forces question comes before the more-questions screen, on the
+// full and quick routes alike, so a veteran who skips the questions still sees
+// Op FORTITUDE (technical lead's review of #80; Managing Director, 27 November
+// 2026). Its answer then leads to the consent screen or the results.
+function armedForcesFirst(session: SessionState, updates: Partial<SessionState>): RoutingResult | null {
+  if (!shouldAskArmedForces({ ...session, ...updates })) return null;
+  return {
+    ...phrase('ARMED_FORCES_ASK', session.isSupporter),
+    stateUpdates: { currentGate: 'ARMED_FORCES_ASK', ...updates }
+  };
+}
 
 // ============================================================================
 // Gate handlers
@@ -90,6 +103,9 @@ export function handleB12AlreadySupported(
     };
   }
 
+  const armed = armedForcesFirst(session, { alreadySupported: false });
+  if (armed) return armed;
+
   // Go to Section C or terminal
   if (session.routeType === 'FULL') {
     return {
@@ -113,6 +129,9 @@ export function handleB12AWhichOrg(
   input: string,
   buildTerminalServices: (session: SessionState) => TerminalResult
 ): RoutingResult {
+  const armed = armedForcesFirst(session, { currentSupportingOrg: input });
+  if (armed) return armed;
+
   // Free text input - store and continue
   if (session.routeType === 'FULL') {
     return {
