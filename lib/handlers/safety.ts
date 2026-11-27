@@ -200,7 +200,7 @@ function sexualViolenceHelpNow(session: SessionState): RoutingResult {
     emergencyFirst(supporter),
     supporter ? `Here is who can help. They can choose who to contact.` : `Here is who can help. You can choose who to contact.`,
     `SEXUAL VIOLENCE SUPPORT\nRape Crisis England & Wales\n0808 500 2222 (Free, confidential, 24/7)\nhttps://rapecrisis.org.uk`,
-    `SEXUAL VIOLENCE SUPPORT\nSurvivorsUK\n0808 801 0332 (Monday to Friday, 10am to 12pm)\nWebchat every day, 12pm to 8pm: https://survivorsuk.org\nSpecialist, confidential support for men and boys aged 16 and over`,
+    `SEXUAL VIOLENCE SUPPORT\nSurvivorsUK\n0808 801 0332 (Monday to Friday, 10am to 12pm)\nWebchat every day, 12pm to 8pm: https://survivorsuk.org\nText or WhatsApp every day, 12pm to 8pm: 0786 003 1252\nSpecialist, confidential support for men, boys, trans and non-binary people`,
     `SEXUAL VIOLENCE SUPPORT\nGalop\n0800 999 5428\nhttps://galop.org.uk\nNational helpline for LGBTQ+ people affected by abuse or violence`,
   ].join('\n\n') + buildSARCInfo(session) + safetyLocalSections(session) + '\n\n' + QUICK_EXIT_NOTE + '\n\n' + wayBack(supporter);
   return endSafety(text, 'SEXUAL_VIOLENCE');
