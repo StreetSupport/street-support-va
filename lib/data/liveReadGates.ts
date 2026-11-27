@@ -10,7 +10,7 @@ import type { ServicePool } from './servicePool';
 import { noticingLeadsToResults } from '../noticing';
 import { parseUserInput } from '../stateMachine';
 import { getPhrase } from '../phrasebank';
-import { shouldAskSocialServicesQuestions } from '../handlers/sectionC';
+import { shouldAskArmedForces, shouldAskSocialServicesQuestions } from '../handlers/sectionC';
 import { FIRST_OPTIONS } from './v4Categories';
 
 // Gates whose answer can lead to a matched (non-housing) result.
@@ -42,6 +42,7 @@ export const HOUSING_RESULT_GATES = new Set<string>([
   'B7B_PREVENTION_REASON',
   'B12_ALREADY_SUPPORTED',
   'B12A_WHICH_ORG',
+  'ARMED_FORCES_ASK',
   'C2_CONSENT_GATE',
   'C3Q10_LGBTQ',
   'C3Q10A_LGBTQ_SERVICE_PREFERENCE',
@@ -70,9 +71,13 @@ export function housingResultsThisTurn(session: SessionState, input: string): bo
       return quick;
     case 'B7B_PREVENTION_REASON':
       return quick && (choice === 2 || choice === 4);
+    // The armed forces question comes next where it applies (review of #80,
+    // 27 November 2026); the results then follow its answer.
     case 'B12_ALREADY_SUPPORTED':
-      return choice !== 1 && session.routeType !== 'FULL';
+      return choice !== 1 && session.routeType !== 'FULL' && !shouldAskArmedForces(session);
     case 'B12A_WHICH_ORG':
+      return session.routeType !== 'FULL' && !shouldAskArmedForces(session);
+    case 'ARMED_FORCES_ASK':
       return session.routeType !== 'FULL';
     case 'C2_CONSENT_GATE':
       return choice !== 1;
