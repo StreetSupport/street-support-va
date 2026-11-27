@@ -2106,7 +2106,8 @@ SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
 0808 801 0332 (Monday to Friday, 10am to 12pm)
 Webchat every day, 12pm to 8pm: https://survivorsuk.org
-Specialist, confidential support for men and boys aged 16 and over
+Text or WhatsApp every day, 12pm to 8pm: 0786 003 1252
+Specialist, confidential support for men, boys, trans and non-binary people
 
 If you're in immediate danger, call 999.`
   },
@@ -2118,7 +2119,8 @@ SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
 0808 801 0332 (Monday to Friday, 10am to 12pm)
 Webchat every day, 12pm to 8pm: https://survivorsuk.org
-Specialist, confidential support for men and boys aged 16 and over
+Text or WhatsApp every day, 12pm to 8pm: 0786 003 1252
+Specialist, confidential support for men, boys, trans and non-binary people
 
 You don't have to work this out on your own.
 
@@ -2132,7 +2134,8 @@ SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
 0808 801 0332 (Monday to Friday, 10am to 12pm)
 Webchat every day, 12pm to 8pm: https://survivorsuk.org
-Specialist, confidential support for men and boys aged 16 and over
+Text or WhatsApp every day, 12pm to 8pm: 0786 003 1252
+Specialist, confidential support for men, boys, trans and non-binary people
 
 You'll know your next steps from here.
 
@@ -2146,6 +2149,7 @@ SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
 0808 801 0332 (Monday to Friday, 10am to 12pm)
 Webchat every day, 12pm to 8pm: https://survivorsuk.org
+Text or WhatsApp every day, 12pm to 8pm: 0786 003 1252
 
 SEXUAL VIOLENCE SUPPORT
 Galop
@@ -2162,6 +2166,7 @@ SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
 0808 801 0332 (Monday to Friday, 10am to 12pm)
 Webchat every day, 12pm to 8pm: https://survivorsuk.org
+Text or WhatsApp every day, 12pm to 8pm: 0786 003 1252
 
 SEXUAL VIOLENCE SUPPORT
 Galop
@@ -2180,6 +2185,7 @@ SEXUAL VIOLENCE SUPPORT
 SurvivorsUK
 0808 801 0332 (Monday to Friday, 10am to 12pm)
 Webchat every day, 12pm to 8pm: https://survivorsuk.org
+Text or WhatsApp every day, 12pm to 8pm: 0786 003 1252
 
 SEXUAL VIOLENCE SUPPORT
 Galop
@@ -2331,7 +2337,7 @@ Please contact your local council's Housing Options team as soon as you can so t
 
 Find your local council: https://www.gov.uk/find-local-council
 
-Shelter: 0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
+Shelter: 0808 800 4444 (free, Monday to Friday 8am to 5pm; closed at weekends and on bank holidays)
 https://england.shelter.org.uk`
   },
 
@@ -2344,7 +2350,7 @@ Please contact the local council's Housing Options team as soon as you can so th
 
 Find the local council: https://www.gov.uk/find-local-council
 
-Shelter: 0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
+Shelter: 0808 800 4444 (free, Monday to Friday 8am to 5pm; closed at weekends and on bank holidays)
 https://england.shelter.org.uk`
   },
 
@@ -2529,7 +2535,7 @@ What would be most helpful right now?`,
   ESCALATION_LEVEL_2_LEGAL_EMERGENCY: {
     text: `This sounds urgent. With an eviction notice, getting the right advice quickly can make a real difference.
 
-Shelter: 0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
+Shelter: 0808 800 4444 (free, Monday to Friday 8am to 5pm; closed at weekends and on bank holidays)
 https://england.shelter.org.uk/get_help/helpline
 
 Citizens Advice: https://www.citizensadvice.org.uk/housing/
@@ -2564,7 +2570,7 @@ https://england.shelter.org.uk`
 These services can help:
 
 Shelter Emergency Helpline
-0808 800 4444 (free, 8am-8pm weekdays, 9am-5pm weekends)
+0808 800 4444 (free, Monday to Friday 8am to 5pm; closed at weekends and on bank holidays)
 https://england.shelter.org.uk/get_help/helpline
 
 Crisis
