@@ -1090,7 +1090,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
     text += `---------------------\n`;
     text += `If ${theyre} finding it hard to get through to services, or ${they}'d like to talk through ${possessive} options with someone, Shelter's helpline is there for ${pronoun}:\n\n`;
     text += `${shelter.name}\n`;
-    text += `${shelter.phone} (free, 8am-8pm weekdays, 9am-5pm weekends)\n`;
+    text += `${shelter.phone} (free, Monday to Friday 8am to 5pm; closed at weekends and on bank holidays)\n`;
     text += `${shelter.website}\n\n`;
     text += `They can explain ${possessive} rights, help ${pronoun} prepare for conversations with the council, and support ${pronoun} if things aren't going well.\n\n`;
 
@@ -1397,7 +1397,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   text += `---------------------\n`;
   text += `If ${theyre} finding it hard to get through to services, or ${they}'d like to talk through ${possessive} options with someone, Shelter's helpline is there for ${pronoun}:\n\n`;
   text += `${shelter.name}\n`;
-  text += `${shelter.phone} (free, 8am-8pm weekdays, 9am-5pm weekends)\n`;
+  text += `${shelter.phone} (free, Monday to Friday 8am to 5pm; closed at weekends and on bank holidays)\n`;
   text += `${shelter.website}\n\n`;
   text += `They can explain ${possessive} rights, help ${pronoun} prepare for conversations with the council, and support ${pronoun} if things aren't going well.\n\n`;
   
