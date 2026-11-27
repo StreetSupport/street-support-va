@@ -16,7 +16,7 @@ export default function RootLayout({
       <head>
         {/* So the quick exit is fast: connect to BBC Weather and fetch the page early. */}
         <link rel="preconnect" href="https://www.bbc.co.uk" />
-        <link rel="prefetch" href="https://www.bbc.co.uk/weather" />
+        <link rel="prefetch" href="https://www.bbc.co.uk/weather" referrerPolicy="no-referrer" />
       </head>
       <body className="antialiased">{children}</body>
     </html>
