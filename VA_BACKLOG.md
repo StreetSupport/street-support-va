@@ -557,6 +557,11 @@ ChatWidget calls `/api/location`, so this file is unreachable dead code. Confirm
 **Status:** VA #93 built, for James; on 26 November moved onto #95 (`f2c7b72`), the build line merged in and its clashes resolved, so it merges cleanly after #95. The children restoration (D.1, D.6) is on its own branch, `feat/children-restore-2026-11-26` (`332aa57`), with #93's new head merged in and no pull request. It asks everyone on the domestic abuse route about children, so #93's shortcut for women is not taken there.
 **Open:** James's review; pushing the restoration with #93 when he is ready for it.
 
+### 98. Confirming what AI reads
+**Status:** Decided, not built (Managing Director, 27 November 2026; design paper A.4, item 9).
+**Scope:** Wherever AI reads typed text, the assistant reflects its reading back for the person to confirm, and acts only on the confirmation: reading a typed answer as an option (`interpretWithClaude`), the housing or support check (`checkScope`) and the advice topic (`detectAdviceQuestion`). If the person says no, the question comes back with its buttons. The "Did you mean..." wording is drafted from both phrasebanks.
+**Open:** James to confirm there is nowhere else AI reads typed text.
+
 ### 16. ~~Robustness: Data Protection Policy platform update~~ RESOLVED
 **Resolved:** Data Protection Policy v3 (March 2026) no longer references WatsonX.
 
