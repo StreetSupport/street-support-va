@@ -614,12 +614,14 @@ export function getServicesForNeed(need: string, profile: UserProfile): MatchedS
 
 /**
  * Local housing and legal advice for someone about to lose their home
- * (Managing Director, 3 November 2026). Current categories: support > housing
- * and support > legal. To be replaced by Housing, Advice in the V4 redesign.
+ * (Managing Director, 3 November 2026). Asks for both filings: the snapshot's
+ * support > housing and support > legal, and V4's housing > housing-advice,
+ * so the section shows on the snapshot and on live data. In V4, legal advice
+ * about housing is filed under housing advice (Managing Director, 27 November 2026).
  */
 export function getHousingAdviceServices(profile: UserProfile): MatchedService[] {
   const services = getServicesByCategory(
-    profile.localAuthority, ['support'], undefined, { support: ['housing', 'legal'] }
+    profile.localAuthority, ['support', 'housing'], undefined, { support: ['housing', 'legal'], housing: ['housing-advice'] }
   );
   return rankServices(filterByProfile(services, profile), profile, 5);
 }
