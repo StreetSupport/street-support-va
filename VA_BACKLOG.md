@@ -1,7 +1,7 @@
 # Street Support VA: Implementation Backlog
 
 **Purpose:** Track what we should be considering working on next.
-**Last updated:** 16 June 2026
+**Last updated:** 12 November 2026
 
 ---
 
@@ -1101,6 +1101,18 @@ When enriched eligibility data is in use, confidence levels must influence langu
 
 ---
 
+### 81. Claude use and VA issue reporting
+**Priority:** Medium
+**Status:** Draft for James review, 12 November 2026.
+**Governance document:** Claude Use and Issue Reporting Note v1.0. Claude Code instructions in `CLAUDE.md`.
+**Scope:** Records the three uses of Claude (Anthropic API for the new assistant, in development and not live; the live assistant runs on IBM WatsonX; Claude Team for staff, Claude Code for development) and their data protection position. Sets the rule that no service user data or VA conversation content goes into Claude. Defines VA issue reporting as describe-only, with synthetic reproduction and Safeguarding Contract change control for crisis gate fixes.
+**Related:** AI Policy v3.0 (draft for trustee approval, 17 November 2026) added as `governance/AI_Policy_v3_0.md`.
+**Open items:** AI Policy updated when the new assistant goes live; Anthropic and hosting provider named in the Data Protection Policy and DPIA before launch (neither held in this repository); confirm where website form tickets are stored, since this repository is public; urgent notification route; closed ticket retention; second Claude Team workspace owner.
+**Website form change:** "Virtual assistant" content type with four fields, built in the admin site, not this repository.
+**Note:** Item number 80 is referenced in the V4 Redesign Design Note but not yet entered here, so this item takes 81.
+
+---
+
 ## Pipeline Phase Field (new, 30 July 2026)
 
 ### Phase is a set, not a string
@@ -1244,3 +1256,5 @@ When enriched eligibility data is in use, confidence levels must influence langu
 | 2026-05-14 (afternoon) | PR #20 (under-16 + DV + SA + self-harm supporter/professional language) work complete on staging, awaiting James review. Six commits: b1f4ee4 (userType propagation through selector), b5e5d49 (buildUnder16Exit refactor to phrasebank composition), fe0fef6 (under-16 v1.1 wording + professional variants, PROFESSIONAL excludes NSPCC/sign-off), a567860 (DV/SA v1.1 wording + professional variants, SA 999 behavioural change), 4185c9e (self-harm entries placed but not wired pending Item 72 decision), a1526ec (orphan cleanup of unsuffixed SELF_HARM_EXIT and UNDER_16_EXIT). Plus 7th commit refreshing this backlog. Test count 96 → 102, all green throughout. Item 57 status updated. Item 72 added (self-harm wiring follow-up — governance decision needed on Mind Infoline and warm sign-off). Item 73 added (UNDER_16_EXIT__SUPPORTER orphan cleanup, low priority). |
 | 2026-06-16 | Recorded PR #20 merge to main (2 June 2026) in changelog. PR #21 raised against main (items 75, 74, 77): 999 line added to the nine SELF DV/SA base exits (behavioural change flagged for James), `session.userType` threaded through the CHILD_AT_RISK_EXIT call site (no behaviour change), four Male/LGBTQ+ professional regression tests for DV and SA. Commits f274f2a, be11c58, bb73d03 plus this backlog refresh. Test count 102 → 110, all green, tsc clean. Items 75, 74, 77 marked Complete (PR #21). Item 79 added (SA supporter 999 test asymmetry, low priority test-only; requested as "Item 78" but renumbered — 78 already taken). |
 | 2026-07-02 | PR #21 merged to main (items 75, 74, 77 confirmed landed, 110 tests). Backlog reconciled to GitHub. Next: Item C1 care leavers. |
+| 2026-11-12 | Item 81 added: Claude use and VA issue reporting. Claude Use and Issue Reporting Note v1.0 drafted and `CLAUDE.md` added, for James review. |
+| 2026-11-12 | AI Policy v3.0 added to governance as source (replaces v2.1a, draft for trustee approval). Governance Overview updated with document index entries and a note for the 17 November trustee meeting. |
