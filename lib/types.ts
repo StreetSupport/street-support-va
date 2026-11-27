@@ -105,6 +105,8 @@ export type GateType =
   // Safety from harm route (Safeguarding Contract 3.3)
   | 'SAFETY_TYPE_OF_HARM'
   | 'SAFETY_OK_TO_CONTINUE'
+  // Safety disclosure check (Safety Disclosure Check Design Note v1.0)
+  | 'SAFETY_DISCLOSURE_CHECK'
   // Crisis Location Gates
   | 'CRISIS_UNDER16_LOCATION'
   | 'CRISIS_FIRE_FLOOD_LOCATION'
@@ -232,6 +234,17 @@ export interface SessionState {
   // Safety from harm route: the one type of harm the person chose. Not shown
   // back, not logged; it only selects the exit.
   safetyHarm?: 'DOMESTIC_ABUSE' | 'SEXUAL_VIOLENCE' | 'MODERN_SLAVERY' | 'OTHER' | null;
+  // Safety disclosure check (design note v1.0, sections 3 and 7). Held in the
+  // conversation's own state only, never logged: the families a clear No has
+  // used up, the families the message being asked about matched, and the
+  // question to go back to.
+  safetyCheckDeclined?: string[];
+  safetyCheckPending?: string[];
+  safetyCheckReturnGate?: GateType | null;
+  // Who someone came in as, where a Yes at the check switched them to their
+  // own wording: the session-end record keeps this, so the check changes
+  // nothing recorded (Managing Director, 26 November 2026).
+  safetyCheckCameAs?: 'SUPPORTER' | 'PROFESSIONAL' | null;
   dvGender: string | null;
   dvChildren: boolean | null;
   saGender: string | null;
