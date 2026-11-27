@@ -48,7 +48,11 @@ const CRISIS_HOUSING: SessionState['housingSituation'][] = [
   'LOSING_HOME', 'STAYING_SOMEWHERE', 'LEAVING_PRISON', 'LEAVING_HOSPITAL', 'NOWHERE_TONIGHT',
 ];
 
+// Full guided route only: the quicker route assumes 'no' or 'none' to the
+// circumstance questions, as its screen says (GATE2_ROUTE_SELECTION; Managing
+// Director, 27 November 2026).
 export function shouldAskArmedForces(session: SessionState): boolean {
+  if (session.routeType !== 'FULL') return false;
   if (!CRISIS_HOUSING.includes(session.housingSituation)) return false;
   const age = session.detailedAge || session.ageCategory;
   return !!age && age !== '16-17' && age !== 'Under 16';
