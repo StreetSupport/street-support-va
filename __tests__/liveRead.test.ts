@@ -4,7 +4,7 @@
 
 import type { SessionState, UserProfile } from '../lib/types';
 import { createSession, processInput } from '../lib/stateMachine';
-import { getServicesForNeed } from '../lib/serviceMatcher';
+import { getServicesForNeed, getHousingAdviceServices } from '../lib/serviceMatcher';
 import { runWithServicePool, type ServicePool } from '../lib/data/servicePool';
 import {
   TtlCache,
@@ -113,6 +113,35 @@ describe('Live read: matching from the pool', () => {
     const withoutPool = getServicesForNeed('Food', profile({ localAuthority: 'Wolverhampton' }));
     expect(withoutPool.length).toBeGreaterThan(0);
     expect(withoutPool.some(s => s.organizationId === 'org-near')).toBe(false);
+  });
+});
+
+describe('Live read: local housing advice on V4 categories', () => {
+  // Review of #79 (technical lead, 27 November 2026): with V4 copy, housing
+  // advice is housing > housing-advice, and the section must not go empty.
+  const v4Pool = (): ServicePool => ({
+    status: 'ready',
+    radiusKm: 5,
+    services: [
+      mapServiceRow(row({ _id: 'adv', ServiceProviderKey: 'org-adv', ParentCategoryKey: 'housing', SubCategoryKey: 'housing-advice', distance: 200 }))!,
+      mapServiceRow(row({ _id: 'ea', ServiceProviderKey: 'org-ea', ParentCategoryKey: 'housing', SubCategoryKey: 'emergency-accommodation', distance: 100 }))!,
+    ],
+    contacts: mapProviderRows([
+      { Key: 'org-adv', Name: 'Housing Advice Org', Telephone: null, Website: null },
+      { Key: 'org-ea', Name: 'Night Shelter Org', Telephone: null, Website: null },
+    ]),
+  });
+
+  test('a V4 housing advice service is found', () => {
+    const shown = runWithServicePool(v4Pool(), () =>
+      getHousingAdviceServices(profile({ localAuthority: 'Walsall', ageCategory: '25+' }))
+    );
+    expect(shown.map(s => s.organizationId)).toEqual(['org-adv']);
+  });
+
+  test('without a pool, the snapshot still gives local housing advice', () => {
+    const shown = getHousingAdviceServices(profile({ localAuthority: 'Wolverhampton', ageCategory: '25+' }));
+    expect(shown.length).toBeGreaterThan(0);
   });
 });
 
