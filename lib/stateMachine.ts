@@ -1146,7 +1146,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
     text += `${la} Council Housing Options\n`;
     text += `https://www.gov.uk/find-local-council\n\n`;
     text += `This is the council's housing team. Ask for a homelessness assessment.\n`;
-    text += staffReferralLine;
+    if (!is16_17) text += staffReferralLine;
   }
   
   text += `\n`;
