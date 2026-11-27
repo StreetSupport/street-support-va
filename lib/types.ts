@@ -35,6 +35,10 @@ export type GateType =
   | 'B4_GENDER'
   | 'B5_MAIN_SUPPORT_NEED'
   | 'B5_SECOND_SCREEN'
+  | 'B5_NOTICING'
+  // "I'm not sure where to start" (design paper, Part C, section 2)
+  | 'B5_NOT_SURE'
+  | 'B5_HOUSING_OFFER'
   | 'B5A_ADVICE_TYPE'
   | 'B5_PROFILE_AGE'
   | 'B5_YOUTH_SOCIAL_SERVICES'
@@ -136,6 +140,17 @@ export interface SessionState {
   // Profile questions already asked this session, answered or not, so a
   // "prefer not to say" (stored as null) is not asked again.
   profileAsked?: string[];
+  // The noticing step (design note 3.5) is offered once a session.
+  noticingAsked?: boolean;
+  // "Not sure where to start": more than one pressure ticked, so the results
+  // carry the awareness line (Managing Director, 26 November 2026).
+  notSureAware?: boolean;
+  // The in-person route has shown the first question again, so "not sure
+  // where to start" is left off it until another option is chosen (#73
+  // review; Managing Director, 26 November 2026).
+  notSureInPersonShown?: boolean;
+  // Which housing answer was given there, for the offer after the results.
+  noticingHousing?: 'no-settled-place' | 'keep-home' | null;
   additionalNeeds: string[];
   needCount: number;
 
@@ -217,11 +232,16 @@ export interface RoutingResult {
   stateUpdates: Partial<SessionState>;
   sessionEnded?: boolean;
   responseType?: string;
+  // A question that takes several answers: the option numbers that answer
+  // on their own (lib/noticing.ts, noticingMultiSelect).
+  multiSelect?: { exclusive: number[] };
 }
 
 export interface TerminalResult {
   text: string;
   terminalOutcome?: string;
+  // True where local services are listed in the text.
+  hasLocal?: boolean;
 }
 
 // ============================================================

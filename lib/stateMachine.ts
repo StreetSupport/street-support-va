@@ -33,10 +33,12 @@ import {
   handleDVChildrenAsk,
   handleSAGenderAsk,
 } from './handlers/crisis';
+import { isSafetyRouteEnabled } from './safetyRouteSwitch';
 import { handleSafetyTypeOfHarm, handleSafetyOkToContinue, isSafetyGate, parseSafetyChoice, startSafetyRoute } from './handlers/safety';
 import { firstOption, partsFor, visibleFirstOptions, type FirstOptionId } from './data/v4Categories';
 import { buildUnder16Exit, childrenServicesData } from './handlers/shared';
 import { getServicePool } from './data/servicePool';
+import { DIGNITY_OFFER, HOUSING_OFFER_OPTIONS, NOTICING_UNCLEAR, noticingDangerLine, noticingUnclear, awarenessLine, housingOfferText, isDignityChoice, noticingMultiSelect, noticingOptions, noticingOutcome, noticingText, parseNoticing, takesNoticingStep, NO_PLACE_TO_START, notSureMultiSelect, notSureOptions, notSureOutcome, notSureText } from './noticing';
 import {
   handleLocationConsent,
   handleLocationPostcode,
@@ -540,11 +542,55 @@ function nextProfileQuestion(session: SessionState, after?: 'age' | 'gender' | '
     }
   }
   
-  // All required fields collected - go to terminal
+  // All required fields collected. The noticing step comes before the
+  // results, once a session, where the need takes it (design note 3.5).
+  if (takesNoticingStep(session)) {
+    return {
+      text: noticingText(session),
+      options: noticingOptions(session),
+      multiSelect: noticingMultiSelect(session),
+      stateUpdates: { currentGate: 'B5_NOTICING', noticingAsked: true, unclearCount: 0 },
+    };
+  }
+  // "Not sure where to start" with more than one pressure ticked: the
+  // awareness line with the results (Managing Director, 26 November 2026).
+  return finishWithResults(session, session.notSureAware ? awarenessLine(session) : undefined);
+}
+
+// The in-person route for "not sure where to start": a place to start where
+// one can be offered; the assistant cannot read them yet (work item 20), so
+// for now the line and the first question again (Managing Director,
+// 8 November 2026), without "not sure where to start", so it cannot lead
+// round in a circle (#73 review; Managing Director, 26 November 2026).
+function notSureInPerson(session: SessionState, updates: Partial<SessionState>): RoutingResult {
+  const menu = firstQuestionWithoutNotSure(session);
+  return { ...menu, text: `${NO_PLACE_TO_START}\n\n${menu.text}`, stateUpdates: { ...menu.stateUpdates, ...updates, notSureInPersonShown: true } };
+}
+
+// The first question with "not sure where to start" left off. It is the last
+// option, so the others keep their numbers.
+function firstQuestionWithoutNotSure(session: SessionState): RoutingResult {
+  const menu = phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter);
+  const all = menu.options ?? [];
+  if (!/not sure where to start/i.test(all[all.length - 1] ?? '')) return menu;
+  const options = all.slice(0, -1);
+  const intro = menu.text.split('\n').filter(line => !/^\d+\. /.test(line)).join('\n').trimEnd();
+  return { ...menu, text: `${intro}\n\n${options.map((o, i) => `${i + 1}. ${o}`).join('\n')}`, options };
+}
+
+// The results for the person's need, then the question about other needs.
+// `lead` is shown before the results (the noticing step's awareness line).
+// The awareness line says "Here's help with ...", so it leads only where local
+// services are listed; it is not shown above a zero-match or "can't load" result
+// (Safeguarding Contract, invariant 5: confidence matches the data). After
+// dignity items, the one onward offer follows the results (design note 3.7).
+function finishWithResults(session: SessionState, lead?: string): RoutingResult {
   const result = buildTerminalServices(session);
   const additionalNeeds = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
+  const shownLead = lead && result.hasLocal ? lead + '\n\n' : '';
+  const offer = isDignityChoice(session) ? '\n' + DIGNITY_OFFER + '\n' : '';
   return {
-    text: result.text + '\n' + additionalNeeds?.text,
+    text: shownLead + result.text + '\n' + offer + additionalNeeds?.text,
     options: additionalNeeds?.options,
     stateUpdates: {
       currentGate: 'TERMINAL_ADDITIONAL_NEEDS' as const,
@@ -766,7 +812,7 @@ function buildNonHousingTerminal(session: SessionState): TerminalResult {
     text += buildSSNBrowseLink(displayName, la, categoryKey) + '\n';
   }
 
-  return { text: text.trim() };
+  return { text: text.trim(), hasLocal: true };
 }
 
 // ============================================================
@@ -1557,8 +1603,16 @@ export function processInput(session: SessionState, input: string): RoutingResul
       // The first question in V4 terms (Decision 1, Managing Director, 4 November 2026).
       // Numbered as offered: Safety is left out while its switch is off.
       const offered = visibleFirstOptions();
-      const option = choice && choice >= 1 && choice <= offered.length ? offered[choice - 1] : null;
-      if (!option) return phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter);
+      // After the in-person route "not sure where to start" is left off (#73
+      // review). It is the last option, so the others keep their numbers.
+      const shown = session.notSureInPersonShown ? offered.filter(o => o.id !== 'not-sure') : offered;
+      const option = choice && choice >= 1 && choice <= shown.length ? shown[choice - 1] : null;
+      if (!option) return session.notSureInPersonShown ? firstQuestionWithoutNotSure(session) : phrase('B5_MAIN_SUPPORT_NEED', session.isSupporter);
+      if (session.notSureInPersonShown) {
+        // A real option is chosen: the first question is whole again from here.
+        const r = processInput({ ...session, notSureInPersonShown: false }, input);
+        return { ...r, stateUpdates: { ...r.stateUpdates, notSureInPersonShown: false } };
+      }
       const needCount = session.needCount + 1;
 
       if (option.id === 'housing') {
@@ -1588,12 +1642,14 @@ export function processInput(session: SessionState, input: string): RoutingResul
       }
 
       if (option.id === 'not-sure') {
-        // Leads to the noticing step (design note v1.1, section 2), built next.
-        // Until then this branch is not reachable in a release.
-        return {
-          text: 'Not built yet: the noticing step for "not sure where to start".',
-          stateUpdates: { v4Option: 'not-sure', v4Choice: null, supportNeed: 'V4:not-sure', needCount },
-        };
+        // The assistant helps the person work it out, through the noticing
+        // question, with the choice of someone in person (design paper, Part
+        // C, section 2; Managing Director, 26 November 2026). Supporters are
+        // not offered the noticing question (3.5), so they go to the in-person
+        // route.
+        const ns = { v4Option: 'not-sure', v4Choice: null, supportNeed: 'V4:not-sure', needCount, unclearCount: 0 };
+        if (session.isSupporter) return notSureInPerson(session, ns);
+        return { text: notSureText(), options: notSureOptions(), multiSelect: notSureMultiSelect(), stateUpdates: { currentGate: 'B5_NOT_SURE', noticingAsked: true, ...ns } };
       }
 
       if (option.secondScreen) {
@@ -1619,6 +1675,104 @@ export function processInput(session: SessionState, input: string): RoutingResul
       const updated = { ...session, v4Choice: picked.label, supportNeed };
       const next = routeToNextProfileQuestion(updated);
       return { ...next, stateUpdates: { v4Choice: picked.label, supportNeed, ...next.stateUpdates } };
+    }
+
+    case 'B5_NOTICING': {
+      // Read as option numbers or one option's exact words only (lib/noticing.ts).
+      const picked = parseNoticing(input, noticingOptions(session));
+      if (!picked) {
+        // Ask once more; after that, show their results, so no one is held here.
+        if (session.unclearCount >= 1) {
+          const done = finishWithResults(session);
+          return { ...done, text: `${noticingDangerLine(session.isSupporter)}\n\n${done.text}`, stateUpdates: { ...done.stateUpdates, unclearCount: 0 } };
+        }
+        return { text: `${noticingUnclear(session.isSupporter)}\n\n${noticingText(session)}`, options: noticingOptions(session), multiSelect: noticingMultiSelect(session), stateUpdates: { currentGate: 'B5_NOTICING', unclearCount: session.unclearCount + 1 } };
+      }
+      const { outcome } = noticingOutcome(session, picked);
+      if (outcome === 'safety') {
+        // While the Safety route's switch is off, the crisis question: hard-coded,
+        // live, and covering domestic abuse, sexual violence and immediate danger
+        // (James Cross's review of #73, 25 November 2026).
+        if (!isSafetyRouteEnabled()) {
+          return { ...phrase('GATE0_CRISIS_DANGER', session.isSupporter), stateUpdates: { currentGate: 'GATE0_CRISIS_DANGER', unclearCount: 0 } };
+        }
+        const r = startSafetyRoute(session);
+        return { ...r, stateUpdates: { ...r.stateUpdates, v4Option: 'safety', v4Choice: null, supportNeed: 'V4:safety', unclearCount: 0 } };
+      }
+      if (outcome === 'housing') {
+        // Results for what they came for first, then housing offered as a
+        // choice, never entered automatically (Managing Director, 19 November 2026).
+        const { named } = noticingOutcome(session, picked);
+        const which = named.includes('no-settled-place') ? 'no-settled-place' : 'keep-home';
+        const others = named.some(id => !['no-settled-place', 'keep-home', 'nothing-else', 'not-sure'].includes(id));
+        const result = buildTerminalServices(session);
+        const lead = others && result.hasLocal ? awarenessLine(session) + '\n\n' : '';
+        return {
+          text: `${lead}${result.text}\n\n${housingOfferText(which)}`,
+          options: HOUSING_OFFER_OPTIONS,
+          stateUpdates: {
+            currentGate: 'B5_HOUSING_OFFER', noticingHousing: which, unclearCount: 0,
+            ...(result.terminalOutcome ? { terminalOutcome: result.terminalOutcome } : {}),
+          },
+        };
+      }
+      const done = finishWithResults(session, outcome === 'aware' ? awarenessLine(session) : undefined);
+      return { ...done, stateUpdates: { ...done.stateUpdates, unclearCount: 0 } };
+    }
+
+    case 'B5_NOT_SURE': {
+      // Read as option numbers or one option's exact words only, as at the
+      // noticing question: never by the AI.
+      const picked = parseNoticing(input, notSureOptions());
+      if (!picked) {
+        // Ask once more; after that, the in-person route, so no one is held here.
+        if (session.unclearCount >= 1) {
+          const r = notSureInPerson(session, { unclearCount: 0 });
+          return { ...r, text: `${noticingDangerLine(session.isSupporter)}\n\n${r.text}` };
+        }
+        return { text: `${noticingUnclear(session.isSupporter)}\n\n${notSureText()}`, options: notSureOptions(), multiSelect: notSureMultiSelect(), stateUpdates: { currentGate: 'B5_NOT_SURE', unclearCount: session.unclearCount + 1 } };
+      }
+      const outcome = notSureOutcome(picked);
+      if (outcome.kind === 'safety') {
+        // As "Feeling unsafe" at the noticing question.
+        if (!isSafetyRouteEnabled()) {
+          return { ...phrase('GATE0_CRISIS_DANGER', session.isSupporter), stateUpdates: { currentGate: 'GATE0_CRISIS_DANGER', unclearCount: 0 } };
+        }
+        const r = startSafetyRoute(session);
+        return { ...r, stateUpdates: { ...r.stateUpdates, v4Option: 'safety', v4Choice: null, supportNeed: 'V4:safety', unclearCount: 0 } };
+      }
+      if (outcome.kind === 'in-person') return notSureInPerson(session, { unclearCount: 0 });
+      // Housing, or the first pressure ticked that has a topic: as if chosen on
+      // the first question. "Not sure" was counted as the need, so it is not
+      // counted twice.
+      const id = outcome.kind === 'housing' ? 'housing' : outcome.option;
+      const number = visibleFirstOptions().findIndex(o => o.id === id) + 1;
+      const r = processInput({ ...session, currentGate: 'B5_MAIN_SUPPORT_NEED', needCount: Math.max(0, session.needCount - 1), unclearCount: 0 }, String(number));
+      const aware = outcome.kind === 'topic' && outcome.others;
+      return { ...r, stateUpdates: { ...r.stateUpdates, unclearCount: 0, noticingAsked: true, ...(aware ? { notSureAware: true } : {}) } };
+    }
+
+    case 'B5_HOUSING_OFFER': {
+      const pick = parseNoticing(input, HOUSING_OFFER_OPTIONS);
+      const one = pick && pick.length === 1 ? pick[0] : null;
+      if (one === 1) {
+        const housing = { supportNeed: 'Emergency Housing', v4Option: 'housing', v4Choice: null, unclearCount: 0, needCount: session.needCount + 1 };
+        if (!session.ageCategory) {
+          return { ...phrase('B5_PROFILE_AGE', session.isSupporter), stateUpdates: { currentGate: 'B5_PROFILE_AGE', ...housing } };
+        }
+        return { ...phrase('B6_HOMELESSNESS_STATUS', session.isSupporter), stateUpdates: { currentGate: 'B6_HOMELESSNESS_STATUS', ...housing } };
+      }
+      if (one === null && session.unclearCount < 1) {
+        return {
+          text: `${NOTICING_UNCLEAR}\n\n${housingOfferText(session.noticingHousing === 'keep-home' ? 'keep-home' : 'no-settled-place')}`,
+          options: HOUSING_OFFER_OPTIONS,
+          stateUpdates: { currentGate: 'B5_HOUSING_OFFER', unclearCount: session.unclearCount + 1 },
+        };
+      }
+      // Staying with these results (or a second unclear answer): the usual
+      // question about anything else, so no one is left without a next step.
+      const more = getPhrase('TERMINAL_ADDITIONAL_NEEDS', session.isSupporter);
+      return { text: more?.text ?? '', options: more?.options, stateUpdates: { currentGate: 'TERMINAL_ADDITIONAL_NEEDS', unclearCount: 0 } };
     }
 
     case 'B5A_ADVICE_TYPE':
