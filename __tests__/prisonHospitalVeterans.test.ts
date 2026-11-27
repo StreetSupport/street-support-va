@@ -64,11 +64,15 @@ function converse(start: SessionState, inputs: string[], pool?: ServicePool) {
 const quick = (option: string, profile: Partial<SessionState> = {}, pool?: ServicePool) =>
   converse(sessionAt('B6_HOMELESSNESS_STATUS', adult(profile)), [option, '2'], pool).result.text;
 
-// Full route from the "already supported" question to the consent screen and on.
+// Full route at the consent screen.
 const toConsent = (situation: SessionState['housingSituation'], profile: Partial<SessionState> = {}) =>
   sessionAt('C2_CONSENT_GATE', adult({ routeType: 'FULL', housingSituation: situation, homeless: true, ...profile }));
 
-// Full route answers after the armed forces question: British, no children,
+// Full route at the "already supported" question; "2" (no) moves on.
+const toAlreadySupported = (situation: SessionState['housingSituation'], profile: Partial<SessionState> = {}) =>
+  sessionAt('B12_ALREADY_SUPPORTED', adult({ routeType: 'FULL', housingSituation: situation, homeless: true, ...profile }));
+
+// Full route answers after the consent screen: British, no children,
 // male, ethnicity, physical health and mental health not stated or none,
 // no convictions, not LGBTQ+. Ends at the results for someone aged 25 or over.
 const AFTER_ARMED_FORCES = ['1', '2', '1', '7', '7', '1', '1', '2'];
@@ -138,9 +142,21 @@ describe('a 17 year old leaving prison', () => {
     expect(text).not.toContain('youth justice worker');
   });
 
-  test.each([['4', 'prison'], ['5', 'hospital']])('with a social worker, answer %s still shows the staff referral line', (option, place) => {
-    const text = quick(option as string, { ...seventeen, socialServices: 'Yes' });
-    expect(text).toContain(`If you're still in ${place}, you can ask the staff there to refer you to this team.`);
+  // Technical lead's review of #80 (27 November 2026): the staff contact the
+  // social worker or Children's Services, not Housing Options.
+  test.each([
+    ['4', 'prison', 'Yes'], ['5', 'hospital', 'Yes'], ['4', 'prison', 'No'], ['5', 'hospital', 'No'],
+  ])('answer %s (%s), social worker %s: the staff line points to their social worker or Children\'s Services', (option, place, sw) => {
+    const text = quick(option as string, { ...seventeen, socialServices: sw });
+    const line = `If you're still in ${place}, the staff there can contact your social worker or Children's Services for you.`;
+    expect(text).toContain(line);
+    expect(text).not.toContain('can ask the staff there to refer you to this team');
+    expect(text.indexOf(line)).toBeLessThan(text.indexOf('HOUSING OPTIONS'));
+  });
+
+  test('a supporter is told the staff can contact their social worker or Children\'s Services', () => {
+    expect(quick('5', { ...seventeen, isSupporter: true }))
+      .toContain("If they're still in hospital, the staff there can contact their social worker or Children's Services for them.");
   });
 });
 
@@ -174,11 +190,19 @@ describe('the armed forces question', () => {
 
   test.each([
     ['LOSING_HOME'], ['STAYING_SOMEWHERE'], ['LEAVING_PRISON'], ['LEAVING_HOSPITAL'], ['NOWHERE_TONIGHT'],
-  ])('is asked in the crisis housing conversation (%s), after consent and before immigration', situation => {
-    const { r, s } = step(toConsent(situation as SessionState['housingSituation']), '1');
+  ])('is asked in the crisis housing conversation (%s), before the more-questions screen', situation => {
+    const { r, s } = step(toAlreadySupported(situation as SessionState['housingSituation']), '2');
     expect(r.stateUpdates.currentGate).toBe('ARMED_FORCES_ASK');
     expect(r.text).toContain('Have you ever served in the armed forces?');
-    expect(step(s, '1').r.stateUpdates.currentGate).toBe('C3Q1_IMMIGRATION_STATUS');
+    const next = step(s, '1');
+    expect(next.r.stateUpdates.currentGate).toBe('C2_CONSENT_GATE');
+    expect(step(next.s, '1').r.stateUpdates.currentGate).toBe('C3Q1_IMMIGRATION_STATUS');
+  });
+
+  test('is asked after naming the organisation already supporting them', () => {
+    const first = step(toAlreadySupported('STAYING_SOMEWHERE'), '1');
+    expect(first.r.stateUpdates.currentGate).toBe('B12A_WHICH_ORG');
+    expect(step(first.s, 'A local charity').r.stateUpdates.currentGate).toBe('ARMED_FORCES_ASK');
   });
 
   test.each([['2'], ['3'], ['4'], ['5'], ['6']])('is not asked on the quick route (answer %s), which goes straight to the results', option => {
@@ -189,8 +213,8 @@ describe('the armed forces question', () => {
 
   test('is not asked of a 16 or 17 year old', () => {
     for (const age of [{ ageCategory: '16-17' }, { ageCategory: '16-17', detailedAge: '16-17' }]) {
-      const { r } = step(toConsent('STAYING_SOMEWHERE', age), '1');
-      expect(r.stateUpdates.currentGate).toBe('C3Q1_IMMIGRATION_STATUS');
+      const { r } = step(toAlreadySupported('STAYING_SOMEWHERE', age), '2');
+      expect(r.stateUpdates.currentGate).toBe('C2_CONSENT_GATE');
       expect(r.text).not.toContain('armed forces');
     }
   });
@@ -199,25 +223,32 @@ describe('the armed forces question', () => {
     // Their route goes to the prevention questions, not the consent screen ...
     const first = step(sessionAt('B6_HOMELESSNESS_STATUS', adult({ routeType: 'FULL' })), '1');
     expect(step(first.s, '2').r.stateUpdates.currentGate).toBe('B7B_PREVENTION_REASON');
-    // ... and the consent screen would not ask it of them either.
-    expect(step(toConsent('KEEP_STEADY'), '1').r.stateUpdates.currentGate).toBe('C3Q1_IMMIGRATION_STATUS');
+    // ... and the step before the consent screen would not ask it of them either.
+    expect(step(toAlreadySupported('KEEP_STEADY'), '2').r.stateUpdates.currentGate).toBe('C2_CONSENT_GATE');
   });
 
-  test('is not asked when the answers are skipped at the consent screen', () => {
-    const { r } = step(toConsent('STAYING_SOMEWHERE'), '2');
-    expect(r.stateUpdates.currentGate).toBe('TERMINAL_ADDITIONAL_NEEDS');
+  test('a veteran who then skips the more questions still sees Op FORTITUDE', () => {
+    const { result } = converse(toAlreadySupported('STAYING_SOMEWHERE'), ['2', '1', '2']);
+    expect(result.stateUpdates.currentGate).toBe('TERMINAL_ADDITIONAL_NEEDS');
+    expect(result.text).toContain('SUPPORT FOR VETERANS');
+    expect(result.text).toContain('Op FORTITUDE');
+  });
+
+  test('is not asked again at the consent screen', () => {
+    const { r } = step(toConsent('STAYING_SOMEWHERE'), '1');
+    expect(r.stateUpdates.currentGate).toBe('C3Q1_IMMIGRATION_STATUS');
     expect(r.text).not.toContain('armed forces');
   });
 
   test.each([['1', true], ['2', false], ['3', null]])('answer %s is kept with the profile', (option, value) => {
-    const { s } = step(toConsent('STAYING_SOMEWHERE'), '1');
+    const { s } = step(toAlreadySupported('STAYING_SOMEWHERE'), '2');
     expect(step(s, option as string).r.stateUpdates.servedInArmedForces).toBe(value);
   });
 });
 
 describe('a veteran', () => {
   const resultsAfter = (answer: string, profile: Partial<SessionState> = {}) =>
-    converse(toConsent('STAYING_SOMEWHERE', profile), ['1', answer, ...AFTER_ARMED_FORCES]).result;
+    converse(toAlreadySupported('STAYING_SOMEWHERE', profile), ['2', answer, '1', ...AFTER_ARMED_FORCES]).result;
 
   test('saying yes sees Op FORTITUDE under its own heading, local services for veterans, and Housing Options', () => {
     const result = resultsAfter('1');
@@ -231,7 +262,7 @@ describe('a veteran', () => {
   });
 
   test('sees Op FORTITUDE even where no local service is tagged for veterans', () => {
-    const text = converse(toConsent('STAYING_SOMEWHERE'), ['1', '1', ...AFTER_ARMED_FORCES], emptyPool()).result.text;
+    const text = converse(toAlreadySupported('STAYING_SOMEWHERE'), ['2', '1', '1', ...AFTER_ARMED_FORCES], emptyPool()).result.text;
     expect(text).toContain('Op FORTITUDE');
     expect(text).not.toContain('Example Veterans Housing');
   });

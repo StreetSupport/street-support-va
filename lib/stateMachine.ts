@@ -990,6 +990,12 @@ function buildTerminalServices(session: SessionState): TerminalResult {
   const staffReferralLine = institution
     ? `If ${theyre} still in ${institution}, ${they} can ask the staff there to refer ${pronoun} to this team.\n`
     : '';
+  // 16 and 17 year olds: the staff go to their social worker or Children's
+  // Services, not Housing Options (technical lead's review of #80, 27 November
+  // 2026; Managing Director, 27 November 2026).
+  const youthStaffLine = institution
+    ? `If ${theyre} still in ${institution}, the staff there can contact ${possessive} social worker or Children's Services for ${pronoun}.\n\n`
+    : '';
   // 16 and 17 year olds: youth justice worker; adults: probation officer
   // (Managing Director, 20 November 2026).
   const prisonLeaverSection = (): string => {
@@ -1029,6 +1035,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
       cs += `${childServices.website}\n\n`;
     }
     if (care.notSureNote) cs += `${care.notSureNote}\n\n`;
+    cs += youthStaffLine;
     return cs;
   };
 
@@ -1074,10 +1081,8 @@ function buildTerminalServices(session: SessionState): TerminalResult {
       text += `${councilOrg.name}\n`;
       if (councilOrg.phone) text += `${councilOrg.phone}\n`;
       if (councilOrg.website) text += `${councilOrg.website}\n`;
-      // Needs the technical lead's eye: 16 and 17 year olds with a social
-      // worker also see the staff referral line for prison or hospital
-      // (review, 20 November 2026). Safeguarding-adjacent layout.
-      if (staffReferralLine) text += staffReferralLine;
+      // No staff referral line here: for 16 and 17 year olds it sits under
+      // Children's Services (youthStaffLine).
       text += `\n`;
     }
 
@@ -1147,7 +1152,7 @@ function buildTerminalServices(session: SessionState): TerminalResult {
       text += `They can help when ${theyre} about to lose ${possessive} home, so it's best to contact them as soon as ${they} can.\n`;
     } else if (session.housingSituation === 'LEAVING_PRISON' || session.housingSituation === 'LEAVING_HOSPITAL') {
       text += `Explain what's happening and ask for a homelessness assessment.\n`;
-      text += staffReferralLine;
+      if (!is16_17) text += staffReferralLine;
     } else if (session.homeless || session.sleepingSituation) {
       text += `Explain what's happening and ask for a homelessness assessment.\n`;
     } else if (session.preventionNeed) {
@@ -1465,7 +1470,13 @@ export function parseUserInput(input: string, options?: string[]): number | null
 // Anything else goes through parseUserInput, with the prison and hospital
 // answers kept out of its text matching (review, 20 November 2026): their first
 // words caught "leaving care", "leaving my partner" and anything containing
-// "coming". They are reached only by their number or by the leaving phrase.
+// "coming". In this parser they are reached only by their number or by the
+// leaving phrase. When nothing here matches, the chat route still asks Claude
+// with the full list, so a typed answer such as "I get released next week" can
+// reach them too (technical lead's review of #80, 27 November 2026). Once AI
+// readings are reflected back for the person to confirm (Managing Director,
+// 27 November 2026; backlog item 98), that reading is confirmed before it is
+// acted on.
 const LEAVING_PHRASE = String.raw`\b(?:leaving|coming out of|getting out of|released from|discharged from|just out of|out of)\s+(?:the\s+)?`;
 
 // The gender questions: B5_PROFILE_GENDER and C3Q4_GENDER, and the
@@ -2381,7 +2392,7 @@ export function processInput(session: SessionState, input: string): RoutingResul
       return handleC2ConsentGate(session, choice, buildTerminalServices);
 
     case 'ARMED_FORCES_ASK':
-      return handleArmedForcesAsk(session, choice);
+      return handleArmedForcesAsk(session, choice, buildTerminalServices);
     
     case 'C3Q1_IMMIGRATION_STATUS':
       return handleC3Q1ImmigrationStatus(session, choice);
