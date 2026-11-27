@@ -10,7 +10,7 @@ import { partsFor, V4_SUBCATEGORIES, type CategoryPart, type FirstOptionId } fro
 import orgsData from './data/wmca_organizations_v7.json';
 import endpointsData from './data/housing-pathway-endpoints.json';
 import type { MatchedService, DefaultOrg, UserProfile } from './types';
-import { getServicePool } from './data/servicePool';
+import { getServicePool, runWithServicePool } from './data/servicePool';
 
 // ============================================================
 // TYPES
@@ -363,6 +363,9 @@ function matchesAge(clientGroups: string[], ageCategory: string | null): boolean
   return true;
 }
 
+// The C3Q6 answers, as stored, that lift services for ethnic minority communities.
+const ETHNIC_MINORITY_ANSWERS = ['White Other', 'Black African', 'Black Caribbean', 'Asian', 'Mixed'];
+
 /**
  * Calculate match score for a service based on profile
  */
@@ -371,30 +374,33 @@ function calculateMatchScore(service: Service, profile: UserProfile): number {
   
   const groups = service.client_groups || [];
   const desc = service.description.toLowerCase();
+  // V4 population tags (plain keys, v4Categories.ts) lift as the old labels do.
+  // The age and gender filters never read them, so a tag hides nothing.
+  const tagged = (...keys: string[]): boolean => keys.some(k => groups.includes(k));
   
   // LGBTQ+ match - boost services targeting LGBTQ+ users
-  if (profile.lgbtq && groups.some(g => 
+  if (profile.lgbtq && (groups.some(g => 
     clientGroupKeywords.lgbtq.some(k => g.includes(k))
-  )) {
+  ) || tagged('lgbtq'))) {
     score += 20;
   }
   
   // Youth match - boost youth-focused services for young users
   if (['16-17', '18-24', '18-20', '21-24'].includes(profile.ageCategory || '') && 
-      groups.some(g => clientGroupKeywords.youth.some(k => g.includes(k)))) {
+      (groups.some(g => clientGroupKeywords.youth.some(k => g.includes(k))) || tagged('young-people'))) {
     score += 15;
   }
   
   // Family match - boost family services when user has children
-  if (profile.hasChildren && groups.some(g => 
+  if (profile.hasChildren && (groups.some(g => 
     clientGroupKeywords.families.some(k => g.includes(k))
-  )) {
+  ) || tagged('families'))) {
     score += 15;
   }
   
   // Ex-offender match - boost services that support people with convictions
   if (profile.criminalConvictions === 'Yes') {
-    if (groups.some(g => clientGroupKeywords.exOffenders.some(k => g.toLowerCase().includes(k.toLowerCase())))) {
+    if (groups.some(g => clientGroupKeywords.exOffenders.some(k => g.toLowerCase().includes(k.toLowerCase()))) || tagged('people-with-criminal-records')) {
       score += 20;
     }
     // Also check description for relevant terms
@@ -405,7 +411,7 @@ function calculateMatchScore(service: Service, profile: UserProfile): number {
   
   // NRPF match - boost services that support people with no recourse to public funds
   if (profile.publicFunds === 'No' || profile.publicFunds === 'No, I have no recourse to public funds') {
-    if (groups.some(g => clientGroupKeywords.refugees.some(k => g.includes(k)))) {
+    if (groups.some(g => clientGroupKeywords.refugees.some(k => g.includes(k))) || tagged('refugees', 'asylum-seekers', 'migrants')) {
       score += 20;
     }
     // Also check description for relevant terms
@@ -421,6 +427,31 @@ function calculateMatchScore(service: Service, profile: UserProfile): number {
     }
   }
   
+  // Veterans match - boost services designed for veterans
+  if (profile.servedInArmedForces === true && tagged('veterans')) {
+    score += 20;
+  }
+
+  // Gender match (Managing Director, 20 November 2026): an explicit Male or
+  // Female answer lifts services designed for men or for women. A lift hides
+  // nothing; the women-only and men-only filter (matchesGender) is unchanged.
+  // The trans answers lift nothing for now: the Managing Director is deciding
+  // them separately. Non-binary or other, and Prefer not to say, lift nothing.
+  const genderAnswer = (profile.gender || '').trim();
+  if (genderAnswer === 'Male' && tagged('men')) {
+    score += 20;
+  }
+  if (genderAnswer === 'Female' && tagged('women')) {
+    score += 20;
+  }
+
+  // Ethnicity match (Managing Director, 9 November 2026): any answer except
+  // White British lifts services for ethnic minority communities. Prefer not
+  // to say is stored as no answer and lifts nothing. Read here only, never logged.
+  if (profile.ethnicity && ETHNIC_MINORITY_ANSWERS.includes(profile.ethnicity) && tagged('ethnic-minority-communities')) {
+    score += 20;
+  }
+
   // Drop-in bonus (more accessible)
   if (!service.access.appointment_only) {
     score += 10;
@@ -627,6 +658,10 @@ function v4ServicesForParts(parts: CategoryPart[], profile: UserProfile): Servic
  * support > legal: Housing, Advice.
  */
 export function getHousingAdviceServices(profile: UserProfile): MatchedService[] {
+  return liveThenFixed(() => housingAdviceServices(profile));
+}
+
+function housingAdviceServices(profile: UserProfile): MatchedService[] {
   const parts: CategoryPart[] = [{ parent: 'housing', subs: [V4_SUBCATEGORIES.housing.Advice!] }];
   const v4 = v4ServicesForParts(parts, profile);
   if (v4.length > 0) return rankServices(v4, profile, 5);
@@ -650,9 +685,25 @@ export function getHousingServicesForPopulation(
   tag: 'people-with-criminal-records' | 'veterans',
   profile: UserProfile,
 ): MatchedService[] {
-  const tagged = v4ServicesForParts([{ parent: 'housing' }], profile)
-    .filter(s => (s.client_groups || []).includes(tag));
-  return rankServices(tagged, profile, 5);
+  return liveThenFixed(() => {
+    const tagged = v4ServicesForParts([{ parent: 'housing' }], profile)
+      .filter(s => (s.client_groups || []).includes(tag));
+    return rankServices(tagged, profile, 5);
+  });
+}
+
+/**
+ * Housing on the live read (Managing Director, 20 November 2026): the live
+ * results where the read answered with some, otherwise the fixed file. A slow,
+ * failed or empty read falls back to the fixed file. Any live result, even a
+ * smaller one (within the radius, with no council filter), replaces it.
+ */
+function liveThenFixed(find: () => MatchedService[]): MatchedService[] {
+  if (getServicePool()?.status === 'ready') {
+    const live = find();
+    if (live.length > 0) return live;
+  }
+  return runWithServicePool(null, find);
 }
 
 /**

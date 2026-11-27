@@ -10,6 +10,9 @@ import {
   getFirstMessage,
   parseUserInput,
   parseHousingSituationInput,
+  parseGenderInput,
+  GENDER_GATES,
+  heldTransAnswer,
   processLocationInput,
   interceptUnder16Age,
   secondScreenPhraseKey
@@ -18,35 +21,13 @@ import { getPhrase } from '@/lib/phrasebank';
 import { generalSafetyExit, isSafetyGate, parseSafetyChoice } from '@/lib/handlers/safety';
 import { isLiveReadEnabled, runWithServicePool, type ServicePool } from '@/lib/data/servicePool';
 import { loadServicesNear } from '@/lib/data/platformServices';
-import { noticingLeadsToResults } from '@/lib/noticing';
+import { poolForTurn } from '@/lib/data/liveReadGates';
 
-// Gates whose answer can lead to a matched (non-housing) result. The live read
-// runs only from these, so a slow or failed read never delays other turns.
-const MATCHING_GATES = new Set<string>([
-  'B5_MAIN_SUPPORT_NEED',
-  'B5_SECOND_SCREEN',
-  'B5_NOTICING',
-  'B5A_ADVICE_TYPE',
-  'B5_PROFILE_AGE',
-  'B5_PROFILE_GENDER',
-  'B5_PROFILE_LGBTQ',
-  'B5_PROFILE_CONVICTIONS',
-  'B5_PROFILE_CHILDREN',
-  'LGBTQ_SPECIALIST_ASK',
-  'IMMIGRATION_STATUS_ASK',
-]);
-
-async function servicePoolFor(session: SessionState, message: string): Promise<ServicePool | null> {
+// Which turns read live, and why, is in lib/data/liveReadGates.ts. `input` is
+// what the state machine is given for this turn.
+async function servicePoolFor(session: SessionState, input: string): Promise<ServicePool | null> {
   if (!isLiveReadEnabled()) return null;
-  if (!MATCHING_GATES.has(session.currentGate)) return null;
-  // At the noticing step, read only when the answer leads to results, so the
-  // Safety route and the housing route are never kept waiting on the database.
-  if (session.currentGate === 'B5_NOTICING' && !noticingLeadsToResults(session, message)) return null;
-  // Distance needs a point. Without one (council chosen from the list), the
-  // fixed file is used for now; searching from the council's own point, as the
-  // website's location pages do, follows with the V4 work.
-  if (session.latitude == null || session.longitude == null) return null;
-  return loadServicesNear(session.latitude, session.longitude);
+  return poolForTurn(session, input, loadServicesNear);
 }
 
 // Encode/decode state as base64 for reliable transport
@@ -175,7 +156,10 @@ export async function POST(request: NextRequest) {
     const isNameGate = session.currentGate === 'PREFERRED_NAME_ASK';
     // The noticing step reads several numbers or exact words itself, and never
     // asks the AI: it rests only on what the person states (design note 3.5).
-    const isRawGate = isNameGate || session.currentGate === 'B5_NOTICING' || session.currentGate === 'B5_NOT_SURE' || session.currentGate === 'B5_HOUSING_OFFER';
+    // A trans answer typed at B4 or B5 gender is passed as typed and never sent
+    // to the AI, so it is never read as Male or Female (stateMachine.ts).
+    const isRawGate = isNameGate || session.currentGate === 'B5_NOTICING' || session.currentGate === 'B5_NOT_SURE' || session.currentGate === 'B5_HOUSING_OFFER'
+      || heldTransAnswer(session.currentGate, message);
 
     // The Safety from harm route bypasses the AI (Safeguarding Contract 3.3).
     // Only a chosen option counts: no keyword matching, no Claude, and never the
@@ -195,7 +179,9 @@ export async function POST(request: NextRequest) {
           ? parseSafetyChoice(message, currentPhrase?.options)
           : session.currentGate === 'B6_HOMELESSNESS_STATUS'
             ? parseHousingSituationInput(message, currentPhrase?.options)
-            : parseUserInput(message, currentPhrase?.options);
+            : GENDER_GATES.has(session.currentGate)
+              ? parseGenderInput(message, currentPhrase?.options, session.currentGate)
+              : parseUserInput(message, currentPhrase?.options);
     
     // If parsing failed and we have options, try Claude interpretation, except
     // on the Safety route and at the crisis question, where only buttons,
@@ -280,8 +266,9 @@ export async function POST(request: NextRequest) {
     if (session.currentGate !== 'B5_NOTICING' && session.currentGate !== 'B5_NOT_SURE' && session.currentGate !== 'B5_HOUSING_OFFER') session.unclearCount = 0;
     
     // Process the input through state machine
-    const pool = await servicePoolFor(session, message);
-    const result = runWithServicePool(pool, () => processInput(session, isRawGate ? message : String(parsed)));
+    const input = isRawGate ? message : String(parsed);
+    const pool = await servicePoolFor(session, input);
+    const result = runWithServicePool(pool, () => processInput(session, input));
     session = { ...session, ...result.stateUpdates };
     
     console.log(`[VA] -> Next gate: ${session.currentGate}, Ended: ${result.sessionEnded}`);
