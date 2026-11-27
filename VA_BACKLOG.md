@@ -1,7 +1,7 @@
 # Street Support VA: Implementation Backlog
 
 **Purpose:** Track what we should be considering working on next.
-**Last updated:** 12 November 2026
+**Last updated:** 23 November 2026
 
 ---
 
@@ -85,6 +85,12 @@ This log records Tier 2 and Tier 3 governance decisions for trustee visibility. 
 **Status:** Complete. PR #16 merged 15 Apr 2026. Post-merge governance docs updated 15 Apr 2026.
 **Post-merge governance completed:** Design Note v1.2 produced (Section 14 implementation record added). Safeguarding Contract v3.2 produced (test count updated, mid-conversation age detection moved from pending to implemented). Safeguarding Governance Note v3.3 produced (test count updated, mid-conversation age detection row added to test table). Trustee-Accessible Safeguarding Boundary Summary remains a standalone approval paper.
 
+### 88. Safety route: local listings, and Children's Services for 16 and 17 year olds
+**Status:** Built on the care leaver branch `feat/care-leavers-safety-local-2026-11-20`, with C1, and goes to James in #82. Safeguarding-adjacent, so for James.
+**Scope:** The Safety screen shows local Safety listings live, beside the contacts. 16 and 17 year olds on the Safety route get Children's Services.
+**Source:** Session close-out, 20 November 2026.
+**Update, 22 November 2026 (review on VA #50; design note VA #83):** the council's housing team is a fixed contact on the domestic abuse results, from housing-pathway-endpoints.json, and does not depend on the live read of local Safety listings. Where age is not known, the domestic abuse and sexual violence results show both the under-18 sexual assault centre and Children's Services ("if you're under 18") with the adult routes, and age may be asked after "OK to carry on". Not built.
+
 ---
 
 ## LGBTQ+ Pathway
@@ -111,7 +117,8 @@ This log records Tier 2 and Tier 3 governance decisions for trustee visibility. 
 
 #### C1. Care leavers (18–20): previously_looked_after field missing
 **Priority:** High
-**Status:** Not started. Scoped Feb 2026. Launch blocker — not yet progressed.
+**Status:** Built for 16 to 24 on the care leaver branch `feat/care-leavers-safety-local-2026-11-20` (head `f5e2647`). Goes to James in #82, stacked on #81. It carries VA #46 (one age question in four bands; care questions for everyone 16 to 24; no 18 to 20 split), which can close. Scoped Feb 2026. Launch blocker.
+**Update, 20 November 2026:** the scope is now 16 to 24 under Pathway Review 5.2: the care question, the council question and endpoints E1 to E7. That supersedes the Required list, the 18 to 20 framing and the Note below. The Future item "Care leavers: extend pathway from 20 to 24" is folded into this one (Pathway Review 5.2, Documents affected). Prefer not to say counts as not stated (Managing Director, 11 November 2026). The seven councils' leaving care contacts are in the data (C1a). The two "not sure" answers keep the local leaving care team, each with a caveat line (Managing Director, 20 November 2026); the caveat lines are in #82 (a93f7d3). Children's Services for 16 and 17 year olds who have left care is for James's safeguarding review on #82. Open: C1b. Gap: C1c.
 **Issue:** `previously_looked_after` field does not exist in the codebase. WatsonX had this as a routing variable. Codebase only has generic "contact Leaving Care team" text (stateMachine.ts:942) with no LA-specific lookup.
 **Required:**
 - Add `previously_looked_after` to UserProfile (types.ts)
@@ -122,6 +129,17 @@ This log records Tier 2 and Tier 3 governance decisions for trustee visibility. 
 **Files:** types.ts, sectionC.ts, stateMachine.ts / relevant handler, housing-pathway-endpoints.json
 **Note:** Care leavers 21–24 is a separate future item (see Future section). This item covers 18–20 only.
 **Tests needed:** 18-20 + previously looked after reaches Children's Services + navigator; 18-20 + not previously looked after does not
+
+#### C1a. Leaving care contacts for the seven councils
+**Status:** Done, 20 November 2026. The Managing Director confirmed all seven from the councils' and trusts' own pages. They are in `lib/data/housing-pathway-endpoints.json` on the care leaver branch (`4a0860c`), each with its source and verified date. An entry without both is never shown.
+**Source:** care leaver branch, `4a0860c`.
+
+#### C1b. Out-of-area care leavers aged 18 to 24: optional local leaving care support
+**Status:** Closed, 26 November 2026 (Managing Director; design paper H6, on #94). Was: open, for the Managing Director. The build shows no local leaving care team to someone looked after outside the area, and shows local Housing Options instead (Decided by the Managing Director, 20 November 2026. `e84a66d`). The open point is whether to show the local leaving care team as optional extra support. The reasoning is recorded in the paper "Care leavers living in a different area" (https://claude.ai/artifact/2TEeYnWDCYHF8HQTsf56B2).
+
+#### C1c. 16 and 17, left care, council named, living outside the seven councils
+**Status:** Done, 26 November 2026. Where no Children's Services number is held for the council, the screen gives the find-your-council route, so no unverified number is shown (Managing Director, 26 November 2026; design paper D.7). On #82 at `4ef799d`, carried to #95, #93 and #57. Was: found in review. On the "left care, council named" screen, Children's Services where they are now is shown only where it is held for that council. A 16 or 17 year old living outside the seven councils gets no Children's Services there.
+**Source:** `lib/handlers/careLeavers.ts` on the care leaver branch, `f5e2647`.
 
 #### C2. Conviction routing: full redesign
 **Priority:** Medium
@@ -380,6 +398,12 @@ The feedback loop is now built and operational. Three components landed (writeba
 
 **Adjacent evidence (May 2026):** The May 2026 review pass confirmed this as a real failure mode in production data. Non Violentiam CIC was misclassified on a weak signal alone ("pregnant women" as gender restriction). The website confirms Non Violentiam is genuinely women-only DV refuge so the verdict ended up correct, but the reasoning was wrong — the classifier saw "pregnant women" as a population mention in the description rather than as an explicit gender restriction. Need-statement vs population-mention distinction is the deeper fix. Carried by precedent log for Non Violentiam; structural fix is at the gender extractor level when this item is implemented.
 
+### 87. Typed gender answers read on whole words
+**Status:** Built on VA #81 (`cb6677b`), open, for James.
+**Scope:** Typed gender answers at B4, B5, C3Q4 and the DV and SA questions are read on whole words, with trans read first, so a trans answer never meets hard gate B. A negation such as "not male" names nothing. Buttons and numbers are unchanged. Known and unchanged: "woman to man" goes to the AI reading, and single-letter fragments use the old fallback.
+**Related:** items 10 and 10b concern the enrichment data, not typed answers. Whether VA #81 affects either is not established.
+**Source:** VA #81 description.
+
 ---
 
 ## Refactoring: Ready to Implement (Low Risk)
@@ -485,6 +509,58 @@ ChatWidget calls `/api/location`, so this file is unreachable dead code. Confirm
 **Priority:** High (design work)
 **Issue:** Service descriptions use varied language for the same eligibility criteria. Language quality becomes a bias factor if not normalised.
 **Required:** Define a standardised vocabulary for each eligibility field. Enrichment instructions include explicit normalisation rules. This sits in the AI interpretation step (enrichment pipeline), not the matching algorithm.
+
+### 86. Population tags lift services
+**Status:** Built on VA #81 (`cb6677b`), open, for James.
+**Scope:** Tags come from the platform's V4 population keys. A tag lifts a service and never hides one, and hard gate B is unchanged. The answers that lift, and the tag each lifts, are tabled in the VA #81 description. Ethnicity: any answer except White British lifts services for ethnic minority communities (Managing Director, 9 November 2026). The answer stays in the session and is not logged. The trans answers, Non-binary or other and Prefer not to say lift nothing.
+**Governance:** the design note's section 6 ethnicity row contradicts the build and is to be aligned; the lawful basis is recorded in the Data Minimisation and Lawful Basis Note.
+**Update, 22 November 2026:** the design note's ethnicity row now agrees with the build, and the question takes the VA #63 wording with both purposes stated (VA #83). Declined answers: the Service Matching Contract's 11 November rule stands (VA #84). It applies to "only for" and "designed for" services, which a tag alone cannot identify, so #81 applies it once the WMCA record of restrictions exists (pipeline backlog item 23; comment on #81). Whether an "Ethnic minority communities" lift can work at all is to be explored with James (Managing Director, 22 November 2026).
+**Update, 23 November 2026:** the declined-answer rule is built on VA #92 from the record of restrictions (item 91), switched off until December.
+**Source:** VA #81 description; `lib/serviceMatcher.ts` on VA #81.
+
+### 90. Ethnicity question: census-group options
+**Status:** Decided 9 November 2026, not built. The question on VA #81 (`C3Q6_ETHNICITY`) offers six options and Prefer not to say.
+**Scope:** The answers use the five census high-level groups, with a short list beneath each (Service Matching and Questions Design Note, section 3.1).
+**Related:** item 86.
+
+### 91. The record of restrictions in the matcher
+**Status:** Built on VA #92 (`387600f`), switched off (`VA_RESTRICTIONS=on` switches it on), open, for James. 808/808 tests; an independent reader checked it and its three bugs are fixed.
+**Scope:** `lib/restrictions.ts` reads the reviewed WMCA record (pipeline item 23, #255). Only gates A and B exclude, and only on a stated answer; services designed for a group, or shown only where a condition applies, are recommended only where the person has said it applies, and stay under See all; either-or groups count if either applies; either-or and per-location ages are held as branches. On the Safety route only gate B applies (20 November). Group mappings: Managing Director, 23 November 2026 (pipeline decisions log 69): a child under 5 counts as Parents and families; benefits from the income or work answer; refugees, asylum seekers and migrants kept apart; leaving prison from the housing route.
+**Open:** how a live platform service is linked to its listing, so the record governs anything (James, VA #92); whether "Indefinite leave to remain" counts as Migrants (pipeline item 24); the 19 "ranks higher" entries are not yet used; the record's `exclusion_effect` text for branched ages still says "never split".
+**Source:** VA #92 description; pipeline #255.
+
+### 92. Sex work listings on the sexual violence route
+**Status:** Not built.
+**Scope:** The design note (Safety pathway, sex work) says the sexual violence route also includes the sex work listings as candidates. The build reads only the Sexual violence subcategory there. The sex work option itself stays after launch (design note work item 12).
+**Source:** Service Matching and Questions Design Note, Safety pathway; found 23 November 2026.
+
+### 93. Safety disclosure check
+**Status:** Built on VA #95 (`f3e0365`), on #82, for James. Independently reviewed; the fixes and the Managing Director's decisions of 26 November are in. Live once merged: it is not behind the Safety route's switch, and Yes goes to the crisis question while that is off.
+**Scope:** Fixed patterns, no AI, on every typed message after the under-16 check (Safety Disclosure Check Design Note v1.0, on #72, amended 26 November at `d4f3ba3`).
+**Open:** James's review of Appendix A and six readings listed in #95. Known false alarms and the comma limit (rule 3) wait for the first review of the list after the trial (item 94).
+
+### 94. A visible safety route and a bounded trigger list
+**Status:** Proposed, not decided (design paper H13; proposal in `governance/` on #94, `e5bc3ce`). Three independent reviews. Recommended after the trial.
+**Scope:** A "Help with staying safe" link wherever the Safety route is available, asking first; the trigger list bounded after James's review and changed only at set review points.
+**Open:** the Managing Director's five decisions in the proposal; James's three questions at the top of #94.
+
+### 95. "I'm not sure where to start"
+**Status:** Built on VA #73 (`a2b2a64`), carried to #95, #93 and #57, for James. Replaces the "Not built yet" placeholder (Managing Director's decisions, 26 November 2026).
+**Scope:** The noticing question with its own opener; Feeling unsafe to the Safety route or crisis question; housing to the housing route; otherwise the first pressure ticked that has a topic, with the awareness line where several were ticked; family or relationships alone, in person or not sure to the in-person route.
+**Open:** the assistant cannot read places to start yet (work item 20), so the in-person route gives the honest line and the first question again.
+
+### 96. The noticing question: Feeling unsafe first, and choosing more than one
+**Status:** Built on VA #73 (`53b8e64`, `e537928`), carried up to #95, #93 and #57, for James. Wording: Managing Director, 26 November 2026 (design paper A.4, item 8).
+**Open:** the tick buttons have not been tried in a browser; James asked to click through on the preview (#73).
+
+### 97. Crisis question: strict reading and general exits, with the children restoration
+**Status:** VA #93 built, for James; on 26 November moved onto #95 (`f2c7b72`), the build line merged in and its clashes resolved, so it merges cleanly after #95. The children restoration (D.1, D.6) is on its own branch, `feat/children-restore-2026-11-26` (`332aa57`), with #93's new head merged in and no pull request. It asks everyone on the domestic abuse route about children, so #93's shortcut for women is not taken there.
+**Open:** James's review; pushing the restoration with #93 when he is ready for it.
+
+### 98. Confirming what AI reads
+**Status:** Decided, not built (Managing Director, 27 November 2026; design paper A.4, item 9).
+**Scope:** Wherever AI reads typed text, the assistant reflects its reading back for the person to confirm, and acts only on the confirmation: reading a typed answer as an option (`interpretWithClaude`), the housing or support check (`checkScope`) and the advice topic (`detectAdviceQuestion`). If the person says no, the question comes back with its buttons. The "Did you mean..." wording is drafted from both phrasebanks.
+**Open:** James to confirm there is nowhere else AI reads typed text.
 
 ### 16. ~~Robustness: Data Protection Policy platform update~~ RESOLVED
 **Resolved:** Data Protection Policy v3 (March 2026) no longer references WatsonX.
@@ -656,6 +732,11 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 
 ### 45. Solihull cross-boundary coverage: proof of concept scrape
 **Status:** Complete — 28 Mar 2026. 201 candidates checked, 23 findings, 10 HIGH confidence. Approach validated. Full WMCA run completed same day. See item 49.
+
+### 85. Housing results on the live read
+**Status:** Built on VA #81 (`cb6677b`), open, for James. Safeguarding-adjacent.
+**Scope:** Housing results read the platform's service data live, on turns that show housing results only. One 3s cap covers connecting and both queries. On a timeout, error or empty result, housing uses the fixed file, and later turns skip the read for 60s. No safeguarding, crisis or under-16 turn starts the read. Crisis contacts stay hardcoded. The fallback was decided by the Managing Director on 20 November 2026.
+**Source:** VA #81 description.
 
 ### Coverage review: pre-launch actions outstanding
 **Source:** WMCA Service Coverage Review, 27 March 2026.
@@ -941,7 +1022,7 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 
 ### 62. GATE2_ROUTE_SELECTION phrasebank: incomplete assumptions list
 **Priority:** Medium
-**Status:** Not started. Identified during WatsonX audit 15 Apr 2026 — confirmed via Claude Code phrasebank check.
+**Status:** Covered by VA #47 (`e3c199a`), open, for James. The route choice screen names the six circumstances the full route asks about and says the quicker route assumes none of them apply. Identified during WatsonX audit 15 Apr 2026 — confirmed via Claude Code phrasebank check.
 **Issue:** The quick route assumes a set of factors do not apply to the user. The current phrasebank entry lists: health conditions, immigration status, criminal convictions, and "other circumstances." Three factors present in the WatsonX assumption list are absent: pregnant or has children/dependents, LGBTQ+ identity, care leaver (young person previously looked after). A user choosing the quick route would not know they are opting out of LGBTQ+ specialist services, priority need framing for pregnancy and children, or care leaver pathways. The "things like" softening does not cover this — these are material omissions.
 **Required:** Add the three missing items to the phrasebank text so the assumptions list is complete. User must have informed consent before choosing the quick route.
 **Files:** lib/phrasebank.ts (GATE2_ROUTE_SELECTION entry)
@@ -968,8 +1049,10 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 
 ### 65. Hospital/Prison/Rehab: sleeping situation pathway
 **Priority:** Medium (pre-launch)
-**Status:** Not started. Identified during WatsonX audit 15 Apr 2026.
+**Status:** Hospital and prison built on VA #80 (`cb91593`), open, for James. Rehab stays open. Identified during WatsonX audit 15 Apr 2026.
+**Update:** Hospital and prison designed 20 November 2026 (Endpoints Contract): two answers, each its own pathway. Rehab is not part of this decision and stays open.
 **Issue:** WatsonX had "Hospital/Prison/Rehab" as a named sleeping situation option. The new system has no equivalent — these users would currently select "Other temp" and receive generic output. Each sub-population has specific needs and specific provision: prison leavers have through-the-gate services and a housing duty under the Homelessness Reduction Act 2017; hospital discharge has specific local provision (P3 hospital discharge service); rehab has specific recovery housing needs. These warrant dedicated routing and terminal content.
+**Update, 20 November 2026:** the housing duty is background, not VA wording (MD, 2 November 2026).
 **Required:** Design decision needed on whether this is one option or three. Add as named sleeping situation option(s). Design routing and terminal content for each pathway. P3 is a confirmed local provider for hospital discharge — verify current referral details before adding to endpoints file. Prison leavers and rehab need equivalent endpoint research.
 **Files:** stateMachine.ts, lib/phrasebank.ts, housing-pathway-endpoints.json
 **Source:** WatsonX audit 15 Apr 2026 — restoration and extension of WatsonX option.
@@ -984,6 +1067,13 @@ Endpoint surfacing: cards alongside the conversation (not a terminal page), coll
 **Files:** lib/phrasebank.ts
 **Source:** WatsonX audit 15 Apr 2026.
 **Tests needed:** No routing change — phrasebank edit only.
+
+### 89. Dogs question and the Dogs Trust card
+**Status:** Decided 9 November 2026, not built.
+**Scope:** "Do you have a dog with you?", with Yes, No and Prefer not to say, asked where the result is accommodation. It lifts services that take dogs and hides nothing. On a yes, the assistant shows Dogs Trust's Together Through Homelessness scheme. The wording, contact details and placement are in the Service Matching and Questions Design Note, section 3.3.
+**Open:** which West Midlands towns the vet scheme covers (design note, section 12, work item 11).
+**Update, 23 November 2026:** the Managing Director confirmed the question is asked on the housing route. The record of restrictions is already wired to it (`hasDog`, VA #92), so "People with dogs" services surface once the question is built.
+**Source:** Service Matching and Questions Design Note, sections 3.3 and 12.
 
 ---
 
@@ -1046,8 +1136,9 @@ When the service matcher returns results from enriched data, terminal outputs sh
 **Depends on:** Pipeline integration, service matcher wiring.
 
 ### Veterans / ex-forces housing pathway
-**Priority:** Medium (blocked on platform listings)
-**Status:** Org research complete 25 Mar 2026. Platform listings review sent to Eliz. Blocked on her response before VA pathway can be built.
+**Priority:** Medium
+**Status:** Built on VA #80 (`cb91593`), open, for James: the armed forces question on the full route, Op FORTITUDE always shown and local services for veterans where there are any. Local services are found only with VA #81 (item 85). Org research complete 25 Mar 2026. Platform listings review sent to Eliz.
+**Update, 20 November 2026:** Question decided 2 November 2026: "Have you ever served in the armed forces?" (the March wording, which included family, is superseded). Op FORTITUDE is the national route, always shown (MD, 20 November 2026; Endpoints Contract). No longer blocked on platform listings.
 **Profiling question:** "Have you, or a close family member, served in the UK Armed Forces?" Family included because Armed Forces Covenant covers families and services (SSAFA, Haig Housing) accept family referrals. Asked only on housing pathway where the answer changes services shown.
 
 **Platform audit (25 Mar 2026):** Searched all 936 enriched services. Only one dedicated veteran org on SSN: Royal British Legion covering Solihull and Wolverhampton. No SSAFA, no Op FORTITUDE, no Stoll, no Haig Housing.
@@ -1061,14 +1152,16 @@ When the service matcher returns results from enriched data, terminal outputs sh
 **Orgs for platform listing (pending Eliz review):** Op FORTITUDE, SSAFA (0800 260 6767), Stoll (supported housing + Veterans' Nomination Scheme), Haig Housing (1,500+ properties). RBL to expand from 2 LAs to all 7.
 
 **VA pathway routing (when listings confirmed):** Op FORTITUDE as primary referral, SSAFA, council Housing Options with veteran-specific framing (local connection exemption, priority need factors), local veteran orgs from service matcher, Shelter as floor.
+**Update, 20 November 2026:** the veteran-specific framing (local connection exemption, priority need factors) is superseded for the VA by the no duty, must or entitlement rule (MD, 2 November 2026). The advice content below is kept as possible website advice page content, not VA wording (MD, 20 November 2026).
 
 **Advice content:** One advice listing covering veteran housing rights — Armed Forces Covenant, priority need, local connection exemption, Defence Transition Service, Veterans' Nomination Scheme. Enough for someone in crisis to know their rights and reach the right channels.
 
 **Research foundation (1 Mar 2026):** WMCA "Designing Out Veterans' Homelessness" report (2020). 21,661 working age veterans across seven WMCA LAs. North Warwickshire case study: 3 to 36 veteran housing cases in 4 months when dedicated worker introduced (suppressed demand).
 
 ### Prison / custody release housing pathway
-**Priority:** Medium (blocked on platform listings)
-**Status:** Org research complete 25 Mar 2026. Platform listings review sent to Eliz. Blocked on her response before VA pathway can be built. Some orgs may be affected by exempt accommodation regulatory concerns.
+**Priority:** Medium
+**Status:** Built on VA #80 (`cb91593`) as the leaving prison answer at the housing question (item 65), open, for James. Local services are found only with VA #81 (item 85). Org research complete 25 Mar 2026. Platform listings review sent to Eliz. Some orgs may be affected by exempt accommodation regulatory concerns.
+**Update:** Designed 20 November 2026 (Endpoints Contract). The March profiling question is superseded by the housing situation trigger (MD, 3 November 2026; Endpoints Contract 1.2) and the question order in Design Note 3.3, which has no probation question. No longer blocked on platform listings.
 **Profiling question:** "Are you currently on probation, or have you recently been released from prison or custody?" Asked only on housing pathway where the answer changes services shown.
 
 **Platform audit (25 Mar 2026):** Searched all 936 enriched services. Found 7 dedicated ex-offender services: Anawim (Birmingham, women), Birmingham Mind (Birmingham, all), WAITS (Birmingham, women), St Giles Trust Reflections (Coventry, women), Black Country Women's Aid New Chance (Dudley/Sandwell, women), Dudley Youth Justice (Dudley, young people), Coventry City Council (Coventry, all). Coverage gaps: 5 of 7 services are women-only; no dedicated provision for men in Walsall, Wolverhampton or Solihull.
@@ -1078,8 +1171,10 @@ When the service matcher returns results from enriched data, terminal outputs sh
 **VA pathway routing (when listings confirmed):** Dedicated ex-offender services from service matcher (category support > ex-offender), council Housing Options, Shelter as floor. Key complicating factor to surface (not assess): licence conditions may restrict where someone can live.
 
 **Advice content:** One advice listing covering prison release housing rights — duty to refer, council obligations, maintaining tenancy during sentence, CAS-3 temporary accommodation. Enough for someone to know what to do and who to contact.
+**Update, 20 November 2026:** kept as possible website advice page content, not VA wording; the VA does not use duty, must or entitlement language (MD, 2 and 20 November 2026).
 
 ### Care leavers: extend pathway from 20 to 24
+**Status:** Folded into C1, 20 November 2026 (Pathway Review 5.2: C1 and the 21 to 24 item become one).
 **Background:** Legal check (Feb 2026) confirmed care leaver housing entitlements continue beyond 20 but weaken:
 - 18–20: Automatic priority need. Children's Services duty to accommodate (s.23C Children Act 1989). Current routing correct.
 - 21–24: Right to advice, support, and a Personal Adviser on request (s.23CZB Children and Social Work Act 2017). Duty to accommodate only if in full-time education/training (s.23CA) or assessed as vulnerable. No automatic accommodation right.
@@ -1258,3 +1353,118 @@ When enriched eligibility data is in use, confidence levels must influence langu
 | 2026-07-02 | PR #21 merged to main (items 75, 74, 77 confirmed landed, 110 tests). Backlog reconciled to GitHub. Next: Item C1 care leavers. |
 | 2026-11-12 | Item 81 added: Claude use and VA issue reporting. Claude Use and Issue Reporting Note v1.0 drafted and `CLAUDE.md` added, for James review. |
 | 2026-11-12 | AI Policy v3.0 added to governance as source (replaces v2.1a, draft for trustee approval). Governance Overview updated with document index entries and a note for the 17 November trustee meeting. |
+| 2026-11-20 | Status lines corrected: 62, 65, C1, veterans and prison. C1a to C1c and items 85 to 90 added. Session 20 November 2026 entry added. |
+| 2026-11-26 | C1b closed; C1c done. Items 93 to 97 added. Session 26 November 2026 entry added. |
+| 2026-11-26 (evening) | #85 merged to staging. James's reviews of #69 and #73 dealt with; #73 carried up the build line. Session 26 November 2026 (evening) entry added. |
+
+---
+
+## Session 20 November 2026
+
+**What changed**
+- Built: 65 and the veterans and prison items (VA #80); 85, 86 and 87 (VA #81); 62 (VA #47).
+- Designed: Endpoints Contract 1.4 (VA #76); design note (VA #77); this backlog's first 20 November lines (VA #78).
+- Also today: VA #69, #73, #74, #75 and #79.
+- Built on the care leaver branch, in #82: C1 and 88. C1a done; C1b open, for the Managing Director; C1c a gap.
+- Decided, not built: 89 and 90.
+- The paper "Care leavers living in a different area" (https://claude.ai/artifact/2TEeYnWDCYHF8HQTsf56B2) is the record of the reasoning for the out-of-area decision and C1b.
+
+**Decided (Managing Director, 20 November 2026)**
+- Decisions that live in the build (code, tests, PR bodies) need no separate governance write-up. A governance document is aligned only where its existing text now contradicts the build.
+- The backlogs are updated as part of close-out.
+- The "Back on track" Doc is retired. Progress goes into the backlogs and the national plan only.
+- Ethnicity (86, 90): the lawful basis is recorded in the Data Minimisation and Lawful Basis Note, and the design note is aligned to the 9 November rule.
+
+**Committed and where.** All pushed, nothing on main. The PRs stack: #82 on #81 on #80 on #79 on #73 on #69, against staging. This backlog's newest copy is on #78's branch.
+
+**Uncommitted, and why.** Nothing in the VA: C1 and 88 are pushed on `feat/care-leavers-safety-local-2026-11-20` (head `f5e2647`), in #82. Mara's comments on the website pages draft are in the scratchpad (`mara/`), in no repository.
+
+**Next session picks up first**
+1. C1 and 88: #82, for James. Close VA #46 as carried. The 16 and 17 routing is for James's safeguarding review on #82. C1b is open, for the Managing Director; C1c is a gap.
+2. Governance alignment where the text contradicts the build: the design note's ethnicity row (86); the Endpoints Contract's care leaver sections (C1).
+3. James's Sunday review: VA #47 and #79 to #82, with the pipeline PRs in `PIPELINE_BACKLOG.md`.
+
+## Session 22 November 2026
+
+**What changed**
+- James's review of the design note on VA #50 answered: a reply, and an inline reply on each of its five threads. VA #83 carries it into the note, on #77: council housing team as a fixed contact (88); both age routes where age is not known (88); the #63 ethnicity wording (86); trans and non-binary answers exclude nothing; declined answers and where restrictions come from follow the contract. Section 16 records the review.
+- VA #84: Service Matching Contract 3.2, on #61. Questions by parent nationally, ordering by fit, and the organisation already supporting left out silently, as in the note (8 November). For trustees with the ratification.
+- VA #81: commented that the declined-answer rule waits for the WMCA record of restrictions (86).
+
+**Decided (Managing Director, 22 November 2026)**
+- For the note against the contract, the dated sources decide: the note stands on ordering, when a question is asked and the organisation already supporting; the contract on declined answers and where restrictions come from.
+- The WMCA record of restrictions is written properly, not worked around, with the Managing Director as the named person (pipeline backlog item 23).
+- The named-community ethnicity rule was dropped (9 November) because recording each community was too much work; the lift itself is to be explored with James.
+- James puts the new VA on the site at the switch.
+
+**Committed and where.** All pushed, nothing on main: VA #83 (`50ef7d3`), VA #84 (`961b1b9`). This entry is on #78's branch.
+
+**Uncommitted, and why.** Nothing in the VA.
+
+**Next session picks up first**
+1. The record of restrictions (pipeline item 23), then #81's declined-answer rule from it.
+2. Build 88's two 22 November additions with James's safeguarding review.
+3. James's reviews: VA #83 and #84.
+
+## Session 23 November 2026
+
+**What changed**
+- VA #89, on #84's branch: Service Matching Contract gates A and B. "Adults" means 18 and over; a women's or men's service is for that gender only, whether or not it says "only". For trustees with the contract amendments.
+- VA #90, on #83's branch: the design note names "adults" (18 and over) among restrictions stated in terms.
+- VA #91, on #82's branch: the Glebe Centre removed as Walsall's housing navigator (it closes at the end of November); 783/783 tests.
+- VA #92, on #82's branch: the record of restrictions in the matcher (91), switched off. Item 92 added; items 86 and 89 updated.
+
+**Decided (Managing Director, 23 November 2026).** In the pipeline decisions log on #255 (60 to 73), each in his words: adults are 18 and over; a women's group is women only; the Glebe Centre out of the endpoints; the group mappings in item 91; ages held as branches; the listing link left to James with no recommendation.
+
+**Committed and where.** All pushed, nothing on main: VA #89 (`bb7ca16`), VA #90 (`cd0dae3`), VA #91 (`158e44a`), VA #92 (`387600f`). This entry is on #78's branch.
+
+**Uncommitted, and why.** Nothing in the VA.
+
+**Not yet done.** The governance decisions log does not yet record VA #89 (a Tier 3 contract change).
+
+**Next session picks up first**
+1. James's reviews of VA #89 to #92, and the listing link on VA #92.
+2. The dogs question (89).
+3. Sex work listings on the sexual violence route (92).
+
+---
+
+## Session 26 November 2026
+
+**What changed**
+- Design paper v2.0 (VA #94): consolidated design record, with A.4 (the decisions of 26 November), D.2 and H13. A review guide for James posted on #94.
+- Safety disclosure check built (item 93), VA #95; its design note on #72 records the 26 November decisions.
+- The noticing question: Feeling unsafe first and multi-select (item 96); "I'm not sure where to start" built (item 95). All on #73, carried up the build line.
+- C1c built on #82; C1b closed.
+- #93 and #57 moved onto #95, their clashes with the build line resolved; #69 and #73 marked ready; `blocks-30-nov` and `safeguarding` labels on everything Monday needs.
+
+**Decided (Managing Director, 26 November 2026).** Recorded in the design paper (A.4, D.2, D.6, D.7, H1 to H13), the safety disclosure check note on #72, and the commit messages. Design decisions, so not added to the pipeline decisions log on #255, which records the WMCA rebuild's data decisions.
+
+**Committed and where.** All pushed, nothing on main or staging. Heads: #73 `a2b2a64`, #79 `5a91e46`, #80 `3848981`, #81 `ecf5945`, #82 `da0d73d`, #95 `f3e0365`, #93 `f2c7b72`, #57 `702500e`, #94 `9f7e19c`, #72 `d4f3ba3`. This entry is on #78's branch.
+
+**Uncommitted, and why.** Nothing. The children restoration (item 97) is pushed for safekeeping to `feat/children-restore-2026-11-26` (`332aa57`), with #93's new head merged in and no pull request; it goes to James with #93.
+
+**Not yet done.** #91 and #92 do not carry today's changes (they pick them up when rebased after #82 merges).
+
+**Next session picks up first**
+1. James's answer to the review guide on #94: which deployment the trial uses, and the live service data setting.
+2. Leave the build branches alone until James replies, unless he asks for a change or something is unsafe.
+3. The H13 decisions (item 94), and H10, the local contact line, in the week of 30 November.
+
+## Session 26 November 2026 (evening)
+
+**What changed**
+- #85 (Claude model configuration) merged to staging, `c5b8661`.
+- #69: James's two amends. The BBC Weather prefetch sends no referrer; SurvivorsUK is "for men, boys, trans and non-binary people", with no age, and its text and WhatsApp line, 0786 003 1252, every day 12pm to 8pm. Both threads answered. The push cleared his approval, so #69 waits for him to approve again.
+- #73: James's review. "Feeling unsafe" answers on its own at the noticing question and at "not sure where to start". The in-person line is James's wording: "I can't show you drop-ins yet. Choosing what's closest from these will help me find the right support." After the in-person route the first question leaves out "not sure where to start", so no one goes round in a circle. Both threads answered.
+
+**Decided (Managing Director, 26 November 2026).** The three #73 changes above; of James's two ways out of the loop, leaving the option off the second time, for now. Ending the route on the council's housing team or the national lines is for after the trial.
+
+**Committed and where.** #69 `1286491`. #73 `b04e557`, carried up: #79 `fc1eb7b`, #80 `63f1a4b`, #81 `536a134`, #82 `f90cc3a`, #95 `f0f9232` (with #95's count test updated to four answers on their own), #93 `8ebcbbb`, #57 `6c7a2d9`. Every branch type-checks and its tests pass.
+
+**Not yet done.** #91 and #92 as before. The children restoration branch (`feat/children-restore-2026-11-26`) now has #93's head `8ebcbbb` merged in, at `fdcc3a2`, all tests passing.
+
+**Next session picks up first**
+1. James's approval of #69, then its merge; #73 then points at staging.
+2. James's approval of #73.
+3. Ending the in-person route on something concrete, after the trial.
