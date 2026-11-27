@@ -211,6 +211,13 @@ describe('the armed forces question', () => {
     expect(result.text).not.toContain('armed forces');
   });
 
+  test('is not asked on the quicker route at the already-supported question either', () => {
+    const quickAt = sessionAt('B12_ALREADY_SUPPORTED', adult({ housingSituation: 'STAYING_SOMEWHERE', homeless: true }));
+    const { r } = step(quickAt, '2');
+    expect(r.stateUpdates.currentGate).toBe('TERMINAL_ADDITIONAL_NEEDS');
+    expect(r.text).not.toContain('armed forces');
+  });
+
   test('is not asked of a 16 or 17 year old', () => {
     for (const age of [{ ageCategory: '16-17' }, { ageCategory: '16-17', detailedAge: '16-17' }]) {
       const { r } = step(toAlreadySupported('STAYING_SOMEWHERE', age), '2');
